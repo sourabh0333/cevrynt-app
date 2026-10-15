@@ -96,13 +96,13 @@
   --text-page-title--letter-spacing: -0.02em;
   --text-card-title: 18px;
   --text-card-title--line-height: 1.25;
-  --text-card-title--letter-spacing: -0.01em;
+  --text-card-title--letter-spacing: -0.02em;
   --text-card-title-lg: 20px;
   --text-card-title-lg--line-height: 1.25;
-  --text-card-title-lg--letter-spacing: -0.01em;
+  --text-card-title-lg--letter-spacing: -0.02em;
   --text-card-title-sm: 17px;
   --text-card-title-sm--line-height: 1.25;
-  --text-card-title-sm--letter-spacing: -0.01em;
+  --text-card-title-sm--letter-spacing: -0.02em;
   --text-body: 14px;
   --text-body--line-height: 1.45;
   --text-body-sm: 13px;
@@ -171,12 +171,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+/* In the base layer so utilities like tracking-[...] can override it. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
 }
 
 /*
