@@ -5,7 +5,14 @@ import Link from "next/link";
  * Tasks.html): search, notifications, New intake. Search and the bell are
  * static for now.
  */
-export function PageActions({ unread = 4 }: { unread?: number }) {
+export function PageActions({
+  unread = 4,
+  newIntake = true,
+}: {
+  unread?: number;
+  /** Intake pages drop the New intake button. */
+  newIntake?: boolean;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
@@ -32,15 +39,17 @@ export function PageActions({ unread = 4 }: { unread?: number }) {
         <span className="absolute top-2.5 right-[11px] h-2 w-2 rounded-full border-2 border-tile bg-red" />
       </button>
 
-      <Link
-        href="/intake"
-        className="inline-flex h-11 items-center gap-2 rounded-tile bg-teal px-[18px] text-body-sm font-semibold text-white no-underline"
-      >
-        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        New intake
-      </Link>
+      {newIntake ? (
+        <Link
+          href="/intake"
+          className="inline-flex h-11 items-center gap-2 rounded-tile bg-teal px-[18px] text-body-sm font-semibold text-white no-underline"
+        >
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          New intake
+        </Link>
+      ) : null}
     </div>
   );
 }

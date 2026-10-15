@@ -31,6 +31,7 @@ Utilities created (use the same name with `bg-`, `text-`, `border-` for colors):
 - Surfaces: `page` (warm grey), `panel` (white content panel), `card` (grey card on white), `card-deep` (#E6DFD0, the darker queue card on Home), `tile` (white tile on a card), `ring-track` (#ECE9E2 behind the decision rings). Example: `bg-page`, `bg-card`.
 - Also `red-deep` (#6B2216) for small text on a red card, `amber-deep` (#8E4E08), `blue-deep` (#24588A), `card-stone` (#DDDAD3, the Stacking alerts tile) and `mint-edge` (#E3EFEA, border of the light mint gradient cards).
 - Lists: `line-faint` (#F1EEE8, hairlines between rows and bar tracks on white), `tile-selected` (#FCFBF8, the expanded row), `hint-soft` (#7A807C, column captions), `teal-mute` (#3E6B60, mono times on the mint panel).
+- On teal tiles: `cap-on-teal` (#AEB8B3 captions), `amber-light` (#F2C27E) and `red-light` (#F4AE9E) dots. Dashed "Coming soon" cards use `border-line-dash-soft` (#D8D3C8).
 - Text: `ink`, `muted`, `hint`. Example: `text-ink`, `text-muted`.
 - Brand: `teal`, `teal-dark`, `teal-deep`, `mint`, `mint-bg`, `mint-light`, `mint-border`. Example: `bg-teal text-white`, `bg-mint-bg text-teal-dark`.
 - Status: `red`, `red-bg`, `red-text`; `amber`, `amber-bg`, `amber-text`; `blue`, `blue-bg`, `blue-text`; `purple`, `purple-bg`, `purple-text`; `grey-bg`, `grey-text`, `grey-dot` (neutral chips). Example: `bg-red-bg text-red-text`.

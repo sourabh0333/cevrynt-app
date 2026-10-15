@@ -85,6 +85,10 @@
   --color-tile-selected: #fcfbf8; /* the expanded task row */
   --color-hint-soft: #7a807c; /* column captions over a list */
   --color-teal-mute: #3e6b60; /* mono times on the mint panel */
+  --color-cap-on-teal: #aeb8b3; /* caption text on a solid teal tile */
+  --color-amber-light: #f2c27e; /* outcome dots on teal */
+  --color-red-light: #f4ae9e;
+  --color-line-dash-soft: #d8d3c8; /* dashed "Coming soon" card border */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
