@@ -135,7 +135,49 @@ h4 {
   letter-spacing: -0.02em;
 }
 
+/*
+  Entrance animations for data visuals (CLAUDE.md "Motion").
+  They run once when the element first appears. Set --delay to stagger.
+  The curve and timings come from the finished design pages.
+*/
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes ring-sweep {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+.anim-grow-x {
+  transform-origin: left center;
+  animation: grow-x 1s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
+    backwards;
+}
+.anim-ring {
+  animation: ring-sweep 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
+    backwards;
+}
+.anim-pop {
+  animation: pop-in 0.7s cubic-bezier(0.22, 1, 0.36, 1)
+    calc(var(--delay, 0s) + 0.2s) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .anim-grow-x,
+  .anim-ring,
+  .anim-pop {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {

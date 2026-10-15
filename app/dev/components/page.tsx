@@ -2,6 +2,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Ring } from "@/components/ui/Ring";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
 function PlusIcon() {
@@ -344,6 +346,138 @@ export default function ComponentsPage() {
                   </Button>
                 }
               />
+            </Card>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            ProgressBar
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Track plus colored fill. Grows from the left once on load. Reload
+            the page to see it again.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Card variant="grey">
+              <span className="text-cap font-semibold uppercase text-hint">
+                Colors, 6px, staggered
+              </span>
+              <ProgressBar value={72} color="teal" delay={0} />
+              <ProgressBar value={60} color="mint" track="teal" delay={0.08} />
+              <ProgressBar value={48} color="amber" delay={0.16} />
+              <ProgressBar value={35} color="red" delay={0.24} />
+              <ProgressBar value={55} color="blue" delay={0.32} />
+              <ProgressBar value={25} color="grey" delay={0.4} />
+              <ProgressBar value={80} color="ink" delay={0.48} />
+            </Card>
+
+            <Card variant="grey">
+              <span className="text-cap font-semibold uppercase text-hint">
+                Heights 4 · 5 · 6 · 8 · 10
+              </span>
+              <ProgressBar value={64} height={4} />
+              <ProgressBar value={64} height={5} />
+              <ProgressBar value={64} height={6} />
+              <ProgressBar value={64} height={8} />
+              <ProgressBar value={64} height={10} />
+              <span className="mt-2 text-cap font-semibold uppercase text-hint">
+                With label and value
+              </span>
+              <div className="rounded-tile-lg bg-tile px-4 py-3.5">
+                <ProgressBar
+                  value={72}
+                  label="72%"
+                  valueText="$25.5K left"
+                  delay={0.2}
+                />
+              </div>
+              <div className="rounded-tile-lg bg-tile px-4 py-3.5">
+                <ProgressBar
+                  value={26}
+                  height={8}
+                  color="ink"
+                  label="Fit policy"
+                  valueText="54 of 86"
+                  delay={0.3}
+                />
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            Ring
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Circular progress with a number in the middle. Sweeps once on
+            load. Color by value (80+ teal, 70–79 amber, below 70 red) or
+            set directly.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Card variant="grey">
+              <span className="text-cap font-semibold uppercase text-hint">
+                34px score rings, color by value
+              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <Ring value={92} ariaLabel="Score 92" delay={0} />
+                <Ring value={88} ariaLabel="Score 88" delay={0.07} />
+                <Ring value={81} ariaLabel="Score 81" delay={0.14} />
+                <Ring value={77} ariaLabel="Score 77" delay={0.21} />
+                <Ring value={62} ariaLabel="Score 62" delay={0.28} />
+                <Ring value={54} ariaLabel="Score 54" delay={0.35} />
+              </div>
+              <span className="mt-2 text-cap font-semibold uppercase text-hint">
+                Set directly
+              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <Ring value={70} color="mint" />
+                <Ring value={70} color="blue" />
+                <Ring value={70} color="grey" />
+                <Ring value={70} color="ink" />
+              </div>
+            </Card>
+
+            <Card variant="grey">
+              <span className="text-cap font-semibold uppercase text-hint">
+                44px, with a percentage or an icon
+              </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <Ring value={80} size={44} label="80%" color="red" />
+                <Ring value={60} size={44} label="60%" color="amber" />
+                <Ring value={45} size={44} label="45%" color="teal" />
+                <Ring value={80} size={44} color="red" ariaLabel="80% repaid">
+                  <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-tile">
+                    <PlusIcon />
+                  </span>
+                </Ring>
+              </div>
+            </Card>
+
+            <Card variant="grey">
+              <span className="text-cap font-semibold uppercase text-hint">
+                120px done today
+              </span>
+              <div className="flex items-center gap-4">
+                <Ring
+                  value={(5 / 12) * 100}
+                  size={120}
+                  color="teal"
+                  ariaLabel="5 of 12 tasks done today"
+                  caption="done today"
+                  label={
+                    <>
+                      5<span className="text-[14px] text-hint">/12</span>
+                    </>
+                  }
+                />
+                <p className="text-body-sm text-muted">
+                  Stroke 12, 28px number, caption below.
+                </p>
+              </div>
             </Card>
           </div>
         </section>
