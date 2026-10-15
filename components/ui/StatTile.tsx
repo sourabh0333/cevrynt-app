@@ -34,7 +34,8 @@ export type StatTileProps = {
   trendColor?: "teal" | "grey";
   bar?: { value: number; color?: ProgressBarColor };
   note?: ReactNode;
-  variant?: "white" | "mint";
+  /** "teal" is the solid teal tile at the end of the pipeline (white text, mint bar). */
+  variant?: "white" | "mint" | "teal";
   delay?: number;
   className?: string;
 } & Omit<ComponentPropsWithoutRef<"div">, "children">;
@@ -113,18 +114,23 @@ export function StatTile({
   className = "",
   ...rest
 }: StatTileProps) {
+  const teal = variant === "teal";
   const surface =
     variant === "mint"
       ? "rounded-[22px] bg-mint-card shadow-[inset_0_0_0_1px_#CDE6DE]"
-      : trend
-        ? "rounded-[22px] bg-tile"
-        : "rounded-tile-lg bg-tile";
+      : teal
+        ? "rounded-tile-lg bg-teal"
+        : trend
+          ? "rounded-[22px] bg-tile"
+          : "rounded-tile-lg bg-tile";
   const padding = trend ? "px-4 pb-2.5 pt-3.5" : "px-4 py-3.5";
+  const quiet = teal ? "text-mint-soft" : "text-hint";
 
   return (
     <div
       className={[
-        "box-border flex min-w-0 flex-col text-ink",
+        "box-border flex min-w-0 flex-col",
+        teal ? "text-white" : "text-ink",
         trend ? "gap-1.5" : "",
         surface,
         padding,
@@ -138,8 +144,8 @@ export function StatTile({
         <span
           className={
             caps
-              ? "text-cap font-semibold uppercase text-hint"
-              : "whitespace-nowrap text-label text-muted"
+              ? `text-cap font-semibold uppercase ${quiet}`
+              : `whitespace-nowrap text-label ${teal ? "text-mint-soft" : "text-muted"}`
           }
         >
           {label}
@@ -171,13 +177,13 @@ export function StatTile({
           value={bar.value}
           height={8}
           color={bar.color ?? "teal"}
-          track="ink"
+          track={teal ? "white" : "ink"}
           delay={delay}
         />
       ) : null}
 
       {note ? (
-        <span className="mt-1.5 block text-[11.5px] leading-[1.3] text-hint">{note}</span>
+        <span className={`mt-1.5 block text-[11.5px] leading-[1.3] ${quiet}`}>{note}</span>
       ) : null}
     </div>
   );

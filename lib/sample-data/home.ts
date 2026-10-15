@@ -88,6 +88,78 @@ export type WeekCalendar = {
   events: CalendarEvent[];
 };
 
+export type KeyNumbers = {
+  submissions: { value: string; change: string; changeNote: string; scale: [string, string, string] };
+  offers: { value: string; expiring: string; expiringNote: string; href: string };
+  stacking: { value: string; lead: string; leadNote: string; href: string };
+  funded: { value: string; change: string; changeNote: string };
+  renewals: {
+    value: string;
+    note: string;
+    href: string;
+    /** 220 × 180 view box */
+    bars: { x: number; y: number; h: number }[];
+    line: string;
+    sun: { x: number; y: number; r: number };
+  };
+};
+
+export type PipelineStage = {
+  label: string;
+  value: string;
+  percent: number;
+  note: string;
+  color: "ink" | "teal" | "mint";
+  final?: boolean;
+};
+export type Pipeline = {
+  subtitle: string;
+  ranges: { value: string; label: string }[];
+  range: string;
+  stages: PipelineStage[];
+};
+
+export type SpeedMetric = {
+  label: string;
+  aside: string;
+  asideTone: "good" | "slow";
+  value: string;
+  bar?: number;
+  note?: string;
+};
+export type Speed = { subtitle: string; metrics: SpeedMetric[] };
+
+export type StipItem = {
+  id: string;
+  title: string;
+  detail: string;
+  status: string;
+  statusColor: ChipColor;
+};
+export type Stips = { count: number; subtitle: string; items: StipItem[] };
+
+export type BrokerRow = {
+  id: string;
+  href: string;
+  name: string;
+  sent: number;
+  funded: number;
+  flags: number;
+};
+export type Brokers = { subtitle: string; href: string; rows: BrokerRow[] };
+
+export type ActivityKind = "stacking" | "check" | "upload" | "message";
+export type ActivityItem = {
+  id: string;
+  kind: ActivityKind;
+  title: string;
+  detail: string;
+  when: string;
+};
+export type Activity = { href: string; items: ActivityItem[] };
+
+export type ComingSoon = { tag: string; title: string; text: string; href: string };
+
 export type HomeData = {
   header: HomeHeader;
   hero: HeroDeal;
@@ -95,6 +167,13 @@ export type HomeData = {
   queue: Queue;
   calendar: WeekCalendar;
   glance: GlanceItem[];
+  keyNumbers: KeyNumbers;
+  pipeline: Pipeline;
+  speed: Speed;
+  stips: Stips;
+  brokers: Brokers;
+  activity: Activity;
+  coming: ComingSoon;
 };
 
 export const homeData: HomeData = {
@@ -173,4 +252,87 @@ export const homeData: HomeData = {
     { id: "collected", href: "/funded", tone: "white", lead: { kind: "ring", percent: 85, label: "85%" }, title: "$24.1K of $28.4K collected today", note: "7 pending · ", noteTail: "2 returned" },
     { id: "policy", href: "/settings/policy", tone: "white", lead: { kind: "tag", value: "v4" }, title: "Policy change waiting", note: "Debt share 65% → 70% · needs Priya" },
   ],
+
+  keyNumbers: {
+    submissions: { value: "23", change: "+22%", changeNote: "vs last Monday", scale: ["0", "Avg 14", "25"] },
+    offers: { value: "6", expiring: "2", expiringNote: "expire today", href: "/offers" },
+    stacking: { value: "3", lead: "New", leadNote: "since 8:00 am", href: "/stacking" },
+    funded: { value: "$1.24M", change: "+12%", changeNote: "vs September" },
+    renewals: {
+      value: "9",
+      note: "This week",
+      href: "/renewals",
+      bars: [
+        { x: 18, y: 70, h: 90 },
+        { x: 58, y: 50, h: 110 },
+        { x: 98, y: 82, h: 78 },
+        { x: 138, y: 62, h: 98 },
+      ],
+      line: "M14 86 L64 64 L114 92 L156 70 L206 52",
+      sun: { x: 172, y: 38, r: 22 },
+    },
+  },
+
+  pipeline: {
+    subtitle: "From submission to funded, Oct 12 – 18",
+    ranges: [
+      { value: "week", label: "This week" },
+      { value: "month", label: "Month" },
+      { value: "quarter", label: "Quarter" },
+    ],
+    range: "week",
+    stages: [
+      { label: "Submitted", value: "86", percent: 100, note: "100% of intake", color: "ink" },
+      { label: "Fit policy", value: "54", percent: 63, note: "63% · 32 auto-declined", color: "ink" },
+      { label: "Approved", value: "22", percent: 26, note: "41% of reviewed", color: "teal" },
+      { label: "Offer accepted", value: "14", percent: 16, note: "64% of approved", color: "teal" },
+      { label: "Funded", value: "11", percent: 13, note: "13% pull-through", color: "mint", final: true },
+    ],
+  },
+
+  speed: {
+    subtitle: "Medians for your team, last 30 days",
+    metrics: [
+      { label: "Submission to decision", aside: "Target 4h", asideTone: "good", value: "3h 12m", bar: 80 },
+      { label: "Approval to funded", aside: "Slower than target", asideTone: "slow", value: "2.6 days", note: "Most delay is open stips and unsigned contracts." },
+    ],
+  },
+
+  stips: {
+    count: 5,
+    subtitle: "Items blocking funding",
+    items: [
+      { id: "s1", title: "Voided check", detail: "Northline HVAC · from merchant · 2 days", status: "Overdue", statusColor: "amber" },
+      { id: "s2", title: "Landlord letter", detail: "Pinecrest Fitness · from broker · 1 day", status: "Requested", statusColor: "grey" },
+      { id: "s3", title: "Landlord letter", detail: "Harbor Street Bakery · from broker · due Wed", status: "Sent", statusColor: "blue" },
+    ],
+  },
+
+  brokers: {
+    subtitle: "This month, by deals funded",
+    href: "/brokers",
+    rows: [
+      { id: "apex", href: "/brokers", name: "Apex Funding Partners", sent: 24, funded: 9, flags: 0 },
+      { id: "summit", href: "/brokers", name: "Summit Capital ISO", sent: 19, funded: 6, flags: 1 },
+      { id: "keystone", href: "/brokers", name: "Keystone Brokerage", sent: 12, funded: 4, flags: 0 },
+      { id: "bluerock", href: "/brokers", name: "BlueRock Advisors", sent: 15, funded: 2, flags: 3 },
+    ],
+  },
+
+  activity: {
+    href: "/tasks",
+    items: [
+      { id: "a1", kind: "stacking", title: "New UCC filing", detail: " on Mesa Auto Repair, found by Stacking Watch", when: "12 min ago" },
+      { id: "a2", kind: "check", title: "Integrity reviewed", detail: " Harbor Street Bakery, catering transfer explained · by Maya Chen", when: "34 min ago" },
+      { id: "a3", kind: "upload", title: "Documents received", detail: " Brightside Cleaning uploaded 3 statements via Merchant Link", when: "1 hr ago" },
+      { id: "a4", kind: "message", title: "Broker message", detail: " Apex Funding Partners replied on Coastal Dental Group", when: "2 hr ago" },
+    ],
+  },
+
+  coming: {
+    tag: "Coming soon",
+    title: "Reconciliation Desk",
+    text: "Track merchant reconciliation requests, calculate the adjustment from bank data, and prove every deadline was met.",
+    href: "/whats-coming",
+  },
 };

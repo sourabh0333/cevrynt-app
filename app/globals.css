@@ -27,6 +27,8 @@
   --color-panel: #ffffff; /* content panel */
   --color-card: #f5f3ef; /* card on white */
   --color-card-deep: #e6dfd0; /* the darker queue card on Home */
+  --color-card-stone: #dddad3; /* the Stacking alerts tile on Home */
+  --color-mint-edge: #e3efea; /* border of the light mint gradient cards */
   --color-tile: #ffffff; /* tile on a card */
   --color-ring-track: #ece9e2; /* track behind the decision rings */
 
@@ -49,6 +51,8 @@
   --color-red-bg: #f6ded8;
   --color-red-text: #8e2b19;
   --color-red-deep: #6b2216; /* small text on a red card */
+  --color-amber-deep: #8e4e08; /* "Slower than target" */
+  --color-blue-deep: #24588a; /* blue icon strokes */
   --color-amber: #d98a2b;
   --color-amber-bg: #f5e6cc;
   --color-amber-text: #7a4206;
@@ -315,6 +319,35 @@ body {
   animation: cal-now 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
 }
 
+/* Renewals ready tile: bars rise, line draws, sun floats up. */
+@keyframes rn-bar {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes rn-sun {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.6);
+  }
+}
+.anim-rn-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: rn-bar 0.9s cubic-bezier(0.22, 1, 0.36, 1) calc(0.2s + var(--i, 0) * 0.12s)
+    backwards;
+}
+.anim-rn-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 1.1s cubic-bezier(0.45, 0, 0.2, 1) 0.8s forwards;
+}
+.anim-rn-sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rn-sun 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
   .anim-ring,
@@ -327,10 +360,14 @@ body {
   .anim-hero-dot,
   .anim-hero-pulse,
   .anim-cal-in,
-  .anim-cal-now {
+  .anim-cal-now,
+  .anim-rn-bar,
+  .anim-rn-line,
+  .anim-rn-sun {
     animation: none;
   }
-  .anim-hero-line {
+  .anim-hero-line,
+  .anim-rn-line {
     stroke-dashoffset: 0;
   }
   .anim-hero-area {
