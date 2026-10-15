@@ -112,7 +112,7 @@ export function Sidebar() {
         {navSections.map((section, i) => (
           <div key={section.label} className="contents">
             <div
-              className={`relative px-2.5 pb-[5px] text-cap font-semibold uppercase text-muted ${
+              className={`relative flex-none px-2.5 pb-[5px] text-cap font-semibold uppercase text-muted ${
                 i === 0 ? "pt-3" : "pt-3.5"
               } before:absolute before:top-1/2 before:right-2 before:left-2 before:h-px before:bg-line-soft before:opacity-0 before:transition-opacity before:duration-150 before:content-[''] collapsed:before:opacity-100 collapsed:before:delay-150`}
             >
@@ -170,7 +170,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       title={item.label}
       aria-current={active ? "page" : undefined}
-      className={`relative flex items-center overflow-hidden rounded-[12px] py-2 pr-2.5 pl-2.5 text-body-sm no-underline collapsed:pl-4 ${glide} ${
+      className={`relative flex flex-none items-center overflow-hidden rounded-[12px] py-2 pr-2.5 pl-2.5 text-body-sm no-underline collapsed:pl-4 ${glide} ${
         active
           ? "bg-mint-bg font-semibold text-teal-dark"
           : "font-medium text-muted hover:bg-hover hover:text-ink"
