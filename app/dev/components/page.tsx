@@ -5,6 +5,8 @@ import { Chip } from "@/components/ui/Chip";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Ring } from "@/components/ui/Ring";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { StatTile } from "@/components/ui/StatTile";
+import { SwitchDemo, TabsDemo } from "./SelectionDemos";
 
 function PlusIcon() {
   return (
@@ -479,6 +481,96 @@ export default function ComponentsPage() {
                 </p>
               </div>
             </Card>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            Tabs
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Pill tabs from the deal workspace and panel tabs with counts
+            from Tasks. Click or use the arrow keys. No hover.
+          </p>
+          <TabsDemo />
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            SegmentedSwitch
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Teal switch from Tasks and the soft switch from Settings. Click
+            or use the arrow keys.
+          </p>
+          <SwitchDemo />
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            StatTile
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Key-number tiles. Main style with a bar, Reports style with a
+            change chip and a sparkline that draws in.
+          </p>
+
+          <Card variant="grey" className="mt-4">
+            <span className="text-cap font-semibold uppercase text-hint">
+              Main, caption label and bar
+            </span>
+            <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+              <StatTile caps label="Submitted" value="86" bar={{ value: 100, color: "ink" }} note="100% of intake" />
+              <StatTile caps label="Fit policy" value="54" bar={{ value: 63, color: "ink" }} note="63% of submitted" delay={0.1} />
+              <StatTile caps label="Approved" value="22" bar={{ value: 26, color: "teal" }} note="41% of reviewed" delay={0.2} />
+              <StatTile caps label="Offer accepted" value="14" bar={{ value: 16, color: "teal" }} note="64% of approved" delay={0.3} />
+            </div>
+          </Card>
+
+          <div className="mt-4 grid grid-cols-2 gap-1.5 rounded-[28px] bg-card p-1.5 md:grid-cols-3">
+            <StatTile
+              variant="mint"
+              label="Funded"
+              value="$1.24M"
+              change={{ text: "+12%", tone: "good" }}
+              trend={[0, 3, 6, 9.6, 18]}
+              trendColor="teal"
+            />
+            <StatTile
+              label="Deals funded"
+              value="41"
+              change={{ text: "+6", tone: "good" }}
+              trend={[0, 2.9, 7.2, 10.8, 18]}
+              delay={0.1}
+            />
+            <StatTile
+              label="Approval rate"
+              value="41%"
+              change={{ text: "+2 pts", tone: "good" }}
+              trend={[0, 3.6, 7.2, 14.4, 18]}
+              delay={0.2}
+            />
+            <StatTile
+              label="Pull-through"
+              value="13%"
+              change={{ text: "Flat", tone: "neutral" }}
+              trend={[0, 18, 0, 12, 12]}
+              delay={0.3}
+            />
+            <StatTile
+              label="Time to decision"
+              value="3h 12m"
+              change={{ text: "−35 min", tone: "good" }}
+              trend={[18, 13.9, 9.8, 4.9, 0]}
+              delay={0.4}
+            />
+            <StatTile
+              label="Loss rate"
+              value="2.1%"
+              change={{ text: "+0.3 pts", tone: "bad" }}
+              trend={[18, 12.9, 7.7, 2.6, 0]}
+              delay={0.5}
+            />
           </div>
         </section>
       </div>

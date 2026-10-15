@@ -57,6 +57,9 @@
   --color-cream: #f2e7cf;
   --color-mint-soft: #cfe6dd;
 
+  /* Soft switch track (Today / 7 days / 30 days) */
+  --color-track: #e8e4db;
+
   /* Borders */
   --color-line: #ece8e0;
   --color-line-strong: #e3dfd6;
@@ -111,6 +114,17 @@
   );
 }
 
+/* Scrolls sideways with no visible scrollbar (layout rule 4: chip rows, tab rows). */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -156,6 +170,17 @@ h4 {
     transform: scale(0.7);
   }
 }
+/* For SVG paths with pathLength="1": draws the line left to right. */
+@keyframes line-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
 
 .anim-grow-x {
   transform-origin: left center;
@@ -170,12 +195,30 @@ h4 {
   animation: pop-in 0.7s cubic-bezier(0.22, 1, 0.36, 1)
     calc(var(--delay, 0s) + 0.2s) both;
 }
+.anim-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 1.2s cubic-bezier(0.45, 0, 0.2, 1)
+    calc(var(--delay, 0s) + 0.3s) forwards;
+}
+.anim-fade {
+  opacity: 0;
+  animation: fade-in 0.8s ease calc(var(--delay, 0s) + 0.9s) forwards;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
   .anim-ring,
-  .anim-pop {
+  .anim-pop,
+  .anim-draw,
+  .anim-fade {
     animation: none;
+  }
+  .anim-draw {
+    stroke-dashoffset: 0;
+  }
+  .anim-fade {
+    opacity: 1;
   }
 
   *,
