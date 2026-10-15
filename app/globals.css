@@ -26,7 +26,9 @@
   --color-page: #eeece6; /* page background, warm grey */
   --color-panel: #ffffff; /* content panel */
   --color-card: #f5f3ef; /* card on white */
+  --color-card-deep: #e6dfd0; /* the darker queue card on Home */
   --color-tile: #ffffff; /* tile on a card */
+  --color-ring-track: #ece9e2; /* track behind the decision rings */
 
   /* Text */
   --color-ink: #0f1513;
@@ -46,6 +48,7 @@
   --color-red: #c2412d;
   --color-red-bg: #f6ded8;
   --color-red-text: #8e2b19;
+  --color-red-deep: #6b2216; /* small text on a red card */
   --color-amber: #d98a2b;
   --color-amber-bg: #f5e6cc;
   --color-amber-text: #7a4206;
@@ -243,14 +246,97 @@ h4 {
   animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
 }
 
+/* Home page visuals (design/Main.html): hero chart, calendar events, now line. */
+@keyframes hero-area {
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+@keyframes hero-dot {
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes hero-pulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+@keyframes cal-in {
+  from {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.96);
+  }
+}
+@keyframes cal-now {
+  to {
+    transform: scaleX(1);
+  }
+}
+.anim-hero-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 1.8s cubic-bezier(0.45, 0, 0.2, 1) 0.2s forwards;
+}
+.anim-hero-area {
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: scaleY(0.6);
+  animation: hero-area 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+}
+.anim-hero-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  animation: hero-dot 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.45s forwards;
+}
+.anim-hero-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: hero-pulse 2.4s ease-out 2s infinite;
+}
+.anim-cal-in {
+  animation: cal-in 0.7s cubic-bezier(0.22, 1, 0.36, 1)
+    calc(0.25s + var(--i, 0) * 0.14s) backwards;
+}
+.anim-cal-now {
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: cal-now 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
   .anim-ring,
   .anim-pop,
   .anim-draw,
   .anim-fade,
-  .anim-rise {
+  .anim-rise,
+  .anim-hero-line,
+  .anim-hero-area,
+  .anim-hero-dot,
+  .anim-hero-pulse,
+  .anim-cal-in,
+  .anim-cal-now {
     animation: none;
+  }
+  .anim-hero-line {
+    stroke-dashoffset: 0;
+  }
+  .anim-hero-area {
+    opacity: 1;
+    transform: none;
+  }
+  .anim-hero-dot,
+  .anim-cal-now {
+    transform: none;
   }
   .anim-draw {
     stroke-dashoffset: 0;

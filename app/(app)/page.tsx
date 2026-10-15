@@ -1,29 +1,28 @@
-// Temporary home placeholder inside the shell.
-// Replaced by Home (design/Main.html) in Step 3.
+import { DecisionsCard } from "@/components/home/DecisionsCard";
+import { GlanceStrip } from "@/components/home/GlanceStrip";
+import { HomeHeader } from "@/components/home/HomeHeader";
+import { NextDealCard } from "@/components/home/NextDealCard";
+import { QueueCard } from "@/components/home/QueueCard";
+import { WeekCalendar } from "@/components/home/WeekCalendar";
+import { homeData } from "@/lib/sample-data/home";
+
+// Home, from design/Main.html. Top half for now: header, bento row
+// (next deal, decisions, queue, calendar) and the glance strip.
+// Key numbers, pipeline, speed, stips, brokers and activity come next.
 export default function Home() {
+  const d = homeData;
   return (
     <>
-      <header className="mb-1.5">
-        <h1 className="font-heading text-page-title font-semibold leading-[1.05] tracking-[-0.035em] text-ink">
-          Good morning, Maya
-        </h1>
-        <p className="mt-2.5 text-label font-semibold uppercase tracking-[0.06em] text-ink">
-          7 deals in your queue
-        </p>
-      </header>
-      <div className="rounded-card-lg bg-card p-5">
-        <p className="text-body-sm text-muted">
-          The Home page is built in a later step. The shell around it is
-          ready: fixed sidebar on the left, this white panel scrolls on its
-          own.
-        </p>
-      </div>
-      <div className="h-[1400px] rounded-card-lg bg-card p-5">
-        <p className="text-body-sm text-hint">
-          Tall block to prove the panel scrolls while the page and the
-          sidebar stay put.
-        </p>
-      </div>
+      <HomeHeader data={d.header} />
+
+      <section className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
+        <NextDealCard deal={d.hero} />
+        <DecisionsCard data={d.decisions} />
+        <QueueCard data={d.queue} />
+        <WeekCalendar data={d.calendar} />
+      </section>
+
+      <GlanceStrip items={d.glance} />
     </>
   );
 }

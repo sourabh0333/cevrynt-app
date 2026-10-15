@@ -28,7 +28,8 @@ The design comes in two layers. Always use both.
 **Where they live:** `app/globals.css`, inside the `@theme` block. This project uses Tailwind v4, so there is no `tailwind.config` file; the `@theme` block in CSS is the config. The default Tailwind palette is removed, so only the Cevrynt colors below exist. Use these utilities instead of raw hex values or arbitrary classes.
 
 Utilities created (use the same name with `bg-`, `text-`, `border-` for colors):
-- Surfaces: `page` (warm grey), `panel` (white content panel), `card` (grey card on white), `tile` (white tile on a card). Example: `bg-page`, `bg-card`.
+- Surfaces: `page` (warm grey), `panel` (white content panel), `card` (grey card on white), `card-deep` (#E6DFD0, the darker queue card on Home), `tile` (white tile on a card), `ring-track` (#ECE9E2 behind the decision rings). Example: `bg-page`, `bg-card`.
+- Also `red-deep` (#6B2216) for small text on a red card.
 - Text: `ink`, `muted`, `hint`. Example: `text-ink`, `text-muted`.
 - Brand: `teal`, `teal-dark`, `teal-deep`, `mint`, `mint-bg`, `mint-light`, `mint-border`. Example: `bg-teal text-white`, `bg-mint-bg text-teal-dark`.
 - Status: `red`, `red-bg`, `red-text`; `amber`, `amber-bg`, `amber-text`; `blue`, `blue-bg`, `blue-text`; `purple`, `purple-bg`, `purple-text`; `grey-bg`, `grey-text`, `grey-dot` (neutral chips). Example: `bg-red-bg text-red-text`.
