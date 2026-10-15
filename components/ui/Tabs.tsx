@@ -26,7 +26,7 @@ import {
  * Keyboard: Left / Right / Home / End move between tabs and select them.
  * No hover effects.
  */
-export type TabDotColor = "teal" | "mint" | "amber" | "red" | "blue" | "purple" | "grey";
+export type TabDotColor = "teal" | "mint" | "amber" | "red" | "blue" | "purple" | "grey" | "ink";
 export type TabCountColor = "neutral" | "amber" | "red" | "blue" | "green";
 
 export type TabItem = {
@@ -55,6 +55,7 @@ const dotClass: Record<TabDotColor, string> = {
   blue: "bg-blue",
   purple: "bg-purple",
   grey: "bg-grey-dot",
+  ink: "bg-ink",
 };
 
 const countClass: Record<TabCountColor, string> = {

@@ -81,6 +81,10 @@
   --color-panel-border: #e7e3db; /* the white content panel's edge */
   --color-line-dashed: #c9c4b8; /* dashed "What's coming" outline */
   --color-line-soft: #ddd9cf; /* section dividers in the collapsed rail */
+  --color-line-faint: #f1eee8; /* hairline between task rows, bar tracks on white */
+  --color-tile-selected: #fcfbf8; /* the expanded task row */
+  --color-hint-soft: #7a807c; /* column captions over a list */
+  --color-teal-mute: #3e6b60; /* mono times on the mint panel */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */

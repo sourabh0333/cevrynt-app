@@ -131,7 +131,8 @@ export function Ring({
           strokeLinecap="round"
           strokeDasharray={`${pct} 100`}
           transform={`rotate(-90 ${c} ${c})`}
-          className={`${strokeClass[tone]} ${animate ? "anim-ring" : ""}`}
+          // After the entrance, value changes ease over 0.5s (the Tasks day ring).
+          className={`${strokeClass[tone]} [transition:stroke-dasharray_.5s_cubic-bezier(.22,1,.36,1)] ${animate ? "anim-ring" : ""}`}
           style={delayStyle}
         />
       </svg>
