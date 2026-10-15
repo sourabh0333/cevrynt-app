@@ -39,10 +39,13 @@ export type ManualLead = {
     hasPositions: boolean;
     positions: Position[];
     broker: string;
+    /** the person at the broker, copied on Merchant Link when asked */
+    brokerContact: string;
     commission: string;
   };
   documents: {
     merchantLinkSent: boolean;
+    copyBroker: boolean;
   };
   review: {
     assignTo: string;
@@ -77,9 +80,10 @@ export const initialLead: ManualLead = {
     hasPositions: true,
     positions: [{ funder: "Bluepeak Funding", payment: "$310 daily", balance: "$9,800" }],
     broker: "Apex Funding Partners",
+    brokerContact: "Dana Ruiz",
     commission: "8 points",
   },
-  documents: { merchantLinkSent: false },
+  documents: { merchantLinkSent: false, copyBroker: true },
   review: { assignTo: "Maya Chen (you)", priority: "Normal" },
 };
 

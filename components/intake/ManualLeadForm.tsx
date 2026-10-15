@@ -464,8 +464,10 @@ const docChip = {
 };
 
 function StepDocuments({ lead, set }: { lead: ManualLead; set: SetFn }) {
-  const sent = lead.documents.merchantLinkSent;
-  const first = lead.owner.name.split(" ")[0] || "the owner";
+  const { merchantLinkSent: sent, copyBroker } = lead.documents;
+  const first = lead.owner.name.trim().split(" ")[0] || "the owner";
+  const brokerFirst = (lead.request.brokerContact ?? "").trim().split(" ")[0];
+  const hasBroker = !!lead.request.broker.trim() && !!brokerFirst;
   return (
     <div className="flex flex-col gap-[18px]">
       <div>
@@ -502,6 +504,27 @@ function StepDocuments({ lead, set }: { lead: ManualLead; set: SetFn }) {
           <p className="mt-1 mb-0 text-[12.5px] text-muted">
             Merchant Link sends {first} a secure page to upload statements, connect the bank, verify ID and sign. Everything lands in this deal.
           </p>
+          <p className="mt-1.5 mb-0 text-[12.5px] text-muted">
+            Goes to the owner: <b className="text-ink">{lead.owner.email || "no email yet"}</b>
+            {lead.owner.mobile ? (
+              <>
+                {" "}and <b className="text-ink">{lead.owner.mobile}</b> by text
+              </>
+            ) : null}
+            .
+          </p>
+          {hasBroker ? (
+            <label className="mt-2.5 flex cursor-pointer items-center gap-2 text-[12.5px] text-ink">
+              <input
+                type="checkbox"
+                checked={copyBroker}
+                disabled={sent}
+                onChange={(e) => set("documents", { copyBroker: e.target.checked })}
+                className="h-[18px] w-[18px] accent-teal"
+              />
+              Also copy the broker ({brokerFirst})
+            </label>
+          ) : null}
         </div>
         <button
           type="button"
@@ -511,7 +534,9 @@ function StepDocuments({ lead, set }: { lead: ManualLead; set: SetFn }) {
             sent ? "cursor-default bg-mint-bg text-teal-dark" : "cursor-pointer bg-card text-ink"
           }`}
         >
-          {sent ? `Sent to ${lead.owner.email}` : `Send to ${lead.owner.email}`}
+          {sent
+            ? `Sent to ${lead.owner.email}${copyBroker && hasBroker ? ` · copied ${brokerFirst}` : ""}`
+            : `Send Merchant Link to ${first}`}
         </button>
       </div>
     </div>
