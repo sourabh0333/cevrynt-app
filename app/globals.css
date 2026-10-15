@@ -30,6 +30,7 @@
   --color-card-stone: #dddad3; /* the Stacking alerts tile on Home */
   --color-mint-edge: #e3efea; /* border of the light mint gradient cards */
   --color-tile: #ffffff; /* tile on a card */
+  --color-field: #faf9f6; /* text inputs on a grey card */
   --color-ring-track: #ece9e2; /* track behind the decision rings */
 
   /* Text */
