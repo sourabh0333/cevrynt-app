@@ -63,6 +63,15 @@
   /* Borders */
   --color-line: #ece8e0;
   --color-line-strong: #e3dfd6;
+  --color-panel-border: #e7e3db; /* the white content panel's edge */
+  --color-line-dashed: #c9c4b8; /* dashed "What's coming" outline */
+
+  /* Shell */
+  --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
+  --color-icon-soft: #8e9994; /* chevrons and quiet icons */
+  --color-scrollbar: #d8d3c8; /* thin scrollbar thumb on the content panel */
+  --color-coral: #e2715e; /* alert count badge, used at 20% */
+  --color-coral-text: #a3341f;
 
   /* Fonts (CSS variables come from next/font in app/layout.tsx) */
   --font-heading: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
@@ -123,6 +132,12 @@
     width: 0;
     height: 0;
   }
+}
+
+/* Thin grey scrollbar for the content panel. */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) transparent;
 }
 
 html,

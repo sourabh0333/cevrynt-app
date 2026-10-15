@@ -34,7 +34,8 @@ Utilities created (use the same name with `bg-`, `text-`, `border-` for colors):
 - Status: `red`, `red-bg`, `red-text`; `amber`, `amber-bg`, `amber-text`; `blue`, `blue-bg`, `blue-text`; `purple`, `purple-bg`, `purple-text`; `grey-bg`, `grey-text`, `grey-dot` (neutral chips). Example: `bg-red-bg text-red-text`.
 - Avatar fills: `sand` (#E8D9C1, with `sand-text` #3A2817), `cream` (#F2E7CF), `mint-soft` (#CFE6DD).
 - `track` (#E8E4DB): the soft switch track behind Today / 7 days / 30 days.
-- Borders: `line` (`#ECE8E0`), `line-strong` (`#E3DFD6`). Example: `border-line`.
+- Borders: `line` (`#ECE8E0`), `line-strong` (`#E3DFD6`), `panel-border` (`#E7E3DB`, the content panel edge), `line-dashed` (`#C9C4B8`). Example: `border-line`.
+- Shell: `hover` (`#F3F1EC`, sidebar item hover), `icon-soft` (`#8E9994`), `scrollbar` (`#D8D3C8`), `coral` / `coral-text` (alert count badges, coral at 20%). Utilities `scrollbar-thin` (content panel) and `scrollbar-none` (hidden).
 - Fonts: `font-heading` (Bricolage Grotesque), `font-sans` (Instrument Sans, the body default), `font-mono` (IBM Plex Mono).
 - Type sizes (each includes line height and letter spacing): `text-page-title` (30px), `text-card-title-lg` (20px), `text-card-title` (18px), `text-card-title-sm` (17px), `text-body` (14px), `text-body-sm` (13px), `text-label` (12px), `text-label-sm` (11px), `text-cap` (10.5px with 0.08em tracking, for uppercase captions and "View all" links; add `uppercase font-semibold`).
 - Radii: `rounded-panel` (34px), `rounded-card-lg` (30px), `rounded-card` (24px), `rounded-tile-lg` (20px), `rounded-tile` (14px), `rounded-pill` (999px).
