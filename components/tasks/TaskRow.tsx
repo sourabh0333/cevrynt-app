@@ -1,10 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { taskTypes, type Task, type TaskGroupInfo } from "@/lib/sample-data/tasks";
+import { taskTypes, teammates, type Task, type TaskGroupInfo } from "@/lib/sample-data/tasks";
 
 /** Column layout shared by the caption row and every task row (design .agcols). */
 export const agendaCols =
   "grid grid-cols-[24px_minmax(0,1.7fr)_minmax(120px,1fr)_96px_34px] items-center gap-3.5 max-[700px]:grid-cols-[24px_minmax(0,1fr)_34px] max-[700px]:[&>:nth-child(3)]:hidden max-[700px]:[&>:nth-child(4)]:hidden";
+
+const smallBtn =
+  "h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold text-ink disabled:cursor-default disabled:opacity-50";
 
 type Props = {
   task: Task;
@@ -14,14 +20,45 @@ type Props = {
   first: boolean;
   /** stagger index for the time-left bar */
   order: number;
+  snoozed: boolean;
+  assignee?: string;
+  note?: string;
   onToggleDone: () => void;
   onToggleOpen: () => void;
+  onSnooze: () => void;
+  onHand: (name: string) => void;
+  onNote: (text: string) => void;
 };
 
-export function TaskRow({ task, group, done, open, first, order, onToggleDone, onToggleOpen }: Props) {
+export function TaskRow({
+  task,
+  group,
+  done,
+  open,
+  first,
+  order,
+  snoozed,
+  assignee,
+  note,
+  onToggleDone,
+  onToggleOpen,
+  onSnooze,
+  onHand,
+  onNote,
+}: Props) {
   const t = taskTypes[task.type];
+  const [picker, setPicker] = useState<"hand" | "note" | null>(null);
+  const [draft, setDraft] = useState(note ?? "");
+  const canSnooze = task.when === "now" && !snoozed;
+
+  const saveNote = () => {
+    onNote(draft.trim());
+    setPicker(null);
+  };
+
   return (
     <div
+      data-task-id={task.id}
       className={`${first ? "" : "border-t border-line-faint"} ${open ? "bg-tile-selected" : ""} ${
         done ? "opacity-55" : ""
       }`}
@@ -50,7 +87,11 @@ export function TaskRow({ task, group, done, open, first, order, onToggleDone, o
           </span>
           <span className="min-w-0">
             <b className={`block truncate text-body ${done ? "line-through" : ""}`}>{task.title}</b>
-            <span className="block truncate text-label text-hint">{task.deal}</span>
+            <span className="block truncate text-label text-hint">
+              {task.deal}
+              {assignee ? ` · with ${assignee}` : ""}
+              {snoozed ? " · snoozed 1 hour" : ""}
+            </span>
           </span>
         </button>
 
@@ -76,7 +117,14 @@ export function TaskRow({ task, group, done, open, first, order, onToggleDone, o
 
       {open ? (
         <div className="mr-4 mb-3.5 ml-[70px] grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-3.5 rounded-[16px] bg-card p-3.5">
-          <span className="text-[12.5px] text-grey-text">{task.why}</span>
+          <span className="text-[12.5px] text-grey-text">
+            {task.why}
+            {note ? (
+              <span className="mt-2 block rounded-[10px] bg-tile px-2.5 py-2 text-label text-ink">
+                <b>Note:</b> {note}
+              </span>
+            ) : null}
+          </span>
           <div className="flex flex-col gap-1.5">
             {task.prep.map((p) => (
               <span key={p} className="flex items-center gap-2 text-label">
@@ -87,19 +135,84 @@ export function TaskRow({ task, group, done, open, first, order, onToggleDone, o
               </span>
             ))}
           </div>
-          <div className="col-span-full flex flex-wrap gap-1.5 border-t border-line-strong pt-2.5">
-            {/* Snooze, hand-off and notes get their behavior in a later step. */}
-            <button type="button" className="h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold">
-              Snooze 1 hour
+
+          <div className="col-span-full flex flex-wrap items-center gap-1.5 border-t border-line-strong pt-2.5">
+            <button type="button" onClick={onSnooze} disabled={!canSnooze} className={smallBtn}>
+              {snoozed ? "Snoozed" : "Snooze 1 hour"}
             </button>
-            <button type="button" className="h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold">
-              Hand to a teammate
+            <button
+              type="button"
+              onClick={() => setPicker(picker === "hand" ? null : "hand")}
+              aria-expanded={picker === "hand"}
+              className={smallBtn}
+            >
+              {assignee ? `With ${assignee}` : "Hand to a teammate"}
             </button>
-            <button type="button" className="h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold">
-              Add a note
+            <button
+              type="button"
+              onClick={() => setPicker(picker === "note" ? null : "note")}
+              aria-expanded={picker === "note"}
+              className={smallBtn}
+            >
+              {note ? "Edit note" : "Add a note"}
             </button>
-            <span className="ml-auto self-center text-[11.5px] text-hint">{t.source}</span>
+            <span className="ml-auto self-center text-[11.5px] text-hint">{task.source ?? t.source}</span>
           </div>
+
+          {picker === "hand" ? (
+            <div role="group" aria-label="Hand to" className="col-span-full flex flex-wrap items-center gap-1.5">
+              <span className="text-label text-hint">Hand to:</span>
+              {teammates
+                .filter((m) => m.name !== "Maya Chen")
+                .map((m) => (
+                  <button
+                    key={m.name}
+                    type="button"
+                    onClick={() => {
+                      onHand(m.name);
+                      setPicker(null);
+                    }}
+                    className={`h-8 cursor-pointer rounded-pill border-0 px-3 text-label font-semibold ${
+                      assignee === m.name ? "bg-teal text-white" : "bg-tile text-ink"
+                    }`}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              {assignee ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onHand("");
+                    setPicker(null);
+                  }}
+                  className="h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold text-hint"
+                >
+                  Keep it
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
+          {picker === "note" ? (
+            <div className="col-span-full flex flex-wrap items-center gap-1.5">
+              <input
+                aria-label="Note"
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveNote();
+                  if (e.key === "Escape") setPicker(null);
+                }}
+                placeholder="Add a note for yourself or the team"
+                className="h-9 min-w-0 flex-[1_1_240px] rounded-pill border-0 bg-tile px-3 text-label-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              />
+              <button type="button" onClick={saveNote} className="h-9 cursor-pointer rounded-pill border-0 bg-teal px-3.5 text-label font-semibold text-white">
+                Save
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

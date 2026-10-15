@@ -3,7 +3,7 @@
  * (look: design/Tasks.html). Real API calls replace this later behind the
  * same types.
  */
-export type TaskType = "decision" | "alert" | "review" | "call" | "docs" | "renewal";
+export type TaskType = "decision" | "alert" | "review" | "call" | "docs" | "renewal" | "custom";
 export type TaskWhen = "now" | "today" | "week";
 
 export type Task = {
@@ -19,6 +19,8 @@ export type Task = {
   action: string;
   /** how much of the time-left bar is filled, 0–100 */
   urgency: number;
+  /** overrides the type's source line ("From you" for tasks you add) */
+  source?: string;
 };
 
 export type TaskTypeInfo = {
@@ -39,7 +41,32 @@ export const taskTypes: Record<TaskType, TaskTypeInfo> = {
   call: { label: "Call", initials: "CL", bg: "bg-purple-bg", text: "text-purple-text", dot: "bg-purple", source: "From Conditions & stips" },
   docs: { label: "Documents", initials: "DO", bg: "bg-page", text: "text-grey-text", dot: "bg-grey-dot", source: "From Conditions & stips" },
   renewal: { label: "Renewal", initials: "RN", bg: "bg-mint-bg", text: "text-teal-dark", dot: "bg-teal", source: "From Renewals" },
+  custom: { label: "Task", initials: "TK", bg: "bg-page", text: "text-grey-text", dot: "bg-grey-dot", source: "From you" },
 };
+
+/** Teammates shown on the Team view and offered for hand-offs. */
+export type Teammate = { name: string; summary: string; alert?: boolean };
+export const teammates: Teammate[] = [
+  { name: "Maya Chen", summary: "7 open · 2 due now" },
+  { name: "Ari Kaplan", summary: "9 open · 1 overdue", alert: true },
+  { name: "Jordan Reyes", summary: "5 open" },
+  { name: "Priya Shah", summary: "4 open · 1 approval for you" },
+];
+export const teamSummary = "4 people · 25 open tasks";
+
+/** Choices in the quick-add bar. */
+export const quickAdd = {
+  placeholder: "What needs doing? e.g. Call Dana about the landlord letter",
+  deals: ["Link a deal", "Harbor Street Bakery", "Mesa Auto Repair"],
+  due: [
+    { value: "today", label: "Today", when: "today" as TaskWhen, urgency: 40 },
+    { value: "tomorrow", label: "Tomorrow", when: "week" as TaskWhen, urgency: 25 },
+    { value: "week", label: "This week", when: "week" as TaskWhen, urgency: 15 },
+  ],
+  assignees: ["Me", "Jordan Reyes", "Priya Shah"],
+};
+
+export const digestStorageKey = "cevrynt-tasks-digest";
 
 export type TaskGroupInfo = {
   when: TaskWhen;

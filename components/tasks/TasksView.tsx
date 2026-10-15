@@ -1,59 +1,111 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { PageActions } from "@/components/shell/PageActions";
 import { Ring } from "@/components/ui/Ring";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
+  digestStorageKey,
   doneEarlier,
+  quickAdd,
   taskFilters,
   taskGroups,
-  tasks,
+  tasks as seedTasks,
+  teamSummary,
+  teammates,
   waitingOnOthers,
   type Task,
   type TaskType,
+  type TaskWhen,
 } from "@/lib/sample-data/tasks";
 import { TaskRow, agendaCols } from "./TaskRow";
 
-const typeDot: Record<TaskType, "blue" | "red" | "amber" | "purple" | "grey" | "teal"> = {
+const typeDot: Record<TaskType, "blue" | "red" | "amber" | "purple" | "grey" | "teal" | "ink"> = {
   decision: "blue",
   alert: "red",
   review: "amber",
   call: "purple",
   docs: "grey",
   renewal: "teal",
+  custom: "grey",
 };
+
+/* "Email me this list every morning at 8:00", remembered in localStorage. */
+const digestListeners = new Set<() => void>();
+function readDigest(): boolean {
+  try {
+    return localStorage.getItem(digestStorageKey) !== "off";
+  } catch {
+    return true;
+  }
+}
+function writeDigest(on: boolean) {
+  try {
+    localStorage.setItem(digestStorageKey, on ? "on" : "off");
+  } catch {}
+  digestListeners.forEach((l) => l());
+}
+function subscribeDigest(l: () => void) {
+  digestListeners.add(l);
+  window.addEventListener("storage", l);
+  return () => {
+    digestListeners.delete(l);
+    window.removeEventListener("storage", l);
+  };
+}
+const digestServer = () => true;
+
+function isTyping(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+}
 
 /**
  * My tasks, from design/Tasks.html with the logic of Tasks.dc.html.
- * State: the type filter, the expanded task, and which tasks are ticked.
- * Everything else (counts, ring, groups, Do this first, Done today) is
- * derived from those. Mine / Team, Add task, snooze, hand-off and notes
- * are drawn but get their behavior in a later step.
+ * State: Mine / Team, the type filter, the expanded task, ticked tasks,
+ * snoozed tasks, hand-offs, notes, added tasks and the quick-add bar.
+ * Everything else is derived. Keyboard: J / K move, X done, Enter open,
+ * S snooze, never while typing in a field.
  */
 export function TasksView() {
+  const router = useRouter();
+  const [who, setWho] = useState<"mine" | "team">("mine");
   const [tab, setTab] = useState<TaskType | "all">("all");
   const [selected, setSelected] = useState<string | null>("lake");
   const [done, setDone] = useState<Record<string, boolean>>({});
+  const [later, setLater] = useState<Record<string, boolean>>({});
+  const [assigned, setAssigned] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [added, setAdded] = useState<Task[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState({ text: "", deal: quickAdd.deals[0], due: "today", assignee: "Me" });
+  const digest = useSyncExternalStore(subscribeDigest, readDigest, digestServer);
 
+  const tasks = [...seedTasks, ...added];
   const isDone = (t: Task) => !!done[t.id];
+  const whenOf = (t: Task): TaskWhen => (later[t.id] && t.when === "now" ? "today" : t.when);
+
   const open = tasks.filter((t) => !isDone(t));
-  const nUrgent = open.filter((t) => t.when === "now").length;
-  const nToday = open.filter((t) => t.when === "today").length;
-  const nWeek = open.filter((t) => t.when === "week").length;
+  const nUrgent = open.filter((t) => whenOf(t) === "now").length;
+  const nToday = open.filter((t) => whenOf(t) === "today").length;
+  const nWeek = open.filter((t) => whenOf(t) === "week").length;
   const ticked = tasks.filter(isDone);
   const nAll = doneEarlier.length + tasks.length;
   const nDone = Math.min(nAll, doneEarlier.length + ticked.length);
 
-  const top = open.find((t) => t.when === "now") ?? open[0] ?? tasks[0];
+  const top = open.find((t) => whenOf(t) === "now") ?? open[0] ?? tasks[0];
   const topDone = isDone(top);
 
   const visible = tasks.filter((t) => tab === "all" || t.type === tab);
   const groups = taskGroups
-    .map((g, gi) => ({ ...g, gi, items: visible.filter((t) => t.when === g.when) }))
+    .map((g, gi) => ({ ...g, gi, items: visible.filter((t) => whenOf(t) === g.when) }))
     .filter((g) => g.items.length);
+  const ordered = groups.flatMap((g) => g.items);
 
   const filterItems: TabItem[] = taskFilters.map((f) => ({
     value: f.value,
@@ -62,12 +114,66 @@ export function TasksView() {
     count: f.value === "all" ? open.length : open.filter((t) => t.type === f.value).length,
   }));
 
-  const doneList = [
-    ...ticked.map((t) => ({ title: t.title, time: "now" })),
-    ...doneEarlier,
-  ].slice(0, 5);
+  const doneList = [...ticked.map((t) => ({ title: t.title, time: "now" })), ...doneEarlier].slice(0, 5);
 
-  const toggleDone = (id: string) => setDone((d) => ({ ...d, [id]: !d[id] }));
+  const toggleDone = useCallback((id: string) => setDone((d) => ({ ...d, [id]: !d[id] })), []);
+  const snooze = useCallback((id: string) => setLater((l) => ({ ...l, [id]: true })), []);
+
+  const addTask = (e: FormEvent) => {
+    e.preventDefault();
+    const text = draft.text.trim();
+    if (!text) return;
+    const due = quickAdd.due.find((d) => d.value === draft.due) ?? quickAdd.due[0];
+    const forWhom = draft.assignee === "Me" ? "" : ` · for ${draft.assignee}`;
+    const deal = draft.deal === quickAdd.deals[0] ? "No deal linked" : draft.deal;
+    const task: Task = {
+      id: `new-${Date.now()}`,
+      type: "custom",
+      when: due.when,
+      title: text,
+      deal: `${deal}${forWhom}`,
+      due: due.label,
+      why: "Added by you from My tasks.",
+      prep: [],
+      href: "/tasks",
+      action: "Open",
+      urgency: due.urgency,
+      source: "From you",
+    };
+    setAdded((a) => [...a, task]);
+    setDraft({ text: "", deal: quickAdd.deals[0], due: "today", assignee: "Me" });
+    setAdding(false);
+    setSelected(task.id);
+  };
+
+  // Keyboard shortcuts. Never while typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+      const key = e.key.toLowerCase();
+      if (!["j", "k", "x", "enter", "s"].includes(key)) return;
+      const i = ordered.findIndex((t) => t.id === selected);
+      if (key === "j" || key === "k") {
+        if (!ordered.length) return;
+        const next = i < 0 ? 0 : (i + (key === "j" ? 1 : -1) + ordered.length) % ordered.length;
+        const id = ordered[next].id;
+        setSelected(id);
+        document.querySelector(`[data-task-id="${id}"]`)?.scrollIntoView({ block: "nearest" });
+        e.preventDefault();
+        return;
+      }
+      const t = i >= 0 ? ordered[i] : null;
+      if (!t) return;
+      if (key === "x") toggleDone(t.id);
+      else if (key === "enter") router.push(t.href);
+      else if (key === "s" && t.when === "now") snooze(t.id);
+      e.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [ordered, selected, toggleDone, snooze, router]);
+
+  const team = who === "team";
 
   return (
     <>
@@ -140,17 +246,17 @@ export function TasksView() {
         <div className="flex flex-wrap items-center justify-between gap-3 px-1 pt-0.5">
           <div className="min-w-0">
             <h2 id="h-ag" className="m-0 font-heading text-card-title-lg font-semibold">
-              Your agenda
+              {team ? "Team agenda" : "Your agenda"}
             </h2>
             <span className="text-label text-hint">
-              {open.length} open · {nUrgent} due within the hour
+              {team ? teamSummary : `${open.length} open · ${nUrgent} due within the hour`}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Mine / Team and Add task get their behavior in a later step. */}
             <SegmentedSwitch
               label="Whose tasks"
-              value="mine"
+              value={who}
+              onChange={(v) => setWho(v as "mine" | "team")}
               options={[
                 { value: "mine", label: "Mine" },
                 { value: "team", label: "Team" },
@@ -158,6 +264,8 @@ export function TasksView() {
             />
             <button
               type="button"
+              onClick={() => setAdding((a) => !a)}
+              aria-expanded={adding}
               className="inline-flex h-[38px] cursor-pointer items-center gap-1.5 rounded-pill border-0 bg-teal px-4 text-[12.5px] font-semibold text-white shadow-[0_10px_22px_-14px_rgba(14,107,92,.8)]"
             >
               <span className="text-[16px] leading-none">+</span>Add task
@@ -172,6 +280,40 @@ export function TasksView() {
           onChange={(v) => setTab(v as TaskType | "all")}
           items={filterItems}
         />
+
+        {adding ? (
+          <form
+            onSubmit={addTask}
+            aria-label="Add a task"
+            className="flex flex-wrap items-center gap-2 rounded-[18px] bg-tile p-2.5 shadow-[inset_0_0_0_1.5px_#0E6B5C]"
+          >
+            <input
+              aria-label="New task"
+              autoFocus
+              value={draft.text}
+              onChange={(e) => setDraft({ ...draft, text: e.target.value })}
+              placeholder={quickAdd.placeholder}
+              className="h-10 min-w-0 flex-[1_1_260px] border-0 bg-transparent px-2.5 text-body-sm text-ink outline-none"
+            />
+            <Select aria-label="Deal" value={draft.deal} onChange={(v) => setDraft({ ...draft, deal: v })} options={quickAdd.deals.map((d) => ({ value: d, label: d }))} />
+            <Select aria-label="Due" value={draft.due} onChange={(v) => setDraft({ ...draft, due: v })} options={quickAdd.due.map((d) => ({ value: d.value, label: d.label }))} />
+            <Select aria-label="Assign to" value={draft.assignee} onChange={(v) => setDraft({ ...draft, assignee: v })} options={quickAdd.assignees.map((a) => ({ value: a, label: a }))} />
+            <button type="submit" className="h-9 cursor-pointer rounded-pill border-0 bg-teal px-3.5 text-label font-semibold text-white">
+              Add
+            </button>
+          </form>
+        ) : null}
+
+        {team ? (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-2">
+            {teammates.map((m) => (
+              <span key={m.name} className={`rounded-[16px] px-3.5 py-3 text-[12.5px] ${m.alert ? "bg-red-bg" : "bg-tile"}`}>
+                <b className="block">{m.name}</b>
+                <span className={m.alert ? "text-label text-red-text" : "text-[11.5px] text-hint"}>{m.summary}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className={`${agendaCols} px-4 pt-0.5 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint-soft`}>
           <span />
@@ -201,8 +343,14 @@ export function TasksView() {
                   open={selected === t.id}
                   first={idx === 0}
                   order={g.gi * 3 + idx}
+                  snoozed={!!later[t.id]}
+                  assignee={assigned[t.id] || undefined}
+                  note={notes[t.id] || undefined}
                   onToggleDone={() => toggleDone(t.id)}
                   onToggleOpen={() => setSelected((s) => (s === t.id ? null : t.id))}
+                  onSnooze={() => snooze(t.id)}
+                  onHand={(name) => setAssigned((a) => ({ ...a, [t.id]: name }))}
+                  onNote={(text) => setNotes((n) => ({ ...n, [t.id]: text }))}
                 />
               ))}
             </div>
@@ -213,6 +361,23 @@ export function TasksView() {
             Nothing here. Pick another type above.
           </div>
         ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 pt-1 text-label text-muted">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={digest}
+              onChange={(e) => writeDigest(e.target.checked)}
+              className="h-[18px] w-[18px] accent-teal"
+            />
+            Email me this list every morning at 8:00
+          </label>
+          <span>
+            Keyboard: <kbd className="font-mono">J</kbd>/<kbd className="font-mono">K</kbd> move ·{" "}
+            <kbd className="font-mono">X</kbd> done · <kbd className="font-mono">Enter</kbd> open ·{" "}
+            <kbd className="font-mono">S</kbd> snooze
+          </span>
+        </div>
       </section>
 
       {/* Waiting + done */}
@@ -268,5 +433,32 @@ function Count({ value, label, tone }: { value: number; label: string; tone?: "r
       </b>
       <span className={`text-[11.5px] ${red ? "text-red-text" : "text-muted"}`}>{label}</span>
     </span>
+  );
+}
+
+function Select({
+  value,
+  onChange,
+  options,
+  ...rest
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  "aria-label": string;
+}) {
+  return (
+    <select
+      {...rest}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-9 cursor-pointer rounded-pill border-0 bg-card px-3 text-label text-ink outline-none focus-visible:ring-2 focus-visible:ring-mint"
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
   );
 }
