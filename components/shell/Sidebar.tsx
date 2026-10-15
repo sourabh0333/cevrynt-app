@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCallback, useRef, useSyncExternalStore, type PointerEvent } from "react";
 import { Icon } from "./icons";
-import { toggleCollapsed, useCollapsed } from "./sidebar-state";
 import {
   activeNavKey,
   comingItem,
@@ -18,84 +18,159 @@ import {
  * Sidebar matching the one rendered inside design/Main.html, with the
  * collapse behavior from design/prototypes/Sidebar.dc.html.
  *
- * Open: 240px. Collapsed: a 76px icon rail. The width and the side padding
- * ease over 300ms (cubic-bezier(.32,.72,0,1)); each row's left padding
- * eases by the same amount the other way, so the icons never move. Texts
- * are anchored absolutely, fade and slide out in 120ms on collapse, and
- * fade in after 150ms on expand, so nothing wraps or jumps. The two logos
- * crossfade and the toggle button glides from the top right to under the
- * mark. The head keeps a constant height so the list never shifts.
+ * Open: 240px. Collapsed: a 76px icon rail with the CY mark, the open
+ * button, the RC badge, centered icons with the page name as a tooltip,
+ * count badges as small dots, captions as thin dividers, the What's coming
+ * icon and Maya's avatar. Three ways to switch: the button at the top,
+ * dragging the right edge (left to collapse, right to open), or
+ * double-clicking that edge. The choice is remembered in localStorage
+ * "cevrynt-sidebar". The width eases over 220ms.
  *
- * State lives in <html data-sidebar> (see sidebar-state.ts). The drag and
- * double-click edge is on the content panel (ResizeHandle).
+ * The collapsed look is driven by the `collapsed:` Tailwind variant, which
+ * keys off <html data-sidebar="collapsed">. An inline script in
+ * app/layout.tsx sets that attribute before first paint, so there is no
+ * flash and no hydration mismatch: the markup is the same in both states.
  */
+const STORAGE_KEY = "cevrynt-sidebar";
+const DRAG_THRESHOLD = 40;
 
-// Text that leaves on collapse and returns once the rail has mostly opened.
-const fade =
-  "whitespace-nowrap transition-[opacity,transform,visibility] duration-[120ms] ease-out delay-150 collapsed:invisible collapsed:-translate-x-1 collapsed:opacity-0 collapsed:delay-0";
+function readCollapsed(): boolean {
+  return document.documentElement.getAttribute("data-sidebar") === "collapsed";
+}
 
-// Padding that eases in step with the sidebar width.
-const glide = "transition-[padding] duration-300 ease-sidebar";
+function applyCollapsed(value: boolean) {
+  const root = document.documentElement;
+  if (value) root.setAttribute("data-sidebar", "collapsed");
+  else root.removeAttribute("data-sidebar");
+  try {
+    localStorage.setItem(STORAGE_KEY, value ? "collapsed" : "open");
+  } catch {}
+}
+
+// The <html data-sidebar> attribute is the source of truth. React subscribes
+// to it, so the server snapshot (open) and the client snapshot stay in step
+// with what the boot script painted.
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-sidebar"],
+  });
+  return () => observer.disconnect();
+}
+const getServerSnapshot = () => false;
 
 export function Sidebar() {
   const pathname = usePathname();
   const active = activeNavKey(pathname);
-  const collapsed = useCollapsed();
+
+  const collapsed = useSyncExternalStore(subscribe, readCollapsed, getServerSnapshot);
+
+  const setCol = useCallback((value: boolean) => {
+    applyCollapsed(value);
+  }, []);
+
+  const toggle = useCallback(() => setCol(!readCollapsed()), [setCol]);
+
+  // Drag on the right edge: move 40px left to collapse, 40px right to open.
+  const dragRef = useRef<{ x0: number; start: boolean } | null>(null);
+  const onHandlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    dragRef.current = { x0: e.clientX, start: readCollapsed() };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    const move = (ev: globalThis.PointerEvent) => {
+      const d = dragRef.current;
+      if (!d) return;
+      const dx = ev.clientX - d.x0;
+      if (!d.start && dx < -DRAG_THRESHOLD) {
+        setCol(true);
+        d.start = true;
+        d.x0 = ev.clientX;
+      } else if (d.start && dx > DRAG_THRESHOLD) {
+        setCol(false);
+        d.start = false;
+        d.x0 = ev.clientX;
+      }
+    };
+    const up = () => {
+      dragRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  };
+
   const toggleLabel = collapsed ? "Open sidebar" : "Close sidebar";
 
   return (
     <aside
       aria-label="Main navigation"
-      className="relative box-border flex h-full w-[240px] flex-col overflow-hidden pt-2.5 pr-3.5 pb-1 pl-[18px] text-body text-muted transition-[width,padding] duration-300 ease-sidebar collapsed:w-[76px] collapsed:px-3"
+      className="relative box-border flex h-full w-[240px] flex-col overflow-hidden pt-2.5 pr-3.5 pb-1 pl-[18px] text-body text-muted transition-[width] duration-[220ms] ease-[ease] collapsed:w-[76px] collapsed:px-3"
     >
-      {/* Head: constant 66px tall. Logos crossfade; the button glides. */}
-      <div className="relative h-[66px] flex-none">
-        <Link
-          href="/"
-          aria-label="Cevrynt home"
-          className="absolute top-0 left-0 block h-12 w-[130px]"
-        >
+      {/* Drag handle on the right edge. A thin mint line shows on hover. */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Drag to resize the sidebar"
+        title="Drag or double-click to resize"
+        onPointerDown={onHandlePointerDown}
+        onDoubleClick={toggle}
+        className="absolute top-0 right-0 bottom-0 z-[5] flex w-2.5 cursor-col-resize justify-center touch-none after:h-full after:w-[3px] after:rounded-[2px] after:bg-transparent after:transition-colors after:duration-150 after:content-[''] hover:after:bg-mint"
+      />
+
+      {/* Head: logo + collapse button */}
+      <div className="flex flex-none items-center justify-between px-1 pt-1.5 pb-[18px] collapsed:flex-col collapsed:gap-3 collapsed:pb-3.5">
+        <Link href="/" aria-label="Cevrynt home" className="flex items-center">
           <Image
             src="/brand/cevrynt-logo-full-onlight.png"
             alt="Cevrynt"
             width={1029}
             height={366}
             priority
+            // next/image wants the auto dimension as an inline style
             style={{ height: 42, width: "auto" }}
-            className="absolute top-1.5 left-1 block transition-opacity duration-150 collapsed:opacity-0"
+            className="block collapsed:hidden"
           />
           <Image
             src="/brand/cevrynt-mark-solid.png"
-            alt=""
+            alt="Cevrynt"
             width={392}
             height={366}
             priority
-            style={{ height: 32, width: "auto" }}
-            className="absolute top-0 left-[9px] block opacity-0 transition-opacity duration-150 collapsed:opacity-100"
+            style={{ height: 34, width: "auto" }}
+            className="hidden collapsed:block"
           />
         </Link>
         <button
           type="button"
-          onClick={toggleCollapsed}
+          onClick={toggle}
           aria-label={toggleLabel}
           aria-expanded={!collapsed}
           title={toggleLabel}
-          className="absolute top-[11px] left-[172px] grid h-8 w-8 cursor-pointer place-items-center rounded-[10px] border-0 bg-teal/7 text-ink transition-[left,top] duration-300 ease-sidebar collapsed:top-[34px] collapsed:left-2.5"
+          className="grid h-8 w-8 flex-none cursor-pointer place-items-center rounded-[10px] border-0 bg-teal/7 text-ink"
         >
           <Icon name="sidebar" size={16} />
         </button>
       </div>
 
-      {/* Workspace switcher: the RC badge stays, the text fades. */}
+      {/* Workspace switcher */}
       <button
         type="button"
         title={workspace.name}
-        className={`relative mb-2.5 flex h-[54px] flex-none cursor-pointer items-center overflow-hidden rounded-[16px] border border-teal/7 bg-teal/7 pl-2.5 text-left text-muted collapsed:pl-[9px] ${glide}`}
+        className="mb-2.5 flex flex-none cursor-pointer items-center gap-2.5 rounded-[16px] border border-teal/7 bg-teal/7 p-2.5 text-left text-muted collapsed:justify-center collapsed:p-1.5"
       >
         <span className="grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-teal text-[12px] font-bold text-white">
           {workspace.initials}
         </span>
-        <span className={`absolute top-1/2 left-[53px] -translate-y-1/2 ${fade}`}>
+        <span className="min-w-0 flex-1 collapsed:hidden">
           <b className="block text-body-sm">{workspace.name}</b>
           <span className="block text-[11.5px] text-muted">{workspace.kind}</span>
         </span>
@@ -103,7 +178,7 @@ export function Sidebar() {
           name="chevrons"
           size={14}
           strokeWidth={2}
-          className={`absolute top-1/2 right-2.5 -translate-y-1/2 text-icon-soft ${fade}`}
+          className="text-icon-soft collapsed:hidden"
         />
       </button>
 
@@ -112,11 +187,11 @@ export function Sidebar() {
         {navSections.map((section, i) => (
           <div key={section.label} className="contents">
             <div
-              className={`relative px-2.5 pb-[5px] text-cap font-semibold uppercase text-muted ${
+              className={`px-2.5 pb-[5px] text-cap font-semibold uppercase text-muted ${
                 i === 0 ? "pt-3" : "pt-3.5"
-              } before:absolute before:top-1/2 before:right-2 before:left-2 before:h-px before:bg-line-soft before:opacity-0 before:transition-opacity before:duration-150 before:content-[''] collapsed:before:opacity-100 collapsed:before:delay-150`}
+              } collapsed:mx-2 collapsed:border-t collapsed:border-line-soft collapsed:px-2.5 collapsed:pt-2 collapsed:pb-1.5`}
             >
-              <span className={`block ${fade}`}>{section.label}</span>
+              <span className="collapsed:hidden">{section.label}</span>
             </div>
             {section.items.map((item) => (
               <NavLink key={item.key} item={item} active={active === item.key} />
@@ -131,31 +206,29 @@ export function Sidebar() {
           href={comingItem.href}
           title={comingItem.label}
           aria-current={active === comingItem.key ? "page" : undefined}
-          className={`relative flex items-center overflow-hidden rounded-[12px] border border-dashed border-line-dashed py-2 pr-2.5 pl-2.5 text-body-sm font-medium no-underline collapsed:pl-4 ${glide} ${
+          className={`flex items-center gap-3 rounded-[12px] border border-dashed border-line-dashed px-2.5 py-2 text-body-sm font-medium no-underline collapsed:justify-center collapsed:px-0 collapsed:py-2.5 ${
             active === comingItem.key
               ? "bg-mint-bg font-semibold text-teal-dark"
               : "text-muted hover:bg-hover hover:text-ink"
           }`}
         >
           <Icon name="star" className="flex-none text-teal" />
-          <span className={`ml-3 ${fade}`}>{comingItem.label}</span>
-          <span
-            className={`absolute top-1/2 right-2.5 -translate-y-1/2 text-[10.5px] font-semibold text-teal-deep ${fade}`}
-          >
+          <span className="collapsed:hidden">{comingItem.label}</span>
+          <span className="ml-auto text-[10.5px] font-semibold text-teal-deep collapsed:hidden">
             {comingItem.note}
           </span>
         </Link>
       </div>
 
-      {/* Profile: the avatar stays, the text fades. */}
+      {/* Profile */}
       <div
         title={currentUser.name}
-        className={`relative flex flex-none items-center pt-3 pb-2.5 pl-1 collapsed:pl-2 ${glide}`}
+        className="flex flex-none items-center gap-2.5 px-1 pt-3 pb-2.5 collapsed:justify-center"
       >
         <span className="grid h-9 w-9 flex-none place-items-center rounded-[12px] bg-[linear-gradient(140deg,#E8C9A1,#C99A6B)] text-[12.5px] font-bold text-sand-text">
           {currentUser.initials}
         </span>
-        <span className={`absolute top-1/2 left-[50px] translate-y-[1px] ${fade}`}>
+        <span className="collapsed:hidden">
           <b className="block text-body-sm">{currentUser.name}</b>
           <span className="block text-label-sm text-muted">{currentUser.role}</span>
         </span>
@@ -170,19 +243,19 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       title={item.label}
       aria-current={active ? "page" : undefined}
-      className={`relative flex items-center overflow-hidden rounded-[12px] py-2 pr-2.5 pl-2.5 text-body-sm no-underline collapsed:pl-4 ${glide} ${
+      className={`relative flex items-center gap-3 rounded-[12px] px-2.5 py-2 text-body-sm no-underline collapsed:justify-center collapsed:px-0 collapsed:py-2.5 ${
         active
           ? "bg-mint-bg font-semibold text-teal-dark"
           : "font-medium text-muted hover:bg-hover hover:text-ink"
       }`}
     >
       <Icon name={item.icon} className="flex-none" />
-      <span className={`ml-3 ${fade}`}>{item.label}</span>
+      <span className="collapsed:hidden">{item.label}</span>
       {item.badge ? (
         <>
           {/* Open: count pill. Collapsed: a small dot on the icon. */}
           <span
-            className={`absolute top-1/2 right-2.5 -translate-y-1/2 rounded-pill px-[7px] py-px text-label-sm font-semibold ${fade} ${
+            className={`ml-auto rounded-pill px-[7px] py-px text-label-sm font-semibold collapsed:hidden ${
               item.badge.tone === "alert"
                 ? "bg-coral/20 text-coral-text"
                 : "bg-teal/7 text-muted"
@@ -192,7 +265,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
           </span>
           <span
             aria-hidden="true"
-            className={`absolute top-1.5 right-[13px] h-[7px] w-[7px] rounded-full opacity-0 transition-opacity duration-[120ms] collapsed:opacity-100 collapsed:delay-150 ${
+            className={`absolute top-1.5 right-[13px] hidden h-[7px] w-[7px] rounded-full collapsed:block ${
               item.badge.tone === "alert" ? "bg-red" : "bg-teal"
             }`}
           />
