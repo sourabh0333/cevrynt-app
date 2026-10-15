@@ -49,7 +49,7 @@ export function Sidebar() {
       className="relative box-border flex h-full w-[240px] flex-col overflow-hidden pt-2.5 pr-3.5 pb-1 pl-[18px] text-body text-muted transition-[width,padding] duration-300 ease-sidebar collapsed:w-[76px] collapsed:px-3"
     >
       {/* Head: constant 66px tall. Logos crossfade; the button glides. */}
-      <div className="relative h-[66px] flex-none">
+      <div className="relative h-[66px] flex-none transition-[height] duration-300 ease-sidebar collapsed:h-[98px]">
         <Link
           href="/"
           aria-label="Cevrynt home"
@@ -70,8 +70,8 @@ export function Sidebar() {
             width={392}
             height={366}
             priority
-            style={{ height: 32, width: "auto" }}
-            className="absolute top-0 left-[9px] block opacity-0 transition-opacity duration-150 collapsed:opacity-100"
+            style={{ height: 34, width: "auto" }}
+            className="absolute top-1.5 left-2 block opacity-0 transition-opacity duration-150 collapsed:opacity-100"
           />
         </Link>
         <button
@@ -80,7 +80,7 @@ export function Sidebar() {
           aria-label={toggleLabel}
           aria-expanded={!collapsed}
           title={toggleLabel}
-          className="absolute top-[11px] left-[172px] grid h-8 w-8 cursor-pointer place-items-center rounded-[10px] border-0 bg-teal/7 text-ink transition-[left,top] duration-300 ease-sidebar collapsed:top-[34px] collapsed:left-2.5"
+          className="absolute top-[11px] left-[172px] grid h-8 w-8 cursor-pointer place-items-center rounded-[10px] border-0 bg-teal/7 text-ink transition-[left,top] duration-300 ease-sidebar collapsed:top-[52px] collapsed:left-2.5"
         >
           <Icon name="sidebar" size={16} />
         </button>
@@ -90,7 +90,7 @@ export function Sidebar() {
       <button
         type="button"
         title={workspace.name}
-        className={`relative mb-2.5 flex h-[54px] flex-none cursor-pointer items-center overflow-hidden rounded-[16px] border border-teal/7 bg-teal/7 pl-2.5 text-left text-muted collapsed:pl-[9px] ${glide}`}
+        className="relative mb-2.5 flex h-[54px] flex-none cursor-pointer items-center overflow-hidden rounded-[16px] border border-teal/7 bg-teal/7 pl-2.5 text-left text-muted transition-[padding,height] duration-300 ease-sidebar collapsed:h-[46px] collapsed:pl-[9px]"
       >
         <span className="grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-teal text-[12px] font-bold text-white">
           {workspace.initials}
