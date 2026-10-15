@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 /*
+  Sidebar state. A tiny inline script in app/layout.tsx sets
+  <html data-sidebar="collapsed"> from localStorage before the first paint,
+  so `collapsed:` utilities apply with no flash. Toggling updates the
+  attribute, React state and localStorage together.
+*/
+@custom-variant collapsed (&:where(:root[data-sidebar="collapsed"] *));
+
+/*
   Cevrynt design tokens (from CLAUDE.md).
   Tailwind v4 is configured in CSS: everything in @theme becomes a utility
   (bg-teal, text-ink, rounded-card, shadow-float, font-heading, ...).
@@ -65,6 +73,7 @@
   --color-line-strong: #e3dfd6;
   --color-panel-border: #e7e3db; /* the white content panel's edge */
   --color-line-dashed: #c9c4b8; /* dashed "What's coming" outline */
+  --color-line-soft: #ddd9cf; /* section dividers in the collapsed rail */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */

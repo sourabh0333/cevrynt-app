@@ -36,13 +36,20 @@ export const metadata: Metadata = {
   icons: { icon: "/brand/cevrynt-mark-solid.png" },
 };
 
+// Runs before the first paint so a remembered collapsed sidebar never flashes open.
+const sidebarBootScript = `try{if(localStorage.getItem("cevrynt-sidebar")==="collapsed")document.documentElement.setAttribute("data-sidebar","collapsed")}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${bricolage.variable} ${instrument.variable} ${plexMono.variable} h-full`}
     >
-      <body className="h-full overflow-hidden">{children}</body>
+      <body className="h-full overflow-hidden">
+        <script dangerouslySetInnerHTML={{ __html: sidebarBootScript }} />
+        {children}
+      </body>
     </html>
   );
 }
