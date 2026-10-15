@@ -47,6 +47,9 @@
   --color-purple: #8670b8;
   --color-purple-bg: #ede4f7;
   --color-purple-text: #4b2f7a;
+  --color-grey-bg: #e4e1da; /* grey chip */
+  --color-grey-text: #3e4542;
+  --color-grey-dot: #9aa09c;
 
   /* Borders */
   --color-line: #ece8e0;

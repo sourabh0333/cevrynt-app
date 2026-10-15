@@ -31,7 +31,7 @@ Utilities created (use the same name with `bg-`, `text-`, `border-` for colors):
 - Surfaces: `page` (warm grey), `panel` (white content panel), `card` (grey card on white), `tile` (white tile on a card). Example: `bg-page`, `bg-card`.
 - Text: `ink`, `muted`, `hint`. Example: `text-ink`, `text-muted`.
 - Brand: `teal`, `teal-dark`, `teal-deep`, `mint`, `mint-bg`, `mint-light`, `mint-border`. Example: `bg-teal text-white`, `bg-mint-bg text-teal-dark`.
-- Status: `red`, `red-bg`, `red-text`; `amber`, `amber-bg`, `amber-text`; `blue`, `blue-bg`, `blue-text`; `purple`, `purple-bg`, `purple-text`. Example: `bg-red-bg text-red-text`.
+- Status: `red`, `red-bg`, `red-text`; `amber`, `amber-bg`, `amber-text`; `blue`, `blue-bg`, `blue-text`; `purple`, `purple-bg`, `purple-text`; `grey-bg`, `grey-text`, `grey-dot` (neutral chips). Example: `bg-red-bg text-red-text`.
 - Borders: `line` (`#ECE8E0`), `line-strong` (`#E3DFD6`). Example: `border-line`.
 - Fonts: `font-heading` (Bricolage Grotesque), `font-sans` (Instrument Sans, the body default), `font-mono` (IBM Plex Mono).
 - Type sizes (each includes line height and letter spacing): `text-page-title` (30px), `text-card-title-lg` (20px), `text-card-title` (18px), `text-card-title-sm` (17px), `text-body` (14px), `text-body-sm` (13px), `text-label` (12px), `text-label-sm` (11px).

@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { Chip } from "@/components/ui/Chip";
 
 // Internal gallery of shared components. Grows one component per step.
 export default function ComponentsPage() {
@@ -79,6 +80,95 @@ export default function ComponentsPage() {
             Grey and mint shown as on the white panel. Below, the same three on
             the page background, as they appear outside the panel.
           </p>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            Chip
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Six colors, two sizes, optional dot. No wrapping, no hover.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Card variant="grey">
+              <span className="text-label-sm font-semibold uppercase tracking-[0.08em] text-hint">
+                Status (md)
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <Chip color="green">Decision ready</Chip>
+                <Chip color="amber">Needs docs</Chip>
+                <Chip color="red">On hold</Chip>
+                <Chip color="blue">In review</Chip>
+                <Chip color="purple">Offer out</Chip>
+                <Chip color="grey">New</Chip>
+              </div>
+
+              <span className="mt-2 text-label-sm font-semibold uppercase tracking-[0.08em] text-hint">
+                Risk and severity (sm)
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <Chip size="sm" color="green">
+                  Low
+                </Chip>
+                <Chip size="sm" color="amber">
+                  Medium
+                </Chip>
+                <Chip size="sm" color="red">
+                  High
+                </Chip>
+                <Chip size="sm" color="blue">
+                  In review
+                </Chip>
+                <Chip size="sm" color="purple">
+                  Renewal
+                </Chip>
+                <Chip size="sm" color="grey">
+                  Not scored
+                </Chip>
+              </div>
+            </Card>
+
+            <Card variant="grey">
+              <span className="text-label-sm font-semibold uppercase tracking-[0.08em] text-hint">
+                With dot
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <Chip color="red" dot>
+                  Within the hour
+                </Chip>
+                <Chip color="blue" dot>
+                  Later today
+                </Chip>
+                <Chip color="green" dot>
+                  Renewal
+                </Chip>
+                <Chip color="amber" dot>
+                  Review
+                </Chip>
+                <Chip color="purple" dot>
+                  Call
+                </Chip>
+                <Chip color="grey" dot>
+                  This week
+                </Chip>
+              </div>
+
+              <span className="mt-2 text-label-sm font-semibold uppercase tracking-[0.08em] text-hint">
+                Plain, on a tinted card
+              </span>
+              <div className="rounded-tile-lg bg-red-bg p-3.5">
+                <Chip color="red" dot plain>
+                  Do this first · Now
+                </Chip>
+              </div>
+              <div className="rounded-tile-lg bg-mint-bg p-3.5">
+                <Chip color="green" dot plain>
+                  Ready to fund
+                </Chip>
+              </div>
+            </Card>
+          </div>
         </section>
       </div>
 
