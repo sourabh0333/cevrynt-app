@@ -19,10 +19,10 @@ import {
  * collapse behavior from design/prototypes/Sidebar.dc.html.
  *
  * Open: 240px. Collapsed: a 76px icon rail. The width and the side padding
- * ease over 300ms (cubic-bezier(.32,.72,0,1)); each row's left padding
- * eases by the same amount the other way, so the icons never move. Texts
- * are anchored absolutely, fade and slide out in 120ms on collapse, and
- * fade in after 150ms on expand, so nothing wraps or jumps. The two logos
+ * ease over 300ms (ease-sidebar, a smooth in-out curve); each row's left
+ * padding eases by the same amount the other way, so the icons never move.
+ * Texts are anchored absolutely, fade and slide out in 100ms on collapse,
+ * and fade in after 120ms on expand, so nothing wraps or jumps. The two logos
  * crossfade and the toggle button glides from the top right to under the
  * mark. The head keeps a constant height so the list never shifts.
  *
@@ -32,7 +32,7 @@ import {
 
 // Text that leaves on collapse and returns once the rail has mostly opened.
 const fade =
-  "whitespace-nowrap transition-[opacity,transform,visibility] duration-[120ms] ease-out delay-150 collapsed:invisible collapsed:-translate-x-1 collapsed:opacity-0 collapsed:delay-0";
+  "whitespace-nowrap transition-[opacity,transform,visibility] duration-[100ms] ease-out delay-[120ms] collapsed:invisible collapsed:-translate-x-1 collapsed:opacity-0 collapsed:delay-0";
 
 // Padding that eases in step with the sidebar width.
 const glide = "transition-[padding] duration-300 ease-sidebar";
