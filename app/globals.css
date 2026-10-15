@@ -51,6 +51,12 @@
   --color-grey-text: #3e4542;
   --color-grey-dot: #9aa09c;
 
+  /* Avatar fills that are not status colors */
+  --color-sand: #e8d9c1;
+  --color-sand-text: #3a2817;
+  --color-cream: #f2e7cf;
+  --color-mint-soft: #cfe6dd;
+
   /* Borders */
   --color-line: #ece8e0;
   --color-line-strong: #e3dfd6;
@@ -81,6 +87,9 @@
   --text-label--line-height: 1.3;
   --text-label-sm: 11px;
   --text-label-sm--line-height: 1.3;
+  --text-cap: 10.5px; /* uppercase caption, pair with uppercase font-semibold */
+  --text-cap--line-height: 1.3;
+  --text-cap--letter-spacing: 0.08em;
 
   /* Shape */
   --radius-panel: 34px;

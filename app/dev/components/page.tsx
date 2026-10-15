@@ -1,5 +1,25 @@
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+
+function PlusIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M8 3v10M3 8h10" />
+    </svg>
+  );
+}
 
 // Internal gallery of shared components. Grows one component per step.
 export default function ComponentsPage() {
@@ -167,6 +187,163 @@ export default function ComponentsPage() {
                   Ready to fund
                 </Chip>
               </div>
+            </Card>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            Button
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Primary teal, secondary grey, outline teal. Medium and small, plus
+            icon-only round. No hover.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Card variant="white">
+              <span className="text-cap font-semibold uppercase text-hint">
+                Medium
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button>Open the alert</Button>
+                <Button variant="secondary">Open deal</Button>
+                <Button variant="outline">Message broker</Button>
+                <Button icon aria-label="Add">
+                  <PlusIcon />
+                </Button>
+                <Button icon variant="secondary" aria-label="Add">
+                  <PlusIcon />
+                </Button>
+                <Button icon variant="outline" aria-label="Add">
+                  <PlusIcon />
+                </Button>
+              </div>
+              <span className="mt-2 text-cap font-semibold uppercase text-hint">
+                Small
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm">Mine</Button>
+                <Button size="sm" variant="secondary">
+                  Team
+                </Button>
+                <Button size="sm" variant="outline">
+                  Score
+                </Button>
+                <Button size="sm" icon aria-label="Add">
+                  <PlusIcon />
+                </Button>
+                <Button size="sm" icon variant="secondary" aria-label="Add">
+                  <PlusIcon />
+                </Button>
+              </div>
+            </Card>
+
+            <Card variant="mint">
+              <span className="text-cap font-semibold uppercase text-teal-deep">
+                On a mint card
+              </span>
+              <p className="text-body-sm text-muted">
+                Main actions stay solid teal. Links render the same button as
+                an anchor.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button href="/dev/components" glow>
+                  See what&apos;s coming
+                </Button>
+                <Button href="/dev/components" variant="outline">
+                  Open profile
+                </Button>
+                <Button disabled>Disabled</Button>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            Avatar
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Initials in a colored circle. Six fills from the design, sizes 28,
+            32 and 40.
+          </p>
+
+          <Card variant="grey" className="mt-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Avatar initials="MC" name="Maya Chen" color="sand" />
+              <Avatar initials="PS" name="Priya Shah" color="blue" />
+              <Avatar initials="JR" name="J. R." color="mint" />
+              <Avatar initials="NO" name="Nina Ortiz" color="red" />
+              <Avatar initials="SL" name="Sam Lee" color="cream" />
+              <Avatar initials="LP" name="L. P." color="purple" />
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Avatar initials="MC" name="Maya Chen" size={28} />
+              <Avatar initials="MC" name="Maya Chen" size={32} />
+              <Avatar initials="MC" name="Maya Chen" size={40} />
+              <span className="text-label text-hint">28 · 32 · 40</span>
+            </div>
+          </Card>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-heading text-card-title-lg font-semibold text-ink">
+            SectionHeader
+          </h2>
+          <p className="mt-1 text-body-sm text-hint">
+            Card title with optional subtitle and an optional link or action on
+            the right.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Card variant="grey">
+              <SectionHeader
+                title="Recent activity"
+                link={{ label: "View all", href: "/dev/components" }}
+              />
+              <p className="text-body-sm text-muted">Title with a link.</p>
+            </Card>
+            <Card variant="grey">
+              <SectionHeader
+                title="My queue"
+                subtitle="Oldest first · checked = decided today"
+              />
+              <p className="text-body-sm text-muted">Title with a subtitle.</p>
+            </Card>
+            <Card variant="grey">
+              <SectionHeader
+                title="Paperwork on file"
+                size="md"
+                action={
+                  <Chip size="sm" color="amber">
+                    2 to fix
+                  </Chip>
+                }
+              />
+              <p className="text-body-sm text-muted">
+                18px title with a chip as the action.
+              </p>
+            </Card>
+            <Card variant="grey">
+              <SectionHeader
+                title="Waiting on others"
+                size="sm"
+                action={
+                  <span className="text-label-sm text-hint">
+                    A task appears when they reply
+                  </span>
+                }
+              />
+              <SectionHeader
+                title="Top brokers"
+                subtitle="This month, by deals funded"
+                action={
+                  <Button size="sm" variant="secondary">
+                    All brokers
+                  </Button>
+                }
+              />
             </Card>
           </div>
         </section>
