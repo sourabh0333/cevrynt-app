@@ -208,6 +208,13 @@ h4 {
     opacity: 1;
   }
 }
+/* Gentle entrance for floating panels: fade and a slight rise. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
 
 .anim-grow-x {
   transform-origin: left center;
@@ -232,13 +239,17 @@ h4 {
   opacity: 0;
   animation: fade-in 0.8s ease calc(var(--delay, 0s) + 0.9s) forwards;
 }
+.anim-rise {
+  animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
   .anim-ring,
   .anim-pop,
   .anim-draw,
-  .anim-fade {
+  .anim-fade,
+  .anim-rise {
     animation: none;
   }
   .anim-draw {

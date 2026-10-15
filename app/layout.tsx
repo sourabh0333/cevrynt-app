@@ -36,8 +36,9 @@ export const metadata: Metadata = {
   icons: { icon: "/brand/cevrynt-mark-solid.png" },
 };
 
-// Runs before the first paint so a remembered collapsed sidebar never flashes open.
-const sidebarBootScript = `try{if(localStorage.getItem("cevrynt-sidebar")==="collapsed")document.documentElement.setAttribute("data-sidebar","collapsed")}catch(e){}`;
+// Runs before the first paint so a remembered collapsed sidebar never flashes
+// open, and a closed Ask Cevrynt popup never flashes back.
+const sidebarBootScript = `try{var d=document.documentElement,s=localStorage;if(s.getItem("cevrynt-sidebar")==="collapsed")d.setAttribute("data-sidebar","collapsed");if(s.getItem("cevrynt-ask-seen")==="1")d.setAttribute("data-ask","seen")}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
