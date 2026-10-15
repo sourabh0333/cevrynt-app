@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/*
+  Cevrynt design tokens (from CLAUDE.md).
+  Tailwind v4 is configured in CSS: everything in @theme becomes a utility
+  (bg-teal, text-ink, rounded-card, shadow-float, font-heading, ...).
+*/
+@theme {
+  /* Reset the default palette so only Cevrynt colors exist. */
+  --color-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Surfaces */
+  --color-page: #eeece6; /* page background, warm grey */
+  --color-panel: #ffffff; /* content panel */
+  --color-card: #f5f3ef; /* card on white */
+  --color-tile: #ffffff; /* tile on a card */
+
+  /* Text */
+  --color-ink: #0f1513;
+  --color-muted: #4b524f;
+  --color-hint: #5f6662;
+
+  /* Brand */
+  --color-teal: #0e6b5c;
+  --color-teal-dark: #083e35;
+  --color-teal-deep: #0a5246;
+  --color-mint: #8fd9c3;
+  --color-mint-bg: #dcf0e9;
+  --color-mint-light: #eaf5f1;
+  --color-mint-border: #cde6de;
+
+  /* Status */
+  --color-red: #c2412d;
+  --color-red-bg: #f6ded8;
+  --color-red-text: #8e2b19;
+  --color-amber: #d98a2b;
+  --color-amber-bg: #f5e6cc;
+  --color-amber-text: #7a4206;
+  --color-blue: #4f86bd;
+  --color-blue-bg: #dce9f5;
+  --color-blue-text: #1f4c78;
+  --color-purple: #8670b8;
+  --color-purple-bg: #ede4f7;
+  --color-purple-text: #4b2f7a;
+
+  /* Borders */
+  --color-line: #ece8e0;
+  --color-line-strong: #e3dfd6;
+
+  /* Fonts (CSS variables come from next/font in app/layout.tsx) */
+  --font-heading: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: var(--font-instrument), "Instrument Sans", system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Type scale */
+  --text-page-title: 30px;
+  --text-page-title--line-height: 1.15;
+  --text-page-title--letter-spacing: -0.02em;
+  --text-card-title: 18px;
+  --text-card-title--line-height: 1.25;
+  --text-card-title--letter-spacing: -0.01em;
+  --text-card-title-lg: 20px;
+  --text-card-title-lg--line-height: 1.25;
+  --text-card-title-lg--letter-spacing: -0.01em;
+  --text-card-title-sm: 17px;
+  --text-card-title-sm--line-height: 1.25;
+  --text-card-title-sm--letter-spacing: -0.01em;
+  --text-body: 14px;
+  --text-body--line-height: 1.45;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 1.45;
+  --text-label: 12px;
+  --text-label--line-height: 1.3;
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 1.3;
+
+  /* Shape */
+  --radius-panel: 34px;
+  --radius-card: 24px;
+  --radius-card-lg: 30px;
+  --radius-tile: 14px;
+  --radius-tile-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-float: 0 24px 60px -32px rgba(15, 21, 19, 0.28);
+
+  /* Gradient */
+  --background-image-mint-card: linear-gradient(
+    150deg,
+    #d5ece5 0%,
+    #eaf5f1 55%,
+    #f7fbf9 100%
+  );
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Merchants</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.mcols{display:grid;grid-template-columns:minmax(0,1.5fr) 112px 84px minmax(0,1fr) 44px 74px;gap:10px;align-items:center}
+.mcols>*{min-width:0}
+.mcols>span:nth-child(2){justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box}
+.mcols>span:nth-child(3),.mcols>span:nth-child(6){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-scroll{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+@media (max-width: 1100px){.mcols{grid-template-columns:minmax(0,1.5fr) 112px 84px minmax(0,1fr) 44px}.mcols>:nth-child(6){display:none}}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.chip-scroll{scrollbar-width:none;-ms-overflow-style:none;white-space:nowrap}
+.chip-scroll::-webkit-scrollbar{display:none}
+.chip-scroll>button,.chip-scroll>*>button{flex:none;white-space:nowrap}
+.m-side>article:last-child{flex:1 1 auto}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="merchants" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Merchants</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">312 businesses · 86 with an active advance</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Row 1: stats -->
+    <section aria-label="Portfolio at a glance" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px">
+      <article style="border-radius: 28px; padding: 20px; color: #0F1513; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: #4B524F">Active advances</span><b class="num" style="font-size: 30px; font-weight: 600; line-height: 1">86</b><span style="font-size: 12px; color: #4B524F">$4.9M still to collect</span></article>
+      <article style="border-radius: 28px; padding: 20px; background: #F5F3EF; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: #5F6662">Paying on time</span><b class="num" style="font-size: 30px; font-weight: 600; line-height: 1">94%</b><div style="height: 6px; border-radius: 3px; background: #ECE8E0"><div style="width: 94%; height: 100%; border-radius: 3px; background: #0E6B5C"></div></div></article>
+      <article style="border-radius: 28px; padding: 20px; background: #F2E7CF; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: #6B4B1F">Ready to renew</span><b class="num" style="font-size: 30px; font-weight: 600; line-height: 1">9</b><span style="font-size: 12px; color: #8E4E08; font-weight: 600">Paid 50% or more, performing well</span></article>
+      <article style="border-radius: 28px; padding: 20px; background: #F6DED8; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: #8E2B19">On watch</span><b class="num" style="font-size: 30px; font-weight: 600; line-height: 1">5</b><span style="font-size: 12px; color: #8E2B19">Late payments or stacking alerts</span></article>
+      <article style="border-radius: 28px; padding: 20px; background: #DDDAD3; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: #3E4542">Come back for more</span><b class="num" style="font-size: 30px; font-weight: 600; line-height: 1">38%</b><span style="font-size: 12px; color: #3E4542">Of merchants take a 2nd advance</span></article>
+    </section>
+
+    <!-- Row 2: list + preview -->
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+      <section aria-labelledby="h-list" style="flex: 999 1 640px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 4px 0">
+          <h2 id="h-list" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">All merchants</h2>
+          <label style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; min-width: 220px"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Search merchants" placeholder="Business, owner, EIN or phone" style="border: 0; outline: 0; background: transparent; font: inherit; font-size: 12.5px; flex: 1; min-width: 0"></label>
+        </div>
+        <div role="group" aria-label="Show" class="chip-scroll" style="display: flex; gap: 6px; padding: 0 4px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding-bottom: 2px">
+          <sc-for list="{{segs}}" as="g" hint-placeholder-count="6"><button onClick="{{g.pick}}" aria-pressed="{{g.on}}" style="{{g.style}}">{{g.label}}<span style="{{g.cnt}}">{{g.count}}</span></button></sc-for>
+        </div>
+        <div class="m-scroll" style="flex: 1 1 0; height: 0; min-height: 360px; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div class="mcols cap" style="position: sticky; top: 0; z-index: 2; background: #F5F3EF; padding: 6px 12px 6px; color: #5F6662; font-size: 10px"><span>Merchant</span><span>Relationship</span><span>Deals</span><span>Balance left</span><span>Health</span><span>Last activity</span></div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <button onClick="{{r.pick}}" class="mcols" style="{{r.row}}">
+                <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="{{r.av}}">{{r.ini}}</span><span style="min-width: 0; text-align: left"><b class="trunc" style="display: block; font-size: 13px">{{r.name}}</b><span class="hint trunc" style="display: block">{{r.ind}} · {{r.st}}</span></span></span>
+                <span style="{{r.chip}}">{{r.rel}}</span>
+                <span style="font-size: 12.5px; text-align: left"><b>{{r.deals}}</b></span>
+                <span style="min-width: 0; text-align: left"><b class="num" style="display: block; font-size: 13.5px">{{r.bal}}</b><span style="display: block; height: 5px; border-radius: 3px; background: #ECE8E0; margin-top: 4px"><span style="{{r.bar}}"></span></span></span>
+                <span style="{{r.health}}">{{r.hs}}</span>
+                <span class="hint" style="text-align: left">{{r.last}}</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><div style="padding: 28px; text-align: center; border-radius: 18px; background: #FFFFFF"><b style="font-size: 13.5px">3 merchants are blocked</b><p class="hint" style="margin: 4px 0 0">Blocked for confirmed fraud. New applications from them, their owners or bank accounts are stopped at intake.</p></div></sc-if>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 0; flex-wrap: wrap; gap: 8px"><span class="hint" style="font-size: 12px">Showing {{shown}} of 312</span><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Export</button></div>
+      </section>
+
+      <aside aria-labelledby="h-pv" class="m-side" style="flex: 1 1 320px; min-width: 0; max-width: 100%; display: flex; flex-direction: column; gap: 14px">
+        <article style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; gap: 12px; align-items: center"><span style="{{p.av}}">{{p.ini}}</span><span style="min-width: 0"><h2 id="h-pv" class="disp" style="margin: 0; font-weight: 600; font-size: 20px; line-height: 1.15">{{p.name}}</h2><span style="font-size: 12px; color: #4B524F">{{p.ind}} · {{p.st}} · owner {{p.owner}}</span></span></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+            <span style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.1)"><span style="font-size: 11px; color: #4B524F">Funded with you</span><b class="num" style="display: block; font-size: 18px">{{p.funded}}</b></span>
+            <span style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.1)"><span style="font-size: 11px; color: #4B524F">Health</span><b class="num" style="display: block; font-size: 18px">{{p.hs}}</b></span>
+          </div>
+          <span style="font-size: 12.5px; color: #4B524F">{{p.note}}</span>
+          <div style="display: flex; gap: 8px"><a href="#" style="flex: 1; height: 42px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 13px; font-weight: 600; display: grid; place-items: center; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)">Open profile</a><a href="Intake.dc.html" style="height: 42px; padding: 0 18px; border-radius: 999px; background: #FFFFFF; border: 1.5px solid #0E6B5C; color: #0E6B5C; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box"><span style="font-size: 16px; line-height: 1">+</span>New deal</a></div>
+        </article>
+        <article style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+          <b class="disp" style="font-size: 17px; font-weight: 600">History with you</b>
+          <sc-for list="{{p.history}}" as="h" hint-placeholder-count="3">
+            <div style="display: flex; gap: 10px; align-items: flex-start; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.75)"><span style="{{h.dot}}"></span><span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13px">{{h.t}}</b><span class="hint" style="color: #4B524F">{{h.d}}</span></span><span class="mono" style="font-size: 11px; color: #5F6662">{{h.y}}</span></div>
+          </sc-for>
+        </article>
+      </aside>
+    </div>
+
+    <!-- Row 3: portfolio mix -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-ind" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-ind" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">By industry</h2><span style="font-size: 12px; opacity: .75">Share of money still to collect</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: #0E6B5C; color: #FFFFFF">$4.9M</span></div>
+        <div style="flex: 1; display: flex; gap: 18px; align-items: center">
+          <svg role="img" aria-label="Restaurants and food 31%, retail and other 22%, health and dental 18%, construction 17%, auto services 12%" width="104" height="104" viewBox="0 0 104 104" style="flex: none"><circle cx="52" cy="52" r="40" fill="none" stroke="#0A4A40" stroke-width="16" stroke-dasharray="75.4 251.3" stroke-dashoffset="0.0" transform="rotate(-90 52 52)"></circle><circle cx="52" cy="52" r="40" fill="none" stroke="#D8CFBD" stroke-width="16" stroke-dasharray="52.8 251.3" stroke-dashoffset="-77.9" transform="rotate(-90 52 52)"></circle><circle cx="52" cy="52" r="40" fill="none" stroke="#0E6B5C" stroke-width="16" stroke-dasharray="42.7 251.3" stroke-dashoffset="-133.2" transform="rotate(-90 52 52)"></circle><circle cx="52" cy="52" r="40" fill="none" stroke="#3FA58C" stroke-width="16" stroke-dasharray="40.2 251.3" stroke-dashoffset="-178.4" transform="rotate(-90 52 52)"></circle><circle cx="52" cy="52" r="40" fill="none" stroke="#8FD9C3" stroke-width="16" stroke-dasharray="27.7 251.3" stroke-dashoffset="-221.2" transform="rotate(-90 52 52)"></circle></svg>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px"><span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; font-size: 12.5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0A4A40"></span><span class="trunc">Restaurants & food</span><b class="num">31%</b></span><span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; font-size: 12.5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #D8CFBD"></span><span class="trunc">Retail & other</span><b class="num">22%</b></span><span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; font-size: 12.5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C"></span><span class="trunc">Health & dental</span><b class="num">18%</b></span><span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; font-size: 12.5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #3FA58C"></span><span class="trunc">Construction</span><b class="num">17%</b></span><span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; font-size: 12.5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #8FD9C3"></span><span class="trunc">Auto services</span><b class="num">12%</b></span></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12px"><span>Largest industry vs your 40% limit</span><b style="color: #0A5246">31%, OK</b></div>
+      </article>
+
+      <article aria-labelledby="h-geo" style="background: #F2E7CF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-geo" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">By state</h2><span style="font-size: 12px; opacity: .75">Where active merchants are</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: #F5F3EF; color: #3E4542">86 active</span></div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 8px"><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #0A4A40; color: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">ME</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">Maine</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 100%; height: 6px; border-radius: 3px; background: #0A4A40"></span></span></span><b class="num" style="text-align: right; font-size: 14px">28</b></div><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">NH</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">New Hampshire</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 68%; height: 6px; border-radius: 3px; background: #0E6B5C"></span></span></span><b class="num" style="text-align: right; font-size: 14px">19</b></div><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #2F8F7A; color: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">MA</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">Massachusetts</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 50%; height: 6px; border-radius: 3px; background: #2F8F7A"></span></span></span><b class="num" style="text-align: right; font-size: 14px">14</b></div><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #3FA58C; color: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">VT</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">Vermont</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 39%; height: 6px; border-radius: 3px; background: #3FA58C"></span></span></span><b class="num" style="text-align: right; font-size: 14px">11</b></div><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #8FD9C3; color: #0F1513; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">AZ</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">Arizona</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 29%; height: 6px; border-radius: 3px; background: #8FD9C3"></span></span></span><b class="num" style="text-align: right; font-size: 14px">8</b></div><div style="display: grid; grid-template-columns: 34px minmax(0,1fr) 30px; gap: 10px; align-items: center"><span class="mono" style="height: 26px; border-radius: 8px; background: #C9C0AC; color: #0F1513; display: grid; place-items: center; font-size: 10.5px; font-weight: 500">··</span><span style="min-width: 0"><span class="trunc" style="display: block; font-size: 12px; color: #3E4542">Other</span><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.7); margin-top: 3px"><span style="display: block; width: 21%; height: 6px; border-radius: 3px; background: #C9C0AC"></span></span></span><b class="num" style="text-align: right; font-size: 14px">6</b></div></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.7); font-size: 12px"><span>Disclosure template</span><b>Follows each state</b></div>
+      </article>
+
+      <article aria-labelledby="h-rep" style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-rep" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Repeat merchants</h2><span style="font-size: 12px; opacity: .75">First advance vs coming back</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: rgba(143,217,195,.18); color: #0A5246">3× better</span></div>
+        <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+          <div style="padding: 14px; border-radius: 18px; background: rgba(14,107,92,.07); display: flex; flex-direction: column; justify-content: space-between; gap: 10px"><span style="font-size: 11.5px; color: #4B524F">Late payments<br>first advance</span><b class="num" style="font-size: 24px; font-weight: 600; line-height: 1">7.1%</b><span style="display: block; height: 6px; border-radius: 3px; background: rgba(14,107,92,.18)"></span></div>
+          <div style="padding: 14px; border-radius: 18px; background: rgba(143,217,195,.14); border: 1px solid rgba(143,217,195,.3); display: flex; flex-direction: column; justify-content: space-between; gap: 10px"><span style="font-size: 11.5px; color: #0A5246">Late payments<br>repeat merchant</span><b class="num" style="font-size: 24px; font-weight: 600; line-height: 1; color: #0A5246">2.4%</b><span style="display: block; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1)"><span style="display: block; width: 34%; height: 6px; border-radius: 3px; background: #8FD9C3"></span></span></div>
+          <div style="padding: 12px 14px; border-radius: 16px; background: rgba(14,107,92,.07)"><b class="num" style="display: block; font-size: 18px">38%</b><span style="font-size: 11px; color: #4B524F">take a 2nd advance</span></div>
+          <div style="padding: 12px 14px; border-radius: 16px; background: rgba(14,107,92,.07)"><b class="num" style="display: block; font-size: 18px">1.3×</b><span style="font-size: 11px; color: #4B524F">larger 2nd advance</span></div>
+        </div>
+        <a href="Renewals.dc.html" style="height: 40px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600; display: grid; place-items: center; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)">Open Renewals · 9 ready</a>
+      </article>
+    </section>
+
+    <!-- Row 4: concentration + connected owners -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-top" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-top" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Biggest balances</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Where most of your money is, so no single merchant can hurt the book</div></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #DCF0E9; color: #083E35">Top 5 = 7% of book</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: grid; grid-template-columns: 30px minmax(0,1fr) 90px 70px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><b class="mono" style="font-size: 12px; color: #5F6662">01</b><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Cedar Street Pharmacy</b><span style="display: block; height: 5px; border-radius: 3px; background: #ECE8E0; margin-top: 5px"><span style="display: block; width: 100%; height: 5px; border-radius: 3px; background: #0E6B5C"></span></span></span><b class="num" style="text-align: right">$79.2K</b><span style="text-align: right; font-size: 12px; color: #5F6662">1.6%</span></div>
+          <div style="display: grid; grid-template-columns: 30px minmax(0,1fr) 90px 70px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><b class="mono" style="font-size: 12px; color: #5F6662">02</b><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Westfield Auto Group</b><span style="display: block; height: 5px; border-radius: 3px; background: #ECE8E0; margin-top: 5px"><span style="display: block; width: 92%; height: 5px; border-radius: 3px; background: #0E6B5C"></span></span></span><b class="num" style="text-align: right">$72.6K</b><span style="text-align: right; font-size: 12px; color: #5F6662">1.5%</span></div>
+          <div style="display: grid; grid-template-columns: 30px minmax(0,1fr) 90px 70px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><b class="mono" style="font-size: 12px; color: #5F6662">03</b><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Granite State Builders</b><span style="display: block; height: 5px; border-radius: 3px; background: #ECE8E0; margin-top: 5px"><span style="display: block; width: 86%; height: 5px; border-radius: 3px; background: #0E6B5C"></span></span></span><b class="num" style="text-align: right">$68.1K</b><span style="text-align: right; font-size: 12px; color: #5F6662">1.4%</span></div>
+        </div>
+        <span style="font-size: 12px; color: #4B524F">No merchant is above your 3% limit per business.</span>
+      </article>
+
+      <article aria-labelledby="h-own" style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-own" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Same owner, several businesses</h2></div>
+        <span style="font-size: 12.5px; color: #3E4542">Owners count once for risk, however many companies they run.</span>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.75)"><span style="width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(140deg, #E8C9A1, #C99A6B); display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #3A2817; flex: none">EB</span><span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13px">Elena Brooks</b><span class="hint trunc" style="display: block; color: #4B524F">Harbor Street Bakery, Harbor Street Catering</span></span><b style="font-size: 12px">2</b></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.75)"><span style="width: 36px; height: 36px; border-radius: 12px; background: #DCE9F5; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #1F4C78; flex: none">MD</span><span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13px">Mike Dunn</b><span class="hint trunc" style="display: block; color: #4B524F">Summit Roofing, Dunn Gutter Co</span></span><b style="font-size: 12px">2</b></div>
+        <a href="#" style="margin-top: auto; font-size: 12.5px; font-weight: 600; color: #0A5246">See all 12 owner groups</a>
+      </article>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { seg: 'all', sel: 'CD' }; }
+  renderVals() {
+    const s = this.state;
+    const REL = { active: ['Active advance', '#DCF0E9', '#083E35'], renew: ['Ready to renew', '#F5E6CC', '#7A4206'], review: ['In review', '#DCE9F5', '#1F4C78'], watch: ['On watch', '#F6DED8', '#8E2B19'], declined: ['Declined', '#EEECE6', '#3E4542'], new: ['Just funded', '#DCF0E9', '#083E35'] };
+    const D = [
+      { ini: 'CD', g: '#24588A,#4F86BD', name: 'Coastal Dental Group', ind: 'Dental', st: 'ME', rel: 'renew', deals: '3 · 2 funded', bal: '$25.5K', paid: 72, hs: 92, last: 'Renewal accepted', owner: 'Dr. Ana Ruiz', funded: '$130K',
+        note: 'Revenue is up 18% since funding and every payment has cleared. Renewal of $80K is accepted.',
+        history: [['Renewal accepted', '$80,000 · Apex Funding', '2026', 'g'], ['Current advance, 72% paid', '$70,000 · 1.30 factor', '2026', 'g'], ['First advance, paid off early', '$60,000 · 8 months', '2025', 'd']] },
+      { ini: 'HB', g: '#0E6B5C,#3FA58C', name: 'Harbor Street Bakery LLC', ind: 'Bakery', st: 'ME', rel: 'review', deals: '1 · in review', bal: '—', paid: 0, hs: 88, last: 'Today, 10:20', owner: 'Elena Brooks', funded: '$0',
+        note: 'First deal with you. Recommended $40,000; decision due today.', history: [['Application in review', '$45,000 requested · Apex Funding', '2026', 'a']] },
+      { ini: 'BN', g: '#57418A,#8670B8', name: 'Bayview Nail Spa', ind: 'Nail salon', st: 'ME', rel: 'new', deals: '1 · funded', bal: '$33.0K', paid: 0, hs: 81, last: 'Funded today', owner: 'Linh Tran', funded: '$25K',
+        note: 'Funded this morning. First payment on Wednesday.', history: [['Funded', '$25,000 · Summit Capital ISO', '2026', 'g']] },
+      { ini: 'KP', g: '#2C5F73,#5A90A6', name: 'Kestrel Plumbing', ind: 'Plumbing', st: 'MA', rel: 'active', deals: '1 · funded', bal: '$31.2K', paid: 48, hs: 77, last: 'Paid today', owner: 'Sam Okafor', funded: '$45K',
+        note: 'On track. Close to the halfway point, so a renewal conversation can start soon.', history: [['Current advance, 48% paid', '$45,000 · Keystone Brokerage', '2026', 'g']] },
+      { ini: 'OD', g: '#8A5A2B,#B98552', name: 'Oakview Deli', ind: 'Deli', st: 'ME', rel: 'renew', deals: '2 · 1 funded', bal: '$14.3K', paid: 64, hs: 88, last: 'Renewal offer sent', owner: 'Rosa Marino', funded: '$30K',
+        note: 'Revenue steady, no missed payments. Renewal offer sent last week.', history: [['Renewal offer sent', '$35,000', '2026', 'a'], ['Current advance, 64% paid', '$30,000', '2026', 'g']] },
+      { ini: 'MA', g: '#A3341F,#C2412D', name: 'Mesa Auto Repair', ind: 'Auto repair', st: 'AZ', rel: 'watch', deals: '1 · in review', bal: '—', paid: 0, hs: 54, last: 'Stacking alert', owner: 'Victor Salas', funded: '$0',
+        note: 'New UCC filing yesterday and a statement that does not reconcile. Review before any offer.', history: [['Stacking alert', 'New UCC filing', '2026', 'r'], ['Application in review', '$35,000 · BlueRock', '2026', 'a']] },
+      { ini: 'SR', g: '#7A4A2A,#B07A52', name: 'Summit Roofing LLC', ind: 'Roofing', st: 'NH', rel: 'active', deals: '2 · 1 funded', bal: '—', paid: 100, hs: 84, last: 'Contract out', owner: 'Mike Dunn', funded: '$70K',
+        note: 'Paid off a 2025 advance on time. New $90K contract waiting on a second signature.', history: [['Contract out', '$90,000 · 1 of 2 signed', '2026', 'a'], ['Paid off on time', '$70,000', '2025', 'd']] },
+      { ini: 'LF', g: '#3E4A46,#6B7873', name: 'Lakeside Florist', ind: 'Florist', st: 'VT', rel: 'declined', deals: '1 · declined', bal: '—', paid: 0, hs: 0, last: 'Declined today', owner: 'June Park', funded: '$0',
+        note: 'Declined: revenue below your policy minimum. Can reapply in 90 days.', history: [['Declined', 'Revenue below policy minimum', '2026', 'r']] }
+    ];
+    const segDef = [['all', 'All', 312], ['active', 'Active advance', 86], ['renew', 'Ready to renew', 9], ['watch', 'On watch', 5], ['review', 'In review', 28], ['declined', 'Declined', 41], ['blocked', 'Blocked', 3]];
+    const segs = segDef.map(([k, l, c]) => { const on = k === s.seg; return { label: l, count: c, on: on ? 'true' : 'false', pick: () => this.setState({ seg: k }),
+      style: 'display: inline-flex; gap: 8px; align-items: center; height: 34px; padding: 0 6px 0 12px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #FFFFFF; color: #3E4542'),
+      cnt: 'font-size: 11px; padding: 2px 7px; border-radius: 999px; ' + (on ? 'background: rgba(14,107,92,.08)' : 'background: #F5F3EF') }; });
+    const match = (d) => s.seg === 'all' || d.rel === s.seg || (s.seg === 'active' && (d.rel === 'new' || d.rel === 'renew'));
+    const av = (g, n) => 'width: ' + n + 'px; height: ' + n + 'px; border-radius: ' + Math.round(n / 3) + 'px; flex: none; display: grid; place-items: center; color: #FFFFFF; font-size: ' + (n > 40 ? 15 : 11) + 'px; font-weight: 700; background: linear-gradient(140deg,' + g + ')';
+    const rows = D.filter(match).map((d) => { const on = d.ini === s.sel; const r = REL[d.rel];
+      return { ...d, rel: r[0], pick: () => this.setState({ sel: d.ini }), av: av(d.g, 36),
+        row: 'padding: 9px 12px; border: 0; border-radius: 16px; font: inherit; color: inherit; cursor: pointer; width: 100%; box-sizing: border-box; ' + (on ? 'background: #FFFFFF; box-shadow: inset 0 0 0 1.5px #0F1513' : 'background: transparent'),
+        chip: 'justify-self: start; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: ' + r[1] + '; color: ' + r[2],
+        bar: 'display: block; height: 5px; border-radius: 3px; width: ' + d.paid + '%; background: ' + (d.paid >= 50 ? '#0E6B5C' : '#3FA58C'),
+        hs: d.hs ? String(d.hs) : '—',
+        health: 'width: 40px; height: 28px; border-radius: 10px; display: grid; place-items: center; font-size: 12.5px; font-weight: 700; ' + (!d.hs ? 'background: #FFFFFF; color: #9AA09C' : (d.hs >= 80 ? 'background: #DCF0E9; color: #083E35' : (d.hs >= 65 ? 'background: #F5E6CC; color: #7A4206' : 'background: #F6DED8; color: #8E2B19'))) }; });
+    const sel = D.find((d) => d.ini === s.sel) || D[0];
+    const hdot = { g: '#0E6B5C', d: '#9AA09C', a: '#D98A2B', r: '#C2412D' };
+    const p = { ...sel, av: av(sel.g, 48), hs: sel.hs ? sel.hs + ' / 100' : '—',
+      history: sel.history.map(([t, d, y, c]) => ({ t, d, y, dot: 'width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: 5px; background: ' + hdot[c] })) };
+    return { segs, rows, p, shown: rows.length, empty: rows.length === 0 };
+  }
+}
+</script>
+</body>
+</html>

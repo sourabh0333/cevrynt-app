@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Settings · Security</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.duo2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.duo2{grid-template-columns:1fr}}
+.tri3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.tri3{grid-template-columns:1fr}.tri3>div{border-left:0 !important}}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.rr{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,1fr) minmax(200px,1.3fr) 110px 140px;gap:16px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.set-nav{scrollbar-width:none}
+.set-nav::-webkit-scrollbar{display:none}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="settings" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Settings</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Security</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Settings layout -->
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <nav aria-label="Settings sections" class="set-nav" style="flex: 0 0 220px; max-width: 100%; position: sticky; top: 0; z-index: 2; max-height: calc(100vh - 60px); overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 24px; background: #F5F3EF">
+        <span class="cap" style="color: #5F6662; padding: 6px 10px">Underwriting</span>
+        <a href="Settings.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Policy<span style="font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: #FFFFFF; color: #3E4542">v3</span></a>
+        <a href="Settings-Pricing.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Pricing &amp; disclosures</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Deal flow</span>
+        <a href="Settings-Intake.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Intake channels</a>
+        <a href="Settings-Renewals.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Renewal rules</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Organization</span>
+        <a href="Settings-Team.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Team &amp; roles</a>
+        <a href="Settings-Workspace.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Workspace</a>
+        <a href="Settings-Plan.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Plan &amp; usage</a>
+        <a href="Settings-Security.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 16px -12px rgba(15,21,19,.4)">Security</a>
+        <a href="Settings-Audit.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Audit log</a>
+      </nav>
+
+      <div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <section aria-labelledby="h-sec" class="duo2" style="border-radius: 30px; padding: 8px; background: #FFFFFF; border: 1px solid #ECE8E0">
+          <div style="border-radius: 24px; padding: 20px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; gap: 18px; align-items: center">
+            <div style="position: relative; width: 92px; height: 92px; flex: none"><svg role="img" aria-label="Security score 86 of 100" width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="38" fill="none" stroke="#FFFFFF" stroke-width="9"></circle><circle cx="46" cy="46" r="38" fill="none" stroke="#0E6B5C" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{ringDash}}" transform="rotate(-90 46 46)"></circle></svg><b class="num" style="position: absolute; inset: 0; display: grid; place-items: center; font-size: 24px">{{score}}</b></div>
+            <div style="display: flex; flex-direction: column; gap: 4px"><span style="align-self: flex-start; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: #FFFFFF; color: #0A5246">{{scoreLabel}}</span><h2 id="h-sec" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">Security</h2><span style="font-size: 12.5px; color: #3E4542">Sign-in, access and how your data is protected</span></div>
+          </div>
+          <div style="border-radius: 24px; padding: 14px; background: #F6DED8; display: flex; flex-direction: column; gap: 8px">
+            <b style="font-size: 13.5px; padding: 2px 4px">{{fixCount}} to fix</b>
+            <sc-if value="{{needMfa}}" hint-placeholder-val="{{ true }}"><div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.85)"><span style="width: 30px; height: 30px; border-radius: 10px; background: #C2412D; color: #FFFFFF; display: grid; place-items: center; font-weight: 700; flex: none">!</span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b style="display: block">Leo Park has no 2-step login</b><span style="color: #6B2216">Required for everyone, but he joined before the rule</span></span><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap">Remind Leo</button></div></sc-if>
+            <div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.85)"><span style="width: 30px; height: 30px; border-radius: 10px; background: #C2412D; color: #FFFFFF; display: grid; place-items: center; font-weight: 700; flex: none">!</span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b style="display: block">Access review is 12 days late</b><span style="color: #6B2216">Confirm everyone still needs their access</span></span><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap">Start review</button></div>
+          </div>
+        </section>
+
+        <!-- Sign-in + access -->
+        <section aria-label="Sign-in and access" class="duo2" style="background: #F5F3EF; border-radius: 30px; padding: 8px">
+          <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px">
+            <div style="padding: 2px 4px 4px"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Signing in</h2><span class="hint" style="font-size: 12px">How your team gets in</span></div>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">2-step login for everyone</b><span class="hint">Code app, passkey or text</span></span><input type="checkbox" checked="{{t.mfa}}" onChange="{{tg.mfa}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Sign in with Google Workspace</b><span class="hint">Your company accounts, one password</span></span><input type="checkbox" checked="{{t.sso}}" onChange="{{tg.sso}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Sign out after 30 minutes idle</b><span class="hint">Shorter on shared computers</span></span><input type="checkbox" checked="{{t.idle}}" onChange="{{tg.idle}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Alert on a new device or country</b><span class="hint">Email the person and admins</span></span><input type="checkbox" checked="{{t.newdev}}" onChange="{{tg.newdev}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+          </div>
+          <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px; border-left: 1px solid #E3DFD6">
+            <div style="padding: 2px 4px 4px"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Protecting data</h2><span class="hint" style="font-size: 12px">What people can take out of Cevrynt</span></div>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Only from approved networks</b><span class="hint">Office and company VPN</span></span><input type="checkbox" checked="{{t.ip}}" onChange="{{tg.ip}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Name stamped on downloaded PDFs</b><span class="hint">Every memo and statement export</span></span><input type="checkbox" checked="{{t.watermark}}" onChange="{{tg.watermark}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Hide bank and tax numbers</b><span class="hint">Show only the last 4 digits</span></span><input type="checkbox" checked="{{t.mask}}" onChange="{{tg.mask}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Bulk exports need an admin</b><span class="hint">Single files are fine</span></span><input type="checkbox" checked="{{t.bulk}}" onChange="{{tg.bulk}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+          </div>
+        </section>
+
+        <!-- Recent sign-ins -->
+        <section aria-labelledby="h-si" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-si" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Recent sign-ins</h2><span class="hint" style="font-size: 12px">Today</span></div><div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"><span style="font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #F5F3EF">9 active sessions</span><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #F6DED8; color: #8E2B19; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Sign everyone out</button><a href="Settings-Audit.dc.html" style="font-size: 12px; font-weight: 600; color: #0E6B5C">Full audit log</a></div></div>
+          <div style="overflow-x: auto"><div style="min-width: 640px; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 20px; background: #F5F3EF">
+            <div class="cap" style="display: grid; grid-template-columns: minmax(130px,1fr) minmax(150px,1.2fr) minmax(120px,1fr) 80px 100px; gap: 12px; padding: 4px 14px 2px; color: #5F6662; font-size: 10px"><span>Person</span><span>Device</span><span>Where</span><span>Time</span><span>Result</span></div>
+            <div style="display: grid; grid-template-columns: minmax(130px,1fr) minmax(150px,1.2fr) minmax(120px,1fr) 80px 100px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Maya Chen</b><span>Chrome · Mac</span><span style="color: #4B524F">Boston, MA</span><span class="mono" style="font-size: 11.5px; color: #5F6662">10:42</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Signed in</span></div><div style="display: grid; grid-template-columns: minmax(130px,1fr) minmax(150px,1.2fr) minmax(120px,1fr) 80px 100px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Priya Shah</b><span>Safari · iPhone</span><span style="color: #4B524F">Boston, MA</span><span class="mono" style="font-size: 11.5px; color: #5F6662">10:31</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Signed in</span></div><div style="display: grid; grid-template-columns: minmax(130px,1fr) minmax(150px,1.2fr) minmax(120px,1fr) 80px 100px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Unknown</b><span>Chrome · Windows</span><span style="color: #4B524F">Lagos, Nigeria</span><span class="mono" style="font-size: 11.5px; color: #5F6662">09:17</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #F6DED8; color: #8E2B19">Blocked</span></div><div style="display: grid; grid-template-columns: minmax(130px,1fr) minmax(150px,1.2fr) minmax(120px,1fr) 80px 100px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Leo Park</b><span>Edge · Windows</span><span style="color: #4B524F">Quincy, MA</span><span class="mono" style="font-size: 11.5px; color: #5F6662">08:55</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #F5E6CC; color: #7A4206">No 2-step</span></div>
+          </div></div>
+          <span style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #F6DED8; font-size: 12px; color: #6B2216"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none"></span>The blocked attempt used Ari Kaplan's email with a wrong code. Ari has been told and asked to change his password.</span>
+        </section>
+
+        <!-- Outside users + support access -->
+        <section aria-label="Outside users and support access" class="duo2" style="background: #F5F3EF; border-radius: 30px; padding: 8px">
+          <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px">
+            <div style="padding: 2px 4px 4px"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Brokers and merchants</h2><span class="hint" style="font-size: 12px">People outside your team who log in</span></div>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">2-step login for brokers</b><span class="hint">Ready for when the broker portal launches</span></span><input type="checkbox" checked="{{t.brokerMfa}}" onChange="{{tg.brokerMfa}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">One-time code on Merchant Link</b><span class="hint">Sent to the owner\u2019s phone before any upload</span></span><input type="checkbox" checked="{{t.otp}}" onChange="{{tg.otp}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">Merchant Link expires after use</b><span class="hint">A finished link can\u2019t be opened again</span></span><input type="checkbox" checked="{{t.single}}" onChange="{{tg.single}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+          </div>
+          <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px; border-left: 1px solid #E3DFD6">
+            <div style="padding: 2px 4px 4px"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Cevrynt support access</h2><span class="hint" style="font-size: 12px">Our team can't see your data unless you allow it</span></div>
+            <div style="padding: 14px; border-radius: 16px; background: #FFFFFF; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap"><span style="font-size: 12.5px"><b style="display: block">{{supportTitle}}</b><span class="hint">{{supportSub}}</span></span><button onClick="{{toggleSupport}}" style="{{supportBtn}}">{{supportText}}</button></div>
+            <span style="display: flex; justify-content: space-between; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><span>Security contact</span><b class="mono" style="font-size: 12px; font-weight: 500">security@ridgelinecap.com</b></span>
+            <span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><span>Something looks wrong?</span><a href="#" style="font-weight: 600; color: #0E6B5C">Report a security problem</a></span>
+          </div>
+        </section>
+
+        <!-- Protection + documents -->
+        <section aria-label="How data is protected" class="tri3" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px">
+          <div style="border-radius: 24px; padding: 16px; background: #F5F3EF; display: flex; flex-direction: column; gap: 8px">
+            <h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Always on</h2>
+            <span style="font-size: 12.5px">Encrypted when stored and when sent</span><span style="font-size: 12.5px">Kept in the United States</span><span style="font-size: 12.5px">Backed up daily, kept 35 days</span><span style="font-size: 12.5px">Every file virus-scanned</span>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px; border-left: 1px solid #ECE8E0">
+            <h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">API keys</h2>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Live keys</span><b>1</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Oldest key</span><b>7 months</b></span>
+            <a href="Settings-Intake.dc.html" style="font-size: 12px; font-weight: 600; color: #0E6B5C">Manage in Intake channels</a>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px; border-left: 1px solid #ECE8E0">
+            <h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">For your auditors</h2>
+            <span class="hint" style="font-size: 12px">Documents capital partners and auditors ask for</span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Security report</span><a href="#" style="font-weight: 600; color: #0E6B5C">Request</a></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Data processing terms</span><a href="#" style="font-weight: 600; color: #0E6B5C">Download</a></span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { t: { mfa: true, sso: true, idle: true, newdev: true, ip: false, watermark: true, mask: true, bulk: true, brokerMfa: true, otp: true, single: true }, support: false }; }
+  renderVals() {
+    const t = this.state.t || {};
+    const tg = {};
+    Object.keys(t).forEach((k) => { tg[k] = () => this.setState({ t: { ...t, [k]: !t[k] } }); });
+    const pts = { mfa: 20, sso: 10, idle: 8, newdev: 8, ip: 6, watermark: 8, mask: 12, bulk: 8 };
+    let score = 20;
+    Object.keys(pts).forEach((k) => { if (t[k]) score += pts[k]; });
+    score = Math.min(100, score - 8);
+    const C = 2 * Math.PI * 38;
+    return { t, tg, score, ringDash: (C * score / 100).toFixed(1) + ' ' + C.toFixed(1),
+      scoreLabel: score >= 80 ? 'Strong' : (score >= 60 ? 'Could be stronger' : 'Weak'),
+      needMfa: true, fixCount: 2,
+      supportTitle: this.state.support ? 'Allowed until tomorrow 10:45' : 'Not allowed',
+      supportSub: this.state.support ? 'Every view is logged in the audit log' : 'Grant 24 hours when you ask for help',
+      supportText: this.state.support ? 'End now' : 'Allow 24 hours',
+      toggleSupport: () => this.setState({ support: !this.state.support }),
+      supportBtn: 'height: 36px; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; ' + (this.state.support ? 'background: #F6DED8; color: #8E2B19' : 'background: #0E6B5C; color: #FFFFFF') };
+  }
+}
+</script>
+</body>
+</html>

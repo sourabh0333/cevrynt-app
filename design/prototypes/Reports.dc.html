@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Reports</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.rr{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,1fr) minmax(200px,1.3fr) 110px 140px;gap:16px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (min-width: 1500px){.kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media (max-width: 620px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sp-line{stroke-dasharray:1;stroke-dashoffset:1;animation:spDraw 1.2s cubic-bezier(.45,0,.2,1) .3s forwards}
+@keyframes spDraw{to{stroke-dashoffset:0}}
+.sp-area{opacity:0;animation:spFade .8s ease .9s forwards}
+@keyframes spFade{to{opacity:1}}
+.fn-seg{transform-origin:50% 50%;animation:fnSeg .7s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes fnSeg{from{transform:scaleX(0);opacity:0}}
+.ar-new,.ar-ren{transform-box:fill-box;transform-origin:50% 100%;animation:arRise 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+.ar-ren{animation-delay:.45s}
+@keyframes arRise{from{transform:scaleY(0)}}
+.ar-line{stroke-dasharray:1;stroke-dashoffset:1;animation:spDraw 1.6s cubic-bezier(.45,0,.2,1) .4s forwards}
+.ar-pt{transform-box:fill-box;transform-origin:center;animation:arPt .45s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes arPt{from{transform:scale(0)}}
+.ar-tip{animation:arTip .5s ease 1.9s backwards}
+@keyframes arTip{from{opacity:0}}
+@media (prefers-reduced-motion: reduce){.sp-line,.ar-line{animation:none;stroke-dashoffset:0}.sp-area{animation:none;opacity:1}.fn-seg,.ar-new,.ar-ren,.ar-pt,.ar-tip{animation:none}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="reports" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Reports</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">How the business is doing, in one place</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Row 0: period + actions -->
+    <section aria-label="Period" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap">
+      <div role="group" aria-label="Period" style="display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: #F5F3EF"><sc-for list="{{periods}}" as="q" hint-placeholder-count="4"><button onClick="{{q.pick}}" aria-pressed="{{q.on}}" style="{{q.style}}">{{q.label}}</button></sc-for></div>
+      <div style="display: flex; gap: 8px"><button style="height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Schedule</button><button style="height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Export PDF</button></div>
+    </section>
+
+    <!-- Row 1: KPI scoreboard -->
+    <section aria-label="Key numbers" class="kpi-grid" style="border-radius: 28px; background: #F5F3EF; padding: 6px; display: grid; gap: 6px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="6">
+        <article style="{{k.box}}">
+          <span style="display: flex; justify-content: space-between; align-items: center; gap: 6px"><span style="font-size: 12px; color: #4B524F; white-space: nowrap">{{k.label}}</span><span style="{{k.deltaStyle}}">{{k.delta}}</span></span>
+          <b class="num" style="font-size: 26px; font-weight: 600; line-height: 1.05">{{k.value}}</b>
+          <svg aria-hidden="true" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 100%; height: 28px"><path class="sp-area" d="{{k.area}}" fill="{{k.fill}}"></path><path class="sp-line" pathLength="1" d="{{k.line}}" fill="none" stroke="{{k.stroke}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </article>
+      </sc-for>
+    </section>
+
+    <!-- Row 2: funnel + volume -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-fun" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px"><div><h2 id="h-fun" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">From submitted to funded</h2><div class="hint" style="font-size: 12px; margin-top: 3px">This month</div></div><span style="text-align: right"><b class="num" style="display: block; font-size: 24px; line-height: 1; color: #0A5246">13%</b><span class="hint">end to end</span></span></div>
+        <div role="img" aria-label="Submitted 312, fit policy 196, reviewed 168, approved 69, offer accepted 52, funded 41" style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 22px; background: #FFFFFF"><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Submitted</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.2s; width: 100%; height: 40px; background: #0A4A40; clip-path: polygon(0 0, 100% 0, 89.0% 100%, 11.0% 100%); display: grid; place-items: center; color: #FFFFFF; font-size: 14px; font-weight: 700" class="num">312</div></div><span></span></div><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Fit policy</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.3s; width: 78%; height: 40px; background: #0E6B5C; clip-path: polygon(0 0, 100% 0, 94.9% 100%, 5.1% 100%); display: grid; place-items: center; color: #FFFFFF; font-size: 14px; font-weight: 700" class="num">196</div></div><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #FFFFFF; color: #3E4542">63% kept</span></div><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Reviewed</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.4s; width: 70%; height: 40px; background: #2F8F7A; clip-path: polygon(0 0, 100% 0, 84.3% 100%, 15.7% 100%); display: grid; place-items: center; color: #FFFFFF; font-size: 14px; font-weight: 700" class="num">168</div></div><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #FFFFFF; color: #3E4542">86% kept</span></div><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Approved</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.5s; width: 48%; height: 40px; background: #3FA58C; clip-path: polygon(0 0, 100% 0, 91.7% 100%, 8.3% 100%); display: grid; place-items: center; color: #FFFFFF; font-size: 14px; font-weight: 700" class="num">69</div></div><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #F6DED8; color: #8E2B19">41% kept</span></div><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Offer accepted</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.6s; width: 40%; height: 40px; background: #6CC3A9; clip-path: polygon(0 0, 100% 0, 92.5% 100%, 7.5% 100%); display: grid; place-items: center; color: #083E35; font-size: 14px; font-weight: 700" class="num">52</div></div><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #FFFFFF; color: #3E4542">75% kept</span></div><div style="display: grid; grid-template-columns: 110px minmax(0,1fr) 84px; gap: 12px; align-items: center"><span style="font-size: 12.5px; font-weight: 600">Funded</span><div style="display: flex; justify-content: center"><div class="fn-seg" style="animation-delay: 0.7s; width: 34%; height: 40px; background: #8FD9C3; clip-path: polygon(0 0, 100% 0, 91.2% 100%, 8.8% 100%); display: grid; place-items: center; color: #083E35; font-size: 14px; font-weight: 700" class="num">41</div></div><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #FFFFFF; color: #3E4542">79% kept</span></div></div>
+        <span style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #F6DED8; font-size: 12px; color: #6B2216"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none"></span>Biggest drop is from reviewed to approved. The decline reasons below explain why.</span>
+      </article>
+      <article aria-labelledby="h-vol" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap"><div><h2 id="h-vol" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Funded each month</h2><div class="hint" style="font-size: 12px; margin-top: 3px">May to October</div></div><div style="display: flex; gap: 12px; font-size: 12px"><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C"></span>New deals</span><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #8FD9C3"></span>Renewals</span></div></div>
+        <div style="border-radius: 22px; background: #F5F3EF; padding: 12px 10px 6px"><svg role="img" aria-label="Funded volume rising from $0.78M in May to $1.24M in October; renewals grow from $160K to $380K" viewBox="0 0 640 262" style="width: 100%; height: 262px; display: block">
+            <defs><linearGradient id="gNew" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E6B5C" stop-opacity=".9"></stop><stop offset="1" stop-color="#0E6B5C" stop-opacity=".55"></stop></linearGradient></defs>
+            <line x1="30" x2="590" y1="171.5" y2="171.5" stroke="#E7E3DB" stroke-dasharray="3 5"></line><text x="598" y="175.5" font-size="10.5" fill="#7A807C" font-family="Instrument Sans, sans-serif">$0.4M</text><line x1="30" x2="590" y1="113.1" y2="113.1" stroke="#E7E3DB" stroke-dasharray="3 5"></line><text x="598" y="117.1" font-size="10.5" fill="#7A807C" font-family="Instrument Sans, sans-serif">$0.8M</text><line x1="30" x2="590" y1="54.6" y2="54.6" stroke="#E7E3DB" stroke-dasharray="3 5"></line><text x="598" y="58.6" font-size="10.5" fill="#7A807C" font-family="Instrument Sans, sans-serif">$1.2M</text>
+            <path d="M30.0 139.4 C86.0 139.4 86.0 132.1 142.0 132.1 C198.0 132.1 198.0 132.1 254.0 132.1 C310.0 132.1 310.0 123.3 366.0 123.3 C422.0 123.3 422.0 120.4 478.0 120.4 C534.0 120.4 534.0 104.3 590.0 104.3 L590 230 L30 230 Z" fill="url(#gNew)" class="ar-new"></path>
+            <path d="M30.0 116.0 C86.0 116.0 86.0 104.3 142.0 104.3 C198.0 104.3 198.0 97.0 254.0 97.0 C310.0 97.0 310.0 85.3 366.0 85.3 C422.0 85.3 422.0 76.5 478.0 76.5 C534.0 76.5 534.0 48.8 590.0 48.8 L590.0 104.3 C534.0 104.3 534.0 120.4 478.0 120.4 C422.0 120.4 422.0 123.3 366.0 123.3 C310.0 123.3 310.0 132.1 254.0 132.1 C198.0 132.1 198.0 132.1 142.0 132.1 C86.0 132.1 86.0 139.4 30.0 139.4 Z" fill="#8FD9C3" fill-opacity=".75" class="ar-ren"></path>
+            <path d="M30.0 116.0 C86.0 116.0 86.0 104.3 142.0 104.3 C198.0 104.3 198.0 97.0 254.0 97.0 C310.0 97.0 310.0 85.3 366.0 85.3 C422.0 85.3 422.0 76.5 478.0 76.5 C534.0 76.5 534.0 48.8 590.0 48.8" fill="none" stroke="#0E6B5C" stroke-width="2.5" class="ar-line" pathLength="1"></path>
+            <circle class="ar-pt" style="animation-delay: 0.5s" cx="30.0" cy="116.0" r="3.5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle><circle class="ar-pt" style="animation-delay: 0.7s" cx="142.0" cy="104.3" r="3.5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle><circle class="ar-pt" style="animation-delay: 0.9s" cx="254.0" cy="97.0" r="3.5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle><circle class="ar-pt" style="animation-delay: 1.1s" cx="366.0" cy="85.3" r="3.5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle><circle class="ar-pt" style="animation-delay: 1.3s" cx="478.0" cy="76.5" r="3.5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle><circle class="ar-pt" style="animation-delay: 1.5s" cx="590.0" cy="48.8" r="5" fill="#FFFFFF" stroke="#0E6B5C" stroke-width="2.5"></circle>
+            <line x1="590.0" x2="590.0" y1="48.8" y2="230" stroke="#0F1513" stroke-dasharray="3 4"></line>
+            <rect class="ar-tip" x="478.0" y="0.8" width="104" height="36" rx="12" fill="#0F1513"></rect>
+            <text x="530.0" y="15.8" text-anchor="middle" font-size="11" class="ar-tip" fill="#BCD3CB" font-family="Instrument Sans, sans-serif">October</text>
+            <text x="530.0" y="30.8" text-anchor="middle" font-size="13" class="ar-tip" font-weight="700" fill="#FFFFFF" font-family="Instrument Sans, sans-serif">$1.24M</text>
+            <text x="30.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">May</text><text x="142.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">Jun</text><text x="254.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">Jul</text><text x="366.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">Aug</text><text x="478.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">Sep</text><text x="590.0" y="252" text-anchor="middle" font-size="11.5" fill="#5F6662" font-family="Instrument Sans, sans-serif">Oct</text>
+          </svg></div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Growth since May</span><b class="num" style="font-size: 18px; color: #0A5246">+59%</b></span>
+          <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Renewal share</span><b class="num" style="font-size: 18px">21% → 31%</b></span>
+          <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Best month</span><b class="num" style="font-size: 18px">October</b></span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Row 3: declines and the rules behind them -->
+    <section aria-labelledby="h-rule" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap">
+        <div><h2 id="h-rule" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Declines and the rules behind them</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Each decline traced to the rule that caused it, and how well that rule protects you</div></div>
+        <span style="display: flex; align-items: baseline; gap: 6px"><b class="num" style="font-size: 26px; line-height: 1">99</b><span class="hint">declines this month</span></span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 22px; background: #FFFFFF">
+        <div role="img" aria-label="Share of declines by reason" style="display: flex; gap: 3px; height: 16px; border-radius: 8px; overflow: hidden"><span title="Revenue below minimum" style="flex: 31; background: #0A4A40"></span><span title="Too many positions" style="flex: 24; background: #0E6B5C"></span><span title="Fraud or edited documents" style="flex: 14; background: #C2412D"></span><span title="Too young a business" style="flex: 12; background: #3FA58C"></span><span title="Restricted industry" style="flex: 10; background: #8FD9C3"></span><span title="Other, incl. debt load" style="flex: 8; background: #C9C0AC"></span></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 18px"><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0A4A40; flex: none"></span><span class="trunc" style="flex: 1">Revenue below minimum</span><b class="num">31</b></span><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C; flex: none"></span><span class="trunc" style="flex: 1">Too many positions</span><b class="num">24</b></span><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #C2412D; flex: none"></span><span class="trunc" style="flex: 1">Fraud or edited documents</span><b class="num">14</b></span><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #3FA58C; flex: none"></span><span class="trunc" style="flex: 1">Too young a business</span><b class="num">12</b></span><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #8FD9C3; flex: none"></span><span class="trunc" style="flex: 1">Restricted industry</span><b class="num">10</b></span><span style="display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 12px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #C9C0AC; flex: none"></span><span class="trunc" style="flex: 1">Other, incl. debt load</span><b class="num">8</b></span></div>
+      </div>
+
+      <div style="overflow-x: auto">
+        <div style="min-width: 860px; display: flex; flex-direction: column; gap: 6px">
+          <div class="rr cap" style="padding: 0 16px 2px; color: #5F6662; font-size: 10px"><span>Rule</span><span>Deals it declined</span><span>Late payments on deals it passed · target 3%</span><span>Verdict</span><span></span></div>
+          <div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #0A4A40; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Revenue at least $15K a month</b><span class="hint trunc" style="display: block">Revenue below minimum</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 100%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">31</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 33%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #0E6B5C; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #0E6B5C"></span>
+                <b class="num" style="position: absolute; left: 33%; top: -8px; transform: translateX(-50%); font-size: 11px">2.0%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #DCF0E9; color: #083E35; white-space: nowrap">Working</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">View deals</a>
+            </div><div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #0E6B5C; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">No more than 2 open positions</b><span class="hint trunc" style="display: block">Too many positions</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 77%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">24</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 77%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #C2412D; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #C2412D"></span>
+                <b class="num" style="position: absolute; left: 77%; top: -8px; transform: translateX(-50%); font-size: 11px">4.6%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #F6DED8; color: #8E2B19; white-space: nowrap">Tighten</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">Simulate 1 position</a>
+            </div><div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #C2412D; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Integrity checks pass</b><span class="hint trunc" style="display: block">Fraud or edited documents</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 45%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">14</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 15%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #0E6B5C; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #0E6B5C"></span>
+                <b class="num" style="position: absolute; left: 15%; top: -8px; transform: translateX(-50%); font-size: 11px">0.9%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #DCF0E9; color: #083E35; white-space: nowrap">Working</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">View deals</a>
+            </div><div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #3FA58C; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">At least 6 months in business</b><span class="hint trunc" style="display: block">Too young a business</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 39%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">12</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 52%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #D98A2B; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #D98A2B"></span>
+                <b class="num" style="position: absolute; left: 52%; top: -8px; transform: translateX(-50%); font-size: 11px">3.1%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #F5E6CC; color: #7A4206; white-space: nowrap">Watch</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">Simulate 9 months</a>
+            </div><div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #8FD9C3; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Industry not restricted</b><span class="hint trunc" style="display: block">Restricted industry</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 32%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">10</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 37%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #0E6B5C; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #0E6B5C"></span>
+                <b class="num" style="position: absolute; left: 37%; top: -8px; transform: translateX(-50%); font-size: 11px">2.2%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #DCF0E9; color: #083E35; white-space: nowrap">Working</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">View deals</a>
+            </div><div class="rr" style="padding: 12px 16px; border-radius: 18px; background: #FFFFFF">
+              <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 10px; height: 34px; border-radius: 5px; background: #C9C0AC; flex: none"></span><span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Debt under 65% of revenue</b><span class="hint trunc" style="display: block">Other, incl. debt load</span></span></span>
+              <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 1; height: 8px; border-radius: 4px; background: #F1EEE8"><span style="display: block; height: 8px; width: 26%; border-radius: 4px; background: #0F1513"></span></span><b class="num" style="width: 26px; text-align: right">8</b></span>
+              <span style="position: relative; display: block; height: 30px">
+                <span style="position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: #E3DFD6; border-radius: 1px"></span>
+                <span style="position: absolute; left: 50%; right: 0; top: 8px; height: 14px; border-radius: 0 7px 7px 0; background: rgba(194,65,45,.08)"></span>
+                <span style="position: absolute; left: 50%; top: 5px; width: 2px; height: 20px; background: #0F1513"></span>
+                <span style="position: absolute; left: 23%; top: 15px; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #4F86BD; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #4F86BD"></span>
+                <b class="num" style="position: absolute; left: 23%; top: -8px; transform: translateX(-50%); font-size: 11px">1.4%</b>
+              </span>
+              <span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #DCE9F5; color: #1F4C78; white-space: nowrap">Could loosen</span>
+              <a href="#" style="justify-self: end; font-size: 12px; font-weight: 600; color: #0E6B5C; white-space: nowrap">Simulate 70%</a>
+            </div>
+        </div>
+      </div>
+      <span style="display: flex; gap: 10px; align-items: center; font-size: 12px; color: #4B524F"><span style="display: inline-flex; width: 26px; height: 12px; border-radius: 0 6px 6px 0; background: rgba(194,65,45,.12); border-left: 2px solid #0F1513"></span>Right of the black line means the rule lets through deals that pay late more often than you want.</span>
+    </section>
+
+    <!-- Row 3b: unit economics -->
+    <section aria-labelledby="h-unit" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-unit" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">What every $1 funded earns</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Deals finished this year, after commission, losses and costs</div></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #DCF0E9; color: #083E35">20¢ kept per $1</span></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch; padding: 18px; border-radius: 22px; background: #F5F3EF">
+        <div style="flex: 1 1 200px; display: flex; flex-direction: column; justify-content: center; gap: 6px">
+          <span style="font-size: 12.5px; color: #4B524F">For every $1 you fund</span>
+          <b class="num" style="font-size: 40px; font-weight: 600; line-height: 1">$1.32</b>
+          <span style="font-size: 12.5px; color: #4B524F">comes back, and you keep</span>
+          <span style="align-self: flex-start; display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 14px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF"><b class="num" style="font-size: 22px">20¢</b><span style="font-size: 12px">profit</span></span>
+        </div>
+        <div style="flex: 3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px; justify-content: center">
+          <div style="display: flex; font-size: 11px; font-weight: 600; color: #4B524F">
+            <span style="flex: 0 0 75.76%; border-bottom: 2px solid #0F1513; padding-bottom: 4px; text-align: center">Principal returned</span>
+            <span style="flex: 1; border-bottom: 2px solid #8FD9C3; padding-bottom: 4px; text-align: center; margin-left: 4px; color: #0A5246">Fees, 32¢</span>
+          </div>
+          <div role="img" aria-label="Of $1.32 repaid: $1.00 principal, 8 cents commission, 3 cents losses, 1 cent costs, 20 cents profit" style="display: flex; gap: 3px; height: 54px; border-radius: 16px; overflow: hidden"><span style="flex: 0 0 75.76%; background: #0F1513; display: grid; place-items: center; min-width: 4px"><span style="font-size: 12px; font-weight: 700; color: #FFFFFF; white-space: nowrap">$1.00</span></span><span style="flex: 0 0 6.06%; background: #E7A08F; display: grid; place-items: center; min-width: 4px"></span><span style="flex: 0 0 2.27%; background: #C2412D; display: grid; place-items: center; min-width: 4px"></span><span style="flex: 0 0 0.76%; background: #9AA09C; display: grid; place-items: center; min-width: 4px"></span><span style="flex: 0 0 15.15%; background: #0E6B5C; display: grid; place-items: center; min-width: 4px"><span style="font-size: 12px; font-weight: 700; color: #FFFFFF; white-space: nowrap">20¢</span></span></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px"><span style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 9px; height: 9px; border-radius: 3px; background: #0F1513"></span>Your money back</span><b class="num" style="font-size: 18px">$1.00</b><span style="font-size: 11px; color: #5F6662">76% of what comes back</span></span><span style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 9px; height: 9px; border-radius: 3px; background: #E7A08F"></span>Broker commission</span><b class="num" style="font-size: 18px">−8¢</b><span style="font-size: 11px; color: #5F6662">6% of what comes back</span></span><span style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 9px; height: 9px; border-radius: 3px; background: #C2412D"></span>Losses</span><b class="num" style="font-size: 18px">−3¢</b><span style="font-size: 11px; color: #5F6662">2% of what comes back</span></span><span style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 9px; height: 9px; border-radius: 3px; background: #9AA09C"></span>Costs</span><b class="num" style="font-size: 18px">−1¢</b><span style="font-size: 11px; color: #5F6662">1% of what comes back</span></span><span style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 16px; background: #EAF5F1; box-shadow: inset 0 0 0 1.5px #8FD9C3"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 9px; height: 9px; border-radius: 3px; background: #0E6B5C"></span>Kept as profit</span><b class="num" style="font-size: 18px">20¢</b><span style="font-size: 11px; color: #5F6662">15% of what comes back</span></span></div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px">
+        <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Average deal</span><b class="num" style="font-size: 18px">$30.2K</b></span>
+        <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Average factor</span><b class="num" style="font-size: 18px">1.32</b></span>
+        <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Average term</span><b class="num" style="font-size: 18px">6.4 months</b></span>
+        <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Cevrynt cost per deal</span><b class="num" style="font-size: 18px">$5.20</b></span>
+      </div>
+    </section>
+
+    <!-- Row 4: team -->
+    <section aria-labelledby="h-team" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-team" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Underwriting team</h2><div class="hint" style="font-size: 12px; margin-top: 3px">This quarter · "Agrees with Cevrynt" shows how often the person's decision matched the suggestion</div></div></div>
+      <div style="overflow-x: auto"><div style="min-width: 700px; display: flex; flex-direction: column; gap: 6px">
+        <div class="cap" style="display: grid; grid-template-columns: minmax(160px,1.4fr) 80px 90px 90px 120px 80px; gap: 12px; padding: 0 14px 2px; color: #5F6662; font-size: 10px"><span>Underwriter</span><span>Decided</span><span>Avg time</span><span>Approved</span><span>Agrees with Cevrynt</span><span>Late later</span></div>
+        <div style="display: grid; grid-template-columns: minmax(160px,1.4fr) 80px 90px 90px 120px 80px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 32px; height: 32px; border-radius: 50%; background: #E8D9C1; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">MC</span><b class="trunc" style="font-size: 13px">Maya Chen</b></span><b class="num">112</b><span style="font-size: 12.5px">2h 50m</span><span style="font-size: 12.5px">44%</span><span style="display: flex; gap: 8px; align-items: center"><span style="flex: 1; height: 6px; border-radius: 3px; background: #ECE8E0"><span style="display: block; height: 6px; width: 91%; border-radius: 3px; background: #0E6B5C"></span></span><b style="font-size: 12px">91%</b></span><span style="font-size: 12.5px; font-weight: 700; color: #0A5246">1.8%</span></div><div style="display: grid; grid-template-columns: minmax(160px,1.4fr) 80px 90px 90px 120px 80px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 32px; height: 32px; border-radius: 50%; background: #E8D9C1; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">AK</span><b class="trunc" style="font-size: 13px">Ari Kaplan</b></span><b class="num">98</b><span style="font-size: 12.5px">3h 40m</span><span style="font-size: 12.5px">38%</span><span style="display: flex; gap: 8px; align-items: center"><span style="flex: 1; height: 6px; border-radius: 3px; background: #ECE8E0"><span style="display: block; height: 6px; width: 84%; border-radius: 3px; background: #0E6B5C"></span></span><b style="font-size: 12px">84%</b></span><span style="font-size: 12.5px; font-weight: 700; color: #A3341F">2.9%</span></div><div style="display: grid; grid-template-columns: minmax(160px,1.4fr) 80px 90px 90px 120px 80px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 32px; height: 32px; border-radius: 50%; background: #CFE6DD; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">JR</span><b class="trunc" style="font-size: 13px">Jordan Reyes</b></span><b class="num">87</b><span style="font-size: 12.5px">3h 05m</span><span style="font-size: 12.5px">43%</span><span style="display: flex; gap: 8px; align-items: center"><span style="flex: 1; height: 6px; border-radius: 3px; background: #ECE8E0"><span style="display: block; height: 6px; width: 88%; border-radius: 3px; background: #0E6B5C"></span></span><b style="font-size: 12px">88%</b></span><span style="font-size: 12.5px; font-weight: 700; color: #0A5246">2.0%</span></div><div style="display: grid; grid-template-columns: minmax(160px,1.4fr) 80px 90px 90px 120px 80px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF"><span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="width: 32px; height: 32px; border-radius: 50%; background: #DCE9F5; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">PS</span><b class="trunc" style="font-size: 13px">Priya Shah</b></span><b class="num">41</b><span style="font-size: 12.5px">2h 10m</span><span style="font-size: 12.5px">36%</span><span style="display: flex; gap: 8px; align-items: center"><span style="flex: 1; height: 6px; border-radius: 3px; background: #ECE8E0"><span style="display: block; height: 6px; width: 93%; border-radius: 3px; background: #0E6B5C"></span></span><b style="font-size: 12px">93%</b></span><span style="font-size: 12.5px; font-weight: 700; color: #0A5246">1.2%</span></div>
+      </div></div>
+    </section>
+
+    <!-- Row 5: saved reports + library -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-sched" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-sched" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Sent automatically</h2><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">+ New</button></div>
+        <div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #F5F3EF"><span class="mono" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500; flex: none">MON</span><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Weekly pipeline</b><span class="hint">To the leadership team · 8:00</span></span></div>
+        <div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #F5F3EF"><span class="mono" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500; flex: none">1ST</span><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Portfolio report for capital partners</b><span class="hint">Monthly · PDF</span></span></div>
+        <div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #F5F3EF"><span class="mono" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; display: grid; place-items: center; font-size: 10.5px; font-weight: 500; flex: none">FRI</span><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Broker scorecards</b><span class="hint">To each broker · their own score only</span></span></div>
+      </article>
+      <article aria-labelledby="h-lib" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+        <div><h2 id="h-lib" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Report library</h2><span class="hint" style="font-size: 12px">Ready-made reports. Open, adjust, save.</span></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px">
+          <a href="Funded.dc.html" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Portfolio health</b><span class="hint">Collections, late payments, losses</span></a>
+          <a href="#" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Deals by funding month</b><span class="hint">How each month's deals pay back</span></a>
+          <a href="Brokers.dc.html" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Broker performance</b><span class="hint">Volume, quality, commission</span></a>
+          <a href="#" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Disclosures sent</b><span class="hint">Every cost disclosure, by state</span></a>
+          <a href="Stacking.dc.html" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Stacking and fraud</b><span class="hint">Alerts, outcomes, money saved</span></a>
+          <a href="Renewals.dc.html" style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><b style="font-size: 13.5px">Renewals</b><span class="hint">Who renewed and who left</span></a>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { period: 'month' }; }
+  renderVals() {
+    const per = this.state.period ?? 'month';
+    const P = [['week', 'This week'], ['month', 'This month'], ['quarter', 'This quarter'], ['year', 'This year']];
+    const periods = P.map(([k, l]) => { const on = k === per; return { label: l, on: on ? 'true' : 'false', pick: () => this.setState({ period: k }),
+      style: 'height: 34px; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: transparent; color: #3E4542') }; });
+    const V = {
+      week:    [['Funded', '$310K', '+8%', 1], ['Deals funded', '11', '+2', 1], ['Approval rate', '41%', 'Flat', 0], ['Pull-through', '13%', '+1 pt', 1], ['Time to decision', '3h 12m', '−20 min', 1], ['Loss rate', '2.1%', 'YTD', 0]],
+      month:   [['Funded', '$1.24M', '+12%', 1], ['Deals funded', '41', '+6', 1], ['Approval rate', '41%', '+2 pts', 1], ['Pull-through', '13%', 'Flat', 0], ['Time to decision', '3h 12m', '−35 min', 1], ['Loss rate', '2.1%', 'YTD', 0]],
+      quarter: [['Funded', '$3.28M', '+18%', 1], ['Deals funded', '112', '+14', 1], ['Approval rate', '41%', '+3 pts', 1], ['Pull-through', '13%', '+1 pt', 1], ['Time to decision', '3h 30m', '−50 min', 1], ['Loss rate', '2.1%', '−0.4 pts', 1]],
+      year:    [['Funded', '$9.6M', '+31%', 1], ['Deals funded', '338', '+71', 1], ['Approval rate', '39%', '+4 pts', 1], ['Pull-through', '12%', '+2 pts', 1], ['Time to decision', '4h 05m', '−1h 40m', 1], ['Loss rate', '2.1%', '−0.6 pts', 1]]
+    };
+    const SP = { week: [[3, 4, 3.5, 5, 6], [2, 3, 3, 4, 5], [5, 5, 5, 5, 5], [4, 4, 5, 5, 5], [6, 5, 5, 4, 3], [5, 5, 5, 5, 5]],
+      month: [[3, 3.5, 4, 4.6, 6], [3, 3.4, 4, 4.5, 5.5], [3.6, 3.8, 4, 4.4, 4.6], [4, 4.3, 4, 4.2, 4.2], [6, 5.5, 5, 4.4, 3.8], [5.2, 5, 4.8, 4.6, 4.5]],
+      quarter: [[2, 3, 3.6, 4.4, 6], [2, 3, 3.8, 4.4, 5.6], [3, 3.5, 4, 4.4, 4.8], [3.5, 3.8, 4, 4.3, 4.6], [6.4, 5.6, 5, 4.4, 3.6], [5.6, 5.2, 5, 4.6, 4.4]],
+      year: [[1, 2, 3, 4.5, 6], [1.5, 2.5, 3.4, 4.6, 6], [3, 3.4, 3.8, 4.2, 4.8], [3, 3.6, 4, 4.4, 4.8], [6.6, 5.8, 5, 4.2, 3.4], [6, 5.4, 5, 4.6, 4.2]] };
+    const kpis = V[per].map(([label, value, delta, good], i) => {
+      const d = SP[per][i], mn = Math.min(...d), mx = Math.max(...d), rg = (mx - mn) || 1;
+      const pts = d.map((v, j) => (4 + j * 28).toFixed(1) + ' ' + (24 - (v - mn) / rg * 18).toFixed(1));
+      const line = 'M' + pts.join(' L');
+      const hero = i === 0;
+      return { label, value, delta, line, area: line + ' L116 28 L4 28 Z',
+        stroke: hero ? '#0E6B5C' : '#9AA09C', fill: hero ? 'rgba(14,107,92,.14)' : 'rgba(154,160,156,.14)',
+        box: 'border-radius: 22px; padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 6px; ' + (hero ? 'background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); box-shadow: inset 0 0 0 1px #CDE6DE' : 'background: #FFFFFF'),
+        deltaStyle: 'font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; white-space: nowrap; ' + (good ? 'background: #DCF0E9; color: #0A5246' : 'background: #EEECE6; color: #5F6662') };
+    });
+    return { periods, kpis };
+  }
+}
+</script>
+</body>
+</html>

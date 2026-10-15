@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Funded deals</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.fcols{display:grid;grid-template-columns:minmax(190px,1.4fr) minmax(140px,1fr) 84px 110px 96px 120px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+.pay-dot{transform-origin:50% 100%;animation:payDot .45s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes payDot{from{transform:scaleY(0);opacity:0}}
+.fd-line{stroke-dasharray:1;stroke-dashoffset:1;animation:fdLine 1.4s cubic-bezier(.45,0,.2,1) .3s forwards}
+@keyframes fdLine{to{stroke-dashoffset:0}}
+.fd-area{opacity:0;animation:fdArea 1s ease .9s forwards}
+@keyframes fdArea{to{opacity:1}}
+.fd-base{opacity:0;animation:fdArea .6s ease .1s forwards}
+@media (prefers-reduced-motion: reduce){.pay-dot{animation:none}.fd-line{animation:none;stroke-dashoffset:0}.fd-area,.fd-base{animation:none;opacity:1}}
+.fc-col{transform-origin:50% 100%;animation:fcCol .9s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes fcCol{from{transform:scaleY(0)}}
+.fc-col>span:first-child{animation:fcCap .5s ease backwards;animation-delay:inherit}
+@keyframes fcCap{0%,60%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.fc-col,.fc-col>span{animation:none}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="funded" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Funded deals</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">86 advances being repaid · $4.9M still to collect</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Row 1: today + stats -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-today" class="span2" style="border-radius: 30px; padding: 22px; color: #0F1513; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap"><div><h2 id="h-today" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">Today's payments</h2><span style="font-size: 12.5px; color: #4B524F">Daily and weekly debits due today across your book</span></div><span style="font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: rgba(14,107,92,.07); border: 1px solid rgba(14,107,92,.07)">Settles by 5:00 pm</span></div>
+        <div style="display: flex; gap: 22px; align-items: flex-end; flex-wrap: wrap"><span><span style="display: block; font-size: 12px; color: #4B524F">Collected so far</span><b class="num" style="font-size: 34px; font-weight: 600; line-height: 1">$24.1K</b></span><span style="font-size: 13px; color: #4B524F; padding-bottom: 6px">of $28.4K expected · 81 payments</span></div>
+        <div style="display: flex; gap: 3px; height: 14px; border-radius: 7px; overflow: hidden"><span style="flex: 241; background: #8FD9C3"></span><span style="flex: 34; background: rgba(255,255,255,.3)"></span><span style="flex: 9; background: #F4AE9E"></span></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px">
+          <span style="padding: 12px; border-radius: 16px; background: rgba(14,107,92,.07)"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 8px; height: 8px; border-radius: 2px; background: #8FD9C3"></span>Cleared</span><b class="num" style="display: block; font-size: 20px">72</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: rgba(14,107,92,.07)"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #4B524F"><span style="width: 8px; height: 8px; border-radius: 2px; background: rgba(255,255,255,.4)"></span>Still pending</span><b class="num" style="display: block; font-size: 20px">7</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: rgba(244,174,158,.14); border: 1px solid rgba(244,174,158,.3)"><span style="display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #A3341F"><span style="width: 8px; height: 8px; border-radius: 2px; background: #F4AE9E"></span>Returned</span><b class="num" style="display: block; font-size: 20px; color: #A3341F">2 · $870</b></span>
+        </div>
+      </article>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+        <article style="border-radius: 26px; padding: 18px; background: #F5F3EF; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #5F6662">Collected in October</span><b class="num" style="font-size: 28px; font-weight: 600; line-height: 1.1">$287K</b><span style="font-size: 11.5px; color: #0A5246; font-weight: 600">98% of schedule</span></article>
+        <article style="border-radius: 26px; padding: 18px; background: #F5F3EF; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #5F6662">On time</span><b class="num" style="font-size: 28px; font-weight: 600; line-height: 1.1">94%</b><span style="font-size: 11.5px; color: #5F6662">81 of 86 deals</span></article>
+        <article style="border-radius: 26px; padding: 18px; background: #F6DED8; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #8E2B19">Behind on payments</span><b class="num" style="font-size: 28px; font-weight: 600; line-height: 1.1">5</b><span style="font-size: 11.5px; color: #8E2B19">$118K at risk</span></article>
+        <article style="border-radius: 26px; padding: 18px; background: #F2E7CF; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #6B4B1F">Paid off this month</span><b class="num" style="font-size: 28px; font-weight: 600; line-height: 1.1">11</b><span style="font-size: 11.5px; color: #8E4E08; font-weight: 600">6 renewed with you</span></article>
+      </div>
+    </section>
+
+    <!-- Row 2: book + detail -->
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+      <section aria-labelledby="h-book" style="flex: 999 1 640px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 4px 0"><h2 id="h-book" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">Your book</h2>
+          <label style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; min-width: 200px"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Search funded deals" placeholder="Merchant or APP ID" style="border: 0; outline: 0; background: transparent; font: inherit; font-size: 12.5px; flex: 1; min-width: 0"></label></div>
+        <div role="group" aria-label="Show" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px">
+          <sc-for list="{{segs}}" as="g" hint-placeholder-count="5"><button onClick="{{g.pick}}" aria-pressed="{{g.on}}" style="{{g.style}}"><span style="{{g.dot}}"></span>{{g.label}}<span style="{{g.cnt}}">{{g.count}}</span></button></sc-for>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 760px; display: flex; flex-direction: column; gap: 4px">
+            <div class="fcols cap" style="padding: 0 12px 4px; color: #5F6662; font-size: 10px"><span>Merchant</span><span>Repaid</span><span>Payment</span><span>Last 10 payments</span><span>Revenue now</span><span>Status</span></div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <button onClick="{{r.pick}}" class="fcols" style="{{r.row}}">
+                <span style="display: flex; gap: 10px; align-items: center; min-width: 0"><span style="{{r.av}}">{{r.ini}}</span><span style="min-width: 0; text-align: left"><b class="trunc" style="display: block; font-size: 13px">{{r.name}}</b><span class="hint trunc" style="display: block">{{r.funded}} · {{r.when}}</span></span></span>
+                <span style="min-width: 0; text-align: left"><span style="display: flex; justify-content: space-between; font-size: 12px"><b>{{r.paid}}%</b><span style="color: #5F6662">{{r.left}} left</span></span><span style="display: block; height: 6px; border-radius: 3px; background: #ECE8E0; margin-top: 4px"><span style="{{r.bar}}"></span></span></span>
+                <span class="num" style="font-size: 13px; text-align: left">{{r.pay}}</span>
+                <span style="display: flex; gap: 2px; align-items: center"><sc-for list="{{r.dots}}" as="d" hint-placeholder-count="10"><span class="pay-dot" style="{{d.s}}"></span></sc-for></span>
+                <span style="{{r.revStyle}}">{{r.rev}}</span>
+                <span style="{{r.chip}}">{{r.status}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-labelledby="h-det" style="flex: 1 1 320px; min-width: 0; max-width: 100%; display: flex; flex-direction: column; gap: 14px">
+        <article style="flex: 1 1 auto; background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; gap: 12px; align-items: center"><span style="{{d.av}}">{{d.ini}}</span><span style="min-width: 0"><h2 id="h-det" class="disp" style="margin: 0; font-weight: 600; font-size: 19px; line-height: 1.15">{{d.name}}</h2><span class="hint">{{d.funded}} funded {{d.when}} · {{d.broker}}</span></span></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+            <span style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><span style="font-size: 11px; color: #5F6662">Left to collect</span><b class="num" style="display: block; font-size: 18px">{{d.left}}</b></span>
+            <span style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><span style="font-size: 11px; color: #5F6662">Expected payoff</span><b style="display: block; font-size: 14px; margin-top: 2px">{{d.payoff}}</b></span>
+          </div>
+          <span class="cap" style="color: #5F6662">Daily revenue since funding</span>
+          <div style="flex: 1 1 70px; min-height: 70px; position: relative; border-radius: 16px; background: #FFFFFF; padding: 10px"><svg role="img" aria-label="{{d.trendLabel}}" viewBox="0 0 280 70" preserveAspectRatio="none" style="position: absolute; inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px)"><line class="fd-base" x1="0" y1="{{d.baseY}}" x2="280" y2="{{d.baseY}}" stroke="#C9C4B8" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"></line><path class="fd-area" d="{{d.area}}" fill="{{d.areaFill}}"></path><path class="fd-line" pathLength="1" d="{{d.line}}" fill="none" stroke="{{d.stroke}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+          <span style="font-size: 12px; color: #4B524F">{{d.trendNote}}</span>
+          <div style="{{d.flagBox}}">{{d.flag}}</div>
+          <div style="display: flex; gap: 8px; margin-top: auto"><a href="#" style="flex: 1; height: 40px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600; display: grid; place-items: center">{{d.action}}</a><a href="#" style="height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; font-size: 12.5px; font-weight: 600; display: grid; place-items: center">Open</a></div>
+        </article>
+      </aside>
+    </div>
+
+    <!-- Row 3: warnings + vintages + reconciliation -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-warn" style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-warn" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Early warnings</h2><span style="font-size: 12px; color: #4B524F">Spotted before a payment is missed</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #F5F3EF; color: #8E2B19">4 new</span></div>
+        <div style="display: flex; gap: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none; margin-top: 6px"></span><span style="font-size: 12.5px"><b>Granite State Builders</b> took a new advance<span style="display: block; font-size: 11.5px; color: #5F6662">Funder deposit $35K seen yesterday</span></span></div>
+        <div style="display: flex; gap: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D98A2B; flex: none; margin-top: 6px"></span><span style="font-size: 12.5px"><b>Kestrel Plumbing</b> deposits down 22%<span style="display: block; font-size: 11.5px; color: #5F6662">Last 3 weeks vs funding month</span></span></div>
+        <div style="display: flex; gap: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D98A2B; flex: none; margin-top: 6px"></span><span style="font-size: 12.5px"><b>Westfield Auto Group</b> balance below $500<span style="display: block; font-size: 11.5px; color: #5F6662">3 of the last 5 days</span></span></div>
+        <div style="display: flex; gap: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none; margin-top: 6px"></span><span style="font-size: 12.5px"><b>Rivera Landscaping</b> changed bank account<span style="display: block; font-size: 11.5px; color: #5F6662">Payments now going to a new account</span></span></div>
+      </article>
+
+      <article aria-labelledby="h-vin" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div><h2 id="h-vin" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">How each month's deals perform</h2><span class="hint" style="font-size: 12px">Share collected so far, by month funded</span></div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 8px">
+          <div style="display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 10px; align-items: center; font-size: 12px"><span>May</span><span style="height: 12px; border-radius: 6px; background: #ECE8E0"><span style="display: block; width: 96%; height: 12px; border-radius: 6px; background: #0A4A40"></span></span><b class="num" style="text-align: right">96%</b></div>
+          <div style="display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 10px; align-items: center; font-size: 12px"><span>Jun</span><span style="height: 12px; border-radius: 6px; background: #ECE8E0"><span style="display: block; width: 81%; height: 12px; border-radius: 6px; background: #0E6B5C"></span></span><b class="num" style="text-align: right">81%</b></div>
+          <div style="display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 10px; align-items: center; font-size: 12px"><span>Jul</span><span style="height: 12px; border-radius: 6px; background: #ECE8E0"><span style="display: block; width: 62%; height: 12px; border-radius: 6px; background: #2F8F7A"></span></span><b class="num" style="text-align: right">62%</b></div>
+          <div style="display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 10px; align-items: center; font-size: 12px"><span>Aug</span><span style="height: 12px; border-radius: 6px; background: #ECE8E0"><span style="display: block; width: 44%; height: 12px; border-radius: 6px; background: #3FA58C"></span></span><b class="num" style="text-align: right">44%</b></div>
+          <div style="display: grid; grid-template-columns: 54px minmax(0,1fr) 44px; gap: 10px; align-items: center; font-size: 12px"><span>Sep</span><span style="height: 12px; border-radius: 6px; background: #ECE8E0"><span style="display: block; width: 22%; height: 12px; border-radius: 6px; background: #8FD9C3"></span></span><b class="num" style="text-align: right">22%</b></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12px"><span>Every month is at or ahead of plan</span><b style="color: #0A5246">On track</b></div>
+      </article>
+
+      <article aria-labelledby="h-rec" style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-rec" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Reconciliation requests</h2><span style="font-size: 12px; color: #4B524F">Merchants asking to pay less because sales fell</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: rgba(143,217,195,.18); color: #0A5246; white-space: nowrap">Coming soon</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(14,107,92,.07)"><span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13px">Kestrel Plumbing</b><span style="font-size: 11.5px; color: #4B524F">Asked yesterday · sales down 22%</span></span><span style="text-align: right"><b class="num" style="display: block; font-size: 15px">4 days</b><span style="font-size: 10.5px; color: #4B524F">to respond</span></span></div>
+        <span style="font-size: 12px; color: #4B524F">Soon: Cevrynt works out the fair new payment from bank data and keeps proof that you replied on time.</span>
+        <a href="Coming.dc.html" style="margin-top: auto; height: 40px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600; display: grid; place-items: center; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)">See what's coming</a>
+      </article>
+    </section>
+
+    <!-- Row 4: forecast + returned payments -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-fc" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-fc" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Money coming in</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Expected collections for the next 6 weeks, from the payment schedules</div></div>
+          <div style="display: flex; gap: 14px; font-size: 12px"><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C"></span>Expected</span><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: repeating-linear-gradient(135deg, #F2C27E 0 3px, #E9AE5C 3px 6px)"></span>At risk</span></div></div>
+        <div role="img" aria-label="Expected weekly collections falling from $142K to $118K over six weeks as advances pay off, with $4K to $7K a week at risk" style="display: flex; gap: 10px; align-items: flex-end; padding: 12px; border-radius: 20px; background: #FFFFFF"><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$142K</span><div class="fc-col" style="animation-delay: 0.2s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 12px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 130px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Oct 13</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$139K</span><div class="fc-col" style="animation-delay: 0.3s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 15px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 124px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Oct 20</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$137K</span><div class="fc-col" style="animation-delay: 0.4s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 15px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 122px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Oct 27</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$131K</span><div class="fc-col" style="animation-delay: 0.5s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 18px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 113px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Nov 3</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$126K</span><div class="fc-col" style="animation-delay: 0.6s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 18px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 108px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Nov 10</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0"><span class="num" style="font-size: 12px; font-weight: 600">$118K</span><div class="fc-col" style="animation-delay: 0.7s; width: 100%; max-width: 54px; height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px"><span style="display: block; height: 21px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span><span style="display: block; height: 97px; border-radius: 10px; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA"></span></div><span style="font-size: 11px; color: #5F6662; white-space: nowrap">Nov 17</span></div></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px">
+          <span style="padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="font-size: 11.5px; color: #5F6662">Next 6 weeks</span><b class="num" style="display: block; font-size: 20px">$793K</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: #FBF0DE"><span style="font-size: 11.5px; color: #6B4B1F">At risk</span><b class="num" style="display: block; font-size: 20px; color: #8E4E08">$33K</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="font-size: 11.5px; color: #5F6662">Why it falls</span><b style="display: block; font-size: 13px; margin-top: 3px">Advances paying off</b></span>
+        </div>
+      </article>
+
+      <article aria-labelledby="h-ret" style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><h2 id="h-ret" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Returned payments</h2><span style="font-size: 12px; color: #4B524F">This week, with what happens next</span></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #F5F3EF; color: #8E2B19">7 · $3.1K</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Westfield Auto Group</b><span class="hint">$628 · not enough money</span></span><span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #F5E6CC; color: #7A4206; white-space: nowrap">Retry Thu</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Kestrel Plumbing</b><span class="hint">$412 · not enough money</span></span><span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35; white-space: nowrap">Retry cleared</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: rgba(255,255,255,.78)"><span style="flex: 1; min-width: 0"><b class="trunc" style="display: block; font-size: 13px">Rivera Landscaping</b><span class="hint">$458 · payment blocked by merchant</span></span><span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #F6DED8; color: #8E2B19; white-space: nowrap">Needs a call</span></div>
+        <span style="margin-top: auto; font-size: 11.5px; color: #4B524F">Retries follow bank rules: no more than two tries per payment.</span>
+      </article>
+    </section>
+
+    <!-- Row 5: recovery + returns + paying off -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-recov" class="span2" style="border-radius: 30px; padding: 22px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-recov" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Getting deals back on track</h2><span style="font-size: 12px; color: #4B524F">Deals behind on payments, by step</span></div><a href="Funded.dc.html" style="font-size: 12px; font-weight: 600; color: #0A5246">Open collections</a></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px">
+          <div style="padding: 14px; border-radius: 18px; background: rgba(244,174,158,.12); border: 1px solid rgba(244,174,158,.3)"><span class="mono" style="font-size: 10.5px; color: #A3341F">01</span><b style="display: block; font-size: 13px; margin-top: 4px">Behind</b><b class="num" style="display: block; font-size: 22px">2</b><span style="font-size: 11.5px; color: #4B524F">$46K</span></div>
+          <div style="padding: 14px; border-radius: 18px; background: rgba(14,107,92,.07)"><span class="mono" style="font-size: 10.5px; color: #4B524F">02</span><b style="display: block; font-size: 13px; margin-top: 4px">Contacted</b><b class="num" style="display: block; font-size: 22px">1</b><span style="font-size: 11.5px; color: #4B524F">$31K</span></div>
+          <div style="padding: 14px; border-radius: 18px; background: rgba(14,107,92,.07)"><span class="mono" style="font-size: 10.5px; color: #4B524F">03</span><b style="display: block; font-size: 13px; margin-top: 4px">Payment plan</b><b class="num" style="display: block; font-size: 22px">2</b><span style="font-size: 11.5px; color: #4B524F">$41K</span></div>
+          <div style="padding: 14px; border-radius: 18px; background: rgba(143,217,195,.14); border: 1px solid rgba(143,217,195,.3)"><span class="mono" style="font-size: 10.5px; color: #0A5246">04</span><b style="display: block; font-size: 13px; margin-top: 4px">Back on track</b><b class="num" style="display: block; font-size: 22px; color: #0A5246">4</b><span style="font-size: 11.5px; color: #4B524F">this quarter</span></div>
+          <div style="padding: 14px; border-radius: 18px; background: rgba(14,107,92,.07); border: 1px dashed rgba(255,255,255,.2)"><span class="mono" style="font-size: 10.5px; color: #4B524F">05</span><b style="display: block; font-size: 13px; margin-top: 4px">Written off</b><b class="num" style="display: block; font-size: 22px">1</b><span style="font-size: 11.5px; color: #4B524F">$22K this year</span></div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 16px; background: rgba(14,107,92,.07); font-size: 12.5px; color: #4B524F"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8FD9C3; flex: none"></span>Payment plans lower the daily amount for a set time. Every change is logged and the merchant signs it.</div>
+      </article>
+
+      <article aria-labelledby="h-perf" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div><h2 id="h-perf" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Returns this year</h2><span class="hint" style="font-size: 12px">On deals that have finished</span></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+          <span style="padding: 12px; border-radius: 16px; background: #EAF5F1"><span style="font-size: 11px; color: #0A5246">Collected per $1 funded</span><b class="num" style="display: block; font-size: 22px; color: #083E35">$1.27</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="font-size: 11px; color: #5F6662">Loss rate</span><b class="num" style="display: block; font-size: 22px">2.1%</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="font-size: 11px; color: #5F6662">Written off</span><b class="num" style="display: block; font-size: 22px">$46K</b></span>
+          <span style="padding: 12px; border-radius: 16px; background: #FFFFFF"><span style="font-size: 11px; color: #5F6662">Commission clawed back</span><b class="num" style="display: block; font-size: 22px">$3.2K</b></span>
+        </div>
+        <span style="margin-top: auto; font-size: 11.5px; color: #5F6662">Clawbacks: brokers return commission when a deal fails early.</span>
+      </article>
+    </section>
+
+    <!-- Row 6: paying off soon -->
+    <section aria-labelledby="h-soon" style="background: #F2E7CF; border-radius: 30px; padding: 22px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap">
+      <div style="flex: 1 1 240px"><h2 id="h-soon" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Paying off in the next 30 days</h2><span style="font-size: 12.5px; color: #6B4B1F">7 merchants, $210K of advances ending. The best time to offer a renewal is before they finish.</span></div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; flex: 2 1 380px">
+        <span style="display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px 8px 8px; border-radius: 999px; background: rgba(255,255,255,.8); font-size: 12.5px"><span style="width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(140deg, #24588A, #4F86BD); color: #FFFFFF; display: grid; place-items: center; font-size: 10px; font-weight: 700">CD</span>Coastal Dental<b>Nov</b></span>
+        <span style="display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px 8px 8px; border-radius: 999px; background: rgba(255,255,255,.8); font-size: 12.5px"><span style="width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(140deg, #8A5A2B, #B98552); color: #FFFFFF; display: grid; place-items: center; font-size: 10px; font-weight: 700">OD</span>Oakview Deli<b>Dec</b></span>
+        <span style="display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px 8px 8px; border-radius: 999px; background: rgba(255,255,255,.8); font-size: 12.5px"><span style="width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(140deg, #57418A, #8670B8); color: #FFFFFF; display: grid; place-items: center; font-size: 10px; font-weight: 700">+5</span>5 more</span>
+      </div>
+      <a href="Renewals.dc.html" style="height: 44px; padding: 0 18px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center">Go to Renewals</a>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { seg: 'all', sel: 'KP' }; }
+  renderVals() {
+    const s = this.state;
+    const ST = { ok: ['On time', '#DCF0E9', '#083E35'], slow: ['Slow', '#F5E6CC', '#7A4206'], late: ['Behind', '#F6DED8', '#8E2B19'], soon: ['Almost paid', '#DCE9F5', '#1F4C78'], new: ['Just funded', '#EEECE6', '#3E4542'] };
+    const D = [
+      { ini: 'CD', g: '#24588A,#4F86BD', name: 'Coastal Dental Group', funded: '$70K', when: 'Apr 2026', broker: 'Apex Funding', paid: 72, left: '$25.5K', pay: '$430/day', hist: 'cccccccccc', rev: '+18%', st: 'soon', payoff: 'Late November', trend: [1, 1.02, 1.05, 1.08, 1.12, 1.15, 1.18], flag: 'Ready to renew. $80K renewal already accepted.', flagT: 'g', action: 'Open renewal' },
+      { ini: 'KP', g: '#2C5F73,#5A90A6', name: 'Kestrel Plumbing', funded: '$45K', when: 'Jul 2026', broker: 'Keystone', paid: 48, left: '$31.2K', pay: '$412/day', hist: 'ccccccrccs', rev: '−22%', st: 'slow', payoff: 'Late January', trend: [1, 1.03, 0.98, 0.95, 0.88, 0.82, 0.78], flag: 'Deposits down 22% and one payment returned this week. A reconciliation request came in yesterday.', flagT: 'a', action: 'Call the merchant' },
+      { ini: 'WA', g: '#4D6B2E,#7FA05A', name: 'Westfield Auto Group', funded: '$70K', when: 'Aug 2026', broker: 'Summit Capital', paid: 21, left: '$72.6K', pay: '$628/day', hist: 'cccrcrccrr', rev: '−9%', st: 'late', payoff: 'At risk', trend: [1, 0.98, 0.96, 0.93, 0.92, 0.91, 0.91], flag: 'Three returned payments in the last 10. Balance below $500 on 3 of 5 days.', flagT: 'r', action: 'Start a payment plan' },
+      { ini: 'OD', g: '#8A5A2B,#B98552', name: 'Oakview Deli', funded: '$30K', when: 'May 2026', broker: 'Apex Funding', paid: 64, left: '$14.3K', pay: '$305/day', hist: 'cccccccccc', rev: '+4%', st: 'ok', payoff: 'Early December', trend: [1, 1.01, 0.99, 1.02, 1.03, 1.04, 1.04], flag: 'Steady. Renewal offer sent last week.', flagT: 'g', action: 'Open renewal' },
+      { ini: 'GS', g: '#7A4A2A,#B07A52', name: 'Granite State Builders', funded: '$62K', when: 'Sep 2026', broker: 'BlueRock', paid: 18, left: '$68.1K', pay: '$525/day', hist: 'cccccccccc', rev: '+2%', st: 'late', payoff: 'Watch', trend: [1, 1.01, 1.0, 1.02, 1.01, 1.02, 1.02], flag: 'A new $35K advance from another funder landed yesterday. Payments still clearing, but debt load has doubled.', flagT: 'r', action: 'Review stacking' },
+      { ini: 'CS', g: '#0A5E50,#2F8F7A', name: 'Cedar Street Pharmacy', funded: '$60K', when: 'today', broker: 'Apex Funding', paid: 0, left: '$79.2K', pay: '$629/day', hist: 'nnnnnnnnnn', rev: '—', st: 'new', payoff: 'April 2027', trend: [1, 1, 1, 1, 1, 1, 1], flag: 'First payment on Wednesday.', flagT: 'n', action: 'View schedule' }
+    ];
+    const segDef = [['all', 'All', 86, '#0F1513'], ['ok', 'On time', 70, '#0E6B5C'], ['slow', 'Slow', 6, '#D98A2B'], ['late', 'Behind', 5, '#C2412D'], ['soon', 'Almost paid', 5, '#4F86BD']];
+    const segs = segDef.map(([k, l, c, col]) => { const on = k === s.seg; return { label: l, count: c, on: on ? 'true' : 'false', pick: () => this.setState({ seg: k }),
+      style: 'display: inline-flex; gap: 8px; align-items: center; height: 34px; padding: 0 6px 0 12px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #FFFFFF; color: #3E4542'),
+      dot: 'width: 7px; height: 7px; border-radius: 50%; background: ' + (on && k === 'all' ? '#8FD9C3' : col),
+      cnt: 'font-size: 11px; padding: 2px 7px; border-radius: 999px; ' + (on ? 'background: rgba(14,107,92,.08)' : 'background: #F5F3EF') }; });
+    const av = (g, n) => 'width: ' + n + 'px; height: ' + n + 'px; border-radius: ' + Math.round(n / 3) + 'px; flex: none; display: grid; place-items: center; color: #FFFFFF; font-size: ' + (n > 40 ? 14 : 11) + 'px; font-weight: 700; background: linear-gradient(140deg,' + g + ')';
+    const dotC = { c: '#0E6B5C', r: '#C2412D', s: '#D98A2B', n: '#ECE8E0' };
+    const rows = D.filter((d) => s.seg === 'all' || d.st === s.seg).map((d, ri) => { const st = ST[d.st]; const on = d.ini === s.sel;
+      return { ...d, av: av(d.g, 36), pick: () => this.setState({ sel: d.ini }),
+        row: 'padding: 9px 12px; border: 0; border-radius: 16px; font: inherit; color: inherit; cursor: pointer; width: 100%; box-sizing: border-box; ' + (on ? 'background: #FFFFFF; box-shadow: inset 0 0 0 1.5px #0F1513' : 'background: transparent'),
+        bar: 'display: block; height: 6px; border-radius: 3px; width: ' + d.paid + '%; background: ' + (d.st === 'late' ? '#C2412D' : (d.st === 'slow' ? '#D98A2B' : '#0E6B5C')),
+        dots: d.hist.split('').map((c, di) => ({ s: 'width: 8px; height: 14px; border-radius: 3px; background: ' + dotC[c] + '; animation-delay: ' + (0.2 + ri * 0.08 + di * 0.045).toFixed(3) + 's' })),
+        revStyle: 'justify-self: start; font-size: 12.5px; font-weight: 700; ' + (d.rev.startsWith('+') ? 'color: #0A5246' : (d.rev.startsWith('−') ? 'color: #A3341F' : 'color: #9AA09C')),
+        status: st[0], chip: 'justify-self: start; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: ' + st[1] + '; color: ' + st[2] }; });
+    const sel = D.find((d) => d.ini === s.sel) || D[0];
+    const X = (i) => 6 + i * (268 / 6), Y = (v) => 64 - (v - 0.7) / 0.55 * 56;
+    const pts = sel.trend.map((v, i) => X(i).toFixed(1) + ' ' + Y(v).toFixed(1));
+    const line = 'M' + pts.join(' L');
+    const down = sel.trend[sel.trend.length - 1] < 0.97, up = sel.trend[sel.trend.length - 1] > 1.03;
+    const col = down ? '#C2412D' : '#0E6B5C';
+    const fl = { g: 'background: #EAF5F1; color: #083E35', a: 'background: #FBF0DE; color: #6B4B1F', r: 'background: #F6DED8; color: #8E2B19', n: 'background: #FFFFFF; color: #3E4542' }[sel.flagT];
+    const d = { ...sel, av: av(sel.g, 46), line, area: line + ' L' + X(6).toFixed(1) + ' 70 L' + X(0).toFixed(1) + ' 70 Z', stroke: col,
+      areaFill: down ? 'rgba(194,65,45,.12)' : 'rgba(14,107,92,.12)', baseY: Y(1).toFixed(1),
+      trendNote: down ? 'Below the level at funding (dashed line).' : (up ? 'Above the level at funding (dashed line).' : 'Close to the level at funding (dashed line).'),
+      trendLabel: 'Daily revenue compared with the level at funding for ' + sel.name,
+      flagBox: 'padding: 12px 14px; border-radius: 14px; font-size: 12.5px; ' + fl };
+    return { segs, rows, d };
+  }
+}
+</script>
+</body>
+</html>

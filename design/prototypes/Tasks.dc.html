@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — My tasks</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.duo2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.duo2{grid-template-columns:1fr}}
+.agcols{display:grid;grid-template-columns:24px minmax(0,1.7fr) minmax(120px,1fr) 96px 34px;gap:14px;align-items:center}
+@media (max-width: 700px){.agcols{grid-template-columns:24px minmax(0,1fr) 34px}.agcols>:nth-child(3),.agcols>:nth-child(4){display:none}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.ag-tabs{scrollbar-width:none}
+.ag-tabs::-webkit-scrollbar{display:none}
+.tk-ring{animation:tkRing 1.3s cubic-bezier(.22,1,.36,1) .2s backwards;transition:stroke-dasharray .5s cubic-bezier(.22,1,.36,1)}
+@keyframes tkRing{from{stroke-dasharray:0 400}}
+@media (prefers-reduced-motion: reduce){.tk-ring{animation:none;transition:none}}
+.tl-bar{transform-origin:left center;animation:tlBar 1s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes tlBar{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){.tl-bar{animation:none}}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="tasks" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">My tasks</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">7 to do · 2 due within the hour</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Focus + day -->
+    <section aria-label="Your day" class="duo2" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px">
+      <div style="border-radius: 24px; padding: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; flex-direction: column; gap: 10px">
+        <span style="align-self: flex-start; display: inline-flex; gap: 7px; align-items: center; font-size: 11.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: #FFFFFF; color: #8E2B19"><span style="width: 7px; height: 7px; border-radius: 50%; background: #C2412D"></span>Do this first · {{top.due}}</span>
+        <h2 class="disp" style="margin: 0; font-weight: 600; font-size: 24px; line-height: 1.15">{{top.title}}</h2>
+        <span style="font-size: 13px; color: #3E4542">{{top.why}}</span>
+        <div style="display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap"><a href="{{top.link}}" style="height: 44px; padding: 0 20px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center">{{top.action}}</a><button onClick="{{top.toggle}}" style="height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Mark done</button></div>
+      </div>
+      <div style="padding: 18px 18px 18px 22px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap">
+        <div style="position: relative; width: 120px; height: 120px; flex: none">
+          <svg role="img" aria-label="{{nDone}} of {{nAll}} tasks done today" width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#ECE8E0" stroke-width="12"></circle><circle cx="60" cy="60" r="50" fill="none" stroke="#0E6B5C" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ring}}" transform="rotate(-90 60 60)" class="tk-ring"></circle></svg>
+          <span style="position: absolute; inset: 0; display: grid; place-items: center; text-align: center"><span><b class="num" style="display: block; font-size: 28px; line-height: 1">{{nDone}}<span style="font-size: 14px; color: #5F6662">/{{nAll}}</span></b><span style="font-size: 11px; color: #5F6662">done today</span></span></span>
+        </div>
+        <div style="flex: 1 1 180px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+          <span style="padding: 12px; border-radius: 16px; background: #F6DED8"><b class="num" style="display: block; font-size: 22px; line-height: 1; color: #8E2B19">{{nUrgent}}</b><span style="font-size: 11.5px; color: #8E2B19">within the hour</span></span>
+          <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><b class="num" style="display: block; font-size: 22px; line-height: 1">{{nToday}}</b><span style="font-size: 11.5px; color: #4B524F">later today</span></span>
+          <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><b class="num" style="display: block; font-size: 22px; line-height: 1">{{nWeek}}</b><span style="font-size: 11.5px; color: #4B524F">this week</span></span>
+          <span style="padding: 12px; border-radius: 16px; background: #F5F3EF"><b class="num" style="display: block; font-size: 22px; line-height: 1">3</b><span style="font-size: 11.5px; color: #4B524F">waiting on others</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agenda -->
+    <section aria-labelledby="h-ag" style="background: #F5F3EF; border-radius: 30px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 2px 4px 0">
+        <div style="min-width: 0"><h2 id="h-ag" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">{{agendaTitle}}</h2><span class="hint" style="font-size: 12px">{{agendaSub}}</span></div>
+        <div style="display: flex; gap: 8px; align-items: center">
+          <div role="group" aria-label="Whose tasks" style="display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: #FFFFFF"><button onClick="{{showMine}}" style="{{mineBtn}}">Mine</button><button onClick="{{showTeam}}" style="{{teamBtn}}">Team</button></div>
+          <button onClick="{{toggleAdd}}" style="height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)"><span style="font-size: 16px; line-height: 1">+</span>Add task</button>
+        </div>
+      </div>
+      <div role="tablist" aria-label="Type" class="ag-tabs" style="display: flex; gap: 2px; padding: 4px; border-radius: 18px; background: #FFFFFF; overflow-x: auto"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="7"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="{{t.style}}"><span style="{{t.dot}}"></span>{{t.label}}<span style="{{t.cnt}}">{{t.count}}</span></button></sc-for></div>
+      <sc-if value="{{adding}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px; border-radius: 18px; background: #FFFFFF; box-shadow: inset 0 0 0 1.5px #0E6B5C">
+          <input aria-label="New task" placeholder="What needs doing? e.g. Call Dana about the landlord letter" style="flex: 1 1 260px; min-width: 0; height: 40px; border: 0; padding: 0 10px; font: inherit; font-size: 13px; outline: 0">
+          <select aria-label="Deal" style="height: 36px; border: 0; border-radius: 999px; background: #F5F3EF; padding: 0 12px; font: inherit; font-size: 12px"><option>Link a deal</option><option>Harbor Street Bakery</option><option>Mesa Auto Repair</option></select>
+          <select aria-label="Due" style="height: 36px; border: 0; border-radius: 999px; background: #F5F3EF; padding: 0 12px; font: inherit; font-size: 12px"><option>Today</option><option>Tomorrow</option><option>This week</option></select>
+          <select aria-label="Assign to" style="height: 36px; border: 0; border-radius: 999px; background: #F5F3EF; padding: 0 12px; font: inherit; font-size: 12px"><option>Me</option><option>Jordan Reyes</option><option>Priya Shah</option></select>
+          <button onClick="{{toggleAdd}}" style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Add</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{isTeam}}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px">
+          <span style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b style="display: block">Maya Chen</b><span class="hint">7 open · 2 due now</span></span>
+          <span style="padding: 12px 14px; border-radius: 16px; background: #F6DED8; font-size: 12.5px"><b style="display: block">Ari Kaplan</b><span style="font-size: 12px; color: #8E2B19">9 open · 1 overdue</span></span>
+          <span style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b style="display: block">Jordan Reyes</b><span class="hint">5 open</span></span>
+          <span style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b style="display: block">Priya Shah</b><span class="hint">4 open · 1 approval for you</span></span>
+        </div>
+      </sc-if>
+      <div class="agcols cap" style="padding: 2px 16px 0; color: #7A807C; font-size: 10px"><span></span><span>Task</span><span>Time left</span><span>Type</span><span></span></div>
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 4px 4px 0"><span style="{{g.pill}}"><span style="{{g.pillDot}}"></span>{{g.title}}<span style="{{g.pillCnt}}">{{g.count}}</span></span><span style="flex: 1; height: 1px; background: #E3DFD6"></span></div>
+          <div style="border-radius: 22px; background: #FFFFFF; overflow: hidden; box-shadow: 0 10px 26px -24px rgba(15,21,19,.5)">
+            <sc-for list="{{g.items}}" as="k" hint-placeholder-count="3">
+              <div style="{{k.rowWrap}}">
+                <div class="agcols" style="padding: 12px 16px">
+                  <button onClick="{{k.toggle}}" aria-label="Mark {{k.title}} done" style="{{k.check}}">{{k.mark}}</button>
+                  <button onClick="{{k.pick}}" aria-expanded="{{k.expanded}}" style="display: flex; gap: 12px; align-items: center; min-width: 0; border: 0; background: transparent; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left">
+                    <span style="{{k.icon}}">{{k.ini}}</span>
+                    <span style="min-width: 0"><b style="{{k.titleStyle}}">{{k.title}}</b><span style="display: block; font-size: 12px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.deal}}</span></span>
+                  </button>
+                  <span style="display: flex; flex-direction: column; gap: 5px; min-width: 0"><span style="{{k.dueText}}">{{k.due}}</span><span style="display: block; height: 6px; border-radius: 3px; background: #F1EEE8"><span class="tl-bar" style="{{k.bar}}"></span></span></span>
+                  <span style="{{k.tag}}">{{k.typeLabel}}</span>
+                  <a href="{{k.link}}" aria-label="Open" style="width: 34px; height: 34px; border-radius: 12px; background: #0F1513; display: grid; place-items: center; justify-self: end"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+                </div>
+                <sc-if value="{{k.isOpen}}" hint-placeholder-val="{{ false }}">
+                  <div style="margin: 0 16px 14px 70px; padding: 14px; border-radius: 16px; background: #F5F3EF; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px">
+                    <span style="font-size: 12.5px; color: #3E4542">{{k.why}}</span>
+                    <div style="display: flex; flex-direction: column; gap: 6px"><sc-for list="{{k.prepList}}" as="x" hint-placeholder-count="3"><span style="display: flex; gap: 8px; align-items: center; font-size: 12px"><span style="width: 16px; height: 16px; border-radius: 50%; background: #DCF0E9; color: #083E35; display: grid; place-items: center; font-size: 9px; font-weight: 700; flex: none">✓</span>{{x.t}}</span></sc-for></div>
+                    <div style="grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid #E3DFD6">
+                      <button onClick="{{k.snooze}}" style="height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Snooze 1 hour</button>
+                      <button style="height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Hand to a teammate</button>
+                      <button style="height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Add a note</button>
+                      <span style="margin-left: auto; font-size: 11.5px; color: #5F6662; align-self: center">{{k.source}}</span>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><div style="padding: 24px; text-align: center; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; color: #5F6662">Nothing of this type. Nice.</div></sc-if>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 4px 0; font-size: 12px; color: #4B524F">
+        <label style="display: flex; gap: 8px; align-items: center; cursor: pointer"><input type="checkbox" checked="{{digest}}" onChange="{{toggleDigest}}" style="width: 18px; height: 18px; accent-color: #0E6B5C">Email me this list every morning at 8:00</label>
+        <span>Keyboard: <span class="mono">J</span>/<span class="mono">K</span> move · <span class="mono">X</span> done · <span class="mono">Enter</span> open · <span class="mono">S</span> snooze</span>
+      </div>
+    </section>
+
+    <!-- Waiting + done -->
+    <section aria-label="Waiting and done" class="duo2" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px">
+      <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Waiting on others</h2><span class="hint">A task appears when they reply</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span style="width: 30px; height: 30px; border-radius: 10px; background: #DCE9F5; color: #1F4C78; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; flex: none">DR</span><span style="flex: 1; min-width: 0"><b>Landlord letter</b><span class="hint" style="display: block">Dana Ruiz · Harbor Street Bakery</span></span><span style="font-size: 11px; font-weight: 600; color: #4B524F; white-space: nowrap">Due Wed</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span style="width: 30px; height: 30px; border-radius: 10px; background: #E8D9C1; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; flex: none">EB</span><span style="flex: 1; min-width: 0"><b>Credit check permission</b><span class="hint" style="display: block">Elena Brooks · Merchant Link</span></span><span style="font-size: 11px; font-weight: 600; color: #4B524F; white-space: nowrap">Sent 9:43</span></div>
+        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span style="width: 30px; height: 30px; border-radius: 10px; background: #DCE9F5; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; flex: none">PS</span><span style="flex: 1; min-width: 0"><b>Approve policy version 4</b><span class="hint" style="display: block">Priya Shah · your proposal</span></span><span style="font-size: 11px; font-weight: 600; color: #4B524F; white-space: nowrap">Sent 10:20</span></div>
+      </div>
+      <div style="border-radius: 24px; padding: 16px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Done today</h2><b class="num" style="font-size: 18px; color: #0A5246">{{nDone}}</b></div>
+        <sc-for list="{{doneList}}" as="d" hint-placeholder-count="5"><span style="display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 14px; background: rgba(255,255,255,.8); font-size: 12.5px"><span style="width: 18px; height: 18px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 10px; font-weight: 700; flex: none">✓</span><span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.t}}</span><span class="mono" style="font-size: 11px; color: #3E6B60">{{d.time}}</span></span></sc-for>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"doneToday":{"editor":"int","default":5,"min":0,"max":50,"section":"Day progress"},"totalToday":{"editor":"int","default":12,"min":1,"max":50,"section":"Day progress"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'all', sel: 'lake', done: {}, later: {}, who: 'mine', adding: false, digest: true }; }
+  renderVals() {
+    const s = this.state;
+    const TY = { decision: ['Decision', 'DC', '#DCE9F5', '#1F4C78'], alert: ['Alert', 'AL', '#F6DED8', '#8E2B19'], review: ['Review', 'RV', '#F5E6CC', '#7A4206'], call: ['Call', 'CL', '#EDE4F7', '#4B2F7A'], docs: ['Documents', 'DO', '#EEECE6', '#3E4542'], renewal: ['Renewal', 'RN', '#DCF0E9', '#083E35'] };
+    const K = [
+      { id: 'lake', ty: 'alert', when: 'now', title: 'Review the new UCC filing', deal: 'Lakeshore Auto Body · funding on hold', due: 'Now', why: 'A new advance was filed this morning on a deal that was ready to fund. Funding stays on hold until you review it.', prep: ['Filing: Northpoint Funding, Oct 11', 'Not on the application', 'Ready to fund at $60K'], link: 'Stacking.dc.html', action: 'Open the alert' },
+      { id: 'mesa', ty: 'review', when: 'now', title: 'Finish reviewing Mesa Auto Repair', deal: 'Mesa Auto Repair · $35K asked', due: '25 min', why: 'Two warning signs: a statement that doesn\u2019t reconcile and an undisclosed UCC filing. The decision deadline is close.', prep: ['Integrity score is low', 'BlueRock sent it, 3 flags this quarter', 'Decline or ask for fresh statements'], link: 'Submissions.dc.html', action: 'Open the deal' },
+      { id: 'harbor', ty: 'decision', when: 'today', title: 'Decide Harbor Street Bakery', deal: 'Harbor Street Bakery · $40K suggested', due: '1h 10m', why: 'Everything is checked. Cevrynt suggests approving $40,000 at 1.32 over 6 months.', prep: ['Score 88, all 8 policy rules met', 'Integrity reviewed at 10:12', 'Landlord letter still to come before funding'], link: 'Deal-Decision.dc.html', action: 'Make the decision' },
+      { id: 'pine', ty: 'renewal', when: 'today', title: 'Send renewal offer to Pine Ridge', deal: 'Pine Ridge Vet Clinic · $70K suggested', due: 'Today', why: 'Another funder checked their credit two days ago. Renewing now keeps them with you.', prep: ['58% repaid, revenue up 12%', 'Loyalty price 1.28', 'No returned payments'], link: 'Renewals.dc.html', action: 'Open Renewals' },
+      { id: 'north', ty: 'docs', when: 'today', title: 'Chase the voided check', deal: 'Northline HVAC · waiting 2 days', due: '4:00 pm', why: 'The only item missing before you can decide. A reminder to the merchant usually does it.', prep: ['Merchant Link already sent', 'Offer expires today 5 pm', 'Broker: Summit Capital ISO'], link: 'Submissions.dc.html', action: 'Open the deal' },
+      { id: 'call', ty: 'call', when: 'week', title: 'Funding call with Elena Brooks', deal: 'Harbor Street Bakery', due: 'Thu 10:00', why: 'A short recorded call to confirm the terms before funding.', prep: ['After the contract is signed', 'About 10 minutes', 'Script ready in the deal'], link: 'Deal-Conditions.dc.html', action: 'Open conditions' },
+      { id: 'kest', ty: 'review', when: 'week', title: 'Answer Kestrel\u2019s reconciliation request', deal: 'Kestrel Plumbing · sales down 22%', due: '4 days', why: 'The merchant asked to pay less because sales fell. A reply is expected within 5 days.', prep: ['Deposits down 22% in 3 weeks', 'One returned payment', '48% repaid'], link: 'Funded.dc.html', action: 'Open the funded deal' }
+    ];
+    const done = s.done || {}, later = s.later || {};
+    const tabsDef = [['all', 'All'], ['decision', 'Decisions'], ['review', 'Reviews'], ['alert', 'Alerts'], ['docs', 'Documents'], ['renewal', 'Renewals'], ['call', 'Calls']];
+    const open = K.filter((k) => !done[k.id]);
+    const COL = { decision: '#4F86BD', alert: '#C2412D', review: '#D98A2B', call: '#8670B8', docs: '#9AA09C', renewal: '#0E6B5C' };
+    const tabs = tabsDef.map(([key, label]) => { const on = key === s.tab; const count = key === 'all' ? open.length : open.filter((k) => k.ty === key).length;
+      return { label, count, on: on ? 'true' : 'false', pick: () => this.setState({ tab: key }),
+        style: 'flex: 1 0 auto; display: inline-flex; justify-content: center; gap: 7px; align-items: center; height: 36px; padding: 0 12px; border: 0; border-radius: 14px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: transparent; color: #3E4542'),
+        dot: 'width: 7px; height: 7px; border-radius: 50%; background: ' + (key === 'all' ? (on ? '#8FD9C3' : '#0F1513') : COL[key]),
+        cnt: 'font-size: 10.5px; min-width: 18px; text-align: center; padding: 1px 6px; border-radius: 999px; box-sizing: border-box; ' + (on ? 'background: rgba(255,255,255,.22)' : 'background: #F5F3EF') }; });
+    const whenOf = (k) => later[k.id] && k.when === 'now' ? 'today' : k.when;
+    const vis = K.filter((k) => s.tab === 'all' || k.ty === s.tab);
+    const G = [['now', 'Within the hour', '#C2412D'], ['today', 'Later today', '#4F86BD'], ['week', 'This week', '#9AA09C']];
+    const URG = { lake: 100, mesa: 88, harbor: 62, north: 50, pine: 40, call: 16, kest: 10 };
+    const groups = G.map(([w, title, col], gi) => { const items = vis.filter((k) => whenOf(k) === w); return { title, count: items.length,
+      pill: 'display: inline-flex; gap: 8px; align-items: center; height: 30px; padding: 0 6px 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; ' + (w === 'now' ? 'background: #F6DED8; color: #8E2B19' : (w === 'today' ? 'background: #DCE9F5; color: #1F4C78' : 'background: #FFFFFF; color: #3E4542')),
+      pillDot: 'width: 7px; height: 7px; border-radius: 50%; background: ' + col,
+      pillCnt: 'font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.8)',
+      items: items.map((k, idx) => { const d = !!done[k.id], on = k.id === s.sel, t = TY[k.ty];
+        return { ...k, ini: t[1], typeLabel: t[0], isOpen: on, expanded: on ? 'true' : 'false', prepList: k.prep.map((x) => ({ t: x })),
+          toggle: () => this.setState({ done: { ...done, [k.id]: !d } }), pick: () => this.setState({ sel: on ? null : k.id }),
+          snooze: () => this.setState({ later: { ...later, [k.id]: true } }),
+          source: { alert: 'From Stacking Watch', review: 'From Submissions', decision: 'From the deal', renewal: 'From Renewals', docs: 'From Conditions & stips', call: 'From Conditions & stips' }[k.ty],
+          mark: d ? '✓' : '',
+          rowWrap: (idx ? 'border-top: 1px solid #F1EEE8; ' : '') + (on ? 'background: #FCFBF8' : '') + (d ? '; opacity: .55' : ''),
+          check: 'width: 24px; height: 24px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; display: grid; place-items: center; ' + (d ? 'border: 0; background: #0E6B5C; color: #FFFFFF' : 'border: 2px solid #C9C4B8; background: #FFFFFF; color: transparent'),
+          icon: 'width: 40px; height: 40px; flex: none; border-radius: 13px; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: ' + t[2] + '; color: ' + t[3],
+          titleStyle: 'display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ' + (d ? 'text-decoration: line-through' : ''),
+          dueText: 'font-size: 12px; font-weight: 700; white-space: nowrap; color: ' + (w === 'now' ? '#A3341F' : (w === 'today' ? '#1F4C78' : '#4B524F')),
+          bar: 'display: block; height: 6px; border-radius: 3px; width: ' + (URG[k.id] || 20) + '%; background: ' + col + '; animation-delay: ' + (0.25 + (gi * 3 + idx) * 0.08).toFixed(2) + 's',
+          tag: 'justify-self: start; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: ' + t[2] + '; color: ' + t[3] }; }) }; }).filter((g) => g.items.length);
+    const topK = open.find((k) => whenOf(k) === 'now') || open[0] || K[0];
+    const top = { ...topK, toggle: () => this.setState({ done: { ...done, [topK.id]: true } }) };
+    const base = [['Marked integrity reviewed, Harbor Street', '10:12'], ['Asked Dana for the landlord letter', '10:05'], ['Proposed policy version 4', '10:20'], ['Replied to Elena on Merchant Link', '10:01'], ['Reviewed Golden Lotus statements', '09:30']];
+    const doneList = [...K.filter((k) => done[k.id]).map((k) => ({ t: k.title, time: 'now' })), ...base.map(([t, time]) => ({ t, time }))].slice(0, 5);
+    const nAll = Math.max(1, Number(this.props.totalToday ?? (base.length + K.length))), nDone = Math.min(nAll, Math.max(0, Number(this.props.doneToday ?? base.length)) + K.filter((k) => done[k.id]).length), C = 2 * Math.PI * 50;
+    const team = s.who === 'team';
+    return { isTeam: team, agendaTitle: team ? 'Team agenda' : 'Your agenda', agendaSub: team ? '4 people · 25 open tasks' : open.length + ' open · ' + open.filter((k) => whenOf(k) === 'now').length + ' due within the hour', showMine: () => this.setState({ who: 'mine' }), showTeam: () => this.setState({ who: 'team' }),
+      mineBtn: 'height: 30px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (!team ? 'background: #0E6B5C; color: #FFFFFF' : 'background: transparent; color: #3E4542'), teamBtn: 'height: 30px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (team ? 'background: #0E6B5C; color: #FFFFFF' : 'background: transparent; color: #3E4542'),
+      adding: !!s.adding, toggleAdd: () => this.setState({ adding: !s.adding }), digest: !!s.digest, toggleDigest: () => this.setState({ digest: !s.digest }),
+      tabs, groups, top, doneList, empty: groups.length === 0, nDone, nAll, ring: (C * nDone / nAll).toFixed(1) + ' ' + C.toFixed(1),
+      nUrgent: open.filter((k) => whenOf(k) === 'now').length, nToday: open.filter((k) => whenOf(k) === 'today').length, nWeek: open.filter((k) => whenOf(k) === 'week').length };
+  }
+}
+</script>
+</body>
+</html>

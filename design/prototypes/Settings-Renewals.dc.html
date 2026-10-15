@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Settings · Renewal rules</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.tri3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.tri3{grid-template-columns:1fr}.tri3>div{border-left:0 !important}}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.rr{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,1fr) minmax(200px,1.3fr) 110px 140px;gap:16px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.set-nav{scrollbar-width:none}
+.set-nav::-webkit-scrollbar{display:none}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="settings" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Settings</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Renewal rules</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Settings layout -->
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <nav aria-label="Settings sections" class="set-nav" style="flex: 0 0 220px; max-width: 100%; position: sticky; top: 0; z-index: 2; max-height: calc(100vh - 60px); overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 24px; background: #F5F3EF">
+        <span class="cap" style="color: #5F6662; padding: 6px 10px">Underwriting</span>
+        <a href="Settings.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Policy<span style="font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: #FFFFFF; color: #3E4542">v3</span></a>
+        <a href="Settings-Pricing.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Pricing &amp; disclosures</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Deal flow</span>
+        <a href="Settings-Intake.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Intake channels</a>
+        <a href="Settings-Renewals.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 16px -12px rgba(15,21,19,.4)">Renewal rules</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Organization</span>
+        <a href="Settings-Team.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Team &amp; roles</a>
+        <a href="Settings-Workspace.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Workspace</a>
+        <a href="Settings-Plan.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Plan &amp; usage</a>
+        <a href="Settings-Security.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Security</a>
+        <a href="Settings-Audit.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Audit log</a>
+      </nav>
+
+      <div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <section aria-labelledby="h-rr" style="border-radius: 30px; padding: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column; gap: 6px"><h2 id="h-rr" class="disp" style="margin: 0; font-weight: 600; font-size: 24px">Renewal rules</h2><span style="font-size: 12.5px; color: #3E4542">Who counts as ready to renew, what they're offered and when you reach out. The Renewals page uses these.</span></div>
+          <a href="Renewals.dc.html" style="height: 42px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center">Open Renewals</a>
+        </section>
+
+        <!-- Eligibility + live preview -->
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+          <section aria-labelledby="h-el" style="flex: 999 1 420px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+            <div><h2 id="h-el" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Who counts as ready</h2><span class="hint" style="font-size: 12px">A merchant must meet every rule. Move a slider to see who would qualify.</span></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px">
+              <div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px"><label for="r-paid">Repaid at least</label><b class="num" style="font-size: 16px">{{paidTxt}}</b></div><input id="r-paid" type="range" min="30" max="80" step="5" value="{{paid}}" onChange="{{set_paid}}" style="width: 100%; accent-color: #0E6B5C"></div>
+              <div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px"><label for="r-ret">No returned payments in</label><b class="num" style="font-size: 16px">{{retTxt}}</b></div><input id="r-ret" type="range" min="0" max="90" step="15" value="{{ret}}" onChange="{{set_ret}}" style="width: 100%; accent-color: #0E6B5C"></div>
+              <div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px"><label for="r-rev">Revenue now vs at funding</label><b class="num" style="font-size: 16px">{{revTxt}}</b></div><input id="r-rev" type="range" min="70" max="110" step="5" value="{{rev}}" onChange="{{set_rev}}" style="width: 100%; accent-color: #0E6B5C"></div>
+              <div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px"><label for="r-score">Health score at least</label><b class="num" style="font-size: 16px">{{scoreTxt}}</b></div><input id="r-score" type="range" min="60" max="90" step="5" value="{{score}}" onChange="{{set_score}}" style="width: 100%; accent-color: #0E6B5C"></div>
+            </div>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; cursor: pointer"><span><b style="display: block">No new advances from other funders</b><span class="hint">Checked by Stacking Watch</span></span><input type="checkbox" checked="{{noStack}}" onChange="{{toggleStack}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+
+            <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 20px; background: #FFFFFF; min-height: 0">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><b style="font-size: 13.5px">How the rules narrow it down</b><span class="hint">Live, as you move the sliders</span></div>
+              <div style="flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: 6px">
+                <sc-for list="{{funnel}}" as="f" hint-placeholder-count="6">
+                  <div style="display: grid; grid-template-columns: 150px minmax(0,1fr) 54px; gap: 12px; align-items: center">
+                    <span style="font-size: 12px; color: #3E4542; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{f.label}}</span>
+                    <span style="position: relative; height: 26px; border-radius: 8px; background: #F5F3EF; overflow: hidden"><span style="{{f.bar}}"><b class="num" style="font-size: 12px; color: #FFFFFF">{{f.count}}</b></span></span>
+                    <span style="{{f.dropStyle}}">{{f.drop}}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+
+          <aside aria-labelledby="h-who" style="flex: 1 1 300px; min-width: 0; border-radius: 30px; padding: 20px; background: #FFFFFF; border: 1px solid #ECE8E0; box-shadow: 0 18px 40px -30px rgba(15,21,19,.35); display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="h-who" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Ready with these rules</h2><b class="num" style="font-size: 28px; color: #0A5246">{{count}}</b></div>
+            <div style="display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px"><span style="{{readyBar}}"></span><span style="{{notBar}}"></span></div>
+            <span class="hint">{{count}} of {{total}} merchants who are at least 30% repaid</span>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <sc-for list="{{list}}" as="m" hint-placeholder-count="6"><span style="{{m.row}}"><span class="trunc">{{m.name}}</span><span style="{{m.tagStyle}}">{{m.tag}}</span></span></sc-for>
+            </div>
+            <div style="{{changeBox}}">{{changeText}}</div>
+          </aside>
+        </div>
+
+        <!-- Renewal offer -->
+        <section aria-labelledby="h-def" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-def" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">What they're offered</h2><span class="hint" style="font-size: 12px">The starting point for every renewal offer</span></div><a href="Settings-Pricing.dc.html" style="font-size: 12px; font-weight: 600; color: #0E6B5C">Pricing settings</a></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px"><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #5F6662">Most you offer</span><b class="num" style="font-size: 22px; line-height: 1.15">1.25×</b><span style="font-size: 11.5px; color: #5F6662">of revenue right now</span></div><div style="padding: 16px; border-radius: 20px; background: #0E6B5C; color: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #CFE6DD">Loyalty price</span><b class="num" style="font-size: 22px; line-height: 1.15">−0.04</b><span style="font-size: 11.5px; color: #CFE6DD">off the first factor</span></div><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #5F6662">Current balance</span><b class="num" style="font-size: 22px; line-height: 1.15">Paid off</b><span style="font-size: 11.5px; color: #5F6662">from the renewal amount</span></div><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #5F6662">Unearned fees</span><b class="num" style="font-size: 22px; line-height: 1.15">Forgiven</b><span style="font-size: 11.5px; color: #5F6662">no paying twice</span></div><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #5F6662">Broker commission</span><b class="num" style="font-size: 22px; line-height: 1.15">5 pts</b><span style="font-size: 11.5px; color: #5F6662">vs 8 on new deals</span></div><div style="padding: 16px; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11.5px; color: #5F6662">Broker keeps renewals</span><b class="num" style="font-size: 22px; line-height: 1.15">12 mo</b><span style="font-size: 11.5px; color: #5F6662">then they're yours</span></div></div>
+        </section>
+
+        <!-- Approval + checks + limits -->
+        <section aria-label="Renewal approval, checks and limits" class="tri3" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px">
+          <div style="border-radius: 24px; padding: 16px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px"><div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Approve automatically</h2><span style="font-size: 12px; color: #3E4542">Clean renewals skip the queue</span></div><input type="checkbox" aria-label="Approve renewals automatically" checked="{{auto}}" onChange="{{toggleAuto}}" style="width: 22px; height: 22px; accent-color: #0E6B5C; flex: none"></div>
+            <div style="padding: 12px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px; {{autoDim}}"><span style="display: flex; justify-content: space-between; font-size: 12.5px"><label for="r-cap">Up to</label><b class="num" style="font-size: 16px">{{capTxt}}</b></span><input id="r-cap" type="range" min="10" max="80" step="5" value="{{cap}}" onChange="{{setCap}}" style="width: 100%; accent-color: #0E6B5C"><span class="hint">Only when every rule passes and no new alerts appear</span></div>
+            <span style="font-size: 12px; color: #0A5246; font-weight: 600">{{autoNote}}</span>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid #ECE8E0">
+            <div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Checked again first</h2><span class="hint" style="font-size: 12px">Before any renewal offer goes out</span></div>
+            <span style="display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px"><span style="width: 20px; height: 20px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">✓</span><span><b style="display: block">Fresh bank data</b><span class="hint">Last 30 days of activity</span></span></span><span style="display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px"><span style="width: 20px; height: 20px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">✓</span><span><b style="display: block">Stacking and filings</b><span class="hint">New UCCs, funder debits, inquiries</span></span></span><span style="display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px"><span style="width: 20px; height: 20px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">✓</span><span><b style="display: block">Business still active</b><span class="hint">State registry</span></span></span><span style="display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px"><span style="width: 20px; height: 20px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none">✓</span><span><b style="display: block">Credit refreshed</b><span class="hint">If older than 6 months</span></span></span>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 4px; border-left: 1px solid #ECE8E0">
+            <div style="margin-bottom: 6px"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Limits</h2><span class="hint" style="font-size: 12px">Healthy renewals for the merchant</span></div>
+            <span style="display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #ECE8E0; font-size: 12.5px"><span>Offer valid for</span><b>7 days</b></span><span style="display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #ECE8E0; font-size: 12.5px"><span>Time between renewals</span><b>90+ days</b></span><span style="display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #ECE8E0; font-size: 12.5px"><span>Renewals in a row</span><b>Review after 3</b></span><span style="display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #ECE8E0; font-size: 12.5px"><span>New cash to merchant</span><b>At least 30%</b></span>
+          </div>
+        </section>
+
+        <!-- Outreach timeline -->
+        <section aria-labelledby="h-out" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-out" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">When to reach out</h2><span class="hint" style="font-size: 12px">Each step fires when the merchant has repaid this much of the advance</span></div><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">+ Add step</button></div>
+          <div style="padding: 30px 14px 8px">
+            <div role="img" aria-label="Outreach at 40, 50, 65 and 90 percent repaid" style="position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #E3DFD6 0%, #E3DFD6 50%, #8FD9C3 50%, #0E6B5C 100%)"><span style="position: absolute; left: 40%; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; border: 4px solid #0E6B5C; box-sizing: border-box"></span><span class="num" style="position: absolute; left: 40%; top: -22px; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: #0A5246">40%</span><span style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; border: 4px solid #0E6B5C; box-sizing: border-box"></span><span class="num" style="position: absolute; left: 50%; top: -22px; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: #0A5246">50%</span><span style="position: absolute; left: 65%; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; border: 4px solid #0E6B5C; box-sizing: border-box"></span><span class="num" style="position: absolute; left: 65%; top: -22px; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: #0A5246">65%</span><span style="position: absolute; left: 90%; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; border: 4px solid #0E6B5C; box-sizing: border-box"></span><span class="num" style="position: absolute; left: 90%; top: -22px; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: #0A5246">90%</span></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; color: #5F6662"><span>Funded</span><span style="color: #0A5246; font-weight: 600">Renewal line, 50%</span><span>Paid off</span></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; padding: 10px; border-radius: 22px; background: #F5F3EF"><div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: flex; justify-content: space-between; align-items: center"><b class="num" style="font-size: 18px; color: #0A5246">40%</b><span aria-label="Step on" style="width: 34px; height: 20px; border-radius: 999px; background: #0E6B5C; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+                <b style="font-size: 13px; line-height: 1.3">Heads-up that renewal is coming</b>
+                <span style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto"><span style="font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #EAF5F1; color: #083E35">Broker</span><span style="font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: #F5F3EF; color: #4B524F">By email</span></span>
+              </div><div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: flex; justify-content: space-between; align-items: center"><b class="num" style="font-size: 18px; color: #0A5246">50%</b><span aria-label="Step on" style="width: 34px; height: 20px; border-radius: 999px; background: #0E6B5C; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+                <b style="font-size: 13px; line-height: 1.3">Pre-approved offer, one tap to accept</b>
+                <span style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto"><span style="font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #EAF5F1; color: #083E35">Merchant</span><span style="font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: #F5F3EF; color: #4B524F">Email and text</span></span>
+              </div><div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: flex; justify-content: space-between; align-items: center"><b class="num" style="font-size: 18px; color: #0A5246">65%</b><span aria-label="Step on" style="width: 34px; height: 20px; border-radius: 999px; background: #0E6B5C; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+                <b style="font-size: 13px; line-height: 1.3">Personal call if no reply</b>
+                <span style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto"><span style="font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #EAF5F1; color: #083E35">Underwriter</span><span style="font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: #F5F3EF; color: #4B524F">Task in Cevrynt</span></span>
+              </div><div style="padding: 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: flex; justify-content: space-between; align-items: center"><b class="num" style="font-size: 18px; color: #0A5246">90%</b><span aria-label="Step on" style="width: 34px; height: 20px; border-radius: 999px; background: #0E6B5C; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF"></span></span></span>
+                <b style="font-size: 13px; line-height: 1.3">Last chance before the advance ends</b>
+                <span style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto"><span style="font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #EAF5F1; color: #083E35">Merchant</span><span style="font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: #F5F3EF; color: #4B524F">By email</span></span>
+              </div></div>
+        </section>
+
+        <!-- Never offer -->
+        <section aria-labelledby="h-stop" style="background: #F6DED8; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <div><h2 id="h-stop" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Never offer a renewal when</h2><span style="font-size: 12px; color: #6B2216">These always win over the rules above</span></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px"><div style="padding: 14px; border-radius: 18px; background: rgba(255,255,255,.85); display: flex; gap: 12px; align-items: flex-start"><span style="width: 30px; height: 30px; border-radius: 10px; background: #C2412D; color: #FFFFFF; display: grid; place-items: center; font-size: 14px; font-weight: 700; flex: none">×</span><span style="font-size: 12.5px"><b style="display: block">A stacking alert is open</b><span style="color: #6B2216">Until someone reviews it</span></span></div><div style="padding: 14px; border-radius: 18px; background: rgba(255,255,255,.85); display: flex; gap: 12px; align-items: flex-start"><span style="width: 30px; height: 30px; border-radius: 10px; background: #C2412D; color: #FFFFFF; display: grid; place-items: center; font-size: 14px; font-weight: 700; flex: none">×</span><span style="font-size: 12.5px"><b style="display: block">On a payment plan</b><span style="color: #6B2216">Or in collections</span></span></div><div style="padding: 14px; border-radius: 18px; background: rgba(255,255,255,.85); display: flex; gap: 12px; align-items: flex-start"><span style="width: 30px; height: 30px; border-radius: 10px; background: #C2412D; color: #FFFFFF; display: grid; place-items: center; font-size: 14px; font-weight: 700; flex: none">×</span><span style="font-size: 12.5px"><b style="display: block">A reconciliation is pending</b><span style="color: #6B2216">Sales dropped recently</span></span></div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { paid: 50, ret: 30, rev: 90, score: 75, noStack: true, auto: true, cap: 50 }; }
+  renderVals() {
+    const s = this.state;
+    // [name, % repaid, days since a returned payment, revenue vs funding %, health, stacking?]
+    const M = [
+      ['Harborview Bistro', 81, 999, 109, 94, false], ['Coastal Dental Group', 72, 999, 118, 92, false], ['Pine Ridge Vet Clinic', 58, 999, 112, 92, false],
+      ['Lighthouse Coffee Co', 67, 999, 106, 88, false], ['Oakview Deli', 64, 999, 104, 88, false], ['Northgate Fitness', 55, 120, 103, 81, false],
+      ['Bluebird Bakery', 52, 75, 98, 76, false], ['Maple Ridge Florist', 61, 999, 95, 79, false], ['Summit Pet Supply', 53, 60, 92, 77, false],
+      ['Seaside Yoga Studio', 45, 999, 107, 85, false], ['Maple St Barbers', 42, 999, 101, 83, false], ['Kestrel Plumbing', 48, 3, 78, 61, false],
+      ['Westfield Auto Group', 21, 2, 91, 58, false], ['Bayside Hardware', 39, 999, 99, 80, false]
+    ];
+    const pool = M.filter((m) => m[1] >= 30);
+    const ok = (m) => m[1] >= s.paid && (s.ret === 0 || m[2] >= s.ret) && m[3] >= s.rev && m[4] >= s.score && (!s.noStack || !m[5]);
+    const FS = [['Over 30% repaid', () => true], ['Repaid ' + s.paid + '%+', (m) => m[1] >= s.paid], ['No recent returns', (m) => s.ret === 0 || m[2] >= s.ret], ['Revenue ' + s.rev + '%+', (m) => m[3] >= s.rev], ['Score ' + s.score + '+', (m) => m[4] >= s.score], ['No new advances', (m) => !s.noStack || !m[5]]];
+    let left = pool; const fcounts = [];
+    FS.forEach(([label, fn], idx) => { const before = left.length; left = left.filter(fn); fcounts.push({ label, n: left.length, drop: idx ? before - left.length : 0 }); });
+    const funnel = fcounts.map((f, idx) => ({ label: f.label, count: f.n, drop: f.drop ? '−' + f.drop : (idx ? '0' : ''),
+      bar: 'position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; padding-left: 10px; box-sizing: border-box; border-radius: 8px; min-width: 30px; transition: width .25s; width: ' + Math.max(8, Math.round(f.n / pool.length * 100)) + '%; background: ' + (idx === fcounts.length - 1 ? '#0E6B5C' : 'linear-gradient(90deg, #3FA58C, #8FD9C3)'),
+      dropStyle: 'justify-self: end; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; ' + (f.drop ? 'background: #F6DED8; color: #8E2B19' : (idx ? 'background: #F5F3EF; color: #7A807C' : 'background: transparent')) }));
+    const ready = pool.filter(ok);
+    const base = pool.filter((m) => m[1] >= 50 && m[2] >= 30 && m[3] >= 90 && m[4] >= 75 && !m[5]);
+    const why = (m) => m[1] < s.paid ? 'Repaid ' + m[1] + '%' : (s.ret && m[2] < s.ret ? 'Returned payment' : (m[3] < s.rev ? 'Revenue ' + m[3] + '%' : (m[4] < s.score ? 'Score ' + m[4] : 'Stacking alert')));
+    const list = pool.slice(0, 8).map((m) => { const y = ok(m); return { name: m[0], tag: y ? 'Ready' : why(m),
+      row: 'display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; font-size: 12.5px; background: ' + (y ? '#EAF5F1' : '#F5F3EF'),
+      tagStyle: 'font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; ' + (y ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #FFFFFF; color: #5F6662') }; });
+    const diff = ready.length - base.length;
+    const set = (k) => (e) => this.setState({ [k]: Number(e.target.value) });
+    return {
+      paid: s.paid, ret: s.ret, rev: s.rev, score: s.score, noStack: !!s.noStack,
+      paidTxt: s.paid + '%', retTxt: s.ret ? s.ret + ' days' : 'Any time', revTxt: s.rev + '%', scoreTxt: String(s.score),
+      set_paid: set('paid'), set_ret: set('ret'), set_rev: set('rev'), set_score: set('score'), toggleStack: () => this.setState({ noStack: !s.noStack }),
+      funnel, count: ready.length, total: pool.length, list,
+      auto: !!s.auto, cap: s.cap ?? 50, capTxt: '$' + (s.cap ?? 50) + 'K', toggleAuto: () => this.setState({ auto: !s.auto }), setCap: (e) => this.setState({ cap: Number(e.target.value) }),
+      autoDim: s.auto ? '' : 'opacity: .45; pointer-events: none',
+      autoNote: s.auto ? 'About ' + Math.max(1, Math.round(ready.length * Math.min(1, (s.cap ?? 50) / 80))) + ' of today\u2019s ' + ready.length + ' would go straight to an offer' : 'Every renewal goes to an underwriter',
+      readyBar: 'flex: ' + ready.length + '; background: #0E6B5C', notBar: 'flex: ' + (pool.length - ready.length) + '; background: #E3DFD6',
+      changeText: diff === 0 ? 'Same as your current rules.' : (diff > 0 ? diff + ' more than today. Check their late-payment risk before saving.' : Math.abs(diff) + ' fewer than today. Safer, but fewer renewals.'),
+      changeBox: 'padding: 10px 12px; border-radius: 14px; font-size: 12px; ' + (diff === 0 ? 'background: #F5F3EF; color: #3E4542' : (diff > 0 ? 'background: #FBF0DE; color: #6B4B1F' : 'background: #DCE9F5; color: #1F4C78'))
+    };
+  }
+}
+</script>
+</body>
+</html>

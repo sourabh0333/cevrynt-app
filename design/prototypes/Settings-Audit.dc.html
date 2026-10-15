@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Settings · Audit log</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.duo2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.duo2{grid-template-columns:1fr}}
+.tri3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.tri3{grid-template-columns:1fr}.tri3>div{border-left:0 !important}}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.rr{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,1fr) minmax(200px,1.3fr) 110px 140px;gap:16px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.set-nav{scrollbar-width:none}
+.set-nav::-webkit-scrollbar{display:none}
+.au-tabs{scrollbar-width:none;-ms-overflow-style:none}
+.au-tabs::-webkit-scrollbar{display:none}
+.au-scroll{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.au-scroll>*{flex-shrink:0}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="settings" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Settings</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Audit log</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Settings layout -->
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <nav aria-label="Settings sections" class="set-nav" style="flex: 0 0 220px; max-width: 100%; position: sticky; top: 0; z-index: 2; max-height: calc(100vh - 60px); overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 24px; background: #F5F3EF">
+        <span class="cap" style="color: #5F6662; padding: 6px 10px">Underwriting</span>
+        <a href="Settings.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Policy<span style="font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: #FFFFFF; color: #3E4542">v3</span></a>
+        <a href="Settings-Pricing.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Pricing &amp; disclosures</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Deal flow</span>
+        <a href="Settings-Intake.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Intake channels</a>
+        <a href="Settings-Renewals.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Renewal rules</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Organization</span>
+        <a href="Settings-Team.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Team &amp; roles</a>
+        <a href="Settings-Workspace.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Workspace</a>
+        <a href="Settings-Plan.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Plan &amp; usage</a>
+        <a href="Settings-Security.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Security</a>
+        <a href="Settings-Audit.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 16px -12px rgba(15,21,19,.4)">Audit log</a>
+      </nav>
+
+      <div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <section aria-labelledby="h-au" class="duo2" style="border-radius: 30px; padding: 8px; background: #FFFFFF; border: 1px solid #ECE8E0">
+          <div style="border-radius: 24px; padding: 20px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; flex-direction: column; gap: 8px; justify-content: center">
+            <span style="align-self: flex-start; display: inline-flex; gap: 7px; align-items: center; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: #FFFFFF; color: #0A5246"><span style="width: 7px; height: 7px; border-radius: 50%; background: #0E6B5C"></span>Sealed · checked today 06:00</span>
+            <h2 id="h-au" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">Audit log</h2>
+            <span style="font-size: 12.5px; color: #3E4542">Every action by every person, kept 7 years. Entries can't be edited or deleted, by anyone.</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px"><button style="height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Export for auditors</button><button style="height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Send monthly copy</button></div>
+          </div>
+          <div style="padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: center">
+            <span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 24px; line-height: 1; color: #0F1513">214</b><span style="font-size: 11.5px; color: #4B524F">Events today</span></span><span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 24px; line-height: 1; color: #0F1513">6</b><span style="font-size: 11.5px; color: #4B524F">Money and policy changes</span></span><span style="padding: 14px; border-radius: 18px; background: #F6DED8"><b class="num" style="display: block; font-size: 24px; line-height: 1; color: #8E2B19">1</b><span style="font-size: 11.5px; color: #4B524F">Failed sign-ins</span></span><span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 24px; line-height: 1; color: #0F1513">2</b><span style="font-size: 11.5px; color: #4B524F">Data exports</span></span>
+          </div>
+        </section>
+
+        <!-- Log + detail -->
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+          <section aria-labelledby="h-log" style="flex: 999 1 460px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+            <h2 id="h-log" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Log entries</h2>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <label style="flex: 1 1 240px; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; box-sizing: border-box"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Search the log" placeholder="Search deal, merchant or setting" style="border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; flex: 1; min-width: 0"></label>
+              <label style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 6px 0 14px; border-radius: 999px; background: #FFFFFF; box-sizing: border-box"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg><select aria-label="Person" style="height: 40px; border: 0; background: transparent; font: inherit; font-size: 12.5px; font-weight: 600; padding-right: 6px"><option>Everyone</option><option>Priya Shah</option><option>Maya Chen</option><option>Sam Lee</option><option>Nina Ortiz</option><option>Cevrynt (automatic)</option></select></label>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+              <div role="tablist" aria-label="Category" class="au-tabs" style="flex: 1 1 320px; min-width: 0; display: flex; gap: 2px; padding: 4px; border-radius: 16px; background: #FFFFFF; overflow-x: auto">
+                <sc-for list="{{chips}}" as="c" hint-placeholder-count="7"><button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}"><span style="{{c.dot}}"></span>{{c.label}}<span style="{{c.cntStyle}}">{{c.count}}</span></button></sc-for>
+              </div>
+              <div role="group" aria-label="Time range" style="flex: none; display: flex; gap: 2px; padding: 4px; border-radius: 16px; background: #E8E4DB"><sc-for list="{{ranges}}" as="g" hint-placeholder-count="4"><button onClick="{{g.pick}}" aria-pressed="{{g.on}}" style="{{g.style}}">{{g.label}}</button></sc-for></div>
+            </div>
+
+            <div class="au-scroll" style="flex: 1 1 0; height: 0; min-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 0 -4px; padding: 0 4px">
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+                <button onClick="{{r.pick}}" style="{{r.row}}">
+                  <span class="mono" style="font-size: 11.5px; color: #5F6662; width: 42px; flex: none; text-align: left">{{r.time}}</span>
+                  <span style="{{r.av}}">{{r.ini}}</span>
+                  <span style="flex: 1; min-width: 0; text-align: left"><b class="trunc" style="display: block; font-size: 13px">{{r.what}}</b><span class="hint trunc" style="display: block">{{r.who}} · {{r.obj}}</span></span>
+                  <span style="{{r.tag}}">{{r.cat}}</span>
+                </button>
+              </sc-for>
+              <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><div style="padding: 24px; text-align: center; border-radius: 16px; background: #FFFFFF; font-size: 12.5px; color: #5F6662">Nothing of this type today.</div></sc-if>
+            </div>
+          </section>
+
+          <aside aria-labelledby="h-det" style="flex: 1 1 300px; min-width: 0; max-width: 100%; border-radius: 30px; padding: 20px; background: #FFFFFF; border: 1px solid #ECE8E0; box-shadow: 0 18px 40px -30px rgba(15,21,19,.35); display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="{{d.tag}}">{{d.cat}}</span><span class="mono" style="font-size: 11px; color: #5F6662">#{{d.id}}</span></div>
+            <h2 id="h-det" class="disp" style="margin: 0; font-weight: 600; font-size: 18px; line-height: 1.25">{{d.what}}</h2>
+            <div style="display: flex; gap: 10px; align-items: center"><span style="{{d.av}}">{{d.ini}}</span><span style="font-size: 12.5px"><b style="display: block">{{d.who}}</b><span class="hint">Today {{d.time}} · {{d.where}}</span></span></div>
+            <sc-if value="{{d.hasDiff}}" hint-placeholder-val="{{ true }}">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+                <span style="padding: 12px; border-radius: 14px; background: #F6DED8"><span style="display: block; font-size: 10.5px; font-weight: 700; color: #8E2B19">BEFORE</span><b style="font-size: 13px">{{d.before}}</b></span>
+                <span style="padding: 12px; border-radius: 14px; background: #EAF5F1"><span style="display: block; font-size: 10.5px; font-weight: 700; color: #0A5246">AFTER</span><b style="font-size: 13px">{{d.after}}</b></span>
+              </div>
+            </sc-if>
+            <span style="font-size: 12.5px; color: #3E4542">{{d.note}}</span>
+            <div style="margin-top: auto; padding: 12px; border-radius: 14px; background: #F5F3EF; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; color: #5F6662">Seal</span><span class="mono" style="font-size: 11px; word-break: break-all">{{d.seal}}</span><span class="hint">Linked to the entry before it. Any change would break the chain.</span></div>
+            <a href="{{d.link}}" style="height: 40px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600; display: grid; place-items: center">{{d.linkText}}</a>
+          </aside>
+        </div>
+
+        <!-- Alerts, legal holds, deal record -->
+        <section aria-label="Alerts, legal holds and deal records" class="tri3" style="gap: 14px">
+          <article style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 4px"><span style="width: 36px; height: 36px; border-radius: 12px; background: #EAF5F1; display: grid; place-items: center; flex: none"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6B5C" stroke-width="2" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg></span><div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 16px">Alert admins instantly</h2><span class="hint">4 sensitive actions</span></div></div>
+            <div style="display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1EEE8"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C; flex: none"></span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b>Money account changed</b><span class="hint"> · funding or collections</span></span><span style="width: 32px; height: 18px; border-radius: 999px; background: #0E6B5C; position: relative; flex: none"><span style="position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1EEE8"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C; flex: none"></span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b>Large export</b><span class="hint"> · over 50 deals</span></span><span style="width: 32px; height: 18px; border-radius: 999px; background: #0E6B5C; position: relative; flex: none"><span style="position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1EEE8"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C; flex: none"></span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b>Policy goes live</b><span class="hint"> · after approval</span></span><span style="width: 32px; height: 18px; border-radius: 999px; background: #0E6B5C; position: relative; flex: none"><span style="position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #FFFFFF"></span></span></div><div style="display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1EEE8"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C; flex: none"></span><span style="flex: 1; min-width: 0; font-size: 12.5px"><b>Support access</b><span class="hint"> · Cevrynt team</span></span><span style="width: 32px; height: 18px; border-radius: 999px; background: #0E6B5C; position: relative; flex: none"><span style="position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #FFFFFF"></span></span></div>
+          </article>
+          <article style="background: #F2E7CF; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; gap: 10px; align-items: center"><span style="width: 36px; height: 36px; border-radius: 12px; background: #FFFFFF; display: grid; place-items: center; flex: none"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E4E08" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><div style="flex: 1"><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 16px">Legal holds</h2><span style="font-size: 11.5px; color: #6B4B1F">Never deleted while on hold</span></div><b class="num" style="font-size: 22px">1</b></div>
+            <div style="border-radius: 18px; background: #FFFFFF; overflow: hidden; box-shadow: 0 10px 24px -20px rgba(107,75,31,.6)">
+              <div style="display: flex; gap: 12px; align-items: center; padding: 14px">
+                <span style="position: relative; width: 42px; height: 42px; flex: none; border-radius: 50%; background: repeating-linear-gradient(135deg, #F2C27E 0 4px, #EBCB9C 4px 8px); display: grid; place-items: center"><span style="width: 32px; height: 32px; border-radius: 50%; background: #FFFFFF; display: grid; place-items: center"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E4E08" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span></span>
+                <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13.5px">Westfield Auto Group</b><span class="mono" style="font-size: 11px; color: #8E4E08">HOLD-0042 · payment dispute</span></span>
+                <span style="text-align: right"><b class="num" style="display: block; font-size: 18px; line-height: 1">12</b><span class="hint" style="font-size: 10.5px">days</span></span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; border-top: 1px dashed #EBDCC2">
+                <span style="padding: 9px 14px; font-size: 11.5px; color: #5F6662; border-right: 1px dashed #EBDCC2">Placed by <b style="color: #0F1513">Nina</b> · Oct 2</span>
+                <span style="padding: 9px 14px; font-size: 11.5px; color: #5F6662"><b style="color: #0F1513">214</b> records kept</span>
+              </div>
+            </div>
+            <button style="margin-top: auto; height: 38px; border: 0; border-radius: 999px; background: rgba(255,255,255,.7); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">+ Place a hold</button>
+          </article>
+          <article style="background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+            <div style="position: relative; height: 70px">
+              <span style="position: absolute; left: 24px; top: 14px; width: 54px; height: 54px; border-radius: 10px; background: #FFFFFF; transform: rotate(-8deg); box-shadow: 0 6px 14px -10px rgba(15,21,19,.5)"></span>
+              <span style="position: absolute; left: 44px; top: 8px; width: 54px; height: 54px; border-radius: 10px; background: #FFFFFF; transform: rotate(4deg); box-shadow: 0 6px 14px -10px rgba(15,21,19,.5)"></span>
+              <span style="position: absolute; left: 66px; top: 2px; width: 54px; height: 60px; border-radius: 10px; background: #0E6B5C; display: grid; place-items: center; color: #FFFFFF; font-size: 10px; font-weight: 700; box-shadow: 0 10px 20px -10px rgba(14,107,92,.8)">SEALED</span>
+            </div>
+            <div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 16px">One deal's full record</h2><span style="font-size: 12px; color: #3E4542">Every document, check, message, decision, signature and payment, in order, in one sealed file. For disputes and examiners.</span></div>
+            <div style="display: flex; gap: 6px; margin-top: auto"><input aria-label="Deal or merchant" placeholder="Deal or merchant" style="flex: 1; min-width: 0; height: 38px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12.5px"><button style="height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap">Build</button></div>
+          </article>
+        </section>
+
+        <!-- Life of an entry -->
+        <section aria-labelledby="h-life" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+          <div><h2 id="h-life" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">The life of a log entry</h2><span class="hint" style="font-size: 12px">From the moment something happens to the day it's removed</span></div>
+          <div style="position: relative">
+            <span aria-hidden="true" style="position: absolute; left: 25px; right: 12.5%; top: 17px; height: 2px; background: linear-gradient(90deg, #0E6B5C 0%, #0E6B5C 60%, #C9C4B8 100%)"></span>
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px"><div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 8px"><span class="num" style="width: 34px; height: 34px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 13px; font-weight: 700; position: relative; z-index: 1; box-shadow: 0 0 0 4px #F5F3EF">1</span><b style="font-size: 13.5px">Recorded</b><span class="hint" style="font-size: 12px">Who, what, when, where, before and after</span></div><div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 8px"><span class="num" style="width: 34px; height: 34px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 13px; font-weight: 700; position: relative; z-index: 1; box-shadow: 0 0 0 4px #F5F3EF">2</span><b style="font-size: 13.5px">Sealed</b><span class="hint" style="font-size: 12px">Linked to the entry before. Can't be changed</span></div><div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 8px"><span class="num" style="width: 34px; height: 34px; border-radius: 50%; background: #8FD9C3; color: #083E35; display: grid; place-items: center; font-size: 13px; font-weight: 700; position: relative; z-index: 1; box-shadow: 0 0 0 4px #F5F3EF">3</span><b style="font-size: 13.5px">Kept 7 years</b><span class="hint" style="font-size: 12px">Including automatic steps by Cevrynt</span></div><div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 0 8px"><span class="num" style="width: 34px; height: 34px; border-radius: 50%; background: #FFFFFF; color: #3E4542; display: grid; place-items: center; font-size: 13px; font-weight: 700; position: relative; z-index: 1; box-shadow: 0 0 0 4px #F5F3EF; border: 1.5px dashed #9AA09C; box-sizing: border-box">4</span><b style="font-size: 13.5px">Deleted</b><span class="hint" style="font-size: 12px">Unless a deal is on legal hold</span></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'all', sel: 'e1', range: 'today' }; }
+  renderVals() {
+    const s = this.state;
+    const CAT = { money: ['Money', '#DCF0E9', '#083E35', '#0E6B5C'], policy: ['Policy', '#EDE4F7', '#4B2F7A', '#8670B8'], decision: ['Decision', '#DCE9F5', '#1F4C78', '#4F86BD'], access: ['Access', '#F6DED8', '#8E2B19', '#C2412D'], data: ['Data', '#F5E6CC', '#7A4206', '#D98A2B'], settings: ['Settings', '#EEECE6', '#3E4542', '#9AA09C'] };
+    const P = { PS: ['Priya Shah', '#DCE9F5'], MC: ['Maya Chen', '#E8D9C1'], NO: ['Nina Ortiz', '#F6DED8'], SL: ['Sam Lee', '#F2E7CF'], C: ['Cevrynt', '#0E6B5C'], '?': ['Unknown', '#ECE8E0'] };
+    const E = [
+      { id: 'e1', time: '11:02', ini: 'PS', c: 'money', what: 'Released $60,000 to Cedar Street Pharmacy', obj: 'Wire · ref …000412', where: 'Boston, MA', before: 'Awaiting release', after: 'Sent', note: 'Second person on a payment Sam Lee started at 10:58.', link: 'Offers.dc.html', linkText: 'Open Offers & funding' },
+      { id: 'e2', time: '10:58', ini: 'SL', c: 'money', what: 'Started funding for Cedar Street Pharmacy', obj: 'Funding queue', where: 'Boston, MA', before: 'Ready', after: 'Awaiting release', note: 'Final checks passed at 10:57.', link: 'Offers.dc.html', linkText: 'Open Offers & funding' },
+      { id: 'e3', time: '10:20', ini: 'MC', c: 'policy', what: 'Proposed policy version 4', obj: 'Debt share 65% → 70%', where: 'Boston, MA', before: '65% of revenue', after: '70% of revenue', note: 'Waiting for Priya Shah to approve. Not live yet.', link: 'Settings.dc.html', linkText: 'Open Policy' },
+      { id: 'e4', time: '10:12', ini: 'MC', c: 'decision', what: 'Marked integrity reviewed', obj: 'Harbor Street Bakery LLC', where: 'Boston, MA', before: 'Needs sign-off', after: 'Reviewed', note: 'Note: catering transfer checked, same owner, left out of revenue.', link: 'Deal-Integrity.dc.html', linkText: 'Open the deal' },
+      { id: 'e5', time: '09:41', ini: 'C', c: 'decision', what: 'Suggested approve $40,000', obj: 'Harbor Street Bakery LLC', where: 'Automatic', before: '', after: '', note: 'Score 88, policy v3, all 8 rules met. A person makes the final decision.', link: 'Deal-Decision.dc.html', linkText: 'Open Decision & memo' },
+      { id: 'e6', time: '09:35', ini: 'PS', c: 'data', what: 'Exported the October portfolio report', obj: 'PDF · 14 pages', where: 'Boston, MA', before: '', after: '', note: 'Name stamped on every page.', link: 'Reports.dc.html', linkText: 'Open Reports' },
+      { id: 'e7', time: '09:17', ini: '?', c: 'access', what: 'Blocked sign-in to Ari Kaplan\u2019s account', obj: 'Wrong 2-step code', where: 'Lagos, Nigeria', before: '', after: '', note: 'Ari was told and asked to change his password.', link: 'Settings-Security.dc.html', linkText: 'Open Security' },
+      { id: 'e8', time: '09:15', ini: 'PS', c: 'money', what: 'Released $25,000 to Bayview Nail Spa', obj: 'ACH · trace …184477', where: 'Boston, MA', before: 'Awaiting release', after: 'Sent', note: 'Second person on a payment Sam Lee started at 09:12.', link: 'Offers.dc.html', linkText: 'Open Offers & funding' },
+      { id: 'e9', time: '08:30', ini: 'NO', c: 'settings', what: 'Invited Kim Tran', obj: 'Underwriter, up to $45K', where: 'Boston, MA', before: '', after: '', note: 'Invite still open.', link: 'Settings-Team.dc.html', linkText: 'Open Team & roles' }
+    ];
+    const F = [['all', 'All'], ['money', 'Money'], ['decision', 'Decisions'], ['policy', 'Policy'], ['access', 'Access'], ['data', 'Data'], ['settings', 'Settings']];
+    const chips = F.map(([k, l]) => { const on = k === s.f; const count = k === 'all' ? E.length : E.filter((e) => e.c === k).length; return { label: l, count, on: on ? 'true' : 'false', pick: () => this.setState({ f: k }),
+      style: 'flex: none; display: inline-flex; gap: 7px; align-items: center; height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 12px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; ' + (on ? 'background: #0F1513; color: #FFFFFF' : 'background: transparent; color: #4B524F'),
+      dot: 'width: 7px; height: 7px; border-radius: 50%; background: ' + (k === 'all' ? (on ? '#FFFFFF' : '#0F1513') : CAT[k][3]),
+      cntStyle: 'font-size: 10.5px; padding: 1px 7px; border-radius: 999px; ' + (on ? 'background: rgba(255,255,255,.2); color: #FFFFFF' : 'background: #F5F3EF; color: #5F6662') }; });
+    const av = (ini, n) => 'width: ' + n + 'px; height: ' + n + 'px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: ' + (n > 32 ? 12 : 10.5) + 'px; font-weight: 700; background: ' + P[ini][1] + '; color: ' + (ini === 'C' ? '#FFFFFF' : '#0F1513');
+    const tag = (c) => 'font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: ' + CAT[c][1] + '; color: ' + CAT[c][2];
+    const rows = E.filter((e) => s.f === 'all' || e.c === s.f).map((e) => ({ ...e, who: P[e.ini][0], cat: CAT[e.c][0], av: av(e.ini, 30), tag: tag(e.c), pick: () => this.setState({ sel: e.id }),
+      row: 'display: flex; gap: 10px; align-items: center; width: 100%; padding: 10px 12px; border: 0; border-radius: 16px; font: inherit; color: inherit; cursor: pointer; background: #FFFFFF; ' + (e.id === s.sel ? 'box-shadow: inset 0 0 0 1.5px #0E6B5C' : '') }));
+    const e = E.find((x) => x.id === s.sel) || E[0];
+    const n = 48213 - E.indexOf(e);
+    const d = { ...e, id: n.toLocaleString('en-US'), who: P[e.ini][0], cat: CAT[e.c][0], av: av(e.ini, 36), tag: tag(e.c), hasDiff: !!e.before,
+      seal: 'sha256:' + (n * 2654435761 >>> 0).toString(16) + 'c7e19a4b' + (n * 40503 >>> 0).toString(16) + 'f02d' };
+    const ranges = [['today', 'Today'], ['7', '7 days'], ['30', '30 days'], ['custom', 'Pick dates']].map(([k, l]) => { const on = k === s.range; return { label: l, on: on ? 'true' : 'false', pick: () => this.setState({ range: k }),
+      style: 'height: 34px; padding: 0 12px; border: 0; border-radius: 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; ' + (on ? 'background: #FFFFFF; color: #0F1513; box-shadow: 0 2px 6px -2px rgba(15,21,19,.25)' : 'background: transparent; color: #4B524F') }; });
+    return { chips, rows, d, ranges, empty: rows.length === 0 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Deal cash flow</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.tab{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:#3E4542;white-space:nowrap}
+.tab:hover{background:#EEECE6;color:#0F1513}
+.span2{grid-column:span 2}
+.mt{display:grid;grid-template-columns:110px repeat(7,minmax(84px,1fr));gap:10px;align-items:center}
+.tx{display:grid;grid-template-columns:70px minmax(220px,1.6fr) 150px 110px 110px 90px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="submissions" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Breadcrumb + tools -->
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+      <nav aria-label="Breadcrumb" class="cap" style="display: flex; gap: 8px; align-items: center; color: #4B524F"><a href="Submissions.dc.html">Submissions</a><span aria-hidden="true">/</span><span style="color: #0F1513">Harbor Street Bakery LLC</span></nav>
+      <div style="display: flex; gap: 8px; align-items: center">
+        <button style="display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 220px; font: inherit; font-size: 13px; cursor: pointer"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>Search<span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span></button>
+        <button aria-label="Notifications, 4 unread" style="width: 42px; height: 42px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg><span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span></button>
+      </div>
+    </div>
+
+    <!-- Deal header -->
+    <section aria-labelledby="h-deal" style="position: relative; overflow: hidden; border-radius: 32px; padding: 24px; color: #0F1513; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap">
+        <div style="display: flex; gap: 16px; align-items: center">
+          <span class="disp" style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(140deg, #3FA58C, #8FD9C3); display: grid; place-items: center; color: #083E35; font-weight: 700; font-size: 22px">HB</span>
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"><span class="mono" style="font-size: 11.5px; padding: 4px 9px; border-radius: 999px; background: rgba(14,107,92,.07)">APP-7H2K4Q</span><span style="display: inline-flex; gap: 6px; align-items: center; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #8FD9C3; color: #083E35"><span style="width: 6px; height: 6px; border-radius: 50%; background: #083E35"></span>Decision ready</span></div>
+            <h1 id="h-deal" class="disp" style="margin: 8px 0 0; font-weight: 600; font-size: 26px; line-height: 1.05; letter-spacing: -.03em">Harbor Street Bakery LLC</h1>
+            <span style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: #4B524F">Bakery · Portland, ME · since 2016 · Owner Elena Brooks<a href="#" style="font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(14,107,92,.07); color: #0F1513">First deal with you · see merchant</a></span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button style="height: 44px; padding: 0 16px; border: 1px solid rgba(14,107,92,.07); border-radius: 999px; background: rgba(14,107,92,.07); color: #0F1513; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Request documents</button>
+          <button style="height: 44px; padding: 0 16px; border: 1px solid rgba(14,107,92,.07); border-radius: 999px; background: rgba(14,107,92,.07); color: #0F1513; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Decline</button>
+          <button style="height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)">Make a decision</button>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px">
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(14,107,92,.07)"><span class="cap" style="color: #4B524F; font-size: 9.5px">Requested</span><b class="num" style="display: block; font-size: 22px">$45,000</b></div>
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(14,107,92,.07)"><span class="cap" style="color: #4B524F; font-size: 9.5px">Recommended</span><b class="num" style="display: block; font-size: 22px; color: #0A5246">$40,000</b></div>
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(14,107,92,.07)"><span class="cap" style="color: #4B524F; font-size: 9.5px">Broker</span><b style="display: block; font-size: 14px; margin-top: 4px">Apex Funding Partners</b></div>
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(14,107,92,.07)"><span class="cap" style="color: #4B524F; font-size: 9.5px">Underwriter</span><b style="display: block; font-size: 14px; margin-top: 4px">Maya Chen</b></div>
+        <div style="padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(14,107,92,.07)"><span class="cap" style="color: #4B524F; font-size: 9.5px">Decision due</span><b style="display: block; font-size: 14px; margin-top: 4px">In 1h 10m</b><span style="display: block; height: 4px; border-radius: 2px; background: rgba(14,107,92,.07); margin-top: 6px"><span style="display: block; height: 4px; width: 70%; border-radius: 2px; background: #8FD9C3"></span></span></div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <nav aria-label="Deal sections" style="display: flex; gap: 4px; padding: 6px; border-radius: 22px; background: #F5F3EF; overflow-x: auto">
+      <a href="Deal-Summary.dc.html" class="tab">Summary</a>
+      <a href="Deal-CashFlow.dc.html" class="tab" aria-current="page" style="background: #0E6B5C; color: #FFFFFF">Cash flow<span style="width: 7px; height: 7px; border-radius: 50%; background: #8FD9C3"></span></a>
+      <a href="Deal-Positions.dc.html" class="tab">Positions &amp; debt<span style="width: 7px; height: 7px; border-radius: 50%; background: #0E6B5C"></span></a>
+      <a href="Deal-Integrity.dc.html" class="tab">Integrity<span style="width: 7px; height: 7px; border-radius: 50%; background: #D98A2B"></span></a>
+      <a href="Deal-Business.dc.html" class="tab">Business &amp; owners<span style="width: 7px; height: 7px; border-radius: 50%; background: #0E6B5C"></span></a>
+      <a href="Deal-Conditions.dc.html" class="tab">Conditions &amp; stips<span style="font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: #F5E6CC; color: #7A4206">2</span></a>
+      <a href="Deal-Offer.dc.html" class="tab">Offer &amp; disclosures</a>
+      <a href="Deal-Decision.dc.html" class="tab">Decision &amp; memo</a>
+      <a href="Deal-Activity.dc.html" class="tab">Activity</a>
+    </nav>
+
+    <!-- Row 1: revenue math + statements -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-math" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap">
+          <div><h2 id="h-math" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">From deposits to true revenue</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Money that isn't real sales is set aside before anything is scored</div></div>
+          <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF"><b class="num" style="font-size: 18px; font-weight: 600">$61.4K</b><span style="font-size: 12px; color: #AEB8B3">a month</span></span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+          <span><span style="display: block; font-size: 12px; color: #5F6662">Deposited</span><b class="num" style="font-size: 26px; font-weight: 600; line-height: 1">$269.8K</b></span>
+          <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; display: grid; place-items: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+          <span><span style="display: block; font-size: 12px; color: #5F6662">True revenue</span><b class="num" style="font-size: 26px; font-weight: 600; line-height: 1; color: #0A5246">$245.6K</b></span>
+          <span style="margin-left: auto; font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #DCF0E9; color: #083E35">91% counts as sales</span>
+        </div>
+
+        <div role="img" aria-label="Of $269.8K deposited: true revenue 91%, related business 4.4%, own transfers 3.6%, refunds 1%" style="display: flex; gap: 4px; height: 52px">
+          <span style="flex: 91; border-radius: 16px; background: linear-gradient(90deg, #0A4A40, #14876F); display: flex; align-items: center; padding: 0 16px; color: #FFFFFF; font-size: 13px; font-weight: 600">True revenue · 91%</span>
+          <span style="flex: 4.4; min-width: 18px; border-radius: 10px; background: repeating-linear-gradient(135deg, #F2C27E 0 6px, #E9AE5C 6px 12px)"></span>
+          <span style="flex: 3.6; min-width: 16px; border-radius: 10px; background: repeating-linear-gradient(135deg, #E6DFD0 0 6px, #D8D0BE 6px 12px)"></span>
+          <span style="flex: 1; min-width: 12px; border-radius: 8px; background: repeating-linear-gradient(135deg, #DDDAD3 0 6px, #CBC7BE 6px 12px)"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px">
+          <a href="#" style="padding: 12px 14px; border-radius: 18px; background: #FBF0DE; display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 8px"><span style="width: 14px; height: 14px; border-radius: 4px; background: repeating-linear-gradient(135deg, #F2C27E 0 6px, #E9AE5C 6px 12px)"></span><span style="font-size: 12px; color: #6B4B1F; white-space: nowrap">Related business</span></span><b class="num" style="font-size: 19px; color: #8E4E08">−$12.0K</b><span class="hint" style="color: #6B4B1F">1 transfer · Aug 14</span></a>
+          <a href="#" style="padding: 12px 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 8px"><span style="width: 14px; height: 14px; border-radius: 4px; background: repeating-linear-gradient(135deg, #E6DFD0 0 6px, #D8D0BE 6px 12px)"></span><span style="font-size: 12px; color: #4B524F; white-space: nowrap">Own transfers</span></span><b class="num" style="font-size: 19px">−$9.6K</b><span class="hint">6 from owner savings</span></a>
+          <a href="#" style="padding: 12px 14px; border-radius: 18px; background: #FFFFFF; display: flex; flex-direction: column; gap: 4px"><span style="display: flex; align-items: center; gap: 8px"><span style="width: 14px; height: 14px; border-radius: 4px; background: repeating-linear-gradient(135deg, #DDDAD3 0 6px, #CBC7BE 6px 12px)"></span><span style="font-size: 12px; color: #4B524F; white-space: nowrap">Refunds</span></span><b class="num" style="font-size: 19px">−$2.6K</b><span class="hint">4 card reversals</span></a>
+          <span style="padding: 12px 14px; border-radius: 18px; border: 1.5px dashed #D8D3C8; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #4B524F; white-space: nowrap">Loan proceeds</span><b class="num" style="font-size: 19px; color: #5F6662">$0</b><span class="hint">None found</span></span>
+        </div>
+
+        <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid #ECE8E0; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><b style="font-size: 13.5px">Share counted as sales, each month</b><span class="hint">August is lower because of the $12K transfer</span></div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+            <div style="padding: 12px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px; min-width: 0"><span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 13px">June</b><b class="num" style="font-size: 13px; color: #0A5246">95%</b></span><span style="display: flex; gap: 3px; height: 10px"><span style="flex: 95.4; border-radius: 5px; background: #0E6B5C"></span><span style="flex: 4.6; min-width: 6px; border-radius: 5px; background: repeating-linear-gradient(135deg, #E6DFD0 0 5px, #D8D0BE 5px 10px)"></span></span><span style="font-size: 11.5px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">$58.2K of $61.0K</span></div>
+            <div style="padding: 12px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px; min-width: 0"><span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 13px">July</b><b class="num" style="font-size: 13px; color: #0A5246">95%</b></span><span style="display: flex; gap: 3px; height: 10px"><span style="flex: 94.8; border-radius: 5px; background: #0E6B5C"></span><span style="flex: 5.2; min-width: 6px; border-radius: 5px; background: repeating-linear-gradient(135deg, #E6DFD0 0 5px, #D8D0BE 5px 10px)"></span></span><span style="font-size: 11.5px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">$60.1K of $63.4K</span></div>
+            <div style="padding: 12px; border-radius: 16px; background: #FBF0DE; display: flex; flex-direction: column; gap: 8px; min-width: 0"><span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 13px">August</b><b class="num" style="font-size: 13px; color: #8E4E08">81%</b></span><span style="display: flex; gap: 3px; height: 10px"><span style="flex: 81.3; border-radius: 5px; background: #0E6B5C"></span><span style="flex: 18.7; min-width: 6px; border-radius: 5px; background: repeating-linear-gradient(135deg, #F2C27E 0 5px, #E9AE5C 5px 10px)"></span></span><span style="font-size: 11.5px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">$63.5K of $78.1K</span></div>
+            <div style="padding: 12px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px; min-width: 0"><span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 13px">September</b><b class="num" style="font-size: 13px; color: #0A5246">95%</b></span><span style="display: flex; gap: 3px; height: 10px"><span style="flex: 94.8; border-radius: 5px; background: #0E6B5C"></span><span style="flex: 5.2; min-width: 6px; border-radius: 5px; background: repeating-linear-gradient(135deg, #E6DFD0 0 5px, #D8D0BE 5px 10px)"></span></span><span style="font-size: 11.5px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">$63.8K of $67.3K</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article aria-labelledby="h-stmt" style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-stmt" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Statements</h2><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; white-space: nowrap">All reconcile</span></div>
+
+        <div style="position: relative; overflow: hidden; border-radius: 22px; padding: 18px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 18px">
+          <span style="position: absolute; right: -40px; bottom: -60px; width: 160px; height: 160px; border-radius: 50%; border: 1px solid rgba(14,107,92,.07)"></span>
+          <div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 34px; height: 24px; border-radius: 6px; background: linear-gradient(135deg, #E8C9A1, #C99A6B)"></span><span style="font-size: 12px; font-weight: 600; color: #4B524F">Chase Business</span></div>
+          <span class="mono" style="font-size: 17px; letter-spacing: .12em">•••• •••• 7712</span>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px"><span><span class="cap" style="font-size: 9px; color: #4B524F">Account holder</span><b style="display: block; font-size: 12.5px">Harbor Street Bakery LLC</b></span><span style="font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(143,217,195,.2); color: #0A5246; white-space: nowrap">Matches application</span></div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #3E4542; margin-bottom: 8px"><span>Coverage</span><b>4 of 4 months · no gaps</b></div>
+          <div style="position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: rgba(255,255,255,.7)"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0E6B5C; display: grid; place-items: center"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span><b style="font-size: 12.5px">Jun</b><span style="font-size: 10.5px; color: #5F6662">6 pages</span></a>
+            <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: rgba(255,255,255,.7)"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0E6B5C; display: grid; place-items: center"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span><b style="font-size: 12.5px">Jul</b><span style="font-size: 10.5px; color: #5F6662">5 pages</span></a>
+            <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: rgba(255,255,255,.7)"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0E6B5C; display: grid; place-items: center"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span><b style="font-size: 12.5px">Aug</b><span style="font-size: 10.5px; color: #5F6662">7 pages</span></a>
+            <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: rgba(255,255,255,.7)"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0E6B5C; display: grid; place-items: center"><svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span><b style="font-size: 12.5px">Sep</b><span style="font-size: 10.5px; color: #5F6662">7 pages</span></a>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <span style="font-size: 11px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.7)">Balances match</span>
+          <span style="font-size: 11px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.7)">1,284 lines read</span>
+          <span style="font-size: 11px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.7)">0 lines need review</span>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap">
+          <button style="flex: 1; height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap">Connect bank to verify</button>
+          <button style="height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap">Add statement</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- Row 2: month by month -->
+    <section aria-labelledby="h-month" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-month" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Month by month</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Every figure links to the transactions behind it</div></div><button style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Export CSV</button></div>
+      <div style="overflow-x: auto">
+        <div style="min-width: 860px; display: flex; flex-direction: column; gap: 6px">
+          <div class="mt cap" style="padding: 0 14px 4px; color: #5F6662; font-size: 10px"><span>Month</span><span style="text-align: right">Deposits</span><span style="text-align: right">True revenue</span><span style="text-align: right">Withdrawals</span><span style="text-align: right">Debt payments</span><span style="text-align: right">Avg balance</span><span style="text-align: right">Lowest</span><span style="text-align: right">NSFs</span></div>
+          <div class="mt" style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 13.5px"><b>June</b><span class="num" style="text-align: right">$61.0K</span><b class="num" style="text-align: right">$58.2K</b><span class="num" style="text-align: right">$57.4K</span><span class="num" style="text-align: right">$6.0K</span><span class="num" style="text-align: right">$9.1K</span><span class="num" style="text-align: right">$3.4K</span><span class="num" style="text-align: right">0</span></div>
+          <div class="mt" style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 13.5px"><b>July</b><span class="num" style="text-align: right">$63.4K</span><b class="num" style="text-align: right">$60.1K</b><span class="num" style="text-align: right">$59.9K</span><span class="num" style="text-align: right">$6.3K</span><span class="num" style="text-align: right">$10.2K</span><span class="num" style="text-align: right">$4.1K</span><span class="num" style="text-align: right">0</span></div>
+          <div class="mt" style="padding: 12px 14px; border-radius: 16px; background: #FBF0DE; font-size: 13.5px"><b>August <span style="font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #F5F3EF; color: #8E4E08">$12K excluded</span></b><span class="num" style="text-align: right">$78.1K</span><b class="num" style="text-align: right">$63.5K</b><span class="num" style="text-align: right">$74.0K</span><span class="num" style="text-align: right">$6.0K</span><span class="num" style="text-align: right">$8.9K</span><span class="num" style="text-align: right; color: #8E4E08; font-weight: 600">$1.2K</span><span class="num" style="text-align: right">0</span></div>
+          <div class="mt" style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 13.5px"><b>September</b><span class="num" style="text-align: right">$67.3K</span><b class="num" style="text-align: right">$63.8K</b><span class="num" style="text-align: right">$64.9K</span><span class="num" style="text-align: right">$6.0K</span><span class="num" style="text-align: right">$11.0K</span><span class="num" style="text-align: right">$5.6K</span><span class="num" style="text-align: right">0</span></div>
+          <div class="mt" style="padding: 12px 14px; border-radius: 16px; background: #0E6B5C; color: #FFFFFF; font-size: 13.5px"><b>Monthly avg</b><span class="num" style="text-align: right">$67.5K</span><b class="num" style="text-align: right; color: #8FD9C3">$61.4K</b><span class="num" style="text-align: right">$64.1K</span><span class="num" style="text-align: right">$6.1K</span><span class="num" style="text-align: right">$9.8K</span><span class="num" style="text-align: right">$1.2K</span><span class="num" style="text-align: right">0</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 2b: ability to pay + weekly cash in/out -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-pay" style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 14px">
+        <div><h2 id="h-pay" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Room to pay</h2><div style="font-size: 12px; color: #4B524F; margin-top: 3px">Per business day, with the recommended offer</div></div>
+        <div><span style="font-size: 12px; color: #4B524F">True revenue a day</span><b class="num" style="display: block; font-size: 26px; font-weight: 600; line-height: 1.1">$2,830</b></div>
+        <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; gap: 2px; background: rgba(14,107,92,.07)"><span style="flex: 10.1; background: #B9A6E0"></span><span style="flex: 14.8; background: #8FD9C3"></span><span style="flex: 75.1; background: rgba(14,107,92,.07)"></span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px">
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #B9A6E0"></span><span>Existing advance</span><b>$285</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #8FD9C3"></span><span>Recommended offer</span><b>$419</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: rgba(255,255,255,.2)"></span><span>Left for the business</span><b>$2,126</b></span>
+        </div>
+        <div style="margin-top: auto; padding: 10px 12px; border-radius: 14px; background: rgba(143,217,195,.14); border: 1px solid rgba(143,217,195,.3); font-size: 12.5px; color: #4B524F">All payments together take <b style="color: #0F1513">25% of revenue</b>. Your policy allows up to 65%.</div>
+      </article>
+
+      <article aria-labelledby="h-week" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-week" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Cash in and out, week by week</h2><div class="hint" style="font-size: 12px; margin-top: 3px">17 weeks · money in above the line, money out below</div></div>
+          <div style="display: flex; gap: 14px; font-size: 12px"><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C"></span>In</span><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #D8CFBD"></span>Out</span><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 14px; height: 2px; background: #D98A2B"></span>Net</span></div></div>
+        <div style="border-radius: 20px; background: #FFFFFF; padding: 10px 8px 4px">
+          <svg role="img" aria-label="Weekly money in and money out from June to September. In and out stay close, more comes in than goes out in 9 of 17 weeks. The August 14 week includes the $12K related-business transfer." viewBox="0 0 620 230" style="width: 100%; height: 230px; display: block">
+            <line x1="30" y1="115" x2="600" y2="115" stroke="#C9C4B8" stroke-width="1"></line>
+            <g font-size="10" fill="#7A807C" font-family="Instrument Sans, sans-serif"><text x="0" y="31">$25K</text><text x="0" y="119">$0</text><text x="0" y="207">$25K</text></g>
+            <g stroke="#ECE8E0" stroke-dasharray="2 5"><line x1="30" y1="27" x2="600" y2="27"></line><line x1="30" y1="203" x2="600" y2="203"></line></g>
+            <path d="{{wk.inPath}}" fill="#0E6B5C"></path>
+            <path d="{{wk.outPath}}" fill="#D8CFBD"></path>
+            <path d="{{wk.netPath}}" fill="none" stroke="#D98A2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <rect x="{{wk.flagX}}" y="16" width="74" height="18" rx="9" fill="#F5E6CC"></rect>
+            <text x="{{wk.flagTX}}" y="29" text-anchor="middle" font-size="10" font-weight="600" fill="#7A4206" font-family="Instrument Sans, sans-serif">+$12K related</text>
+            <g font-size="11" font-weight="600" fill="#3E4542" font-family="Instrument Sans, sans-serif" text-anchor="middle"><text x="80" y="226">June</text><text x="215" y="226">July</text><text x="365" y="226">August</text><text x="515" y="226">September</text></g>
+          </svg>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px">
+          <span style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><span style="font-size: 11.5px; color: #5F6662">Weeks with more in than out</span><b class="num" style="display: block; font-size: 18px">9 of 17</b></span>
+          <span style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><span style="font-size: 11.5px; color: #5F6662">Biggest weekly drop</span><b class="num" style="display: block; font-size: 18px">−$3.9K</b></span>
+          <span style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF"><span style="font-size: 11.5px; color: #5F6662">Cash cushion</span><b class="num" style="display: block; font-size: 18px">3.5 days</b></span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Row 3: sources, card sales, busiest days -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-src" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 id="h-src" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Where money comes from</h2><span style="font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35; white-space: nowrap">Well spread</span></div>
+        <div style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px"><span style="flex: 46; background: #0A4A40"></span><span style="flex: 21; background: #0E6B5C"></span><span style="flex: 12; background: #3FA58C"></span><span style="flex: 9; background: #D98A2B"></span><span style="flex: 5; background: #8FD9C3"></span><span style="flex: 7; background: #D8D3C8"></span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px">
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0A4A40"></span><span class="trunc">Card sales · Square</span><b>46%</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E6B5C"></span><span class="trunc">Cash deposits</span><b>21%</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #3FA58C"></span><span class="trunc">Delivery apps · DoorDash</span><b>12%</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #D98A2B"></span><span class="trunc">Bayside Café Group (wholesale)</span><b>9%</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #8FD9C3"></span><span class="trunc">Delivery apps · Uber Eats</span><b>5%</b></span>
+          <span style="display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 3px; background: #D8D3C8"></span><span class="trunc">Other</span><b>7%</b></span>
+        </div>
+        <span style="font-size: 12px; color: #4B524F; margin-top: auto">Largest single customer is 9% of revenue. Losing one customer would not hurt repayment.</span>
+      </article>
+
+      <article aria-labelledby="h-card" style="background: #E6DFD0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 id="h-card" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Card sales</h2><span style="font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #F5F3EF; color: #0A5246; white-space: nowrap">Split funding possible</span></div>
+        <div><b class="num" style="font-size: 24px; font-weight: 600; line-height: 1">$28.2K<span style="font-size: 13px; color: #4B524F; font-weight: 500">/mo</span></b><div class="hint" style="color: #4B524F; margin-top: 4px">Settled by Square every business day, about $930 a day</div></div>
+        <svg role="img" aria-label="Card sales by month: June 26.8 thousand, July 27.5, August 29.1, September 29.4" viewBox="0 0 260 110" style="width: 100%; height: 110px">
+          <g fill="rgba(15,21,19,.12)"><rect x="10" y="10" width="44" height="80" rx="12"></rect><rect x="76" y="10" width="44" height="80" rx="12"></rect><rect x="142" y="10" width="44" height="80" rx="12"></rect><rect x="208" y="10" width="44" height="80" rx="12"></rect></g>
+          <g fill="#0F1513"><rect x="10" y="17" width="44" height="73" rx="12"></rect><rect x="76" y="15" width="44" height="75" rx="12"></rect><rect x="142" y="11" width="44" height="79" rx="12"></rect><rect x="208" y="10" width="44" height="80" rx="12" fill="#0E6B5C"></rect></g>
+          <g font-size="11" font-weight="600" fill="#3E4542" font-family="Instrument Sans, sans-serif" text-anchor="middle"><text x="32" y="106">Jun</text><text x="98" y="106">Jul</text><text x="164" y="106">Aug</text><text x="230" y="106">Sep</text></g>
+        </svg>
+        <span style="font-size: 12px; color: #3E4542; margin-top: auto">Steady card volume means repayment could be taken straight from card sales instead of the bank account.</span>
+      </article>
+
+      <article aria-labelledby="h-days" style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 12px">
+        <div><h2 id="h-days" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Busiest days</h2><div style="font-size: 12px; color: #4B524F; margin-top: 3px">Average deposits by weekday</div></div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; height: 120px">
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 52%; border-radius: 8px; background: rgba(14,107,92,.07)"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 58%; border-radius: 8px; background: rgba(14,107,92,.07)"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 61%; border-radius: 8px; background: rgba(14,107,92,.07)"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 66%; border-radius: 8px; background: rgba(14,107,92,.07)"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 84%; border-radius: 8px; background: rgba(143,217,195,.55)"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 100%; border-radius: 8px; background: #8FD9C3"></span></span>
+          <span style="display: flex; flex-direction: column; justify-content: flex-end; height: 100%"><span style="display: block; height: 72%; border-radius: 8px; background: rgba(143,217,195,.55)"></span></span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; text-align: center; font-size: 11px; color: #4B524F"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span style="color: #0F1513; font-weight: 600">Sat</span><span>Sun</span></div>
+        <span style="font-size: 12px; color: #4B524F; margin-top: auto">Weekends bring 38% of deposits. Daily payments on Mondays will still clear.</span>
+      </article>
+    </section>
+
+    <!-- Row 4: transactions -->
+    <section aria-labelledby="h-tx" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap">
+        <div><h2 id="h-tx" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Transactions</h2><div class="hint" style="font-size: 12px; margin-top: 3px">1,284 lines from 4 statements. Click any line to see it on the statement page.</div></div>
+        <label style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; min-width: 240px"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Search transactions" placeholder="Search description or amount" style="border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; flex: 1; min-width: 0"></label>
+      </div>
+      <div role="group" aria-label="Show" style="display: flex; flex-wrap: wrap; gap: 6px">
+        <sc-for list="{{filters}}" as="f" hint-placeholder-count="5">
+          <button onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}}<span style="{{f.countStyle}}">{{f.count}}</span></button>
+        </sc-for>
+      </div>
+      <div style="overflow-x: auto">
+        <div style="min-width: 820px; display: flex; flex-direction: column; gap: 4px">
+          <div class="tx cap" style="padding: 0 12px 4px; color: #5F6662; font-size: 10px"><span>Date</span><span>Description</span><span>Category</span><span style="text-align: right">Amount</span><span style="text-align: right">Balance</span><span style="text-align: right">Source</span></div>
+          <sc-for list="{{txs}}" as="t" hint-placeholder-count="8">
+            <a href="#" class="tx" style="{{t.rowStyle}}">
+              <span class="mono" style="font-size: 12px; color: #4B524F">{{t.date}}</span>
+              <span style="min-width: 0"><b class="trunc" style="display: block; font-size: 13px">{{t.desc}}</b><span class="hint trunc" style="{{t.noteStyle}}">{{t.note}}</span></span>
+              <span style="{{t.catStyle}}">{{t.cat}}</span>
+              <b class="num" style="{{t.amtStyle}}">{{t.amt}}</b>
+              <span class="num" style="text-align: right; font-size: 13px; color: #4B524F">{{t.bal}}</span>
+              <span style="text-align: right; font-size: 12px; font-weight: 600; color: #0E6B5C">{{t.src}}</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px"><span class="hint" style="font-size: 12px">Showing {{shown}} of {{total}}</span><div style="display: flex; gap: 6px"><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Export CSV</button><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Load more</button></div></div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'all' }; }
+  renderVals() {
+    const f = this.state.f ?? 'all';
+    const C = {
+      sales:   ['Card sales', '#DCF0E9', '#083E35'],
+      cash:    ['Cash deposit', '#DCF0E9', '#083E35'],
+      apps:    ['Delivery app', '#DCF0E9', '#083E35'],
+      wholesale: ['Wholesale', '#DCF0E9', '#083E35'],
+      transfer:['Own transfer', '#EEECE6', '#3E4542'],
+      related: ['Related business', '#F5E6CC', '#7A4206'],
+      mca:     ['MCA payment', '#EDE4F7', '#4B2F7A'],
+      payroll: ['Payroll', '#EEECE6', '#3E4542'],
+      vendor:  ['Supplier', '#EEECE6', '#3E4542'],
+      rent:    ['Rent', '#EEECE6', '#3E4542']
+    };
+    const all = [
+      { date: 'Sep 30', desc: 'SQUARE INC DEPOSIT', note: 'Card settlement', c: 'sales', amt: 1184.20, bal: '$13,920', src: 'p. 7', k: 'in' },
+      { date: 'Sep 30', desc: 'KINGSWAY CAPITAL ACH DEBIT', note: 'Existing advance · disclosed', c: 'mca', amt: -285, bal: '$12,736', src: 'p. 7', k: 'debt' },
+      { date: 'Sep 29', desc: 'DOORDASH PAYOUT', note: 'Weekly payout', c: 'apps', amt: 2140.55, bal: '$13,021', src: 'p. 7', k: 'in' },
+      { date: 'Sep 29', desc: 'SYSCO PORTLAND', note: 'Ingredients', c: 'vendor', amt: -3412.80, bal: '$10,880', src: 'p. 7', k: 'out' },
+      { date: 'Sep 26', desc: 'COUNTER DEPOSIT', note: 'Cash', c: 'cash', amt: 2650, bal: '$14,293', src: 'p. 6', k: 'in' },
+      { date: 'Sep 15', desc: 'BAYSIDE CAFE GROUP ACH', note: 'Wholesale invoice', c: 'wholesale', amt: 4980, bal: '$15,102', src: 'p. 4', k: 'in' },
+      { date: 'Sep 1', desc: 'COMMERCIAL ST PROPERTIES', note: 'Monthly rent', c: 'rent', amt: -4600, bal: '$9,455', src: 'p. 1', k: 'out' },
+      { date: 'Aug 14', desc: 'TRANSFER FROM HARBOR ST CATERING', note: 'Same owner · left out of true revenue', c: 'related', amt: 12000, bal: '$20,268', src: 'p. 3', k: 'in', flag: true },
+      { date: 'Aug 2', desc: 'GUSTO PAYROLL', note: 'Lowest balance of the period follows', c: 'payroll', amt: -8420, bal: '$1,208', src: 'p. 1', k: 'out', flag: true },
+      { date: 'Jul 18', desc: 'ONLINE TRANSFER FROM ••4410', note: 'Owner savings · left out of true revenue', c: 'transfer', amt: 2500, bal: '$11,630', src: 'p. 3', k: 'in', flag: true }
+    ];
+    const defs = [
+      { k: 'all', label: 'All', count: '1,284' },
+      { k: 'in', label: 'Money in', count: '597' },
+      { k: 'out', label: 'Money out', count: '601' },
+      { k: 'debt', label: 'Debt payments', count: '85' },
+      { k: 'flag', label: 'Flagged', count: '3' }
+    ];
+    const filters = defs.map((d) => {
+      const on = d.k === f;
+      return { ...d, on: on ? 'true' : 'false', pick: () => this.setState({ f: d.k }),
+        style: 'height: 36px; padding: 0 8px 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #FFFFFF; color: #3E4542'),
+        countStyle: 'font-size: 11px; padding: 2px 8px; border-radius: 999px; ' + (on ? 'background: rgba(14,107,92,.08)' : 'background: #F5F3EF') };
+    });
+    const list = all.filter((t) => f === 'all' || (f === 'flag' ? t.flag : t.k === f));
+    const fmt = (n) => (n < 0 ? '−$' : '+$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const txs = list.map((t) => ({ ...t,
+      cat: C[t.c][0],
+      catStyle: 'justify-self: start; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: ' + C[t.c][1] + '; color: ' + C[t.c][2],
+      amt: fmt(t.amt),
+      amtStyle: 'text-align: right; font-size: 14px; font-weight: 600; color: ' + (t.amt < 0 ? '#0F1513' : '#0A5246'),
+      rowStyle: 'padding: 10px 12px; border-radius: 14px; ' + (t.flag ? 'background: #FBF0DE' : 'background: #FFFFFF'),
+      noteStyle: 'display: block; ' + (t.flag ? 'color: #8E4E08; font-weight: 600' : '')
+    }));
+    const total = defs.find((d) => d.k === f).count;
+    // 17 weeks of money in / out (K), deterministic sample
+    const W = 17, x0 = 34, step = 33.4, bw = 18, base = 115, k = 88 / 25;
+    let inP = '', outP = '', net = [];
+    let flagX = 0;
+    for (let i = 0; i < W; i++) {
+      let vin = 14.2 + 1.1 * Math.sin(i * 0.9) + i * 0.08;
+      let vout = 14.6 + 1.3 * Math.sin(i * 1.3 + 2) + i * 0.05;
+      if (i === 10) vout += 3.4;
+      if (i === 7) { vin += 12; vout += 1.2; }
+      const x = x0 + i * step;
+      const hin = vin * k, hout = vout * k;
+      inP += 'M' + x.toFixed(1) + ' ' + (base - 2) + 'v-' + (hin - 4).toFixed(1) + 'a4 4 0 0 1 4 -4h' + (bw - 8) + 'a4 4 0 0 1 4 4v' + (hin - 4).toFixed(1) + 'z';
+      outP += 'M' + x.toFixed(1) + ' ' + (base + 2) + 'v' + (hout - 4).toFixed(1) + 'a4 4 0 0 0 4 4h' + (bw - 8) + 'a4 4 0 0 0 4 -4v-' + (hout - 4).toFixed(1) + 'z';
+      net.push((x + bw / 2).toFixed(1) + ' ' + (base - Math.max(-30, Math.min(30, (vin - vout) * k * 3))).toFixed(1));
+      if (i === 7) flagX = x + bw + 4;
+    }
+    const wk = { inPath: inP, outPath: outP, netPath: 'M' + net.join(' L'), flagX: flagX.toFixed(1), flagTX: (flagX + 37).toFixed(1) };
+    return { filters, txs, shown: txs.length, total, wk };
+  }
+}
+</script>
+</body>
+</html>

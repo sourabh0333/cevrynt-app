@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ridgeline Capital · Apply for funding</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.hint{font-size:12px;color:#5F6662}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld label{font-size:12.5px;font-weight:600;color:#3E4542}
+.fld input,.fld select{height:48px;box-sizing:border-box;border:1px solid #DDD9CF;border-radius:14px;background:#FFFFFF;padding:0 14px;font:inherit;font-size:14px;color:#0F1513;min-width:0}
+.fld input:focus,.fld select:focus{outline:2px solid #0E6B5C;outline-offset:1px}
+.ap-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width: 900px){.ap-grid{grid-template-columns:1fr}}
+@media (max-width: 560px){.two{grid-template-columns:1fr}}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; min-height: 100vh; font-size: 14px; line-height: 1.45; display: flex; flex-direction: column">
+
+  <div role="note" style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: #DCE9F5; color: #1F4C78; font-size: 12.5px"><b>Preview · coming soon.</b> This is how your public application form will look. <a href="Coming.dc.html" style="font-weight: 600; text-decoration: underline">See the roadmap</a></div>
+
+  <header style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 32px">
+    <div style="display: flex; gap: 10px; align-items: center"><span class="disp" style="width: 36px; height: 36px; border-radius: 11px; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 13px; font-weight: 700">RC</span><b class="disp" style="font-size: 18px; font-weight: 600">Ridgeline Capital</b></div>
+    <span class="hint" style="display: inline-flex; gap: 6px; align-items: center"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E6B5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>apply.ridgeline.com · secure</span>
+  </header>
+
+  <main style="flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; box-sizing: border-box; padding: 8px 32px 40px; display: flex; flex-direction: column; gap: 16px">
+
+    <sc-if value="{{notSent}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <!-- Hero + steps -->
+        <section aria-labelledby="h-apply" style="border-radius: 32px; padding: 26px 28px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap">
+            <div><h1 id="h-apply" class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.1">Funding for your business</h1><span style="font-size: 14px; color: #3E4542">About 5 minutes. No effect on your credit score to apply.</span></div>
+            <span style="font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: #FFFFFF; color: #0A5246">Step {{step}} of 5</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+              <button onClick="{{s.go}}" style="{{s.box}}"><span style="{{s.bar}}"></span><span style="font-size: 12px; font-weight: 600; text-align: left">{{s.label}}</span></button>
+            </sc-for>
+          </div>
+        </section>
+
+        <div class="ap-grid">
+          <!-- Form card -->
+          <section aria-labelledby="h-step" style="background: #FFFFFF; border-radius: 30px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+            <div><h2 id="h-step" class="disp" style="margin: 0; font-weight: 600; font-size: 22px">{{stepTitle}}</h2><span class="hint" style="font-size: 13px">{{stepSub}}</span></div>
+
+            <sc-if value="{{is1}}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div class="fld"><label for="a-name">Legal business name</label><input id="a-name" placeholder="e.g. Harbor Street Bakery LLC"></div>
+                <div class="two"><div class="fld"><label for="a-ind">What does the business do?</label><select id="a-ind"><option>Restaurant or food</option><option>Health or dental</option><option>Construction or trades</option><option>Retail</option><option>Other</option></select></div><div class="fld"><label for="a-start">When did it start?</label><input id="a-start" placeholder="Month and year"></div></div>
+                <div class="two"><div class="fld"><label for="a-state">State</label><input id="a-state" placeholder="e.g. Maine"></div><div class="fld"><label for="a-ein">EIN (optional)</label><input id="a-ein" placeholder="12-3456789"></div></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{is2}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div class="two"><div class="fld"><label for="o-name">Your full name</label><input id="o-name" placeholder="First and last name"></div><div class="fld"><label for="o-own">How much do you own?</label><input id="o-own" placeholder="e.g. 100%"></div></div>
+                <div class="two"><div class="fld"><label for="o-mail">Email</label><input id="o-mail" placeholder="you@yourbusiness.com"></div><div class="fld"><label for="o-ph">Mobile</label><input id="o-ph" placeholder="(207) 555-0100"></div></div>
+                <span class="hint">We'll text a code to this number to keep your application safe.</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{is3}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <div class="fld"><label for="f-amt">How much do you need?</label><input id="f-amt" type="range" min="10000" max="150000" step="5000" value="{{amount}}" onChange="{{setAmount}}" style="height: auto; padding: 0; border: 0; accent-color: #0E6B5C"><b class="num" style="font-size: 26px">{{amountTxt}}</b></div>
+                <div class="fld"><label for="f-rev">About how much comes in each month?</label><select id="f-rev" onChange="{{setRev}}"><option value="20000">Under $25,000</option><option value="40000" selected="selected">$25,000 to $50,000</option><option value="75000">$50,000 to $100,000</option><option value="150000">Over $100,000</option></select></div>
+                <div class="fld"><label>What's it for?</label><div style="display: flex; flex-wrap: wrap; gap: 6px"><span style="padding: 8px 14px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600">Equipment</span><span style="padding: 8px 14px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">Inventory</span><span style="padding: 8px 14px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">Payroll</span><span style="padding: 8px 14px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">Growth</span><span style="padding: 8px 14px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">Other</span></div></div>
+                <div class="fld"><label>Do you have other business funding right now?</label><div style="display: flex; gap: 6px"><span style="padding: 8px 16px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">No</span><span style="padding: 8px 16px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-size: 12.5px; font-weight: 600">Yes, one</span><span style="padding: 8px 16px; border-radius: 999px; background: #F5F3EF; font-size: 12.5px; font-weight: 600">More than one</span></div></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{is4}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div style="padding: 18px; border-radius: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; gap: 14px; align-items: center; flex-wrap: wrap"><span style="flex: 1 1 220px"><b style="display: block; font-size: 15px">Connect your bank</b><span style="font-size: 12.5px; color: #3E4542">Fastest. About a minute, read-only, and you won't need to find statements.</span></span><button style="height: 42px; padding: 0 18px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Connect</button></div>
+                <div style="display: flex; align-items: center; gap: 10px; color: #7A807C; font-size: 12px"><span style="flex: 1; height: 1px; background: #ECE8E0"></span>or<span style="flex: 1; height: 1px; background: #ECE8E0"></span></div>
+                <div style="border: 1.5px dashed #C9C4B8; border-radius: 22px; background: #FAF9F6; padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center"><b style="font-size: 14px">Upload your last 4 bank statements</b><span class="hint">PDF from your bank, or clear photos</span><button style="margin-top: 6px; height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #DDD9CF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Choose files</button></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{is5}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <label style="display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 18px; background: #F5F3EF; font-size: 13px"><input type="checkbox" checked="{{c1}}" onChange="{{t1}}" style="width: 20px; height: 20px; margin: 1px 0 0; accent-color: #0E6B5C; flex: none"><span><b>Check my credit</b><span class="hint" style="display: block">A soft check that doesn't affect your score</span></span></label>
+                <label style="display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 18px; background: #F5F3EF; font-size: 13px"><input type="checkbox" checked="{{c2}}" onChange="{{t2}}" style="width: 20px; height: 20px; margin: 1px 0 0; accent-color: #0E6B5C; flex: none"><span><b>The information I gave is true</b><span class="hint" style="display: block">And I'm allowed to apply for this business</span></span></label>
+                <div class="fld"><label for="sig">Type your name to sign</label><input id="sig" placeholder="Full name" style="font-family: 'Bricolage Grotesque', 'Instrument Sans', sans-serif; font-size: 18px"></div>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 6px; border-top: 1px solid #ECE8E0">
+              <button onClick="{{back}}" style="{{backBtn}}">Back</button>
+              <span class="hint">Saved automatically</span>
+              <button onClick="{{next}}" style="{{nextBtn}}">{{nextText}}</button>
+            </div>
+          </section>
+
+          <!-- Side -->
+          <aside style="display: flex; flex-direction: column; gap: 16px">
+            <article aria-labelledby="h-est" style="background: #FFFFFF; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+              <h2 id="h-est" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">A first look</h2>
+              <span class="hint">Based on what you've told us so far</span>
+              <div style="padding: 16px; border-radius: 20px; background: #F5F3EF"><span class="hint">You may be able to get up to</span><b class="num" style="display: block; font-size: 30px; color: #0A5246">{{estimate}}</b><span class="hint">Not an offer. We confirm after looking at your bank activity.</span></div>
+              <span style="{{fitStyle}}">{{fitText}}</span>
+            </article>
+            <article style="background: #FFFFFF; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+              <h2 class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Have these ready</h2>
+              <span style="font-size: 13px">Your last 4 months of bank statements, or your online banking login</span>
+              <span style="font-size: 13px">A photo ID for each owner</span>
+              <span style="font-size: 13px">Your business details and start date</span>
+            </article>
+            <article style="background: #F5F3EF; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+              <b style="font-size: 13px">Private and secure</b>
+              <span class="hint">Your details are encrypted and only used to review this application. Questions? Call (617) 555-0190.</span>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{sent}}" hint-placeholder-val="{{ false }}">
+      <section aria-labelledby="h-done" style="max-width: 640px; margin: 24px auto; border-radius: 32px; padding: 36px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+        <span style="width: 72px; height: 72px; border-radius: 50%; background: #0E6B5C; color: #FFFFFF; display: grid; place-items: center; font-size: 30px; font-weight: 700">✓</span>
+        <h1 id="h-done" class="disp" style="margin: 0; font-weight: 600; font-size: 28px">Application sent</h1>
+        <span style="font-size: 14px; color: #3E4542">We usually reply the same business day. We'll text you a secure link if we need anything else.</span>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%">
+          <span style="padding: 14px; border-radius: 18px; background: #EAF5F1; font-size: 12.5px"><b style="display: block">Sent</b>Just now</span>
+          <span style="padding: 14px; border-radius: 18px; background: #F5F3EF; font-size: 12.5px"><b style="display: block">Review</b>Usually today</span>
+          <span style="padding: 14px; border-radius: 18px; background: #F5F3EF; font-size: 12.5px"><b style="display: block">Offer</b>Signed online</span>
+        </div>
+        <button onClick="{{restart}}" style="height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Start again (preview)</button>
+      </section>
+    </sc-if>
+  </main>
+
+  <footer style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 18px 32px; font-size: 12px; color: #5F6662; border-top: 1px solid #E3DFD6">
+    <span>Ridgeline Capital LLC · 100 Federal St, Boston, MA</span>
+    <span style="display: flex; gap: 16px"><a href="#">Privacy</a><a href="#">Terms</a><span style="display: inline-flex; gap: 6px; align-items: center">Powered by <img src="data:image/png;base64,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" alt="" width="15" height="14" style="height: 14px; width: auto">Cevrynt</span></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1160}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 1, amount: 40000, rev: 40000, c1: false, c2: false, sent: false }; }
+  renderVals() {
+    const s = this.state;
+    const L = ['Business', 'You', 'Funding', 'Bank info', 'Sign'];
+    const titles = ['About the business', 'About you', 'What you need', 'Your bank activity', 'Review and sign'];
+    const subs = ['The basics, so we know who we\u2019re talking to', 'The owner applying today', 'A rough idea is fine', 'This is how we see what the business really earns', 'Two quick permissions and your signature'];
+    const steps = L.map((label, i) => { const n = i + 1, on = n === s.step, done = n < s.step;
+      return { label, go: () => this.setState({ step: n }),
+        box: 'display: flex; flex-direction: column; gap: 8px; padding: 0; border: 0; background: transparent; font: inherit; cursor: pointer; color: ' + (on || done ? '#0F1513' : '#5F6662'),
+        bar: 'display: block; height: 6px; border-radius: 3px; background: ' + (done ? '#0E6B5C' : (on ? '#8FD9C3' : 'rgba(255,255,255,.9)')) }; });
+    const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    const cap = Math.min(150000, Math.round(s.rev * 1.0 / 5000) * 5000);
+    const ok = s.amount <= cap;
+    const canSend = s.c1 && s.c2;
+    const pill = 'height: 46px; padding: 0 22px; border: 0; border-radius: 999px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; ';
+    return {
+      steps, step: s.step, stepTitle: titles[s.step - 1], stepSub: subs[s.step - 1],
+      is1: s.step === 1, is2: s.step === 2, is3: s.step === 3, is4: s.step === 4, is5: s.step === 5,
+      notSent: !s.sent, sent: !!s.sent,
+      amount: s.amount, amountTxt: money(s.amount), setAmount: (e) => this.setState({ amount: Number(e.target.value) }), setRev: (e) => this.setState({ rev: Number(e.target.value) }),
+      estimate: money(cap), fitText: ok ? 'What you asked for fits.' : 'You asked for more than we can usually offer at this revenue. You can still apply.',
+      fitStyle: 'padding: 10px 12px; border-radius: 14px; font-size: 12.5px; ' + (ok ? 'background: #EAF5F1; color: #083E35' : 'background: #FBF0DE; color: #6B4B1F'),
+      c1: !!s.c1, c2: !!s.c2, t1: () => this.setState({ c1: !s.c1 }), t2: () => this.setState({ c2: !s.c2 }),
+      back: () => this.setState({ step: Math.max(1, s.step - 1) }),
+      next: () => { if (s.step < 5) this.setState({ step: s.step + 1 }); else if (canSend) this.setState({ sent: true }); },
+      nextText: s.step < 5 ? 'Continue' : 'Send application',
+      nextBtn: pill + (s.step < 5 || canSend ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #ECE8E0; color: #7A807C'),
+      backBtn: pill + 'background: #F5F3EF; color: #0F1513; visibility: ' + (s.step === 1 ? 'hidden' : 'visible'),
+      restart: () => this.setState({ step: 1, sent: false, c1: false, c2: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

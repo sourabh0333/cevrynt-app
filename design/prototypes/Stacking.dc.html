@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Stacking Watch</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+.cn-nodes>rect,.cn-nodes>text{animation:cnFade .6s ease backwards}
+.cn-nodes>rect:nth-of-type(1),.cn-nodes>text:nth-of-type(-n+2){animation-delay:.1s}
+.cn-nodes>rect:nth-of-type(2),.cn-nodes>text:nth-of-type(n+3):nth-of-type(-n+4){animation-delay:.2s}
+.cn-nodes>rect:nth-of-type(3),.cn-nodes>text:nth-of-type(n+5):nth-of-type(-n+6){animation-delay:1.2s}
+.cn-nodes>rect:nth-of-type(4),.cn-nodes>text:nth-of-type(n+7):nth-of-type(-n+8){animation-delay:1.35s}
+.cn-nodes>text:nth-of-type(n+9){animation-delay:.8s}
+@keyframes cnFade{from{opacity:0}}
+.cn-hub{transform-box:fill-box;transform-origin:center;animation:cnHub .7s cubic-bezier(.34,1.56,.64,1) .75s backwards}
+@keyframes cnHub{from{transform:scale(0);opacity:0}}
+.cn-link{stroke-dasharray:1;stroke-dashoffset:1;animation:cnDraw .6s ease forwards}
+@keyframes cnDraw{to{stroke-dashoffset:0}}
+.cn-red{stroke-dasharray:6 5;animation:cnMarch 1s linear 1s infinite,cnIn .5s ease .95s backwards}
+@keyframes cnMarch{to{stroke-dashoffset:-11}}
+@keyframes cnIn{from{opacity:0}}
+.sk-bar{transform-origin:left center;animation:skBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes skBar{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){.cn-nodes>*,.cn-hub,.cn-red,.sk-bar{animation:none}.cn-link{animation:none;stroke-dashoffset:0}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="stacking" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Stacking Watch</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">3 new alerts · watching 94 merchants every day</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Row 1: summary -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-prot" class="span2" style="border-radius: 30px; padding: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-wrap: wrap; gap: 22px; align-items: center">
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 8px">
+          <span style="align-self: flex-start; display: inline-flex; gap: 7px; align-items: center; padding: 5px 11px; border-radius: 999px; background: #FFFFFF; font-size: 11.5px; font-weight: 600; color: #0A5246"><span style="width: 7px; height: 7px; border-radius: 50%; background: #0E6B5C"></span>Watching now</span>
+          <h2 id="h-prot" class="disp" style="margin: 0; font-weight: 600; font-size: 24px; line-height: 1.15">$85,000 kept safe this month</h2>
+          <span style="font-size: 13px; color: #3E4542">Two deals were stopped before funding because the merchant took another advance.</span>
+        </div>
+        <div style="flex: 2 1 360px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+          <span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 26px; line-height: 1">3</b><span style="font-size: 11.5px; color: #4B524F">New today</span></span>
+          <span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 26px; line-height: 1">7</b><span style="font-size: 11.5px; color: #4B524F">Open</span></span>
+          <span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 26px; line-height: 1">2</b><span style="font-size: 11.5px; color: #4B524F">Fundings stopped</span></span>
+          <span style="padding: 14px; border-radius: 18px; background: #FFFFFF"><b class="num" style="display: block; font-size: 26px; line-height: 1">94</b><span style="font-size: 11.5px; color: #4B524F">Merchants watched</span></span>
+        </div>
+      </article>
+      <article aria-labelledby="h-src" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-src" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">What we watch</h2><span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Daily</span></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px">
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">UCC filings</span>
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">New funder debits</span>
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">Funding deposits</span>
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">Credit inquiries</span>
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">Duplicate applications</span>
+          <span style="padding: 9px 10px; border-radius: 12px; background: #FFFFFF">Bank account changes</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Row 2: alerts + detail -->
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+      <section aria-labelledby="h-feed" style="flex: 999 1 640px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 4px 0"><h2 id="h-feed" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Alerts</h2>
+          <div role="group" aria-label="Show" style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}<span style="{{t.cnt}}">{{t.count}}</span></button></sc-for></div></div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 680px; display: flex; flex-direction: column; gap: 6px">
+            <div class="acols cap" style="padding: 0 12px 2px; color: #5F6662; font-size: 10px"><span>Severity</span><span>Merchant</span><span>What happened</span><span>Seen</span><span>Deal</span></div>
+            <sc-for list="{{alerts}}" as="a" hint-placeholder-count="6">
+              <button onClick="{{a.pick}}" class="acols" style="{{a.row}}">
+                <span style="{{a.sev}}">{{a.sevText}}</span>
+                <span style="min-width: 0; text-align: left"><b class="trunc" style="display: block; font-size: 13px">{{a.name}}</b><span class="hint">{{a.stage}}</span></span>
+                <span style="min-width: 0; text-align: left; display: flex; gap: 8px; align-items: center"><span style="{{a.icon}}">{{a.glyph}}</span><span class="trunc" style="font-size: 12.5px">{{a.what}}</span></span>
+                <span class="hint" style="text-align: left">{{a.when}}</span>
+                <span style="{{a.dealChip}}">{{a.deal}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-labelledby="h-det" style="flex: 1 1 330px; min-width: 0; max-width: 100%; border-radius: 30px; padding: 20px; background: #FFFFFF; border: 1px solid #ECE8E0; box-shadow: 0 18px 40px -30px rgba(15,21,19,.35); display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="{{d.sev}}">{{d.sevText}}</span><span class="hint">{{d.when}}</span></div>
+        <div><h2 id="h-det" class="disp" style="margin: 0; font-weight: 600; font-size: 20px; line-height: 1.2">{{d.what}}</h2><span style="font-size: 12.5px; color: #4B524F">{{d.name}} · {{d.stage}}</span></div>
+        <div style="border-radius: 18px; padding: 14px; background: #F5F3EF; display: flex; flex-direction: column; gap: 8px">
+          <span class="cap" style="color: #5F6662">Evidence</span>
+          <sc-for list="{{d.facts}}" as="f" hint-placeholder-count="4"><span style="display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px"><span style="color: #4B524F">{{f.k}}</span><b style="text-align: right">{{f.v}}</b></span></sc-for>
+        </div>
+        <div style="padding: 12px 14px; border-radius: 16px; background: #EAF5F1; font-size: 12.5px; color: #083E35"><b style="display: block; margin-bottom: 2px">What we suggest</b>{{d.advice}}</div>
+        <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 0; padding: 4px 2px">
+          <span class="cap" style="color: #5F6662; margin-bottom: 8px">What happened</span>
+          <sc-for list="{{d.steps}}" as="t" hint-placeholder-count="3">
+            <div style="display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 10px; flex: 1 1 auto; min-height: 44px">
+              <span style="display: flex; flex-direction: column; align-items: center"><span style="{{t.dot}}"></span><span style="{{t.line}}"></span></span>
+              <span style="font-size: 12.5px; padding-bottom: 10px"><b style="display: block">{{t.title}}</b><span class="hint">{{t.sub}}</span></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto">
+          <button onClick="{{d.act}}" style="{{d.actStyle}}">{{d.actText}}</button>
+          <button style="height: 42px; padding: 0 14px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Open deal</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Row 3: connections map + outcomes -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-map" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-map" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Hidden connections</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Two applications that look unrelated share a bank account and a phone number</div></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #F6DED8; color: #8E2B19">Needs review</span></div>
+        <div style="border-radius: 22px; background: #FFFFFF; padding: 10px">
+          <svg role="img" aria-label="Sunrise Pediatric Dental and Bright Smile Kids Dental share bank account ending 3391 and phone 207-555-0127. Both list different owners." viewBox="0 0 640 250" style="width: 100%; height: 250px; display: block">
+            <g stroke="#C9C4B8" stroke-width="2" fill="none"><path class="cn-link" pathLength="1" style="animation-delay: .5s" d="M150 70 C230 70 250 125 320 125"></path><path class="cn-link" pathLength="1" style="animation-delay: .65s" d="M150 180 C230 180 250 125 320 125"></path></g>
+            <g stroke="#C2412D" stroke-width="2.5" fill="none"><path class="cn-red" d="M490 70 C410 70 390 125 320 125"></path><path class="cn-red" d="M490 180 C410 180 390 125 320 125"></path></g>
+            <g class="cn-nodes" font-family="Instrument Sans, sans-serif">
+              <rect x="20" y="44" width="160" height="52" rx="16" fill="#EAF5F1" stroke="#CDE6DE"></rect><text x="36" y="66" font-size="12.5" font-weight="700" fill="#0F1513">Sunrise Pediatric Dental</text><text x="36" y="84" font-size="11" fill="#4B524F">APP-0SP4PD · in review</text>
+              <rect x="20" y="154" width="160" height="52" rx="16" fill="#F5F3EF" stroke="#E3DFD6"></rect><text x="36" y="176" font-size="12.5" font-weight="700" fill="#0F1513">Owner: R. Patel</text><text x="36" y="194" font-size="11" fill="#4B524F">Listed on Sunrise</text>
+              <rect x="460" y="44" width="160" height="52" rx="16" fill="#FBF0DE" stroke="#F0D9B5"></rect><text x="476" y="66" font-size="12.5" font-weight="700" fill="#0F1513">Bright Smile Kids</text><text x="476" y="84" font-size="11" fill="#7A4206">Funded in March · Keystone</text>
+              <rect x="460" y="154" width="160" height="52" rx="16" fill="#F5F3EF" stroke="#E3DFD6"></rect><text x="476" y="176" font-size="12.5" font-weight="700" fill="#0F1513">Owner: S. Patel</text><text x="476" y="194" font-size="11" fill="#4B524F">Listed on Bright Smile</text>
+              <circle class="cn-hub" cx="320" cy="125" r="62" fill="#F6DED8" stroke="#E7B5AA"></circle>
+              <text x="320" y="112" text-anchor="middle" font-size="11" fill="#8E2B19" font-weight="700">SHARED</text>
+              <text x="320" y="130" text-anchor="middle" font-size="12" fill="#0F1513" font-weight="700">Account ••3391</text>
+              <text x="320" y="147" text-anchor="middle" font-size="11.5" fill="#3E4542">(207) 555-0127</text>
+            </g>
+          </svg>
+        </div>
+        <span style="font-size: 12.5px; color: #4B524F">One business may be borrowing again under a second name. Ask for the second company's statements before deciding.</span>
+      </article>
+
+      <article aria-labelledby="h-out" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <h2 id="h-out" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">This month</h2>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Alerts raised</span><b class="num" style="font-size: 16px">21</b></span>
+          <span style="display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Real stacking found</span><b class="num" style="font-size: 16px">9</b></span>
+          <span style="display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 14px; background: #EAF5F1; font-size: 12.5px"><span>Funding stopped in time</span><b class="num" style="font-size: 16px; color: #0A5246">2 · $85K</b></span>
+          <span style="display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>False alarms</span><b class="num" style="font-size: 16px">5</b></span>
+        </div>
+        <div style="margin-top: auto; padding: 12px 14px; border-radius: 16px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; font-size: 12px"><span style="display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #FFFFFF; color: #0A5246; margin-bottom: 6px">Coming soon</span><b style="display: block">Cross-funder network</b><span style="color: #3E4542">See a merchant applying at other funders the same week, before any filing shows up.</span></div>
+      </article>
+    </section>
+
+    <!-- Row 4: rules + coverage -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-rules" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-rules" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">What happens automatically</h2><div class="hint" style="font-size: 12px; margin-top: 3px">Turn rules on or off. Every automatic step is logged on the deal.</div></div><span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; color: #3E4542">{{rulesOn}} of 5 on</span></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px">
+          <sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+            <label style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 18px; background: #FFFFFF; cursor: pointer">
+              <span style="flex: 1; min-width: 0"><b style="display: block; font-size: 13px">{{r.title}}</b><span class="hint">{{r.sub}}</span></span>
+              <input type="checkbox" checked="{{r.on}}" onChange="{{r.toggle}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none">
+            </label>
+          </sc-for>
+        </div>
+      </article>
+
+      <article aria-labelledby="h-cov" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-cov" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">How well we can see</h2><span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #F5E6CC; color: #7A4206">65%</span></div>
+        <span style="font-size: 12.5px; color: #4B524F">New funder debits only show up for merchants with a live bank connection.</span>
+        <div class="sk-bar" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px"><span style="flex: 61; background: #0E6B5C"></span><span style="flex: 33; background: #E6DFD0"></span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px">
+          <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: inline-flex; gap: 8px; align-items: center"><span style="width: 9px; height: 9px; border-radius: 3px; background: #0E6B5C"></span>Full watch, bank connected</span><b>61</b></span>
+          <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: inline-flex; gap: 8px; align-items: center"><span style="width: 9px; height: 9px; border-radius: 3px; background: #D8CFBD"></span>Filings and credit only</span><b>33</b></span>
+        </div>
+        <button style="margin-top: auto; height: 42px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Ask 33 merchants to connect</button>
+      </article>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'all', sel: 'LA', done: {}, rules: { hold: true, notify: true, broker: true, pause: false, renew: true } }; }
+  renderVals() {
+    const s = this.state;
+    const SEV = { high: ['High', '#F6DED8', '#8E2B19'], med: ['Medium', '#F5E6CC', '#7A4206'] };
+    const STAGE = { review: ['In review', '#DCE9F5', '#1F4C78'], fund: ['Ready to fund', '#F6DED8', '#8E2B19'], funded: ['Funded', '#DCF0E9', '#083E35'], renew: ['Renewal', '#F5E6CC', '#7A4206'] };
+    const A = [
+      { id: 'LA', sevK: 'high', type: 'ucc', glyph: 'U', name: 'Lakeshore Auto Body', st: 'fund', stage: 'Ready to fund, $60K', what: 'New UCC filing by another funder', when: 'Today 08:12',
+        facts: [['Secured party', 'Northpoint Funding LLC'], ['Filed', 'Oct 11, 2026 · Massachusetts'], ['Collateral', 'All receivables'], ['Not on application', 'Yes']], advice: 'Funding is on hold. Ask the merchant about the new advance and recheck the payment they can afford before sending money.', act: 'Keep funding on hold' },
+      { id: 'GS', sevK: 'high', type: 'debit', glyph: '$', name: 'Granite State Builders', st: 'funded', stage: 'Funded, 18% repaid', what: 'Received $35,000 from another funder', when: 'Today 07:40',
+        facts: [['Deposit', '$35,000 from NPF Capital'], ['New daily debit', '$410 from Oct 13'], ['Debt share now', '47% of revenue'], ['Your contract', 'No new advances clause']], advice: 'They broke the no-new-advances term. Call the merchant and the broker, and watch the next five payments closely.', act: 'Call merchant' },
+      { id: 'MA', sevK: 'high', type: 'ucc', glyph: 'U', name: 'Mesa Auto Repair', st: 'review', stage: 'In review, $35K asked', what: 'New UCC filing, not disclosed', when: 'Today 09:28',
+        facts: [['Secured party', 'Desert Sun Capital'], ['Filed', 'Oct 11, 2026 · Arizona'], ['On application', 'No'], ['Also', 'Statement does not reconcile']], advice: 'Two warning signs on one deal. Decline, or ask for the new funder\u2019s contract and fresh statements first.', act: 'Send to decision' },
+      { id: 'RL', sevK: 'high', type: 'bank', glyph: 'B', name: 'Rivera Landscaping', st: 'funded', stage: 'Funded, 34% repaid', what: 'Changed the bank account we debit', when: '2 days ago',
+        facts: [['Old account', 'Chase ••2208, still open'], ['New account', 'Bank not on file'], ['Payments since', '1 blocked'], ['Notice to you', 'None']], advice: 'Moving accounts before missing payments is a common pattern. Ask for the new account and a signed payment authorization.', act: 'Request new authorization' },
+      { id: 'SP', sevK: 'med', type: 'dup', glyph: 'D', name: 'Sunrise Pediatric Dental', st: 'review', stage: 'In review, $90K asked', what: 'Shares a bank account with a funded merchant', when: '2 days ago',
+        facts: [['Shared account', '••3391'], ['Shared phone', '(207) 555-0127'], ['Other business', 'Bright Smile Kids, funded March'], ['Owners', 'Different names, same surname']], advice: 'May be the same business under a second name. See the connections map below and ask for both companies\u2019 statements.', act: 'Ask for statements' },
+      { id: 'PR', sevK: 'med', type: 'inq', glyph: 'C', name: 'Pine Ridge Vet Clinic', st: 'renew', stage: 'Renewal ready, $70K', what: 'Credit check by another funder', when: '2 days ago',
+        facts: [['Inquiry by', 'A funder, name withheld by bureau'], ['Date', 'Oct 10, 2026'], ['New debits', 'None yet'], ['Renewal', 'Ready, not yet offered']], advice: 'They may be shopping. Send the renewal offer today before another funder does.', act: 'Send renewal offer' }
+    ];
+    const T = [['all', 'All'], ['high', 'High'], ['med', 'Medium'], ['done', 'Reviewed']];
+    const done = s.done || {};
+    const match = (a) => s.tab === 'all' ? !done[a.id] : (s.tab === 'done' ? !!done[a.id] : (!done[a.id] && a.sevK === s.tab));
+    const tabs = T.map(([k, l]) => { const on = k === s.tab; const count = A.filter((a) => k === 'all' ? !done[a.id] : (k === 'done' ? !!done[a.id] : (!done[a.id] && a.sevK === k))).length;
+      return { label: l, count, on: on ? 'true' : 'false', pick: () => this.setState({ tab: k }),
+        style: 'display: inline-flex; gap: 8px; align-items: center; height: 34px; padding: 0 6px 0 12px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (on ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #FFFFFF; color: #3E4542'),
+        cnt: 'font-size: 11px; padding: 2px 7px; border-radius: 999px; ' + (on ? 'background: rgba(255,255,255,.2)' : 'background: #F5F3EF') }; });
+    const ICON = { ucc: ['#F6DED8', '#8E2B19'], debit: ['#F6DED8', '#8E2B19'], bank: ['#F5E6CC', '#7A4206'], dup: ['#EDE4F7', '#4B2F7A'], inq: ['#DCE9F5', '#1F4C78'] };
+    const chip = (c) => 'justify-self: start; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: ' + c[1] + '; color: ' + c[2];
+    const alerts = A.filter(match).map((a) => { const on = a.id === s.sel;
+      return { ...a, sevText: SEV[a.sevK][0], sev: chip(SEV[a.sevK]), deal: STAGE[a.st][0], dealChip: chip(STAGE[a.st]), pick: () => this.setState({ sel: a.id }),
+        icon: 'width: 26px; height: 26px; border-radius: 9px; flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: ' + ICON[a.type][0] + '; color: ' + ICON[a.type][1],
+        row: 'padding: 10px 12px; border: 0; border-radius: 16px; font: inherit; color: inherit; cursor: pointer; width: 100%; box-sizing: border-box; background: #FFFFFF; ' + (on ? 'box-shadow: inset 0 0 0 1.5px #0E6B5C' : '') }; });
+    const d0 = A.find((a) => a.id === s.sel) || A[0];
+    const isDone = !!done[d0.id];
+    const AUTO = { fund: ['Funding held automatically', 'Nothing can be sent until someone reviews'], review: ['Added to the deal review', 'Shown on the Integrity tab'], funded: ['Collections team notified', 'Payments watched more closely'], renew: ['Renewal offer paused', 'Until this alert is reviewed'] };
+    const au = AUTO[d0.st] || ['Team notified', ''];
+    const stepsRaw = [[ 'Signal found', d0.when + ' · by Stacking Watch', 'done' ], [ au[0], au[1], 'done' ], [ isDone ? 'Reviewed' : 'Waiting for your review', isDone ? 'Marked reviewed just now' : 'Use the button below when done', isDone ? 'done' : 'now' ]];
+    const steps = stepsRaw.map(([title, sub, st], idx) => ({ title, sub,
+      dot: 'width: 14px; height: 14px; border-radius: 50%; flex: none; box-sizing: border-box; ' + (st === 'done' ? 'background: #0E6B5C' : 'background: #FFFFFF; border: 3px solid #D98A2B'),
+      line: 'flex: 1; width: 2px; margin-top: 4px; background: ' + (idx < stepsRaw.length - 1 ? '#CDE6DE' : 'transparent') }));
+    const d = { ...d0, steps, sevText: SEV[d0.sevK][0] + ' · ' + (isDone ? 'reviewed' : 'open'), sev: chip(SEV[d0.sevK]).replace('justify-self: start; ', ''),
+      facts: d0.facts.map(([k, v]) => ({ k, v })),
+      act: () => this.setState({ done: { ...done, [d0.id]: !isDone } }),
+      actText: isDone ? 'Reopen alert' : d0.act,
+      actStyle: 'flex: 1; height: 42px; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (isDone ? 'background: #DCF0E9; color: #083E35' : 'background: #0E6B5C; color: #FFFFFF') };
+    const R = [
+      ['hold', 'Hold funding on a high alert', 'Deals ready to fund stop until someone reviews'],
+      ['notify', 'Tell the underwriter right away', 'In Cevrynt and by email'],
+      ['broker', 'Let the broker know', 'For deals they sent, without private details'],
+      ['pause', 'Pause renewal offers', 'For merchants with an open alert'],
+      ['renew', 'Speed up renewals at risk', 'Send the offer when another funder checks credit']
+    ];
+    const rs = s.rules || {};
+    const rules = R.map(([k, t, sub]) => ({ title: t, sub, on: !!rs[k], toggle: () => this.setState({ rules: { ...rs, [k]: !rs[k] } }) }));
+    return { tabs, alerts, d, rules, rulesOn: R.filter(([k]) => rs[k]).length };
+  }
+}
+</script>
+</body>
+</html>

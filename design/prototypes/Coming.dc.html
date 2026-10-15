@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — What's coming</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.duo2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.tri3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.duo2,.tri3{grid-template-columns:1fr}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="coming" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">What's coming</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">10 features in the works · shaped by funders like you</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section aria-labelledby="h-road" class="duo2" style="border-radius: 30px; padding: 8px; background: #FFFFFF; border: 1px solid #ECE8E0">
+      <div style="border-radius: 24px; padding: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); display: flex; flex-direction: column; gap: 10px; justify-content: center">
+        <span style="align-self: flex-start; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: #FFFFFF; color: #0A5246">Roadmap · updated Oct 1</span>
+        <h2 id="h-road" class="disp" style="margin: 0; font-weight: 600; font-size: 26px; line-height: 1.15">Built for the gaps no one else fills</h2>
+        <span style="font-size: 13px; color: #3E4542">Vote for what matters to you, and join early access to try features before everyone else.</span>
+      </div>
+      <div style="padding: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-content: center">
+        <span style="padding: 16px; border-radius: 18px; background: #0E6B5C; color: #FFFFFF"><b class="num" style="display: block; font-size: 28px; line-height: 1">3</b><span style="font-size: 12px; color: #CFE6DD">Building now</span></span>
+        <span style="padding: 16px; border-radius: 18px; background: #F5F3EF"><b class="num" style="display: block; font-size: 28px; line-height: 1">5</b><span style="font-size: 12px; color: #4B524F">Up next</span></span>
+        <span style="padding: 16px; border-radius: 18px; background: #F5F3EF"><b class="num" style="display: block; font-size: 28px; line-height: 1">2</b><span style="font-size: 12px; color: #4B524F">Later</span></span>
+      </div>
+    </section>
+
+    <!-- Roadmap + spotlight -->
+    <section aria-labelledby="h-lanes" class="duo2" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px; align-items: stretch">
+      <div style="border-radius: 24px; padding: 18px; background: #F5F3EF; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-lanes" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Roadmap</h2><span class="hint" style="font-size: 12px">{{stageWhen}}</span></div></div>
+        <div role="tablist" aria-label="Stage" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: #FFFFFF">
+          <sc-for list="{{stages}}" as="t" hint-placeholder-count="3"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="{{t.style}}"><span style="{{t.dot}}"></span>{{t.title}}<span style="{{t.cnt}}">{{t.count}}</span></button></sc-for>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; flex: 1">
+          <sc-for list="{{items}}" as="f" hint-placeholder-count="4">
+            <button onClick="{{f.pick}}" style="{{f.box}}">
+              <span style="{{f.ring}}"><span class="mono" style="width: 32px; height: 32px; border-radius: 50%; background: #FFFFFF; display: grid; place-items: center; font-size: 10px; font-weight: 500">{{f.prog}}%</span></span>
+              <span style="flex: 1; min-width: 0; text-align: left"><b style="display: block; font-size: 13.5px">{{f.name}}</b><span style="display: block; font-size: 12px; color: #5F6662; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{f.short}}</span></span>
+              <span style="{{f.voteChip}}">▲ {{f.votes}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid #E3DFD6; font-size: 12px; color: #4B524F"><span>10 features in total</span><span>{{totalVotes}} votes from funders</span></div>
+      </div>
+      <div style="padding: 18px 18px 18px 22px; display: flex; flex-direction: column; gap: 12px">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="{{sp.laneChip}}">{{sp.lane}}</span><span class="hint">{{sp.eta}}</span></div>
+        <h2 id="h-spot" class="disp" style="margin: 0; font-weight: 600; font-size: 20px; line-height: 1.2">{{sp.name}}</h2>
+        <span style="font-size: 13px; color: #3E4542">{{sp.long}}</span>
+        <div style="padding: 12px 14px; border-radius: 16px; background: #F5F3EF; font-size: 12.5px"><b style="display: block; margin-bottom: 2px">Why it matters</b><span style="color: #4B524F">{{sp.why}}</span></div>
+        <span class="cap" style="color: #5F6662">What you'll be able to do</span>
+        <sc-for list="{{sp.points}}" as="x" hint-placeholder-count="3"><span style="display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px"><span style="width: 18px; height: 18px; border-radius: 50%; background: #DCF0E9; color: #083E35; display: grid; place-items: center; font-size: 10px; font-weight: 700; flex: none">✓</span>{{x.t}}</span></sc-for>
+        <div style="display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap">
+          <button onClick="{{sp.vote}}" style="{{sp.voteBtn}}">{{sp.voteText}}</button>
+          <button onClick="{{sp.join}}" style="{{sp.joinBtn}}">{{sp.joinText}}</button>
+        </div>
+      
+      </div>
+    </section>
+
+    <!-- Shipped + idea -->
+    <section aria-label="Recently shipped and ideas" class="duo2" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 8px">
+      <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Recently shipped</h2><span class="hint" style="font-size: 12px">Already in your workspace</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <a href="Settings.dc.html" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span><b>Policy simulator</b><span class="hint"> · test rules on past deals</span></span><span class="mono" style="font-size: 11px; color: #5F6662">Sep</span></a>
+          <a href="Renewals.dc.html" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span><b>Renewal radar</b><span class="hint"> · see every renewal at a glance</span></span><span class="mono" style="font-size: 11px; color: #5F6662">Sep</span></a>
+          <a href="Brokers.dc.html" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span><b>Broker scorecards</b><span class="hint"> · quality, not just volume</span></span><span class="mono" style="font-size: 11px; color: #5F6662">Aug</span></a>
+        </div>
+      </div>
+      <div style="border-radius: 24px; padding: 16px; background: #F2E7CF; display: flex; flex-direction: column; gap: 10px">
+        <div><h2 class="disp" style="margin: 0; font-weight: 600; font-size: 17px">Have an idea?</h2><span style="font-size: 12px; color: #6B4B1F">Tell us what slows your team down. We read every one.</span></div>
+        <textarea aria-label="Your idea" rows="3" placeholder="e.g. Let brokers see the reason a deal was countered" style="box-sizing: border-box; border: 0; border-radius: 16px; background: #FFFFFF; padding: 12px 14px; font: inherit; font-size: 13px; resize: vertical"></textarea>
+        <button style="align-self: flex-start; height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer">Send idea</button>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 'mail', stage: 'now', voted: {}, joined: { rec: true } }; }
+  renderVals() {
+    const s = this.state;
+    const F = [
+      { id: 'portal', lane: 'next', ini: 'BP', name: 'Broker portal', short: 'Brokers see status and upload stips', votes: 38, prog: 20, eta: 'Early 2027',
+        long: 'A private space for each broker: send deals, upload stips into the right deal, see live status and their own scorecard and payouts.',
+        why: 'Underwriters lose hours answering "any update?" emails. Brokers want answers without waiting.',
+        points: ['Live status on every deal they sent', 'Stips land straight in the deal', 'Their own scorecard and commission'] },
+      { id: 'mail', lane: 'now', ini: 'EF', name: 'Email forwarding', short: 'Brokers email packages, deals appear', votes: 52, prog: 60, eta: 'Next release',
+        long: 'Every funder gets its own forwarding address. Brokers send packages the way they already do, and each email becomes a checked deal in Submissions.',
+        why: 'Brokers already send deals by email. It\u2019s the fastest way to start, with no change in their habits.',
+        points: ['Your own address, with approved senders', 'One email with several merchants becomes several deals', 'Unknown senders held for review'] },
+      { id: 'forms', lane: 'next', ini: 'PF', name: 'Public forms', short: 'A branded application link', votes: 31, prog: 25, eta: 'Early 2027',
+        long: 'An online application on your own web address, for brokers or merchants applying directly, with the fit check running as soon as it\u2019s sent.',
+        why: 'Direct merchants and smaller brokers need a simple way in without emailing files.',
+        points: ['Your colors and logo', 'Ask for statements and consents up front', 'Put it on your website with one line of code'] },
+      { id: 'crm', lane: 'next', ini: 'CA', name: 'CRM, LOS and API', short: 'Deals in from your CRM, decisions back', votes: 27, prog: 10, eta: 'Mid 2027',
+        long: 'Connect the systems you already use, including MCA CRMs, so deals flow in and decisions, offers and funding updates flow back.',
+        why: 'Many funders run their deal flow in a CRM. Keeping both in sync avoids typing everything twice.',
+        points: ['Two-way sync with your CRM', 'Webhooks for your own systems', 'Field matching you control'] },
+      { id: 'rec', lane: 'now', ini: 'RD', name: 'Reconciliation Desk', short: 'Handle "my sales dropped" requests properly', votes: 41, prog: 70, eta: 'Early 2027',
+        long: 'When a merchant asks to pay less because sales fell, Cevrynt works out the fair new payment from fresh bank data, tracks your reply deadline and keeps the proof.',
+        why: 'Regulators have pushed funders to run a formal reconciliation process. Today most teams do it by email and spreadsheet.',
+        points: ['See every request with its deadline', 'Get the fair payment worked out for you', 'Keep a record that you answered on time'] },
+      { id: 'ai', lane: 'now', ini: 'AL', name: 'AI decision log', short: 'A clear record of every automatic suggestion', votes: 28, prog: 55, eta: 'Before 2027',
+        long: 'Every suggestion Cevrynt makes, the data it used and what a person decided, in one report you can hand to an examiner. The audit log already records part of this.',
+        why: 'New state rules on automated decisions, such as Colorado\u2019s, start applying in 2027.',
+        points: ['Export one report per deal or per month', 'See where people overrode a suggestion', 'Show which rules drove each suggestion'] },
+      { id: 'call', lane: 'next', ini: 'FC', name: 'Funding-call assistant', short: 'Records the funding call and flags mismatches', votes: 36, prog: 20, eta: 'Mid 2027',
+        long: 'Cevrynt listens to the funding call (with consent), writes a summary and flags anything the merchant says that doesn\u2019t match the application or statements.',
+        why: 'The funding call is the last chance to catch a problem, and today nothing checks it.',
+        points: ['Auto summary saved to the deal', 'Flags like "says 1 advance, statements show 2"', 'Marks the call done on Conditions'] },
+      { id: 'mob', lane: 'next', ini: 'MA', name: 'Mobile approvals', short: 'Approve and release money from your phone', votes: 22, prog: 15, eta: 'Mid 2027',
+        long: 'Seniors can approve big deals, waive conditions and release payments from their phone, with the same two-person rules.',
+        why: 'Deals stall when the one person who can approve is away from their desk.',
+        points: ['Push alert when you are needed', 'Face ID before releasing money', 'Full deal summary on one screen'] },
+      { id: 'peer', lane: 'later', ini: 'PB', name: 'Peer benchmarks', short: 'Compare a merchant with similar funded ones', votes: 19, prog: 5, eta: 'Late 2027',
+        long: 'See how a bakery doing $60K a month usually performs, based on similar merchants in your own book.',
+        why: 'Underwriters judge each deal alone. Context from similar deals makes pricing sharper.',
+        points: ['Typical revenue swings for the industry', 'How similar deals paid back', 'Suggested price range from your history'] },
+      { id: 'net', lane: 'later', ini: 'CN', name: 'Cross-funder network', short: 'See stacking before any filing shows up', votes: 47, prog: 5, eta: '2028',
+        long: 'Funders who join share a private signal when the same merchant applies elsewhere, so stacking is caught the same week.',
+        why: 'Today stacking is usually found after the fact. No shared, real-time signal exists yet.',
+        points: ['Alert when a merchant applies elsewhere', 'Only a signal is shared, never the deal', 'Join or leave at any time'] }
+    ];
+    const L = [['now', 'Building now', 'This quarter', '#0E6B5C'], ['next', 'Up next', 'In 6 months', '#4F86BD'], ['later', 'Later', 'Next year', '#9AA09C']];
+    const voted = s.voted || {}, joined = s.joined || {};
+    const icon = (lane) => 'width: 32px; height: 32px; flex: none; border-radius: 10px; display: grid; place-items: center; font-size: 11px; font-weight: 700; ' + (lane === 'now' ? 'background: #0E6B5C; color: #FFFFFF' : (lane === 'next' ? 'background: #DCE9F5; color: #1F4C78' : 'background: #EEECE6; color: #3E4542'));
+    const stage = s.stage || 'now';
+    const colOf = { now: '#0E6B5C', next: '#4F86BD', later: '#9AA09C' };
+    const stages = L.map(([k, title]) => { const on = k === stage; return { title, count: F.filter((f) => f.lane === k).length, on: on ? 'true' : 'false',
+      pick: () => { const first = F.find((f) => f.lane === k); this.setState({ stage: k, sel: first ? first.id : s.sel }); },
+      style: 'display: inline-flex; justify-content: center; gap: 7px; align-items: center; height: 38px; border: 0; border-radius: 12px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; ' + (on ? 'background: ' + colOf[k] + '; color: #FFFFFF' : 'background: transparent; color: #3E4542'),
+      dot: 'width: 7px; height: 7px; border-radius: 50%; background: ' + (on ? '#FFFFFF' : colOf[k]),
+      cnt: 'font-size: 10.5px; padding: 1px 7px; border-radius: 999px; ' + (on ? 'background: rgba(255,255,255,.22)' : 'background: #F5F3EF') }; });
+    const items = F.filter((f) => f.lane === stage).map((f) => { const on = f.id === s.sel; const v = f.votes + (voted[f.id] ? 1 : 0); const col = colOf[f.lane];
+      return { ...f, votes: v, pick: () => this.setState({ sel: f.id }),
+        box: 'display: flex; gap: 12px; align-items: center; width: 100%; padding: 12px 14px; border-radius: 18px; font: inherit; color: #0F1513; cursor: pointer; background: #FFFFFF; ' + (on ? 'border: 2px solid ' + col + '; box-shadow: 0 12px 26px -20px rgba(15,21,19,.6)' : 'border: 2px solid transparent'),
+        ring: 'width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; background: conic-gradient(' + col + ' var(--p), #ECE8E0 0); --p: ' + f.prog + '%',
+        voteChip: 'flex: none; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; ' + (voted[f.id] ? 'background: #0E6B5C; color: #FFFFFF' : 'background: #F5F3EF; color: #3E4542') }; });
+    const stageWhen = { now: 'Building now · this quarter', next: 'Up next · in the next 6 months', later: 'Later · next year' }[stage];
+    const totalVotes = F.reduce((a, f) => a + f.votes + (voted[f.id] ? 1 : 0), 0);
+    const f = F.find((x) => x.id === s.sel) || F[0];
+    const lane = L.find((l) => l[0] === f.lane);
+    const isV = !!voted[f.id], isJ = !!joined[f.id];
+    const sp = { ...f, lane: lane[1], laneChip: 'font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: ' + (f.lane === 'now' ? '#DCF0E9; color: #083E35' : (f.lane === 'next' ? '#DCE9F5; color: #1F4C78' : '#EEECE6; color: #3E4542')),
+      points: f.points.map((t) => ({ t })),
+      vote: () => this.setState({ voted: { ...voted, [f.id]: !isV } }), join: () => this.setState({ joined: { ...joined, [f.id]: !isJ } }),
+      voteText: isV ? '▲ Voted · ' + (f.votes + 1) : '▲ Vote · ' + f.votes, joinText: isJ ? 'On the early access list' : 'Join early access',
+      voteBtn: 'height: 42px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (isV ? 'background: #DCF0E9; color: #083E35' : 'background: #F5F3EF; color: #0F1513'),
+      joinBtn: 'flex: 1; height: 42px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; ' + (isJ ? 'background: #DCF0E9; color: #083E35' : 'background: #0E6B5C; color: #FFFFFF') };
+    return { stages, items, stageWhen, totalVotes, sp };
+  }
+}
+</script>
+</body>
+</html>

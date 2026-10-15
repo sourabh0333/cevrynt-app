@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Intake</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.span2{grid-column:span 2}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.tri3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+@media (max-width: 900px){.tri3{grid-template-columns:1fr}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.ch-bar{transform-origin:left center;animation:chBar 1s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes chBar{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){.ch-bar{animation:none}}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="intake" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 6px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Intake</h1>
+        <a href="#recent" style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">23 deals arrived today · see recent <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m9 18 6-6-6-6"></path></svg></a>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Three flows -->
+    <section aria-label="Start a deal" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px">
+
+      <!-- Manual lead -->
+      <article aria-labelledby="h-man" style="background: #F5F3EF; border-radius: 30px; padding: 22px; min-height: 340px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="width: 48px; height: 48px; border-radius: 16px; background: #FFFFFF; display: grid; place-items: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></span>
+          <span class="cap" style="padding: 6px 10px; border-radius: 999px; background: #FFFFFF; color: #4B524F">About 3 min</span>
+        </div>
+        <div>
+          <h2 id="h-man" class="disp" style="margin: 0; font-weight: 600; font-size: 24px">Manual lead</h2>
+          <p style="margin: 6px 0 0; color: #4B524F; font-size: 13.5px">Type in the business and owner, set the request, then attach documents or send the merchant a secure upload link.</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <span style="font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #FFFFFF">1 · Company &amp; owner</span>
+          <span style="font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #FFFFFF">2 · Request</span>
+          <span style="font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #FFFFFF">3 · Documents</span>
+          <span style="font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #FFFFFF">4 · Review</span>
+        </div>
+        <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px">
+          <span style="font-size: 12px; color: #5F6662">Best for phone and walk-in leads</span>
+          <a href="Intake-Manual.dc.html" style="height: 42px; padding: 0 18px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px">Start <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+
+      <!-- Single package (hero) -->
+      <article aria-labelledby="h-sin" style="position: relative; overflow: hidden; border-radius: 30px; padding: 22px; min-height: 340px; box-sizing: border-box; color: #0F1513; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="width: 48px; height: 48px; border-radius: 16px; background: rgba(14,107,92,.07); border: 1px solid rgba(14,107,92,.07); display: grid; place-items: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E6B5C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"></path></svg></span>
+          <span style="display: inline-flex; gap: 7px; align-items: center; padding: 6px 11px; border-radius: 999px; background: rgba(14,107,92,.07); border: 1px solid rgba(14,107,92,.07); font-size: 11.5px; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: #8FD9C3"></span>Most used</span>
+        </div>
+        <div>
+          <h2 id="h-sin" class="disp" style="margin: 0; font-weight: 600; font-size: 24px">Single package upload</h2>
+          <p style="margin: 6px 0 0; color: #4B524F; font-size: 13.5px">Drop one complete deal. We sort every file, match the business and check it is complete before an underwriter opens it.</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <span class="mono" style="font-size: 11px; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.1)">.zip</span>
+          <span class="mono" style="font-size: 11px; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.1)">.pdf</span>
+          <span class="mono" style="font-size: 11px; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.1)">.xls</span>
+          <span class="mono" style="font-size: 11px; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.1)">.csv</span>
+          <span class="mono" style="font-size: 11px; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.1)">.eml</span>
+        </div>
+        <div style="margin-top: auto; padding: 14px 16px; border-radius: 20px; background: rgba(14,107,92,.07); border: 1px solid rgba(14,107,92,.07); ; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <span style="font-size: 12.5px; color: #4B524F">Drag a package here, or browse</span>
+          <a href="Intake-Single.dc.html" style="flex: none; height: 42px; padding: 0 18px; border-radius: 999px; background: #F5F3EF; color: #0F1513; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px">Upload</a>
+        </div>
+      </article>
+
+      <!-- Bulk zip -->
+      <article aria-labelledby="h-blk" style="background: #E6DFD0; border-radius: 30px; padding: 22px; min-height: 340px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,.65); display: grid; place-items: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 11v6M9 14h6"></path></svg></span>
+          <span class="cap" style="padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.65); color: #4B524F">Many deals</span>
+        </div>
+        <div>
+          <h2 id="h-blk" class="disp" style="margin: 0; font-weight: 600; font-size: 24px">Bulk folder ZIP</h2>
+          <p style="margin: 6px 0 0; color: #4B524F; font-size: 13.5px">One ZIP, one folder per deal. Preview every deal and fix problems before anything is created.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.6)">
+          <span class="mono" style="font-size: 12px">deals_oct12.zip</span>
+          <span class="mono" style="font-size: 12px; color: #4B524F; padding-left: 14px">├ Harbor Street Bakery/</span>
+          <span class="mono" style="font-size: 12px; color: #4B524F; padding-left: 14px">├ Golden Lotus Restaurant/</span>
+          <span class="mono" style="font-size: 12px; color: #4B524F; padding-left: 14px">└ Mesa Auto Repair/</span>
+        </div>
+        <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px">
+          <span style="font-size: 12px; color: #4B524F">Each top-level folder becomes a deal</span>
+          <a href="Intake-Bulk.dc.html" style="height: 42px; padding: 0 18px; border-radius: 999px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px">Start <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+    </section>
+
+    <!-- Fit check -->
+    <section aria-labelledby="h-fit" style="background: #F2E7CF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap">
+        <div><h2 id="h-fit" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Every package is checked in seconds</h2><div style="font-size: 12.5px; color: #4B524F; margin-top: 3px">Whichever way a deal arrives, the same three checks run before it reaches your queue.</div></div>
+        <a href="Settings.dc.html" class="cap" style="padding: 9px 14px; border-radius: 999px; background: #F5F3EF">Edit policy</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px">
+        <div style="padding: 16px; border-radius: 20px; background: rgba(255,255,255,.7)"><span class="mono" style="font-size: 11px; color: #5F6662">01</span><b style="display: block; font-size: 14px; margin-top: 6px">Read and sort</b><span style="font-size: 12.5px; color: #4B524F">Statements, application, ID and other files are recognised and named.</span></div>
+        <div style="padding: 16px; border-radius: 20px; background: rgba(255,255,255,.7)"><span class="mono" style="font-size: 11px; color: #5F6662">02</span><b style="display: block; font-size: 14px; margin-top: 6px">Check completeness</b><span style="font-size: 12.5px; color: #4B524F">Months covered, missing pages, and the stips your policy requires.</span></div>
+        <div style="padding: 16px; border-radius: 20px; background: rgba(255,255,255,.7)"><span class="mono" style="font-size: 11px; color: #5F6662">03</span><b style="display: block; font-size: 14px; margin-top: 6px">Check fit</b><span style="font-size: 12.5px; color: #4B524F">Industry, time in business, revenue and existing positions against your rules.</span></div>
+        <div style="padding: 16px; border-radius: 20px; background: #0E6B5C; color: #FFFFFF; display: flex; flex-direction: column; gap: 8px"><span class="cap" style="color: #AEB8B3">Outcome</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8FD9C3"></span>Fits policy, goes to queue</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #F2C27E"></span>Needs documents, request sent</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #F4AE9E"></span>Declined, reason sent to broker</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Channels (coming soon) -->
+    <section aria-labelledby="h-ch" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-ch" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Deals that arrive on their own</h2><span class="hint" style="font-size: 12px">Coming soon. Today, deals come in through the three options above.</span></div><a href="Coming.dc.html" style="font-size: 12px; font-weight: 600; color: #0E6B5C">See the roadmap</a></div>
+      <div class="tri3" style="gap: 10px">
+        <article style="position: relative; background: #FFFFFF; border: 1.5px dashed #D8D3C8; border-radius: 26px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 40px; height: 40px; border-radius: 13px; background: #F5F3EF; display: grid; place-items: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg></span><span style="font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCE9F5; color: #1F4C78">Coming next</span></div>
+          <div><b class="disp" style="display: block; font-size: 16px; font-weight: 600">Email forwarding</b><span style="font-size: 12.5px; color: #4B524F">Brokers email packages to your own address and they become deals.</span></div>
+          <a href="Coming.dc.html" style="margin-top: auto; align-self: flex-start; font-size: 12px; font-weight: 600; color: #0E6B5C">Join early access</a>
+        </article>
+        <article style="position: relative; background: #FFFFFF; border: 1.5px dashed #D8D3C8; border-radius: 26px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 40px; height: 40px; border-radius: 13px; background: #F5F3EF; display: grid; place-items: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg></span><span style="font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCE9F5; color: #1F4C78">Coming soon</span></div>
+          <div><b class="disp" style="display: block; font-size: 16px; font-weight: 600">Public forms</b><span style="font-size: 12.5px; color: #4B524F">A branded application link for brokers and merchants.</span></div>
+          <span style="margin-top: auto; display: flex; gap: 14px"><a href="Apply-Form.dc.html" style="font-size: 12px; font-weight: 600; color: #0E6B5C">Preview the form</a><a href="Coming.dc.html" style="font-size: 12px; font-weight: 600; color: #4B524F">Join early access</a></span>
+        </article>
+        <article style="position: relative; background: #FFFFFF; border: 1.5px dashed #D8D3C8; border-radius: 26px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 40px; height: 40px; border-radius: 13px; background: #F5F3EF; display: grid; place-items: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 1 1 0 10h-2M8 12h8"></path></svg></span><span style="font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCE9F5; color: #1F4C78">Coming later</span></div>
+          <div><b class="disp" style="display: block; font-size: 16px; font-weight: 600">CRM, LOS or API</b><span style="font-size: 12.5px; color: #4B524F">Deals flow in from your CRM, and decisions flow back.</span></div>
+          <a href="Coming.dc.html" style="margin-top: auto; align-self: flex-start; font-size: 12px; font-weight: 600; color: #0E6B5C">Join early access</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Today by channel + recent -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+      <article aria-labelledby="h-today" style="border-radius: 30px; padding: 20px; color: #0F1513; background: linear-gradient(160deg, #F1F6F3, #FFFFFF); border: 1px solid #E3EFEA; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start"><div><h2 id="h-today" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Today by channel</h2><div style="font-size: 12px; color: #4B524F; margin-top: 3px">23 deals since midnight</div></div><span class="num" style="font-size: 26px; font-weight: 600; line-height: 1">23</span></div>
+        <div style="display: flex; flex-direction: column; gap: 10px"><div><div style="display: flex; justify-content: space-between; font-size: 12.5px"><span>Single package</span><b>11</b></div><div style="height: 6px; border-radius: 3px; background: rgba(14,107,92,.07); margin-top: 5px"><div style="width: 48%; height: 100%; border-radius: 3px; background: #0E6B5C; animation-delay: 0.25s" class="ch-bar"></div></div></div><div><div style="display: flex; justify-content: space-between; font-size: 12.5px"><span>Bulk ZIP</span><b>7</b></div><div style="height: 6px; border-radius: 3px; background: rgba(14,107,92,.07); margin-top: 5px"><div style="width: 30%; height: 100%; border-radius: 3px; background: #0E6B5C; animation-delay: 0.37s" class="ch-bar"></div></div></div><div><div style="display: flex; justify-content: space-between; font-size: 12.5px"><span>Manual lead</span><b>3</b></div><div style="height: 6px; border-radius: 3px; background: rgba(14,107,92,.07); margin-top: 5px"><div style="width: 13%; height: 100%; border-radius: 3px; background: #0E6B5C; animation-delay: 0.49s" class="ch-bar"></div></div></div><div><div style="display: flex; justify-content: space-between; font-size: 12.5px"><span>Merchant Link</span><b>2</b></div><div style="height: 6px; border-radius: 3px; background: rgba(14,107,92,.07); margin-top: 5px"><div style="width: 9%; height: 100%; border-radius: 3px; background: #0E6B5C; animation-delay: 0.61s" class="ch-bar"></div></div></div></div>
+      </article>
+
+      <article id="recent" aria-labelledby="h-rec" class="span2" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-rec" class="disp" style="margin: 0; font-weight: 600; font-size: 20px">Recent intakes</h2><a href="Submissions.dc.html" class="cap" style="color: #0E6B5C">Open submissions</a></div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 620px">
+            <div class="cap" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; padding: 4px 12px 8px; color: #5F6662; font-size: 10px"><span>Merchant</span><span>Channel</span><span>Time</span><span>Fit check</span><span>Assigned</span></div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Golden Lotus Restaurant</b><span style="font-size: 12.5px; color: #4B524F">Single package</span><span class="mono" style="font-size: 12px; color: #4B524F">13:10</span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C"></span>Fits policy</span><span style="font-size: 12.5px; color: #4B524F">Maya Chen</span></a>
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Brightside Cleaning Co</b><span style="font-size: 12.5px; color: #4B524F">Merchant Link</span><span class="mono" style="font-size: 12px; color: #4B524F">12:05</span><span class="trunc" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D98A2B; flex: none"></span>Needs documents · July statement missing</span><span style="font-size: 12.5px; color: #4B524F">Maya Chen</span></a>
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Tri-County Towing</b><span style="font-size: 12.5px; color: #4B524F">Bulk ZIP</span><span class="mono" style="font-size: 12px; color: #4B524F">11:48</span><span class="trunc" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none"></span>Declined · under 6 months in business</span><span style="font-size: 12.5px; color: #5F6662">—</span></a>
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Pinecrest Fitness Studio</b><span style="font-size: 12.5px; color: #4B524F">Bulk ZIP</span><span class="mono" style="font-size: 12px; color: #4B524F">11:02</span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C"></span>Fits policy</span><span style="font-size: 12.5px; color: #4B524F">Jordan Reyes</span></a>
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Lakeside Florist</b><span style="font-size: 12.5px; color: #4B524F">Single package</span><span class="mono" style="font-size: 12px; color: #4B524F">10:37</span><span class="trunc" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C2412D; flex: none"></span>Declined · revenue below policy minimum</span><span style="font-size: 12.5px; color: #5F6662">—</span></a>
+              <a href="#" style="display: grid; grid-template-columns: minmax(0,1.4fr) 120px 70px minmax(0,1.5fr) 110px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: #FFFFFF"><b class="trunc" style="font-size: 13px">Northline HVAC Services</b><span style="font-size: 12.5px; color: #4B524F">Manual lead</span><span class="mono" style="font-size: 12px; color: #4B524F">09:20</span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E6B5C"></span>Fits policy</span><span style="font-size: 12.5px; color: #4B524F">Maya Chen</span></a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

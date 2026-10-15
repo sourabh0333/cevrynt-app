@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cevrynt — Settings · Pricing and disclosures</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Instrument+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEECE6}
+a{color:inherit;text-decoration:none}a:hover{color:#0E6B5C}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.num{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.disp{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint{font-size:11.5px;color:#5F6662}
+.span2{grid-column:span 2}
+.bcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 74px 110px 96px 96px 90px;gap:12px;align-items:center}
+.rr{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,1fr) minmax(200px,1.3fr) 110px 140px;gap:16px;align-items:center}
+.acols{display:grid;grid-template-columns:96px minmax(180px,1.3fr) minmax(160px,1.4fr) 92px 100px;gap:12px;align-items:center}
+.rcols{display:grid;grid-template-columns:minmax(190px,1.4fr) 64px minmax(110px,1fr) 80px 96px 110px;gap:12px;align-items:center}
+@media (max-width: 760px){.span2{grid-column:auto}}
+.app-main{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.app-main>*{flex-shrink:0}
+.app-side,.app-main{scrollbar-width:thin;scrollbar-color:#D8D3C8 transparent}
+.set-nav{scrollbar-width:none}
+.set-nav::-webkit-scrollbar{display:none}
+/* auto: grow-in for progress bars and rings */
+[style*="height: 3px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 4px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 5px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 6px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 7px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 8px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 9px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 10px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 11px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line),
+[style*="height: 12px"][style*="width: "][style*="%"][style*="background"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){transform-origin:left center;animation:autoBar 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoBar{from{transform:scaleX(0)}}
+circle[stroke-dasharray][transform^="rotate(-90"]:not(.ring-arc):not(.tk-ring):not(.sc-ring):not(.tl-bar):not(.ch-bar):not(.sc-bar):not(.hero-line){animation:autoRing 1.2s cubic-bezier(.22,1,.36,1) .2s backwards}
+@keyframes autoRing{from{stroke-dasharray:0 1000}}
+@media (prefers-reduced-motion: reduce){[style*="%"][style*="background"],circle[stroke-dasharray]{animation:none !important}}
+/* auto v2: chart reveal, vertical bars, solid rings, stacked bars */
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+svg[role="img"]:not(:has(.ring-arc,.tk-ring,.sc-ring,.hero-line,.hero-area,.rh-line,.ar-line,.fd-line,.cn-link,.cn-red,.rd-dot,.rn-bar,circle[stroke-dasharray])){animation:autoReveal 1.3s cubic-bezier(.45,0,.2,1) .25s backwards}
+@keyframes autoReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+[style*="display: block; height: "][style*="%; border-radius"]{transform-origin:50% 100%;animation:autoCol .9s cubic-bezier(.22,1,.36,1) .25s backwards}
+@keyframes autoCol{from{transform:scaleY(0)}}
+[style*="--p:"]:not(.cv-ring){animation:autoConic 1.2s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoConic{from{--p:0%}}
+[style*="display: flex"][style*="overflow: hidden"][style*="gap: 2px"]:not(.sp-bar):not(.sk-bar):not(.kpi-grid),[style*="display: flex"][style*="overflow: hidden"][style*="gap: 3px"]:not(.sp-bar):not(.sk-bar){transform-origin:left center;animation:autoStack 1s cubic-bezier(.22,1,.36,1) .3s backwards}
+@keyframes autoStack{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){svg[role="img"],[style*="--p:"],[style*="display: block; height: "],[style*="overflow: hidden"]{animation:none !important}}
+</style>
+</helmet>
+
+<div style="font-family: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #0F1513; background: #EEECE6; font-size: 14px; line-height: 1.45; height: 100vh; overflow: hidden; box-sizing: border-box; padding: 14px 14px 14px 0; display: flex; gap: 6px; align-items: stretch">
+  <div class="app-side" style="flex: 0 0 auto; height: 100%; overflow: hidden; z-index: 10"><dc-import name="Sidebar" active="settings" hint-size="240px,1000px"></dc-import></div>
+
+  <main class="app-main" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; box-shadow: 0 24px 60px -32px rgba(15,21,19,.28), 0 2px 6px rgba(15,21,19,.04); border: 1px solid #E7E3DB; border-radius: 34px; box-sizing: border-box; padding: 22px 24px 28px; display: flex; flex-direction: column; gap: 14px">
+
+    <!-- Header -->
+    <header style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 4px">
+      <div>
+        <h1 class="disp" style="margin: 0; font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.035em">Settings</h1>
+        <span style="display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Pricing &amp; disclosures</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+        <a href="#" style="display: none"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></svg>Archived</a>
+        <button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border: 0; border-radius: 14px; background: #F5F3EF; color: #5F6662; min-width: 260px; font: inherit; font-size: 13px; cursor: pointer">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F6662" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          Search deals, merchants, pages
+          <span class="mono" style="margin-left: auto; font-size: 11px; padding: 3px 7px; border-radius: 8px; background: #FFFFFF">⌘K</span>
+        </button>
+        <button aria-label="Notifications, 4 unread" style="width: 44px; height: 44px; border: 0; border-radius: 14px; background: #F5F3EF; display: grid; place-items: center; position: relative; cursor: pointer">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F1513" stroke-width="1.8" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+          <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #C2412D; border: 2px solid #FFFFFF"></span>
+        </button>
+        <a href="Intake.dc.html" style="height: 44px; padding: 0 18px; border-radius: 14px; background: #0E6B5C; color: #FFFFFF; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>New intake</a>
+      </div>
+    </header>
+
+    <!-- Settings layout -->
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <nav aria-label="Settings sections" class="set-nav" style="flex: 0 0 220px; max-width: 100%; position: sticky; top: 0; z-index: 2; max-height: calc(100vh - 60px); overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 24px; background: #F5F3EF">
+        <span class="cap" style="color: #5F6662; padding: 6px 10px">Underwriting</span>
+        <a href="Settings.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Policy<span style="font-size: 10.5px; padding: 1px 7px; border-radius: 999px; background: #FFFFFF; color: #3E4542">v3</span></a>
+        <a href="Settings-Pricing.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 13px; font-weight: 600; box-shadow: 0 6px 16px -12px rgba(15,21,19,.4)">Pricing &amp; disclosures</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Deal flow</span>
+        <a href="Settings-Intake.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Intake channels</a>
+        <a href="Settings-Renewals.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Renewal rules</a>
+        <span class="cap" style="color: #5F6662; padding: 12px 10px 6px">Organization</span>
+        <a href="Settings-Team.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Team &amp; roles</a>
+        <a href="Settings-Workspace.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Workspace</a>
+        <a href="Settings-Plan.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Plan &amp; usage</a>
+        <a href="Settings-Security.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Security</a>
+        <a href="Settings-Audit.dc.html" style="padding: 10px 12px; border-radius: 14px; font-size: 13px; color: #3E4542">Audit log</a>
+      </nav>
+
+      <div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <section aria-labelledby="h-pr" style="border-radius: 30px; padding: 22px; background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column; gap: 6px"><h2 id="h-pr" class="disp" style="margin: 0; font-weight: 600; font-size: 24px">Pricing &amp; disclosures</h2><span style="font-size: 12.5px; color: #3E4542">How every offer is priced, and what each merchant is shown before they sign. The offer builder and renewals use these settings.</span></div>
+          <button style="height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: rgba(255,255,255,.7); font: inherit; font-size: 12.5px; font-weight: 600; color: #5F6662; cursor: default">All changes saved</button>
+        </section>
+
+        <!-- Pricing grid + example -->
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch">
+          <section aria-labelledby="h-grid" style="flex: 999 1 440px; min-width: 0; background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-grid" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Factor rates</h2><span class="hint" style="font-size: 12px">By underwriting score and term. Click a rate to see an example.</span></div><button style="height: 34px; padding: 0 12px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">Edit grid</button></div>
+            <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 6px">
+              <span></span><span class="cap" style="text-align: center; color: #5F6662">4 months</span><span class="cap" style="text-align: center; color: #5F6662">6 months</span><span class="cap" style="text-align: center; color: #5F6662">8 months</span>
+              <sc-for list="{{grid}}" as="g" hint-placeholder-count="12">
+                <sc-if value="{{g.isLabel}}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-direction: column; justify-content: center; padding: 0 6px"><b style="font-size: 13px">{{g.band}}</b><span class="hint">{{g.bandSub}}</span></span></sc-if>
+                <sc-if value="{{g.isCell}}" hint-placeholder-val="{{ true }}"><button onClick="{{g.pick}}" style="{{g.style}}">{{g.f}}</button></sc-if>
+              </sc-for>
+            </div>
+            <span style="font-size: 11.5px; color: #5F6662">Below 70 there is no standard price. Each deal is priced by a senior underwriter.</span>
+          </section>
+
+          <aside aria-labelledby="h-ex" style="flex: 1 1 280px; min-width: 0; border-radius: 30px; padding: 20px; background: #FFFFFF; border: 1px solid #ECE8E0; box-shadow: 0 18px 40px -30px rgba(15,21,19,.35); display: flex; flex-direction: column; gap: 10px">
+            <span style="align-self: flex-start; font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Example: $40,000</span>
+            <h2 id="h-ex" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">{{ex.title}}</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+              <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Merchant repays</span><b class="num" style="font-size: 17px">{{ex.payback}}</b></span>
+              <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Daily payment</span><b class="num" style="font-size: 17px">{{ex.daily}}</b></span>
+              <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Estimated APR</span><b class="num" style="font-size: 17px">{{ex.apr}}</b></span>
+              <span style="padding: 10px 12px; border-radius: 14px; background: #F5F3EF"><span style="display: block; font-size: 11px; color: #5F6662">Your margin</span><b class="num" style="font-size: 17px; color: #0A5246">{{ex.margin}}</b></span>
+            </div>
+            <span style="font-size: 12px; color: #4B524F; margin-top: auto">After 8 points broker commission. This is the price the offer builder starts from.</span>
+          </aside>
+        </div>
+
+        <!-- Adjustments + payments + early payoff -->
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+          <article aria-labelledby="h-adj" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+            <h2 id="h-adj" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Adjustments</h2>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Renewal (loyalty)</span><b style="color: #0A5246">−0.04</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Second position</span><b style="color: #8E4E08">+0.02</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Weekly instead of daily</span><b style="color: #8E4E08">+0.01</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #F5F3EF; font-size: 12.5px"><span>Origination fee</span><b>0 – 3%</b></span>
+          </article>
+          <article aria-labelledby="h-limits" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+            <h2 id="h-limits" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Limits and payments</h2>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12.5px"><span>Most of daily sales taken</span><b>20%</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12.5px"><span>First payment</span><b>2 business days</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12.5px"><span>Collect by</span><b>ACH or card split</b></span>
+            <span style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 14px; background: #FFFFFF; font-size: 12.5px"><span>Broker commission cap</span><b>8 / 5 pts</b></span>
+          </article>
+          <article aria-labelledby="h-early" style="background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+            <h2 id="h-early" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Early payoff discount</h2>
+            <span style="font-size: 12px; color: #3E4542">Factor used if everything is paid off early</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: auto">
+              <span style="padding: 12px 10px; border-radius: 16px; background: #FFFFFF; text-align: center"><b class="num" style="display: block; font-size: 20px">1.20</b><span style="font-size: 11px; color: #4B524F">30 days</span></span>
+              <span style="padding: 12px 10px; border-radius: 16px; background: #FFFFFF; text-align: center"><b class="num" style="display: block; font-size: 20px">1.24</b><span style="font-size: 11px; color: #4B524F">60 days</span></span>
+              <span style="padding: 12px 10px; border-radius: 16px; background: #FFFFFF; text-align: center"><b class="num" style="display: block; font-size: 20px">1.28</b><span style="font-size: 11px; color: #4B524F">90 days</span></span>
+            </div>
+          </article>
+        </section>
+
+        <!-- Industry, sizing, broker upsell -->
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+          <article aria-labelledby="h-ind" style="background: #FFFFFF; border: 1px solid #ECE8E0; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="h-ind" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Industry adjustments</h2><button style="height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: #F5F3EF; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer">Edit</button></div>
+            <span class="hint" style="font-size: 12px">Added to the grid rate, based on how each industry has paid you</span>
+            <span style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 12px; background: #F5F3EF; font-size: 12.5px"><span>Dental and medical</span><b class="num" style="color: #0A5246">−0.02</b></span><span style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 12px; background: #F5F3EF; font-size: 12.5px"><span>Professional services</span><b class="num" style="color: #0A5246">−0.01</b></span><span style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 12px; background: #F5F3EF; font-size: 12.5px"><span>Retail and food</span><b class="num" style="color: #5F6662">±0.00</b></span><span style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 12px; background: #F5F3EF; font-size: 12.5px"><span>Construction and trades</span><b class="num" style="color: #8E4E08">+0.02</b></span><span style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 12px; background: #F5F3EF; font-size: 12.5px"><span>Auto repair</span><b class="num" style="color: #8E4E08">+0.03</b></span>
+          </article>
+
+          <article aria-labelledby="h-size" style="background: #F5F3EF; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+            <h2 id="h-size" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">How much to offer</h2>
+            <span class="hint" style="font-size: 12px">Most you'll offer, as a multiple of monthly true revenue</span>
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.55)"><div style="display: grid; grid-template-columns: 90px minmax(0,1fr) 80px; gap: 10px; align-items: center; font-size: 12.5px"><b>90 and up</b><span style="height: 10px; border-radius: 5px; background: #FFFFFF"><span style="display: block; height: 10px; width: 100%; border-radius: 5px; background: #0E6B5C"></span></span><b class="num" style="text-align: right">1.5×</b></div><div style="display: grid; grid-template-columns: 90px minmax(0,1fr) 80px; gap: 10px; align-items: center; font-size: 12.5px"><b>80 – 89</b><span style="height: 10px; border-radius: 5px; background: #FFFFFF"><span style="display: block; height: 10px; width: 83%; border-radius: 5px; background: #0E6B5C"></span></span><b class="num" style="text-align: right">1.25×</b></div><div style="display: grid; grid-template-columns: 90px minmax(0,1fr) 80px; gap: 10px; align-items: center; font-size: 12.5px"><b>70 – 79</b><span style="height: 10px; border-radius: 5px; background: #FFFFFF"><span style="display: block; height: 10px; width: 67%; border-radius: 5px; background: #0E6B5C"></span></span><b class="num" style="text-align: right">1.0×</b></div></div>
+            <span style="font-size: 11.5px; color: #4B524F; margin-top: auto">Still capped by the policy's $10K to $150K range and the 65% debt limit.</span>
+          </article>
+
+          <article aria-labelledby="h-up" style="background: linear-gradient(150deg, #D5ECE5 0%, #EAF5F1 55%, #F7FBF9 100%); border: 1px solid #CDE6DE; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+            <h2 id="h-up" class="disp" style="margin: 0; font-weight: 600; font-size: 18px">Guardrails</h2>
+            <div style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px">
+              <span style="display: flex; justify-content: space-between; font-size: 12.5px"><b>Broker can raise the rate by</b><b class="num">{{upTxt}}</b></span>
+              <input aria-label="Maximum broker upsell" type="range" min="0" max="6" step="1" value="{{up}}" onChange="{{setUp}}" style="width: 100%; accent-color: #0E6B5C">
+              <span class="hint">Extra points go to the broker and are shown on the disclosure</span>
+            </div>
+            <div style="padding: 12px 14px; border-radius: 16px; background: #FFFFFF; display: flex; flex-direction: column; gap: 6px">
+              <span style="display: flex; justify-content: space-between; font-size: 12.5px"><b>Lowest margin you'll accept</b><b class="num">{{floorTxt}}</b></span>
+              <input aria-label="Minimum margin" type="range" min="10" max="30" step="2" value="{{floor}}" onChange="{{setFloor}}" style="width: 100%; accent-color: #0E6B5C">
+              <span class="hint">Offers below this need a senior sign-off</span>
+            </div>
+            <span style="font-size: 11.5px; color: #3E4542; margin-top: auto">Highest factor any merchant can see: <b class="num">{{maxFactor}}</b></span>
+          </article>
+        </section>
+
+        <!-- Disclosure templates -->
+        <section aria-labelledby="h-disc" style="background: #F5F3EF; border-radius: 30px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap"><div><h2 id="h-disc" class="disp" style="margin: 0; font-weight: 600; font-size: 19px">Disclosure templates by state</h2><span class="hint" style="font-size: 12px">Chosen automatically from the merchant's state when an offer is sent</span></div><button style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer">+ Add state</button></div>
+          <div style="overflow-x: auto"><div style="min-width: 640px; display: flex; flex-direction: column; gap: 6px">
+            <div class="cap" style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; padding: 0 14px 2px; color: #5F6662; font-size: 10px"><span>State</span><span>Template</span><span>Estimated APR</span><span>Counsel review</span><span>Status</span></div>
+            <div style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>New York</b><span style="color: #3E4542">NY sales-based financing</span><span>Shown</span><span style="color: #5F6662">Aug 2026</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Active</span></div><div style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>California</b><span style="color: #3E4542">CA sales-based financing</span><span>Shown</span><span style="color: #5F6662">Aug 2026</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Active</span></div><div style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Connecticut</b><span style="color: #3E4542">CT commercial financing</span><span>From Jul 2027</span><span style="color: #5F6662">Sep 2026</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCE9F5; color: #1F4C78">Update due</span></div><div style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Texas</b><span style="color: #3E4542">Registration only</span><span>Not needed</span><span style="color: #5F6662">Sep 2026</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #F5E6CC; color: #7A4206">Register by Dec 31</span></div><div style="display: grid; grid-template-columns: minmax(140px,1.2fr) minmax(140px,1.2fr) 110px 120px 110px; gap: 12px; align-items: center; padding: 11px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><b>Maine, NH, MA, VT</b><span style="color: #3E4542">Standard cost summary</span><span>Shown</span><span style="color: #5F6662">Jul 2026</span><span style="justify-self: start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #DCF0E9; color: #083E35">Active</span></div>
+          </div></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px">
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><span><b style="display: block">Forgive unearned fees on renewals</b><span class="hint">So renewals never include unpaid fees from the last advance</span></span><input type="checkbox" checked="{{forgive}}" onChange="{{toggleForgive}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+            <label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; font-size: 12.5px"><span><b style="display: block">Show broker pay on every disclosure</b><span class="hint">Even where a state doesn't require it</span></span><input type="checkbox" checked="{{brokerPay}}" onChange="{{toggleBroker}}" style="width: 20px; height: 20px; accent-color: #0E6B5C; flex: none"></label>
+          </div>
+          <span style="font-size: 11.5px; color: #5F6662">State rules change often. Keep templates reviewed by your counsel; Cevrynt flags any template older than 12 months.</span>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { cell: '1-1', forgive: true, brokerPay: true, up: 2, floor: 18 }; }
+  renderVals() {
+    const s = this.state;
+    const bands = [['90 and up', 'Lowest risk', [1.26, 1.28, 1.32]], ['80 – 89', 'Most deals', [1.28, 1.32, 1.36]], ['70 – 79', 'Approval line', [1.34, 1.38, 1.42]]];
+    const terms = [4, 6, 8];
+    const grid = [];
+    const shade = ['#DCF0E9', '#C4E6DA', '#ACDCCB', '#F5E6CC', '#F0D9B5', '#EBCB9C'];
+    bands.forEach(([band, sub, fs], r) => {
+      grid.push({ isLabel: true, isCell: false, band, bandSub: sub });
+      fs.forEach((f, c) => {
+        const key = r + '-' + c, on = key === s.cell;
+        const tone = f < 1.30 ? 0 : (f < 1.33 ? 1 : (f < 1.36 ? 2 : (f < 1.39 ? 3 : (f < 1.41 ? 4 : 5))));
+        grid.push({ isLabel: false, isCell: true, f: f.toFixed(2), pick: () => this.setState({ cell: key }),
+          style: 'height: 54px; border: 0; border-radius: 14px; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif; ' + (on ? 'background: #0E6B5C; color: #FFFFFF; box-shadow: 0 10px 22px -14px rgba(14,107,92,.8)' : 'background: ' + shade[tone] + '; color: #0F1513') });
+      });
+    });
+    const [r, c] = (s.cell || '1-1').split('-').map(Number);
+    const f = bands[r][2][c], term = terms[c], A = 40000, pb = A * f, n = term * 21, p = pb / n;
+    let lo = 1e-7, hi = 0.2;
+    for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; const pv = p * (1 - Math.pow(1 + m, -n)) / m; if (pv > A) lo = m; else hi = m; }
+    const money = (x) => '$' + Math.round(x).toLocaleString('en-US');
+    const ex = { title: 'Score ' + bands[r][0] + ', ' + term + ' months, factor ' + f.toFixed(2), payback: money(pb), daily: money(p), apr: Math.round((lo + hi) / 2 * 252 * 100) + '%', margin: money(pb - A - A * 0.08) };
+    const up = s.up ?? 2, floor = s.floor ?? 18;
+    return { up, floor, upTxt: up ? '+0.0' + up : 'Not allowed', floorTxt: floor + '%', maxFactor: (1.42 + 0.03 + up / 100).toFixed(2),
+      setUp: (e) => this.setState({ up: Number(e.target.value) }), setFloor: (e) => this.setState({ floor: Number(e.target.value) }),
+      grid, ex, forgive: !!s.forgive, brokerPay: !!s.brokerPay,
+      toggleForgive: () => this.setState({ forgive: !s.forgive }), toggleBroker: () => this.setState({ brokerPay: !s.brokerPay }) };
+  }
+}
+</script>
+</body>
+</html>
