@@ -1,8 +1,8 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { SummaryTab } from "@/components/deals/summary/SummaryTab";
 
 export const metadata = { title: "Deal summary · Cevrynt" };
 
-// Deal summary, from design/Deal-Summary.html. Content arrives in its own step.
+// Deal summary, from design/Deal-Summary.html and its prototype.
 export default function Page() {
-  return <DealPlaceholder tab="summary" />;
+  return <SummaryTab />;
 }

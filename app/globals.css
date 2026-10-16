@@ -94,6 +94,18 @@
   --color-red-light: #f4ae9e;
   --color-line-dash-soft: #d8d3c8; /* dashed "Coming soon" card border */
 
+  /* Deal summary (design/Deal-Summary.html) */
+  --color-teal-mid: #2f8f7a; /* score ring: debt load */
+  --color-mint-deep: #5fb79f; /* score ring: business & owners */
+  --color-teal-ink: #0a4a40; /* score ring: policy fit; bottom of the revenue bars */
+  --color-teal-bright: #14876f; /* top of the revenue bars */
+  --color-amber-tint: #fbf0de; /* the flagged score row */
+  --color-hint-mute: #8a908c; /* "/25" denominators */
+  --color-amber-soft: #b08a5c; /* denominator on the flagged row */
+  --color-cap-on-teal-light: #c3cdc8; /* note under a number on a teal tile */
+  --color-stone-dash: #b9b2a3; /* dashed "stated" outlines on the chart */
+  --color-grid-line: #e4e0d7; /* dotted chart grid lines */
+
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
   --color-icon-soft: #8e9994; /* chevrons and quiet icons */
@@ -243,6 +255,25 @@ body {
   animation: grow-x 1s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
     backwards;
 }
+/* Vertical chart bars (SVG rects) grow from their base. */
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+.anim-grow-y {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: grow-y 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
+    backwards;
+}
+/* Dots on an SVG chart pop in around their own center. */
+.anim-pop-svg {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop-in 0.6s cubic-bezier(0.22, 1, 0.36, 1)
+    calc(var(--delay, 0s) + 0.2s) both;
+}
 .anim-ring {
   animation: ring-sweep 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
     backwards;
@@ -362,6 +393,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
+  .anim-grow-y,
+  .anim-pop-svg,
   .anim-ring,
   .anim-pop,
   .anim-draw,
