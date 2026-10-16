@@ -289,3 +289,65 @@ export function balanceSeries() {
     min: { x: X(62), y: Y(1200) },
   };
 }
+
+/* ---------- Summary tab, bottom half (design/Deal-Summary.html) ---------- */
+
+export type LookItem = { title: string; detail: string; tone: "amber" | "red"; href: string };
+
+export const whatNeedsALook = {
+  title: "What needs a look",
+  count: "2 items",
+  items: [
+    {
+      title: "$12,000 deposit from a related business",
+      detail: "Aug 14 from Harbor Street Catering, same owner. Left out of true revenue.",
+      tone: "amber",
+      href: "/deals/APP-7H2K4Q/integrity",
+    },
+    {
+      title: "Landlord letter not received",
+      detail: "Required by policy before funding. Requested from the broker today.",
+      tone: "amber",
+      href: "/deals/APP-7H2K4Q/conditions",
+    },
+  ] as LookItem[],
+  clearCap: "Checked and clear",
+  clear: ["Statements reconcile", "Owner ID verified", "No sanctions match", "No new UCC filings", "Position disclosed"],
+};
+
+export type CheckStatus = { kind: "ok" } | { kind: "warn" } | { kind: "count"; label: string };
+
+export type CheckCard = { label: string; note: string; status: CheckStatus; href: string };
+
+export const checks = {
+  title: "Every check at a glance",
+  hint: "Open a card for the full detail",
+  cards: [
+    { label: "Cash flow", note: "Revenue growing 3% a month. No NSFs.", status: { kind: "ok" }, href: "/deals/APP-7H2K4Q/cash-flow" },
+    { label: "Positions & debt", note: "Kingsway Capital, $285 daily. Disclosed.", status: { kind: "ok" }, href: "/deals/APP-7H2K4Q/positions" },
+    { label: "Integrity", note: "No edits found. One related-party deposit.", status: { kind: "warn" }, href: "/deals/APP-7H2K4Q/integrity" },
+    { label: "Business & owners", note: "Active in Maine registry. Owner verified.", status: { kind: "ok" }, href: "/deals/APP-7H2K4Q/business" },
+    { label: "Conditions & stips", note: "Landlord letter, signed contract.", status: { kind: "count", label: "2 open" }, href: "/deals/APP-7H2K4Q/conditions" },
+    { label: "Stacking Watch", note: "Watching. No new filings or debits.", status: { kind: "ok" }, href: "/stacking" },
+  ] as CheckCard[],
+};
+
+export type TimelineEvent = { text: string; time: string; dot: "mint" | "amber-light" | "upcoming" };
+
+export const timeline = {
+  title: "Timeline",
+  link: { label: "All activity", href: "/deals/APP-7H2K4Q/activity" },
+  events: [
+    { text: "Package from Apex Funding Partners uploaded", time: "09:40", dot: "mint" },
+    { text: "Fit check passed, analysis complete", time: "09:41", dot: "mint" },
+    { text: "Assigned to Maya Chen", time: "09:42", dot: "mint" },
+    { text: "Landlord letter requested from broker", time: "10:05", dot: "amber-light" },
+    { text: "Funding call booked for Thursday", time: "Thu 10:00", dot: "upcoming" },
+  ] as TimelineEvent[],
+};
+
+export const askDeal = {
+  title: "Ask about this deal",
+  hint: "Answers come from this deal's statements, checks and documents.",
+  prompts: ["Why $40K and not $45K?", "Can they afford a second position?", "Draft the landlord letter request"],
+};

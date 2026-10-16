@@ -105,6 +105,7 @@
   --color-cap-on-teal-light: #c3cdc8; /* note under a number on a teal tile */
   --color-stone-dash: #b9b2a3; /* dashed "stated" outlines on the chart */
   --color-grid-line: #e4e0d7; /* dotted chart grid lines */
+  --color-dot-ring: #6e7873; /* hollow "upcoming" dot on the timeline */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
