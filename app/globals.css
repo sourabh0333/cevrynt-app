@@ -54,6 +54,8 @@
   --color-red-deep: #6b2216; /* small text on a red card */
   --color-amber-deep: #8e4e08; /* "Slower than target" */
   --color-amber-mute: #6b4b1f; /* hint text on an amber row */
+  --color-amber-dark: #6b3a05; /* number and caption on the cream attention tile */
+  --color-line-deep: #d3ccbc; /* input border on the deeper card */
   --color-blue-deep: #24588a; /* blue icon strokes */
   --color-amber: #d98a2b;
   --color-amber-bg: #f5e6cc;
