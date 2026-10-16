@@ -1,15 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { PageActions } from "@/components/shell/PageActions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip } from "@/components/ui/Chip";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Ring } from "@/components/ui/Ring";
 import {
   activeFilters,
+  bulkActions,
+  closedToday,
   deals,
   initialSelected,
+  keyboardHint,
   riskChip,
   savedViews,
   scoreColor,
@@ -17,6 +22,8 @@ import {
   statusCards,
   statusInfo,
   submissionsHeader,
+  teamWorkload,
+  whereDealsWait,
   type Deal,
   type DealStatus,
 } from "@/lib/sample-data/submissions";
@@ -30,19 +37,30 @@ const cols =
   "grid grid-cols-[24px_minmax(0,1.6fr)_84px_112px_116px_96px_28px] items-center gap-2.5 [&>*]:min-w-0 max-[1100px]:grid-cols-[24px_minmax(0,1fr)_84px_112px_96px_28px] max-[1100px]:[&>:nth-child(4)]:hidden";
 
 const cap = "text-cap font-semibold uppercase";
+const me = { initials: "MC", name: "Maya Chen" };
+
+function isTyping(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+}
 
 /**
  * Submissions, from design/Submissions.html with the logic of
  * Submissions.dc.html. State: the status filter, the selected deal, the
- * search text and the row checks. Bulk actions, team workload, where deals
- * wait, closed today and keyboard shortcuts come in a later step.
+ * search text, the ticked rows and any quick assignments. Keyboard:
+ * J / K move, Enter opens, A assigns to you, X ticks; never while typing.
  */
 export function SubmissionsView() {
+  const router = useRouter();
   const [tab, setTab] = useState<DealStatus | "all">("all");
   const [selected, setSelected] = useState(initialSelected);
   const [search, setSearch] = useState("");
   const [view, setView] = useState("all");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [assigned, setAssigned] = useState<Record<string, typeof me>>({});
+  const headerBox = useRef<HTMLInputElement>(null);
 
   const q = search.trim().toLowerCase();
   const rows = deals.filter(
@@ -51,6 +69,50 @@ export function SubmissionsView() {
       (!q || [d.name, d.id, d.broker, d.owner?.name ?? ""].some((s) => s.toLowerCase().includes(q))),
   );
   const sel = deals.find((d) => d.id === selected) ?? deals[0];
+  const total = statusCards.find((c) => c.key === tab)?.count ?? deals.length;
+
+  const checkedIds = Object.keys(checked).filter((id) => checked[id]);
+  const selCount = checkedIds.length;
+  const visibleChecked = rows.filter((d) => checked[d.id]).length;
+  const allVisible = rows.length > 0 && visibleChecked === rows.length;
+
+  useEffect(() => {
+    if (headerBox.current) headerBox.current.indeterminate = visibleChecked > 0 && !allVisible;
+  }, [visibleChecked, allVisible]);
+
+  const toggleAllVisible = () =>
+    setChecked((c) => {
+      const next = { ...c };
+      rows.forEach((d) => (next[d.id] = !allVisible));
+      return next;
+    });
+  const toggle = useCallback((id: string) => setChecked((c) => ({ ...c, [id]: !c[id] })), []);
+  const assignToMe = useCallback((id: string) => setAssigned((a) => ({ ...a, [id]: me })), []);
+
+  // Keyboard shortcuts. Never while typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+      const key = e.key.toLowerCase();
+      if (!["j", "k", "enter", "a", "x"].includes(key)) return;
+      const i = rows.findIndex((d) => d.id === selected);
+      if (key === "j" || key === "k") {
+        if (!rows.length) return;
+        const next = i < 0 ? 0 : (i + (key === "j" ? 1 : -1) + rows.length) % rows.length;
+        const id = rows[next].id;
+        setSelected(id);
+        document.querySelector(`[data-deal-id="${id}"]`)?.scrollIntoView({ block: "nearest" });
+      } else if (i >= 0) {
+        const d = rows[i];
+        if (key === "enter") router.push(`/deals/${d.id}`);
+        else if (key === "x") toggle(d.id);
+        else if (key === "a") assignToMe(d.id);
+      }
+      e.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [rows, selected, router, toggle, assignToMe]);
 
   return (
     <>
@@ -180,10 +242,39 @@ export function SubmissionsView() {
       <div className="flex flex-wrap items-stretch gap-3.5">
         <section aria-labelledby="h-queue" className="relative flex min-w-0 flex-[999_1_640px] flex-col gap-2 rounded-card-lg bg-card px-4 py-[18px] text-ink">
           <h2 id="h-queue" className="sr-only">Deals</h2>
+
+          {selCount > 0 ? (
+            <div role="toolbar" aria-label="Bulk actions" className="flex flex-wrap items-center gap-2.5 rounded-[16px] bg-teal px-3 py-2.5 text-white">
+              <b className="text-body-sm">{selCount} selected</b>
+              <span className="flex-1" />
+              {bulkActions.map((a, i) => (
+                <button
+                  key={a}
+                  type="button"
+                  className={`h-[34px] cursor-pointer rounded-pill border-0 px-3.5 text-label font-semibold ${
+                    i === 0 ? "bg-card text-ink" : "bg-white/12 text-white"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+              <button type="button" onClick={() => setChecked({})} className="h-[34px] cursor-pointer rounded-pill border-0 bg-transparent px-3 text-label font-semibold text-mint">
+                Clear
+              </button>
+            </div>
+          ) : null}
+
           <div className="scrollbar-thin -mx-1.5 h-0 min-h-[420px] flex-[1_1_0] overflow-x-hidden overflow-y-auto px-1.5">
             <div className="flex flex-col gap-1">
               <div className={`${cols} sticky top-0 z-[2] bg-card px-3 pt-1 pb-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint`}>
-                <span />
+                <input
+                  ref={headerBox}
+                  type="checkbox"
+                  checked={allVisible}
+                  onChange={toggleAllVisible}
+                  aria-label="Select all deals shown"
+                  className="m-0 h-[18px] w-[18px] accent-teal"
+                />
                 <span>Merchant</span>
                 <span>Amount</span>
                 <span>Score · risk</span>
@@ -194,17 +285,27 @@ export function SubmissionsView() {
               {rows.map((d, i) => (
                 <DealRow
                   key={d.id}
-                  deal={d}
+                  deal={assigned[d.id] ? { ...d, owner: assigned[d.id] } : d}
                   index={i}
                   selected={selected === d.id}
                   checked={!!checked[d.id]}
-                  onCheck={() => setChecked((c) => ({ ...c, [d.id]: !c[d.id] }))}
+                  onCheck={() => toggle(d.id)}
                   onPick={() => setSelected(d.id)}
                 />
               ))}
               {rows.length === 0 ? (
                 <div className="rounded-[18px] bg-tile p-6 text-center text-body-sm text-hint">No deals match. Try another status or search.</div>
               ) : null}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 px-3 pt-2">
+            <span className="text-label text-hint">
+              Showing {rows.length} of {total}
+            </span>
+            <div className="flex gap-1.5">
+              <button type="button" className="h-[34px] cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold text-ink">Previous</button>
+              <button type="button" className="h-[34px] cursor-pointer rounded-pill border-0 bg-teal px-3 text-label font-semibold text-white">Next</button>
             </div>
           </div>
         </section>
@@ -214,6 +315,30 @@ export function SubmissionsView() {
           <NeedsALook deal={sel} />
         </aside>
       </div>
+
+      {/* Team, waiting time, closed today: equal heights in the row (layout rule 1). */}
+      <section className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
+        <TeamWorkload />
+        <WhereDealsWait />
+        <ClosedToday />
+      </section>
+
+      <p className="m-0 text-center text-label text-hint">
+        Keyboard:{" "}
+        {keyboardHint.map((k, i) => (
+          <span key={k.key}>
+            {i ? " · " : ""}
+            <kbd className="font-mono">{k.key}</kbd>
+            {k.alt ? (
+              <>
+                {" / "}
+                <kbd className="font-mono">{k.alt}</kbd>
+              </>
+            ) : null}{" "}
+            {k.text}
+          </span>
+        ))}
+      </p>
     </>
   );
 }
@@ -238,6 +363,7 @@ function DealRow({
   const barStyle: CSSProperties & { "--delay"?: string } = { width: `${d.slaPercent}%`, "--delay": `${(0.35 + index * 0.07).toFixed(2)}s` };
   return (
     <div
+      data-deal-id={d.id}
       className={`${cols} box-border w-full rounded-[18px] px-3 py-[9px] text-ink ${selected ? "bg-tile shadow-[inset_0_0_0_1.5px_#0F1513]" : ""}`}
     >
       <input type="checkbox" checked={checked} onChange={onCheck} aria-label={`Select ${d.name}`} className="m-0 h-[18px] w-[18px] accent-teal" />
@@ -359,6 +485,95 @@ function NeedsALook({ deal: d }: { deal: Deal }) {
       )}
       <span className={`${cap} mt-1 text-hint`}>Next step</span>
       <b className="text-[13.5px]">{d.preview.next}</b>
+    </article>
+  );
+}
+
+function TeamWorkload() {
+  return (
+    <article aria-labelledby="h-team" className="flex flex-col gap-3 rounded-card-lg bg-card p-5 text-ink">
+      <div>
+        <h2 id="h-team" className="m-0 font-heading text-card-title-lg font-semibold">Team workload</h2>
+        <div className="mt-[3px] text-label text-hint">{teamWorkload.subtitle}</div>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        {teamWorkload.people.map((p, i) => (
+          <div key={p.initials} className="grid grid-cols-[34px_minmax(0,1fr)_44px] items-center gap-2.5">
+            <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-sand text-label-sm font-bold text-sand-text">{p.initials}</span>
+            <span className="min-w-0">
+              <b className="text-body-sm">{p.name}</b>
+              {p.overdue ? <span className="text-label-sm font-semibold text-coral-text"> · {p.overdue} overdue</span> : null}
+              <ProgressBar className="mt-[5px]" value={p.percent} height={6} color={p.warn ? "amber" : "teal"} track="line" delay={0.3 + i * 0.08} />
+            </span>
+            <b className="text-right font-heading tabular-nums tracking-[-0.03em]">{p.open}</b>
+          </div>
+        ))}
+      </div>
+      <div className="mt-auto flex items-center justify-between gap-2.5 rounded-[16px] bg-tile px-3.5 py-3">
+        <span className="text-[12.5px]">
+          <b>{teamWorkload.unassigned} unassigned</b> deals
+        </span>
+        <button type="button" className="h-9 cursor-pointer rounded-pill border-0 bg-teal px-3.5 text-label font-semibold text-white">
+          Auto-assign
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function WhereDealsWait() {
+  return (
+    <article aria-labelledby="h-wait" className="flex flex-col gap-3 rounded-card-lg bg-card-deep p-5 text-ink">
+      <div>
+        <h2 id="h-wait" className="m-0 font-heading text-card-title-lg font-semibold">Where deals wait</h2>
+        <div className="mt-[3px] text-label text-muted">{whereDealsWait.subtitle}</div>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        {whereDealsWait.stages.map((s, i) => (
+          <div key={s.label}>
+            <div className="flex justify-between text-[12.5px]">
+              <span>{s.label}</span>
+              <b className={s.warn ? "text-amber-text" : ""}>{s.value}</b>
+            </div>
+            <ProgressBar className="mt-[5px]" value={s.percent} height={8} color={s.warn ? "amber" : "ink"} track="ink" delay={0.3 + i * 0.08} />
+          </div>
+        ))}
+      </div>
+      <span className="mt-auto text-[12.5px] text-grey-text">{whereDealsWait.note}</span>
+    </article>
+  );
+}
+
+function ClosedToday() {
+  return (
+    <article aria-labelledby="h-closed" className="flex flex-col gap-3 rounded-card-lg border border-mint-edge bg-[linear-gradient(160deg,#F1F6F3,#FFFFFF)] p-5 text-ink">
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 id="h-closed" className="m-0 font-heading text-card-title-lg font-semibold">Closed today</h2>
+          <div className="mt-[3px] text-label text-muted">{closedToday.subtitle}</div>
+        </div>
+        <span className="font-heading text-[26px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{closedToday.total}</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {closedToday.outcomes.map((o) => (
+          <span key={o.label} className="rounded-tile bg-teal/7 px-3 py-2.5">
+            <b className={`block font-heading text-[20px] font-semibold tabular-nums tracking-[-0.03em] ${o.color}`}>{o.value}</b>
+            <span className="text-[9.5px] font-semibold tracking-[0.08em] uppercase text-muted">{o.label}</span>
+          </span>
+        ))}
+      </div>
+      <span className={`${cap} mt-0.5 text-muted`}>Top decline reasons</span>
+      <div className="flex flex-col gap-1.5">
+        {closedToday.reasons.map((r) => (
+          <span key={r.label} className="flex justify-between rounded-[12px] bg-teal/7 px-3 py-[9px] text-[12.5px]">
+            <span>{r.label}</span>
+            <b>{r.count}</b>
+          </span>
+        ))}
+      </div>
+      <Link href={closedToday.href} className="mt-auto self-start text-[12.5px] font-semibold text-teal-deep no-underline">
+        See closed deals
+      </Link>
     </article>
   );
 }

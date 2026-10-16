@@ -134,3 +134,53 @@ export function scoreColor(score: number): "teal" | "amber" | "red" {
 }
 
 export const initialSelected = "APP-9K2M7R";
+
+/** Bulk action bar, shown once a deal is ticked (design/Submissions.dc.html). */
+export const bulkActions = ["Assign", "Request documents", "Decline"];
+
+export type Workload = { initials: string; name: string; open: number; percent: number; overdue?: number; warn?: boolean };
+export const teamWorkload = {
+  subtitle: "Open deals per underwriter, out of a daily capacity of 10",
+  people: [
+    { initials: "MC", name: "Maya Chen", open: 7, percent: 70 },
+    { initials: "AK", name: "Ari Kaplan", open: 9, percent: 90, overdue: 1, warn: true },
+    { initials: "JR", name: "Jordan Reyes", open: 6, percent: 60 },
+    { initials: "PS", name: "Priya Shah", open: 3, percent: 30 },
+  ] as Workload[],
+  unassigned: 3,
+};
+
+export const whereDealsWait = {
+  subtitle: "Median time in each status, last 30 days",
+  stages: [
+    { label: "New", value: "38 min", percent: 12 },
+    { label: "Needs docs", value: "1.8 days", percent: 100, warn: true },
+    { label: "In review", value: "2h 10m", percent: 30 },
+    { label: "Decision ready", value: "55 min", percent: 16 },
+    { label: "Offer out", value: "1.4 days", percent: 78 },
+  ],
+  note: "Deals spend the longest waiting for documents. Merchant Link reminders can shorten this.",
+};
+
+export const closedToday = {
+  subtitle: "Deals that left this queue",
+  total: 14,
+  outcomes: [
+    { label: "Approved", value: 8, color: "text-teal-deep" },
+    { label: "Countered", value: 2, color: "text-amber-deep" },
+    { label: "Declined", value: 4, color: "text-coral-text" },
+  ],
+  reasons: [
+    { label: "Revenue below policy minimum", count: 2 },
+    { label: "Too many existing positions", count: 1 },
+    { label: "Statement could not be verified", count: 1 },
+  ],
+  href: "/funded",
+};
+
+export const keyboardHint = [
+  { key: "J", alt: "K", text: "to move" },
+  { key: "Enter", text: "to open" },
+  { key: "A", text: "to assign" },
+  { key: "X", text: "to select" },
+];
