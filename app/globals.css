@@ -114,6 +114,7 @@
   --color-purple-light: #b9a6e0; /* existing advance in the Room to pay bar */
   --color-teal-soft: #3fa58c; /* third segment of the money sources bar */
   --color-sand-bar: #d8cfbd; /* "money out" bars on the weekly chart */
+  --color-ring-wait: #9aa09c; /* hollow "waiting" check on the stacking card */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
