@@ -112,6 +112,8 @@
   --color-sand-stripe: #d8d0be; /* second stripe of the own-transfers pattern */
   --color-stone-stripe: #cbc7be; /* second stripe of the refunds pattern */
   --color-purple-light: #b9a6e0; /* existing advance in the Room to pay bar */
+  --color-teal-soft: #3fa58c; /* third segment of the money sources bar */
+  --color-sand-bar: #d8cfbd; /* "money out" bars on the weekly chart */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
@@ -303,6 +305,13 @@ body {
   animation: grow-y 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
     backwards;
 }
+/* Bars that hang below a baseline grow downward from it. */
+.anim-grow-y-top {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: grow-y 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s)
+    backwards;
+}
 /* Dots on an SVG chart pop in around their own center. */
 .anim-pop-svg {
   transform-box: fill-box;
@@ -430,6 +439,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .anim-grow-x,
   .anim-grow-y,
+  .anim-grow-y-top,
   .anim-pop-svg,
   .anim-ring,
   .anim-pop,

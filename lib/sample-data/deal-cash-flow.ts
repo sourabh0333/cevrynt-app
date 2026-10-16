@@ -114,3 +114,163 @@ export const roomToPay = {
   ] as { key: "existing" | "offer" | "left"; label: string; value: string; share: number }[],
   note: { before: "All payments together take ", strong: "25% of revenue", after: ". Your policy allows up to 65%." },
 };
+
+/* ---------- Bottom half: weekly chart, sources, card sales, days, transactions ---------- */
+
+export const weeklyCash = {
+  title: "Cash in and out, week by week",
+  subtitle: "17 weeks · money in above the line, money out below",
+  legend: { in: "In", out: "Out", net: "Net" },
+  aria: "Weekly money in and money out from June to September. In and out stay close, more comes in than goes out in 9 of 17 weeks. The August 14 week includes the $12K related-business transfer.",
+  flag: "+$12K related",
+  axis: ["$25K", "$0", "$25K"],
+  months: [
+    { label: "June", x: 80 },
+    { label: "July", x: 215 },
+    { label: "August", x: 365 },
+    { label: "September", x: 515 },
+  ],
+  stats: [
+    { label: "Weeks with more in than out", value: "9 of 17" },
+    { label: "Biggest weekly drop", value: "−$3.9K" },
+    { label: "Cash cushion", value: "3.5 days" },
+  ],
+};
+
+export type WeekBar = { x: number; in: number; out: number; netY: number; flag: boolean };
+
+/**
+ * The 17 weeks from the prototype's script: money in and out in thousands
+ * (a deterministic sample), scaled so $25K is 88 units either side of the
+ * baseline at y 115. Week 8 carries the $12K related-business transfer and
+ * week 11 a heavy payroll week.
+ */
+export function weeklyBars(): WeekBar[] {
+  const W = 17, x0 = 34, step = 33.4, base = 115, k = 88 / 25;
+  const bars: WeekBar[] = [];
+  for (let i = 0; i < W; i++) {
+    let vin = 14.2 + 1.1 * Math.sin(i * 0.9) + i * 0.08;
+    let vout = 14.6 + 1.3 * Math.sin(i * 1.3 + 2) + i * 0.05;
+    if (i === 10) vout += 3.4;
+    if (i === 7) { vin += 12; vout += 1.2; }
+    const x = x0 + i * step;
+    bars.push({
+      x,
+      in: vin * k,
+      out: vout * k,
+      netY: base - Math.max(-30, Math.min(30, (vin - vout) * k * 3)),
+      flag: i === 7,
+    });
+  }
+  return bars;
+}
+export const weekGeometry = { barWidth: 18, base: 115 };
+
+export type SourceColor = "teal-ink" | "teal" | "teal-soft" | "amber" | "mint" | "line-dash-soft";
+
+export const moneySources = {
+  title: "Where money comes from",
+  chip: "Well spread",
+  sources: [
+    { label: "Card sales · Square", share: 46, color: "teal-ink" },
+    { label: "Cash deposits", share: 21, color: "teal" },
+    { label: "Delivery apps · DoorDash", share: 12, color: "teal-soft" },
+    { label: "Bayside Café Group (wholesale)", share: 9, color: "amber" },
+    { label: "Delivery apps · Uber Eats", share: 5, color: "mint" },
+    { label: "Other", share: 7, color: "line-dash-soft" },
+  ] as { label: string; share: number; color: SourceColor }[],
+  note: "Largest single customer is 9% of revenue. Losing one customer would not hurt repayment.",
+};
+
+export const cardSales = {
+  title: "Card sales",
+  chip: "Split funding possible",
+  value: "$28.2K",
+  unit: "/mo",
+  hint: "Settled by Square every business day, about $930 a day",
+  aria: "Card sales by month: June 26.8 thousand, July 27.5, August 29.1, September 29.4",
+  /** bar heights out of 80 in the 260×110 box; the last month is teal */
+  months: [
+    { label: "Jun", height: 73 },
+    { label: "Jul", height: 75 },
+    { label: "Aug", height: 79 },
+    { label: "Sep", height: 80 },
+  ],
+  note: "Steady card volume means repayment could be taken straight from card sales instead of the bank account.",
+};
+
+export const busiestDays = {
+  title: "Busiest days",
+  subtitle: "Average deposits by weekday",
+  /** percent of the tallest day; weekend days use the mint fills */
+  days: [
+    { label: "Mon", height: 52, tone: "quiet" },
+    { label: "Tue", height: 58, tone: "quiet" },
+    { label: "Wed", height: 61, tone: "quiet" },
+    { label: "Thu", height: 66, tone: "quiet" },
+    { label: "Fri", height: 84, tone: "soft" },
+    { label: "Sat", height: 100, tone: "peak" },
+    { label: "Sun", height: 72, tone: "soft" },
+  ] as { label: string; height: number; tone: "quiet" | "soft" | "peak" }[],
+  note: "Weekends bring 38% of deposits. Daily payments on Mondays will still clear.",
+};
+
+export type TxCategory = "sales" | "cash" | "apps" | "wholesale" | "transfer" | "related" | "mca" | "payroll" | "vendor" | "rent";
+export type TxKind = "in" | "out" | "debt";
+export type TxFilter = "all" | TxKind | "flag";
+
+export type Transaction = {
+  date: string;
+  desc: string;
+  note: string;
+  category: TxCategory;
+  amount: number;
+  balance: string;
+  source: string;
+  kind: TxKind;
+  flag?: boolean;
+};
+
+export const txCategories: Record<TxCategory, { label: string; tone: "green" | "neutral" | "amber" | "purple" }> = {
+  sales: { label: "Card sales", tone: "green" },
+  cash: { label: "Cash deposit", tone: "green" },
+  apps: { label: "Delivery app", tone: "green" },
+  wholesale: { label: "Wholesale", tone: "green" },
+  transfer: { label: "Own transfer", tone: "neutral" },
+  related: { label: "Related business", tone: "amber" },
+  mca: { label: "MCA payment", tone: "purple" },
+  payroll: { label: "Payroll", tone: "neutral" },
+  vendor: { label: "Supplier", tone: "neutral" },
+  rent: { label: "Rent", tone: "neutral" },
+};
+
+export const transactions = {
+  title: "Transactions",
+  hint: "1,284 lines from 4 statements. Click any line to see it on the statement page.",
+  searchPlaceholder: "Search description or amount",
+  columns: ["Date", "Description", "Category", "Amount", "Balance", "Source"],
+  filters: [
+    { key: "all", label: "All", count: "1,284" },
+    { key: "in", label: "Money in", count: "597" },
+    { key: "out", label: "Money out", count: "601" },
+    { key: "debt", label: "Debt payments", count: "85" },
+    { key: "flag", label: "Flagged", count: "3" },
+  ] as { key: TxFilter; label: string; count: string }[],
+  rows: [
+    { date: "Sep 30", desc: "SQUARE INC DEPOSIT", note: "Card settlement", category: "sales", amount: 1184.2, balance: "$13,920", source: "p. 7", kind: "in" },
+    { date: "Sep 30", desc: "KINGSWAY CAPITAL ACH DEBIT", note: "Existing advance · disclosed", category: "mca", amount: -285, balance: "$12,736", source: "p. 7", kind: "debt" },
+    { date: "Sep 29", desc: "DOORDASH PAYOUT", note: "Weekly payout", category: "apps", amount: 2140.55, balance: "$13,021", source: "p. 7", kind: "in" },
+    { date: "Sep 29", desc: "SYSCO PORTLAND", note: "Ingredients", category: "vendor", amount: -3412.8, balance: "$10,880", source: "p. 7", kind: "out" },
+    { date: "Sep 26", desc: "COUNTER DEPOSIT", note: "Cash", category: "cash", amount: 2650, balance: "$14,293", source: "p. 6", kind: "in" },
+    { date: "Sep 15", desc: "BAYSIDE CAFE GROUP ACH", note: "Wholesale invoice", category: "wholesale", amount: 4980, balance: "$15,102", source: "p. 4", kind: "in" },
+    { date: "Sep 1", desc: "COMMERCIAL ST PROPERTIES", note: "Monthly rent", category: "rent", amount: -4600, balance: "$9,455", source: "p. 1", kind: "out" },
+    { date: "Aug 14", desc: "TRANSFER FROM HARBOR ST CATERING", note: "Same owner · left out of true revenue", category: "related", amount: 12000, balance: "$20,268", source: "p. 3", kind: "in", flag: true },
+    { date: "Aug 2", desc: "GUSTO PAYROLL", note: "Lowest balance of the period follows", category: "payroll", amount: -8420, balance: "$1,208", source: "p. 1", kind: "out", flag: true },
+    { date: "Jul 18", desc: "ONLINE TRANSFER FROM ••4410", note: "Owner savings · left out of true revenue", category: "transfer", amount: 2500, balance: "$11,630", source: "p. 3", kind: "in", flag: true },
+  ] as Transaction[],
+  actions: { export: "Export CSV", more: "Load more" },
+};
+
+/** "+$1,184.20" / "−$285.00", as the prototype formats amounts. */
+export const formatAmount = (n: number) =>
+  (n < 0 ? "−$" : "+$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
