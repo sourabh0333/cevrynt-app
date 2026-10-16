@@ -1,8 +1,8 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { CashFlowTab } from "@/components/deals/cash-flow/CashFlowTab";
 
 export const metadata = { title: "Deal cash flow · Cevrynt" };
 
-// Deal cash flow, from design/Deal-CashFlow.html. Content arrives in its own step.
+// Deal cash flow, from design/Deal-CashFlow.html and its prototype.
 export default function Page() {
-  return <DealPlaceholder tab="cash-flow" />;
+  return <CashFlowTab />;
 }

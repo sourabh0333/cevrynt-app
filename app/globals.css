@@ -107,6 +107,12 @@
   --color-grid-line: #e4e0d7; /* dotted chart grid lines */
   --color-dot-ring: #6e7873; /* hollow "upcoming" dot on the timeline */
 
+  /* Deal cash flow (design/Deal-CashFlow.html) */
+  --color-amber-stripe: #e9ae5c; /* second stripe of the related-business pattern */
+  --color-sand-stripe: #d8d0be; /* second stripe of the own-transfers pattern */
+  --color-stone-stripe: #cbc7be; /* second stripe of the refunds pattern */
+  --color-purple-light: #b9a6e0; /* existing advance in the Room to pay bar */
+
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
   --color-icon-soft: #8e9994; /* chevrons and quiet icons */
@@ -182,6 +188,35 @@
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) transparent;
+}
+
+/*
+  Diagonal stripe fills for money set aside on the deal cash flow page
+  (design/Deal-CashFlow.html). --stripe is the band width (6px; stripe-sm 5px).
+*/
+@utility stripe-amber {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-amber-light) 0 var(--stripe, 6px),
+    var(--color-amber-stripe) var(--stripe, 6px) calc(var(--stripe, 6px) * 2)
+  );
+}
+@utility stripe-sand {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-card-deep) 0 var(--stripe, 6px),
+    var(--color-sand-stripe) var(--stripe, 6px) calc(var(--stripe, 6px) * 2)
+  );
+}
+@utility stripe-stone {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-card-stone) 0 var(--stripe, 6px),
+    var(--color-stone-stripe) var(--stripe, 6px) calc(var(--stripe, 6px) * 2)
+  );
+}
+@utility stripe-sm {
+  --stripe: 5px;
 }
 
 html,
