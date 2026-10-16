@@ -96,6 +96,8 @@ export function activeNavKey(pathname: string): string | null {
   if (pathname === "/") return "home";
   if (pathname.startsWith("/settings")) return "settings";
   if (pathname.startsWith("/whats-coming")) return "coming";
+  // Deal pages open from the queue, so Submissions stays lit (design/Deal-Summary.html).
+  if (pathname.startsWith("/deals")) return "submissions";
   for (const section of navSections) {
     for (const item of section.items) {
       if (item.href !== "/" && pathname.startsWith(item.href)) return item.key;

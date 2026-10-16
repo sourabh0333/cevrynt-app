@@ -58,6 +58,17 @@ const dotClass: Record<TabDotColor, string> = {
   ink: "bg-ink",
 };
 
+const activeDotClass: Record<TabDotColor, string> = {
+  teal: "bg-mint",
+  mint: "bg-mint",
+  amber: "bg-amber-light",
+  red: "bg-red-light",
+  blue: "bg-blue-bg",
+  purple: "bg-purple-bg",
+  grey: "bg-white/60",
+  ink: "bg-white/60",
+};
+
 const countClass: Record<TabCountColor, string> = {
   neutral: "bg-card text-ink",
   amber: "bg-amber-bg text-amber-text",
@@ -128,11 +139,18 @@ export function Tabs({
           active ? "bg-teal text-white" : "bg-transparent text-grey-text",
         ].join(" ");
 
+        // On the teal active tab the dot turns light (mint, or pale amber
+        // for a warning) so it still reads: design/Deal-CashFlow.html and
+        // Deal-Integrity.html.
         const dot = item.dot ? (
           <span
             aria-hidden="true"
             className={`inline-block h-[7px] w-[7px] flex-none rounded-full ${
-              active && variant === "panel" ? "bg-mint" : dotClass[item.dot]
+              active
+                ? variant === "panel"
+                  ? "bg-mint"
+                  : activeDotClass[item.dot]
+                : dotClass[item.dot]
             }`}
           />
         ) : null;
@@ -142,7 +160,9 @@ export function Tabs({
             <span
               className={`box-border inline-block min-w-[18px] rounded-pill px-[7px] py-px text-center text-[10.5px] font-semibold leading-[1.3] ${
                 active
-                  ? "bg-white/22 text-white"
+                  ? item.countColor === "amber"
+                    ? "bg-amber-light text-ink"
+                    : "bg-white/22 text-white"
                   : countClass[item.countColor ?? "neutral"]
               }`}
             >

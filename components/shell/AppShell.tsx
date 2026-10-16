@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { AskCevrynt } from "./AskCevrynt";
 import { ResizeHandle } from "./ResizeHandle";
-import { Sidebar } from "./Sidebar";
+import { CurrentSidebar, Sidebar } from "./Sidebar";
 
 /**
  * The page frame used by every internal page (design/Main.html).
@@ -17,7 +17,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="box-border flex h-dvh items-stretch gap-1.5 overflow-hidden bg-page py-3.5 pr-3.5 pl-0 text-body text-ink">
       <div className="z-10 h-full flex-none overflow-hidden">
-        <Sidebar />
+        {/* The lit nav item needs the URL; on dynamic routes it streams in. */}
+        <Suspense fallback={<Sidebar />}>
+          <CurrentSidebar />
+        </Suspense>
       </div>
       <div className="relative h-full min-w-0 flex-[999_1_560px]">
         <ResizeHandle />

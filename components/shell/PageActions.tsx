@@ -8,29 +8,33 @@ import Link from "next/link";
 export function PageActions({
   unread = 4,
   newIntake = true,
+  compact = false,
 }: {
   unread?: number;
   /** Intake pages drop the New intake button. */
   newIntake?: boolean;
+  /** Deal pages (design/Deal-Summary.html): 42px controls and a short "Search". */
+  compact?: boolean;
 }) {
+  const size = compact ? "h-[42px]" : "h-11";
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
         type="button"
-        className="flex h-11 min-w-[260px] cursor-pointer items-center gap-2.5 rounded-tile border-0 bg-card pr-2 pl-3.5 text-body-sm text-hint"
+        className={`flex ${size} ${compact ? "min-w-[220px]" : "min-w-[260px]"} cursor-pointer items-center gap-2.5 rounded-tile border-0 bg-card pr-2 pl-3.5 text-body-sm text-hint`}
       >
         <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" />
         </svg>
-        Search deals, merchants, pages
+        {compact ? "Search" : "Search deals, merchants, pages"}
         <span className="ml-auto rounded-[8px] bg-tile px-[7px] py-[3px] font-mono text-label-sm">⌘K</span>
       </button>
 
       <button
         type="button"
         aria-label={`Notifications, ${unread} unread`}
-        className="relative grid h-11 w-11 cursor-pointer place-items-center rounded-tile border-0 bg-card text-ink"
+        className={`relative grid ${size} ${compact ? "w-[42px]" : "w-11"} cursor-pointer place-items-center rounded-tile border-0 bg-card text-ink`}
       >
         <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />

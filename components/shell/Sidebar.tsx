@@ -37,9 +37,18 @@ const fade =
 // Padding that eases in step with the sidebar width.
 const glide = "transition-[padding] duration-300 ease-sidebar";
 
-export function Sidebar() {
+/**
+ * The sidebar with the current page lit. It reads the URL, so on dynamic
+ * routes (deal pages) it must sit inside a Suspense boundary; AppShell
+ * shows the plain Sidebar as the fallback until the path streams in.
+ */
+export function CurrentSidebar() {
   const pathname = usePathname();
-  const active = activeNavKey(pathname);
+  return <Sidebar pathname={pathname} />;
+}
+
+export function Sidebar({ pathname = null }: { pathname?: string | null }) {
+  const active = pathname ? activeNavKey(pathname) : null;
   const collapsed = useCollapsed();
   const toggleLabel = collapsed ? "Open sidebar" : "Close sidebar";
 

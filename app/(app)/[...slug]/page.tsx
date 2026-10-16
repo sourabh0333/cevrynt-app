@@ -57,9 +57,7 @@ async function PlaceholderContent({
 }) {
   const { slug } = await params;
   const path = "/" + slug.join("/");
-  // Deal pages (/deals/[id]...) arrive in Step 4 of the build plan.
-  const title =
-    placeholders[path] ?? (slug[0] === "deals" && slug[1] ? `Deal ${slug[1]}` : undefined);
+  const title = placeholders[path];
   if (!title) notFound();
 
   const inNav =
