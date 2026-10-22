@@ -86,6 +86,56 @@ export const detail = {
   openDeal: "Open deal",
 };
 
+export const connections = {
+  title: "Hidden connections",
+  subtitle: "Two applications that look unrelated share a bank account and a phone number",
+  chip: "Needs review",
+  mapLabel: "Sunrise Pediatric Dental and Bright Smile Kids Dental share bank account ending 3391 and phone 207-555-0127. Both list different owners.",
+  left: [
+    { title: "Sunrise Pediatric Dental", sub: "APP-0SP4PD · in review", tone: "mint" },
+    { title: "Owner: R. Patel", sub: "Listed on Sunrise", tone: "grey" },
+  ] as { title: string; sub: string; tone: "mint" | "grey" | "amber" }[],
+  right: [
+    { title: "Bright Smile Kids", sub: "Funded in March · Keystone", tone: "amber" },
+    { title: "Owner: S. Patel", sub: "Listed on Bright Smile", tone: "grey" },
+  ] as { title: string; sub: string; tone: "mint" | "grey" | "amber" }[],
+  shared: { caption: "SHARED", account: "Account ••3391", phone: "(207) 555-0127" },
+  note: "One business may be borrowing again under a second name. Ask for the second company's statements before deciding.",
+};
+
+export const thisMonth = {
+  title: "This month",
+  rows: [
+    { label: "Alerts raised", value: "21" },
+    { label: "Real stacking found", value: "9" },
+    { label: "Funding stopped in time", value: "2 · $85K", good: true },
+    { label: "False alarms", value: "5" },
+  ] as { label: string; value: string; good?: boolean }[],
+  soon: { chip: "Coming soon", title: "Cross-funder network", text: "See a merchant applying at other funders the same week, before any filing shows up." },
+};
+
+export const autoRules = {
+  title: "What happens automatically",
+  subtitle: "Turn rules on or off. Every automatic step is logged on the deal.",
+  count: (on: number, total: number) => `${on} of ${total} on`,
+  rules: [
+    { key: "hold", title: "Hold funding on a high alert", sub: "Deals ready to fund stop until someone reviews", on: true },
+    { key: "notify", title: "Tell the underwriter right away", sub: "In Cevrynt and by email", on: true },
+    { key: "broker", title: "Let the broker know", sub: "For deals they sent, without private details", on: true },
+    { key: "pause", title: "Pause renewal offers", sub: "For merchants with an open alert", on: false },
+    { key: "renew", title: "Speed up renewals at risk", sub: "Send the offer when another funder checks credit", on: true },
+  ],
+};
+
+export const coverage = {
+  title: "How well we can see",
+  chip: "65%",
+  text: "New funder debits only show up for merchants with a live bank connection.",
+  full: { label: "Full watch, bank connected", count: 61 },
+  partial: { label: "Filings and credit only", count: 33 },
+  cta: "Ask 33 merchants to connect",
+};
+
 export const alerts: Alert[] = [
   {
     id: "LA", severity: "high", kind: "ucc", glyph: "U", name: "Lakeshore Auto Body", stageKey: "fund", stage: "Ready to fund, $60K", what: "New UCC filing by another funder", when: "Today 08:12",

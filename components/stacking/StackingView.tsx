@@ -1,12 +1,15 @@
 import { PageActions } from "@/components/shell/PageActions";
 import { stackingHeader } from "@/lib/sample-data/stacking";
 import { AlertsView } from "./AlertsView";
+import { ConnectionsCard, CoverageCard, MonthCard, RulesCard } from "./BottomRows";
 import { SummaryRow } from "./SummaryRow";
 
+const row = "grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1";
+
 /**
- * Stacking Watch from design/Stacking.html. This step holds the header,
- * the summary row and the alerts beside their detail. The connections
- * map, outcomes, rules and coverage rows come in the next step.
+ * Stacking Watch from design/Stacking.html: the header, the summary row,
+ * the alerts beside their detail, the connections map beside this month's
+ * outcomes, and the automatic rules beside coverage.
  */
 export function StackingView() {
   return (
@@ -20,6 +23,14 @@ export function StackingView() {
       </header>
       <SummaryRow />
       <AlertsView />
+      <section aria-label="Hidden connections and this month" className={row}>
+        <ConnectionsCard />
+        <MonthCard />
+      </section>
+      <section aria-label="Automatic rules and coverage" className={row}>
+        <RulesCard />
+        <CoverageCard />
+      </section>
     </>
   );
 }

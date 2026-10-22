@@ -477,6 +477,47 @@ body {
   animation: conic-sweep 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0.3s) backwards;
 }
 
+/*
+  Stacking Watch connections map (design/Stacking.html): nodes fade in,
+  grey links draw, the shared hub pops, then the red links fade in and keep
+  flowing. The flowing dashes are the one approved repeating motion here.
+*/
+@keyframes cn-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes cn-hub {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+@keyframes cn-march {
+  to {
+    stroke-dashoffset: -11;
+  }
+}
+.anim-cn-fade {
+  animation: cn-fade 0.6s ease var(--delay, 0s) backwards;
+}
+.anim-cn-link {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 0.6s ease var(--delay, 0s) forwards;
+}
+.anim-cn-hub {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cn-hub 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay, 0s) backwards;
+}
+.anim-cn-red {
+  stroke-dasharray: 6 5;
+  animation:
+    cn-march 1s linear var(--delay, 0s) infinite,
+    cn-fade 0.5s ease var(--delay, 0s) backwards;
+}
+
 /* Funded deals: the forecast columns rise one by one, each at-risk cap appearing after its column. */
 @keyframes fc-col {
   from {
@@ -501,8 +542,15 @@ body {
   .anim-pay-dot,
   .anim-fc-col,
   .anim-fc-cap,
-  .anim-conic {
+  .anim-conic,
+  .anim-cn-fade,
+  .anim-cn-link,
+  .anim-cn-hub,
+  .anim-cn-red {
     animation: none;
+  }
+  .anim-cn-link {
+    stroke-dashoffset: 0;
   }
   .anim-grow-x,
   .anim-grow-y,
