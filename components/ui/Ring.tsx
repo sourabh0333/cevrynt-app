@@ -18,6 +18,8 @@ import type { CSSProperties, ComponentPropsWithoutRef, ReactNode } from "react";
  *          for "5/12"-style numbers, or `children` to replace the center
  *          entirely (an icon, a number with a caption).
  * caption  small hint text under the label, for big rings ("done today").
+ * track    the unfilled part: "line" (default, #ECE8E0), "teal" (teal at 7%,
+ *          on mint cards) or "white" (white at 14%, on a solid teal tile).
  * delay    seconds before the sweep starts, so lists can stagger.
  *
  * The ring sweeps clockwise from the top once when it first appears and
@@ -33,11 +35,14 @@ export type RingColor =
   | "grey"
   | "ink";
 
+export type RingTrack = "line" | "teal" | "white";
+
 export type RingProps = {
   value: number;
   size?: number;
   stroke?: number;
   color?: RingColor;
+  track?: RingTrack;
   label?: ReactNode;
   caption?: ReactNode;
   delay?: number;
@@ -57,6 +62,12 @@ const strokeClass: Record<Exclude<RingColor, "auto">, string> = {
   ink: "stroke-ink",
 };
 
+const trackClass: Record<RingTrack, string> = {
+  line: "stroke-line",
+  teal: "stroke-teal/7",
+  white: "stroke-white/14",
+};
+
 export function ringColorFor(value: number): Exclude<RingColor, "auto"> {
   if (value >= 80) return "teal";
   if (value >= 70) return "amber";
@@ -68,6 +79,7 @@ export function Ring({
   size = 34,
   stroke,
   color = "auto",
+  track = "line",
   label,
   caption,
   delay = 0,
@@ -118,7 +130,7 @@ export function Ring({
           cy={c}
           r={r}
           fill="none"
-          className="stroke-line"
+          className={trackClass[track]}
           strokeWidth={sw}
         />
         <circle

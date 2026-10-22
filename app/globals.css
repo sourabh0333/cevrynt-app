@@ -116,6 +116,11 @@
   --color-sand-bar: #d8cfbd; /* "money out" bars on the weekly chart */
   --color-ring-wait: #9aa09c; /* hollow "waiting" check on the stacking card */
 
+  /* Deal integrity (design/Deal-Integrity.html) */
+  --color-amber-paper: #fdf3e1; /* the highlighted line on the statement page */
+  --color-paper: #f4efe4; /* the desk behind the statement page, light end */
+  --color-paper-deep: #e7e2d7; /* the desk behind the statement page, dark end */
+
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
   --color-icon-soft: #8e9994; /* chevrons and quiet icons */

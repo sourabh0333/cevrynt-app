@@ -1,8 +1,8 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { IntegrityTab } from "@/components/deals/integrity/IntegrityTab";
 
 export const metadata = { title: "Deal integrity · Cevrynt" };
 
-// Integrity, from design/Deal-Integrity.html. Content arrives in its own step.
+// Integrity, from design/Deal-Integrity.html and its prototype.
 export default function Page() {
-  return <DealPlaceholder tab="integrity" />;
+  return <IntegrityTab />;
 }
