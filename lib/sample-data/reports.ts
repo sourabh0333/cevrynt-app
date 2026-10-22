@@ -3,6 +3,7 @@
  * design/prototypes/Reports.dc.html (look: design/Reports.html).
  * Real API calls replace this later behind the same types.
  */
+import { costPerDeal } from "@/lib/sample-data/plan";
 
 export const reportsHeader = {
   title: "Reports",
@@ -116,7 +117,8 @@ export const unitEconomics = {
     { label: "Average deal", value: "$30.2K" },
     { label: "Average factor", value: "1.32" },
     { label: "Average term", value: "6.4 months" },
-    { label: "Cevrynt cost per deal", value: "$5.20" },
+    // The same figure Settings › Plan & usage shows (COST_PER_DEAL in plan.ts).
+    { label: "Cevrynt cost per deal", value: costPerDeal },
   ],
 };
 
