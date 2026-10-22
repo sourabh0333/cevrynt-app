@@ -72,6 +72,80 @@ export const sliderText: Record<SliderKey, (v: number) => string> = {
   minRev: (v) => `$${v}K`,
 };
 
+export const goLive = {
+  title: "How a change goes live",
+  chip: "Needs 2 people",
+  steps: [
+    { title: "Propose", text: "Change a rule, write why, test it in the simulator" },
+    { title: "Approve", text: "A second person with policy rights signs off" },
+    { title: "Schedule", text: "Pick a start date. Deals already in review keep the old rules." },
+  ],
+  waitingLabel: "Waiting now:",
+  waiting: 'v4 draft by Maya, "Allow 70% debt share" · needs Priya',
+};
+
+export const liveTest = {
+  title: "Test on live deals",
+  subtitle: "Run a new version on a share of new deals, side by side with today's policy",
+  chip: "Day 12 of 30",
+  split: { current: 80, test: 20 },
+  splitLabel: { current: "80% of deals · current v3", test: '20% · test "70% debt share"' },
+  results: [
+    { label: "Approval rate", from: "41%", to: "44%" },
+    { label: "Early late payments", from: "2.6%", to: "2.7%" },
+    { label: "Deals in test", value: "19" },
+  ] as { label: string; from?: string; to?: string; value?: string }[],
+  note: "Too early to call. Results firm up once the first payments come in.",
+};
+
+export type WeightTone = "teal" | "teal-mid" | "amber" | "mint-deep" | "teal-ink";
+
+export const scoreWeights = {
+  title: "How the underwriting score is built",
+  subtitle: "100 points, split across five parts. Shown on every deal's Summary.",
+  adjust: "Adjust weights",
+  unit: "pts",
+  parts: [
+    { label: "Cash flow", points: 25, tone: "teal" },
+    { label: "Debt load", points: 20, tone: "teal-mid" },
+    { label: "Integrity", points: 20, tone: "amber" },
+    { label: "Business & owners", points: 15, tone: "mint-deep" },
+    { label: "Policy fit", points: 20, tone: "teal-ink" },
+  ] as { label: string; points: number; tone: WeightTone }[],
+  bands: [
+    { range: "Under 55", text: "Suggest decline", tone: "red" },
+    { range: "55 – 69", text: "Review closely", tone: "amber" },
+    { range: "70 and up", text: "Approval line", tone: "green" },
+  ] as { range: string; text: string; tone: "red" | "amber" | "green" }[],
+};
+
+export const exceptions = {
+  title: "Exceptions this month",
+  text: "Deals approved even though a rule failed. Each needs a senior sign-off and a reason.",
+  items: [
+    { reason: "3 positions allowed, strong cash flow", by: "Priya" },
+    { reason: "5 months in business, prior owner", by: "Priya" },
+    { reason: "$12K revenue, seasonal low", by: "Priya" },
+  ],
+  note: "Exception rate 4% of approvals. Watch if it climbs above 10%.",
+};
+
+export const restricted = {
+  title: "Restricted industries",
+  edit: "Edit",
+  industries: ["Trucking", "Cannabis", "Firearms", "Gambling", "Adult", "Debt collection", "Auto sales"],
+  note: "Applications in these industries are declined at intake, with the reason sent to the broker.",
+};
+
+export const versions = {
+  title: "Version history",
+  items: [
+    { v: "v3", title: "Senior sign-off above $45K", sub: "Priya Shah · Sep 2 · live", live: true },
+    { v: "v2", title: "Revenue minimum raised to $15K", sub: "Priya Shah · Jun 14" },
+    { v: "v1", title: "First policy", sub: "Imported from PDF · Mar 3" },
+  ] as { v: string; title: string; sub: string; live?: boolean }[],
+};
+
 export const simulator = {
   chip: "Policy simulator",
   title: "Try a change first",

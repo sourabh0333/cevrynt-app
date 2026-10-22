@@ -9,7 +9,8 @@ import type { CSSProperties, ComponentPropsWithoutRef, ReactNode } from "react";
  *
  * value   0–100.
  * color   teal (default), mint, amber, red, blue, grey, ink,
- *         purple (the deep purple of the "failed final checks" bar on Offers).
+ *         purple (the deep purple of the "failed final checks" bar on Offers),
+ *         teal-soft, teal-mid, mint-deep, teal-ink (score-part colors).
  * height  4 | 5 | 6 | 8 | 10 px. The radius is always half the height.
  * track   "ink" (default, rgba ink 8%), "teal" (teal 7%, under mint fills),
  *         "white" (white 20%, on dark or teal cards).
@@ -29,7 +30,10 @@ export type ProgressBarColor =
   | "grey"
   | "ink"
   | "purple"
-  | "teal-soft";
+  | "teal-soft"
+  | "teal-mid"
+  | "mint-deep"
+  | "teal-ink";
 export type ProgressBarHeight = 4 | 5 | 6 | 8 | 10;
 export type ProgressBarTrack = "ink" | "teal" | "white" | "faint" | "line";
 
@@ -55,6 +59,9 @@ const fillClass: Record<ProgressBarColor, string> = {
   ink: "bg-ink",
   purple: "bg-purple-text",
   "teal-soft": "bg-teal-soft",
+  "teal-mid": "bg-teal-mid",
+  "mint-deep": "bg-mint-deep",
+  "teal-ink": "bg-teal-ink",
 };
 
 const trackClass: Record<ProgressBarTrack, string> = {
