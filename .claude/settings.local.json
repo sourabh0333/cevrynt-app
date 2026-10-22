@@ -54,7 +54,9 @@
       "Bash(git -c core.safecrlf=false commit -q -m 'Step 8.2b: Summary tab bottom half from design/Deal-Summary.html *)",
       "Bash(git -c core.safecrlf=false commit -q -m 'Step 8.3a: Cash flow tab top half from design/Deal-CashFlow.html *)",
       "Bash(git -c core.safecrlf=false commit -q -m 'Step 8.3b: Cash flow tab bottom half from design/Deal-CashFlow.html *)",
-      "Bash(git -c core.safecrlf=false commit -q -m 'Step 8.4: Positions & debt tab from design/Deal-Positions.html *)"
+      "Bash(git -c core.safecrlf=false commit -q -m 'Step 8.4: Positions & debt tab from design/Deal-Positions.html *)",
+      "Bash(grep -o '<span class=\"num\" style=\"font-size: 12px; font-weight: 600\">\\\\$[0-9]*K</span><div class=\"fc-col\" style=\"animation-delay: [0-9.]*s[^>]*><span style=\"display: block; height: [0-9]*px[^>]*></span><span style=\"display: block; height: [0-9]*px[^>]*></span></div><span[^>]*>[A-Za-z 0-9]*</span>' design/Funded.html)",
+      "Bash(awk '/<script>/{f=1} f' design/prototypes/Brokers.dc.html)"
     ]
   }
 }
