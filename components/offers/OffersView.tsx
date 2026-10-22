@@ -1,14 +1,15 @@
 import { PageActions } from "@/components/shell/PageActions";
 import { offersHeader } from "@/lib/sample-data/offers";
+import { CommissionsCard, ExpiringCard, LostOffersCard, MoneySentCard } from "./BottomRows";
 import { FundingQueue } from "./FundingQueue";
 import { PipelineCard } from "./PipelineCard";
 import { StatsRow } from "./StatsRow";
 
 /**
- * Offers & funding from design/Offers.html. This step holds the top half:
- * the header, the six stat tiles, the "From offer to funded" stepper and
- * the funding queue. Expiring soon, broker commissions, money sent today
- * and why offers were lost come in the next step.
+ * Offers & funding from design/Offers.html: the header, the six stat
+ * tiles, the "From offer to funded" stepper, the funding queue, then
+ * expiring offers beside broker commissions, money sent today and the
+ * offers that did not fund.
  */
 export function OffersView() {
   return (
@@ -23,6 +24,12 @@ export function OffersView() {
       <StatsRow />
       <PipelineCard />
       <FundingQueue />
+      <section aria-label="Expiring offers and broker commissions" className="grid grid-cols-2 items-stretch gap-3.5 max-[760px]:grid-cols-1">
+        <ExpiringCard />
+        <CommissionsCard />
+      </section>
+      <MoneySentCard />
+      <LostOffersCard />
     </>
   );
 }

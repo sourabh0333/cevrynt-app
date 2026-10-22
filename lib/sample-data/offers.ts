@@ -180,3 +180,50 @@ export const fundingQueue = {
     closed: "Sent. References appear in Money sent today.",
   },
 };
+
+export const expiring = {
+  title: "Expiring soon",
+  count: "3",
+  offers: [
+    { name: "Northline HVAC Services", detail: "$95,000 · Summit Capital ISO", when: "Today 5:00 pm", today: true },
+    { name: "Pinecrest Fitness Studio", detail: "$55,000 · Keystone Brokerage", when: "Today 6:00 pm", today: true },
+    { name: "Tri-State Plumbing Co", detail: "$110,000 · Keystone Brokerage", when: "Thu", today: false },
+  ],
+  extend: "Extend",
+  nudge: "Nudge brokers",
+};
+
+export const commissions = {
+  title: "Broker commissions",
+  chip: "Paid on funding",
+  total: "$6,800",
+  note: "Owed on deals funded today",
+  rows: [
+    { broker: "Apex Funding Partners", amount: "$4,800" },
+    { broker: "Summit Capital ISO", amount: "$2,000" },
+  ],
+};
+
+export const moneySent = {
+  title: "Money sent today",
+  subtitle: "Each transfer with its reference, so the bank can trace it",
+  chip: "0 returned",
+  labels: { amount: "Amount", method: "Method", first: "First payment" },
+  transfers: [
+    { name: "Bayview Nail Spa", status: "Settled", tone: "green", amount: "$25,000", method: "ACH, 9:15", first: "Wed, Oct 14", ref: "Trace 021000020184477 · released by Priya Shah" },
+    { name: "Cedar Street Pharmacy", status: "Confirmed by bank", tone: "blue", amount: "$60,000", method: "Wire, 11:02", first: "Wed, Oct 14", ref: "Ref 20261012MMQFMP2K000412 · released by Priya Shah" },
+  ] as { name: string; status: string; tone: "green" | "blue"; amount: string; method: string; first: string; ref: string }[],
+};
+
+export const lostOffers = {
+  title: "Offers that didn't fund",
+  subtitle: "Last 30 days · 9 of 52 approved offers",
+  chip: "83% of offers fund",
+  reasons: [
+    { count: 4, label: "Took another funder's offer", percent: 44, color: "red" },
+    { count: 2, label: "Payment too high", percent: 22, color: "amber" },
+    { count: 2, label: "Offer expired, no reply", percent: 22, color: "grey" },
+    { count: 1, label: "Failed final checks", percent: 11, color: "purple" },
+  ] as { count: number; label: string; percent: number; color: "red" | "amber" | "grey" | "purple" }[],
+  note: "Most lost deals went to another funder. Faster offers usually win these; your median offer time is 3h 12m.",
+};
