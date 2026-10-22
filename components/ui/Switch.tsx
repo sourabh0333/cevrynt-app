@@ -3,7 +3,8 @@
 /**
  * Switch — the small on/off toggle from design/Settings.html (rule rows).
  * 38 × 22 pill: on is solid teal with the white knob on the right; off is
- * the warm grey track with the knob on the left. The knob slides over
+ * the warm grey track (#D8D3C8, design/Settings-Workspace.html) with the
+ * knob on the left. The knob slides over
  * 150ms (a state change, not a hover). Uses role="switch" so screen
  * readers announce on/off; pass a label naming what it turns on.
  */
@@ -30,7 +31,7 @@ export function Switch({ checked, onChange, label, size = "md", className = "" }
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative ${s.track} flex-none cursor-pointer rounded-pill border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-mint ${checked ? "bg-teal" : "bg-line-strong"} ${className}`}
+      className={`relative ${s.track} flex-none cursor-pointer rounded-pill border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-mint ${checked ? "bg-teal" : "bg-line-dash-soft"} ${className}`}
     >
       <span
         aria-hidden="true"

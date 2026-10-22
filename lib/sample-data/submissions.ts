@@ -5,6 +5,13 @@
  */
 import type { ChipColor } from "@/components/ui/Chip";
 
+/**
+ * The decision target: every new deal gets this many working hours. A deal
+ * that has just arrived shows the full "4h left"; Settings › Workspace shows
+ * the same target under Working hours.
+ */
+export const DECISION_TARGET_HOURS = 4;
+
 export type DealStatus = "new" | "docs" | "review" | "ready" | "offer";
 export type Risk = "Low" | "Medium" | "High" | "Not scored";
 /** 0 fine, 1 getting close, 2 overdue, 3 paused or not timed */
@@ -118,7 +125,7 @@ export const deals: Deal[] = [
     preview: { revenue: "Pending", balance: "Pending", nsfs: "—", positions: "—", flags: [{ text: "July statement missing", severe: false }], next: "Wait for July statement via Merchant Link" } },
   { id: "APP-6RB3LO", name: "Riverbend Landscaping LLC", initials: "RL", gradient: ["#4D6B2E", "#7FA05A"], broker: "Summit Capital ISO", requested: "$65K", recommended: "Analysing", score: null, risk: "Not scored", status: "new", sla: "3h 55m left", slaPercent: 5, slaLevel: 0, owner: null, received: "10:42 by upload",
     preview: { revenue: "Running", balance: "Running", nsfs: "—", positions: "—", flags: [], calm: "Analysis is running. Results appear here in about a minute.", next: "Assign an underwriter" } },
-  { id: "APP-4OD8VD", name: "Oakview Deli", initials: "OD", gradient: ["#8A5A2B", "#B98552"], broker: "Apex Funding Partners", requested: "$20K", recommended: "Analysing", score: null, risk: "Not scored", status: "new", sla: "4h left", slaPercent: 2, slaLevel: 0, owner: null, received: "14:05 by bulk ZIP",
+  { id: "APP-4OD8VD", name: "Oakview Deli", initials: "OD", gradient: ["#8A5A2B", "#B98552"], broker: "Apex Funding Partners", requested: "$20K", recommended: "Analysing", score: null, risk: "Not scored", status: "new", sla: `${DECISION_TARGET_HOURS}h left`, slaPercent: 2, slaLevel: 0, owner: null, received: "14:05 by bulk ZIP",
     preview: { revenue: "Running", balance: "Running", nsfs: "—", positions: "—", flags: [], calm: "Analysis is running. Results appear here in about a minute.", next: "Assign an underwriter" } },
   { id: "APP-1TS5PC", name: "Tri-State Plumbing Co", initials: "TP", gradient: ["#2C5F73", "#5A90A6"], broker: "Keystone Brokerage", requested: "$150K", recommended: "Offered $110K", score: 79, risk: "Medium", status: "offer", sla: "Expires Thu", slaPercent: 40, slaLevel: 3, owner: jordan, received: "Fri, uploaded",
     preview: { revenue: "$186K/mo", balance: "$24.1K", nsfs: "1", positions: "2", flags: [{ text: "Counter-offer sent at $110K, 1.32 factor", severe: false }], next: "Wait for broker response" } },
