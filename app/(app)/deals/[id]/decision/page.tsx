@@ -1,8 +1,8 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { DecisionTab } from "@/components/deals/decision/DecisionTab";
 
 export const metadata = { title: "Deal decision and memo · Cevrynt" };
 
-// Decision and memo, from design/Deal-Decision.html. Content arrives in its own step.
+// Decision & memo, from design/Deal-Decision.html and its prototype.
 export default function Page() {
-  return <DealPlaceholder tab="decision" />;
+  return <DecisionTab />;
 }

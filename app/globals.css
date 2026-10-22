@@ -120,6 +120,7 @@
   --color-amber-paper: #fdf3e1; /* the highlighted line on the statement page */
   --color-paper: #f4efe4; /* the desk behind the statement page, light end */
   --color-paper-deep: #e7e2d7; /* the desk behind the statement page, dark end */
+  --color-ink-soft: #2a302d; /* body text of the credit memo document */
 
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
