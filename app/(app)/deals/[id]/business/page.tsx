@@ -1,8 +1,8 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { BusinessTab } from "@/components/deals/business/BusinessTab";
 
 export const metadata = { title: "Deal business and owners · Cevrynt" };
 
-// Business and owners, from design/Deal-Business.html. Content arrives in its own step.
+// Business & owners, from design/Deal-Business.html and its prototype.
 export default function Page() {
-  return <DealPlaceholder tab="business" />;
+  return <BusinessTab />;
 }
