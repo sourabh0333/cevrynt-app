@@ -1,8 +1,9 @@
-import { DealPlaceholder } from "@/components/deals/DealPlaceholder";
+import { OfferTab } from "@/components/deals/offer/OfferTab";
 
 export const metadata = { title: "Deal offer and disclosures · Cevrynt" };
 
-// Offer and disclosures, from design/Deal-Offer.html. Content arrives in its own step.
+// Offer & disclosures, from design/Deal-Offer.html and its prototype.
+// The early payoff, offer history, disclosure and package rows come in the next step.
 export default function Page() {
-  return <DealPlaceholder tab="offer" />;
+  return <OfferTab />;
 }
