@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { money } from "@/lib/offer-math";
 import { fundingQueue as t } from "@/lib/sample-data/offers";
 
-type Step = "ready" | "pending" | "sent";
+/** ready → pending (Fund) → sent (Release as Priya) → closed (Done, after the undo window or by hand). */
+type Step = "ready" | "pending" | "sent" | "closed";
+
+const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 // Design .fq2: tick, merchant, advance → net, payout, status. The payout
 // column hides on narrow screens so nothing scrolls sideways.
@@ -16,13 +19,24 @@ const ell = "block truncate";
  * list on the left (scrolls after three deals; the on-hold deal cannot be
  * ticked) and the "Ready to send" summary on the right. Fund moves the
  * ticked deals to awaiting release; "Release as Priya" is the second
- * person; Done starts over, as in the prototype. No hover.
+ * person. For five minutes after the release an "Undo · m:ss" button
+ * returns the deals to awaiting release; once it runs out they stay
+ * sent. Done only closes the message. No hover.
  */
 export function FundingQueue() {
   const [sel, setSel] = useState<Record<string, boolean>>(Object.fromEntries(t.start.map((k) => [k, true])));
   const [step, setStep] = useState<Step>("ready");
-  const sent = step === "sent";
+  const [left, setLeft] = useState(t.summary.undoWindow);
+  const sent = step === "sent" || step === "closed";
   const pending = step === "pending";
+  const canUndo = step === "sent" && left > 0;
+
+  // The undo countdown: one tick a second while a release can still be undone.
+  useEffect(() => {
+    if (step !== "sent" || left <= 0) return;
+    const id = window.setTimeout(() => setLeft((n) => n - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [step, left]);
 
   const picked = t.deals.filter((d) => d.ok && sel[d.key]);
   const total = picked.reduce((a, d) => a + d.net, 0);
@@ -32,9 +46,19 @@ export function FundingQueue() {
     setSel((s) => ({ ...s, [k]: !s[k] }));
   };
   const fund = () => {
-    if (!picked.length) return;
-    setStep(step === "ready" ? "pending" : "ready");
+    if (step === "ready" && picked.length) setStep("pending");
+    else if (step === "pending") setStep("ready");
   };
+  const release = () => {
+    setLeft(t.summary.undoWindow);
+    setStep("sent");
+  };
+  const undo = () => {
+    if (canUndo) setStep("pending");
+  };
+  const close = () => setStep("closed");
+
+  const note = step === "closed" ? t.summary.closed : t.summary.note[step];
 
   return (
     <article
@@ -131,23 +155,30 @@ export function FundingQueue() {
             </span>
           ))}
         </div>
-        <span className="text-[11.5px] text-white/65">{t.summary.note[step]}</span>
+        <span className="text-[11.5px] text-white/65">{note}</span>
         <div className="mt-auto flex flex-col gap-1.5">
           {pending ? (
-            <button type="button" onClick={() => setStep("sent")} className="h-10 cursor-pointer rounded-pill border-0 bg-tile text-[12.5px] font-semibold text-ink">
+            <button type="button" onClick={release} className="h-10 cursor-pointer rounded-pill border-0 bg-tile text-[12.5px] font-semibold text-ink">
               {t.summary.release}
             </button>
           ) : null}
-          <button
-            type="button"
-            aria-disabled={step === "ready" && picked.length === 0}
-            onClick={fund}
-            className={`h-[42px] w-full rounded-pill border-0 px-[18px] text-body-sm font-semibold ${
-              step !== "ready" ? "cursor-pointer bg-white/14 text-white" : picked.length ? "cursor-pointer bg-mint text-teal-dark" : "bg-white/10 text-white/65"
-            }`}
-          >
-            {sent ? t.summary.done : pending ? t.summary.cancel : t.summary.fund(picked.length)}
-          </button>
+          {canUndo ? (
+            <button type="button" onClick={undo} className="h-10 cursor-pointer rounded-pill border-0 bg-tile font-mono text-[12.5px] font-semibold text-ink tabular-nums">
+              {t.summary.undo(clock(left))}
+            </button>
+          ) : null}
+          {step === "closed" ? null : (
+            <button
+              type="button"
+              aria-disabled={step === "ready" && picked.length === 0}
+              onClick={sent ? close : fund}
+              className={`h-[42px] w-full rounded-pill border-0 px-[18px] text-body-sm font-semibold ${
+                step !== "ready" ? "cursor-pointer bg-white/14 text-white" : picked.length ? "cursor-pointer bg-mint text-teal-dark" : "bg-white/10 text-white/65"
+              }`}
+            >
+              {sent ? t.summary.done : pending ? t.summary.cancel : t.summary.fund(picked.length)}
+            </button>
+          )}
         </div>
       </aside>
     </article>

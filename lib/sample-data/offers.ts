@@ -174,5 +174,9 @@ export const fundingQueue = {
     fund: (n: number) => `Fund ${n} deal${n === 1 ? "" : "s"}`,
     cancel: "Cancel",
     done: "Done",
+    /** how long a release can be undone, in seconds */
+    undoWindow: 5 * 60,
+    undo: (clock: string) => `Undo · ${clock}`,
+    closed: "Sent. References appear in Money sent today.",
   },
 };
