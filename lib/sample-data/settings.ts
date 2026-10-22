@@ -3,7 +3,8 @@
  * design/Settings.html and the other design/Settings-*.html pages.
  */
 
-export type SettingsSection = { href: string; label: string; line: string; badge?: string };
+/** built: the section has its own page folder, so the placeholder route skips it. */
+export type SettingsSection = { href: string; label: string; line: string; badge?: string; built?: boolean };
 
 export const settingsTitle = "Settings";
 export const settingsNavLabel = "Settings sections";
@@ -12,8 +13,8 @@ export const settingsGroups: { label: string; items: SettingsSection[] }[] = [
   {
     label: "Underwriting",
     items: [
-      { href: "/settings/policy", label: "Policy", line: "Policy · version 3, active since Sep 2", badge: "v3" },
-      { href: "/settings/pricing", label: "Pricing & disclosures", line: "Pricing & disclosures" },
+      { href: "/settings/policy", label: "Policy", line: "Policy · version 3, active since Sep 2", badge: "v3", built: true },
+      { href: "/settings/pricing", label: "Pricing & disclosures", line: "Pricing & disclosures", built: true },
     ],
   },
   {

@@ -8,7 +8,7 @@ import { settingsSections } from "@/lib/sample-data/settings";
  * replaces it with its own folder (a static route wins over this one).
  */
 export function generateStaticParams() {
-  return settingsSections.filter((s) => s.href !== "/settings/policy").map((s) => ({ section: s.href.split("/")[2] }));
+  return settingsSections.filter((s) => !s.built).map((s) => ({ section: s.href.split("/")[2] }));
 }
 
 export default function SettingsSectionPlaceholder({ params }: PageProps<"/settings/[section]">) {

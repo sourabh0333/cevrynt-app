@@ -128,6 +128,12 @@
   --color-mint-mid: #6cc3a9; /* "Offer accepted" step of the reports funnel */
   --color-tip-cap: #bcd3cb; /* month caption on the dark chart label */
   --color-stone-mid: #c9c0ac; /* "Other" declines in the reports share bar */
+
+  /* Settings › Pricing factor grid, cheapest to most expensive (mint-bg and amber-bg are steps 1 and 4) */
+  --color-rate-2: #c4e6da;
+  --color-rate-3: #acdccb;
+  --color-rate-5: #f0d9b5;
+  --color-rate-6: #ebcb9c;
   --color-mint-faint: #f7fbf9; /* a ticked row in the funding queue */
   --color-cream-faint: #fffbf3; /* the on-hold row in the funding queue */
 

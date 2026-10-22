@@ -4,7 +4,9 @@ import {
   computeOffer,
   disclosureFor,
   earlyPayoff,
+  earlyPayoffTiers,
   estimateApr,
+  LOYALTY_DISCOUNT,
   formatOffer,
   money,
   moneyShort,
@@ -196,5 +198,31 @@ describe("helpers", () => {
     assert.equal(moneyShort(40000), "$40K");
     assert.equal(moneyShort(9400), "$9.4K");
     assert.equal(percent(0.254), "25%");
+  });
+});
+
+// Settings › Pricing works out its $40,000 example with computeOffer, so the
+// figures must match design/Settings-Pricing.html for each grid rate.
+describe("Settings › Pricing example ($40,000, daily, 8 pts commission)", () => {
+  const example = (factor: number, term: number) =>
+    computeOffer({ amount: 40000, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false });
+
+  it("score 80 – 89 at 6 months, factor 1.32: $52,800, $419 a day, about 116% APR, $9,600 margin", () => {
+    const r = example(1.32, 6);
+    assert.equal(money(r.payback), "$52,800");
+    assert.equal(money(r.daily), "$419");
+    assert.equal(Math.round(r.apr), 116);
+    assert.equal(money(r.margin), "$9,600");
+  });
+
+  it("uses the same early payoff tiers the Offer tab uses: 1.20 / 1.24 / 1.28", () => {
+    assert.deepEqual(
+      earlyPayoffTiers.map((t) => [t.days, t.factor.toFixed(2)]),
+      [[30, "1.20"], [60, "1.24"], [90, "1.28"]],
+    );
+  });
+
+  it("the renewal loyalty adjustment is the same 0.04 Renewals uses", () => {
+    assert.equal(LOYALTY_DISCOUNT, 0.04);
   });
 });
