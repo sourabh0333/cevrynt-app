@@ -49,7 +49,7 @@ export const usage = {
     hint: "Today 15, the busiest day yet",
     aria: "Deals analyzed per working day this month, between 3 and 15 a day",
     /** deals per working day, oldest first; the last bar is today */
-    days: [8, 11, 9, 12, 14, 6, 3, 10, 13, 12, 15, 11],
+    days: [8, 11, 9, 12, 14, 6, 3, 10, 13, 12, 11, 15],
   },
 };
 
