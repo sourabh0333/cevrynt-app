@@ -20,7 +20,6 @@ const placeholders: Record<string, string> = {
   "/funded": "Funded deals",
   "/renewals": "Renewals",
   "/stacking": "Stacking Watch",
-  "/reports": "Reports",
   "/settings/policy": "Policy",
   "/settings/pricing": "Pricing",
   "/settings/intake": "Intake channels",

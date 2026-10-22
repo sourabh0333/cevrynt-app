@@ -125,6 +125,8 @@
   /* Offers & funding (design/Offers.html) */
   --color-red-bar: #e7a08f; /* weekly bars of a broker on watch */
   --color-amber-ink: #5c3305; /* the "…" waiting mark on an amber-light circle */
+  --color-mint-mid: #6cc3a9; /* "Offer accepted" step of the reports funnel */
+  --color-tip-cap: #bcd3cb; /* month caption on the dark chart label */
   --color-mint-faint: #f7fbf9; /* a ticked row in the funding queue */
   --color-cream-faint: #fffbf3; /* the on-hold row in the funding queue */
 
@@ -540,7 +542,61 @@ body {
   animation: fc-cap 0.9s ease var(--delay, 0s) backwards;
 }
 
+/*
+  Reports (design/Reports.html): funnel steps grow out from the center one by
+  one; on the monthly chart the two areas rise, the line draws, the month dots
+  pop in and the October label fades in last.
+*/
+@keyframes fn-seg {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@keyframes ar-pt {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes ar-tip {
+  from {
+    opacity: 0;
+  }
+}
+.anim-fn-seg {
+  transform-origin: 50% 50%;
+  animation: fn-seg 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) backwards;
+}
+.anim-ar-rise {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: grow-y 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0.2s) backwards;
+}
+.anim-ar-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 1.6s cubic-bezier(0.45, 0, 0.2, 1) 0.4s forwards;
+}
+.anim-ar-pt {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ar-pt 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay, 0s) backwards;
+}
+.anim-ar-tip {
+  animation: ar-tip 0.5s ease 1.9s backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .anim-fn-seg,
+  .anim-ar-rise,
+  .anim-ar-line,
+  .anim-ar-pt,
+  .anim-ar-tip {
+    animation: none;
+  }
+  .anim-ar-line {
+    stroke-dashoffset: 0;
+  }
   .anim-pay-dot,
   .anim-fc-col,
   .anim-fc-cap,

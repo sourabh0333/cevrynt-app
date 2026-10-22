@@ -21,6 +21,12 @@ export type SegmentedSwitchProps = {
   value: string;
   onChange?: (value: string) => void;
   variant?: "teal" | "soft";
+  /**
+   * teal variant only. "white" (default) is the white track on a grey card;
+   * "grey" is the #F5F3EF track with 34px options that sits on the white
+   * panel (design/Reports.html period switch).
+   */
+  track?: "white" | "grey";
   label: string;
   className?: string;
 };
@@ -30,19 +36,23 @@ export function SegmentedSwitch({
   value,
   onChange,
   variant = "teal",
+  track: trackTone = "white",
   label,
   className = "",
 }: SegmentedSwitchProps) {
   const groupRef = useRef<HTMLDivElement>(null);
+  const onPanel = variant === "teal" && trackTone === "grey";
 
   const track =
     variant === "teal"
-      ? "rounded-pill bg-tile"
+      ? `rounded-pill ${onPanel ? "bg-card" : "bg-tile"}`
       : "rounded-[16px] bg-track";
 
   const option =
     variant === "teal"
-      ? "h-[30px] rounded-pill px-4 text-[12.5px]"
+      ? onPanel
+        ? "h-[34px] rounded-pill px-3.5 text-[12.5px]"
+        : "h-[30px] rounded-pill px-4 text-[12.5px]"
       : "h-[34px] rounded-[12px] px-3 text-label";
 
   const selected =

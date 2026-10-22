@@ -145,7 +145,7 @@ export function StatTile({
           className={
             caps
               ? `text-cap font-semibold uppercase ${quiet}`
-              : `whitespace-nowrap text-label ${teal ? "text-mint-soft" : "text-muted"}`
+              : `min-w-0 truncate text-label ${teal ? "text-mint-soft" : "text-muted"}`
           }
         >
           {label}
