@@ -58,6 +58,69 @@ export const merchantPays = {
   cta: "Use this offer",
 };
 
+export const earlyPayoffCard = {
+  title: "Early payoff discount",
+  subtitle: "What Elena would owe in total if she pays everything off early",
+  link: { label: "Edit discount table", href: "/settings/pricing" },
+  within: (days: number) => `Within ${days} days`,
+  fullTerm: "Full term",
+  saves: (amount: string) => `Saves ${amount}`,
+  noDiscount: "No discount",
+};
+
+export const offerHistory = {
+  title: "Offer history",
+  events: [
+    { title: "Broker asked for $45,000", note: "Apex Funding · on the application, 09:40", tone: "grey" },
+    { title: "Cevrynt recommended $40,000", note: "1.32 factor, 6 months · 09:41", tone: "teal" },
+  ] as { title: string; note: string; tone: "grey" | "teal" }[],
+  empty: "No offer sent yet. Counter-offers from the broker will appear here.",
+};
+
+export const disclosure = {
+  title: "Cost disclosure",
+  subtitle: "Filled in from this offer, using the disclosure template set for Maine",
+  link: { label: "Disclosure templates", href: "/settings/pricing" },
+  doc: {
+    title: "Your financing offer",
+    ref: "Ridgeline Capital · APP-7H2K4Q",
+    labels: {
+      amount: "Amount of financing",
+      receive: (net: string) => `You receive ${net}`,
+      charge: "Finance charge",
+      total: (payback: string) => `Total to repay ${payback}`,
+      apr: "Estimated annual percentage rate",
+      aprNote: "Based on your sales history",
+      term: "Estimated term",
+      payment: "Payment",
+      paymentNote: (hold: string) => `About ${hold} of sales`,
+      early: "Paying early",
+      earlyValue: "Discount available",
+      earlyNote: "See section 4 of the agreement",
+    },
+    brokerLine: (commission: string) => `Broker compensation of ${commission} is paid by Ridgeline Capital, not by you.`,
+    reconcileLine: "If your sales drop, you can ask us to reconcile your payments to what you actually earn.",
+  },
+  notice: "State rules differ and change often. Templates and the APR method are set by your compliance team in Settings and should be reviewed by counsel.",
+};
+
+export const sendOffer = {
+  title: "Send the offer",
+  intro: "What goes out when you press send.",
+  items: [
+    { kind: "PDF", label: "Offer summary" },
+    { kind: "PDF", label: "Cost disclosure" },
+    { kind: "SIGN", label: "Agreement, guarantee, payment authorization" },
+  ],
+  to: { label: "To", value: "Broker and merchant" },
+  expires: { label: "Offer expires", value: "In 72 hours" },
+  approval: {
+    ok: "Within your approval limit. Sends straight away.",
+    senior: "Above $45K, so Priya Shah (senior) approves before it is sent.",
+  },
+  button: { ok: "Send offer", senior: "Send for senior approval" },
+};
+
 export type Preset = {
   name: string;
   tag: string;

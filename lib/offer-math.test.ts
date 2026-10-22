@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { computeOffer, estimateApr, money, moneyShort, percent, recommendedOffer, type OfferInput } from "./offer-math.ts";
+import {
+  computeOffer,
+  disclosureFor,
+  earlyPayoff,
+  estimateApr,
+  formatOffer,
+  money,
+  moneyShort,
+  percent,
+  recommendedOffer,
+  type OfferInput,
+} from "./offer-math.ts";
 
 // The expected figures are the ones design/Deal-Offer.html shows for each case.
 
@@ -79,6 +90,70 @@ describe("computeOffer, the other controls", () => {
     const heavy: OfferInput = { ...recommendedOffer, amount: 48000, factor: 1.4, term: 4 };
     const r = computeOffer(heavy, { ...{ revenue: 20000, existingMonthly: 6185, existingBalance: 9400, commission: 0.08, cardMonthly: 28200 } });
     assert.equal(r.withinPolicy, false);
+  });
+});
+
+describe("earlyPayoff", () => {
+  it("lists the three discount tiers and the full term for the recommended offer", () => {
+    const tiers = earlyPayoff(recommendedOffer);
+    assert.deepEqual(
+      tiers.map((t) => [t.days, money(t.total), money(t.saves)]),
+      [
+        [30, "$48,000", "$4,800"],
+        [60, "$49,600", "$3,200"],
+        [90, "$51,200", "$1,600"],
+        [null, "$52,800", "$0"],
+      ],
+    );
+  });
+
+  it("never charges more than the offer's own factor", () => {
+    const tiers = earlyPayoff({ ...recommendedOffer, factor: 1.28 });
+    assert.equal(tiers[2].factor, 1.28);
+    assert.equal(tiers[2].saves, 0);
+  });
+});
+
+describe("the disclosure shows the builder's figures", () => {
+  const cases: [string, OfferInput][] = [
+    ["recommended", recommendedOffer],
+    ["lower payment", { ...recommendedOffer, factor: 1.36, term: 8 }],
+    ["pay off Kingsway", { ...recommendedOffer, payoff: true }],
+    ["weekly with a 3% fee", { ...recommendedOffer, freq: "weekly", fee: 0.03 }],
+    ["$48K over 4 months on card sales", { ...recommendedOffer, amount: 48000, term: 4, method: "split" }],
+  ];
+
+  for (const [name, input] of cases) {
+    it(`${name}: every disclosure figure equals the builder's`, () => {
+      const builder = formatOffer(input, computeOffer(input));
+      const disclosure = disclosureFor(input);
+      assert.deepEqual(disclosure.figures, builder);
+    });
+  }
+
+  it("recommended: prints the design's disclosure text", () => {
+    const d = disclosureFor(recommendedOffer);
+    assert.equal(d.figures.amount, "$40,000");
+    assert.equal(d.figures.net, "$40,000");
+    assert.equal(d.figures.charge, "$12,800");
+    assert.equal(d.figures.payback, "$52,800");
+    assert.equal(d.figures.apr, "116%");
+    assert.equal(d.figures.term, "6 months");
+    assert.equal(d.figures.count, "126 business-day payments");
+    assert.equal(`${d.figures.payment} ${d.figures.per}`, "$419 a business day");
+    assert.equal(d.figures.hold, "15%");
+    assert.equal(d.feeLine, "No origination fee.");
+    assert.equal(d.figures.commission, "$3,200");
+    assert.equal(d.payoffLine, null);
+    assert.equal(d.needsSenior, false);
+  });
+
+  it("a 2% fee and a payoff add their lines, and $48K needs a senior", () => {
+    const d = disclosureFor({ ...recommendedOffer, amount: 48000, fee: 0.02, payoff: true });
+    assert.equal(d.feeLine, "An origination fee of $960 is taken from the amount before it is sent.");
+    assert.match(d.payoffLine ?? "", /\$9,400 of the amount pays off/);
+    assert.equal(d.figures.net, "$37,640");
+    assert.equal(d.needsSenior, true);
   });
 });
 

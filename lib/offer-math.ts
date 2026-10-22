@@ -197,3 +197,97 @@ export const percent = (fraction: number) => Math.round(fraction * 100) + "%";
 
 export const sameOffer = (a: OfferInput, b: Partial<OfferInput>) =>
   (Object.keys(b) as (keyof OfferInput)[]).every((k) => a[k] === b[k]);
+
+/**
+ * The early payoff discount table (Settings › Pricing): paying everything
+ * within N days charges the smaller of the tier's factor and the offer's.
+ */
+export const earlyPayoffTiers: { days: number; factor: number }[] = [
+  { days: 30, factor: 1.2 },
+  { days: 60, factor: 1.24 },
+  { days: 90, factor: 1.28 },
+];
+
+export type EarlyPayoffTier = { days: number | null; factor: number; total: number; saves: number };
+
+export function earlyPayoff(input: OfferInput, tiers = earlyPayoffTiers): EarlyPayoffTier[] {
+  const payback = input.amount * input.factor;
+  const rows: EarlyPayoffTier[] = tiers.map((t) => {
+    const factor = Math.min(t.factor, input.factor);
+    const total = input.amount * factor;
+    return { days: t.days, factor, total, saves: payback - total };
+  });
+  rows.push({ days: null, factor: input.factor, total: payback, saves: 0 });
+  return rows;
+}
+
+/**
+ * The figures as words, shared by the merchant-pays panel and the cost
+ * disclosure so both show exactly the same text for the same offer.
+ */
+export type OfferFigures = {
+  amount: string;
+  net: string;
+  payback: string;
+  charge: string;
+  payment: string;
+  /** "a business day" or "a week" */
+  per: string;
+  /** "126 business-day payments" */
+  count: string;
+  term: string;
+  apr: string;
+  /** all debt payments as a share of revenue */
+  share: string;
+  /** this advance alone as a share of sales */
+  hold: string;
+  fee: string;
+  commission: string;
+  margin: string;
+  renewMonth: number;
+  cardShare: string;
+};
+
+export function formatOffer(input: OfferInput, r: OfferResult = computeOffer(input)): OfferFigures {
+  return {
+    amount: money(input.amount),
+    net: money(r.net),
+    payback: money(r.payback),
+    charge: money(r.payback - input.amount),
+    payment: money(r.payment),
+    per: input.freq === "daily" ? "a business day" : "a week",
+    count: input.freq === "daily" ? `${r.count} business-day payments` : `${r.count} weekly payments`,
+    term: `${input.term} months`,
+    apr: `${Math.round(r.apr)}%`,
+    share: percent(r.share),
+    hold: percent(r.hold),
+    fee: money(r.feeAmount),
+    commission: money(r.commission),
+    margin: money(r.margin),
+    renewMonth: r.renewMonth,
+    cardShare: percent(r.cardShare),
+  };
+}
+
+/** What the cost disclosure prints for an offer: every number comes from formatOffer. */
+export type Disclosure = {
+  figures: OfferFigures;
+  /** "No origination fee." or the fee sentence */
+  feeLine: string;
+  /** only when the offer pays off the existing advance */
+  payoffLine: string | null;
+  needsSenior: boolean;
+};
+
+export function disclosureFor(input: OfferInput, figures: DealFigures = harborFigures, policy: OfferPolicy = ridgelinePolicy): Disclosure {
+  const r = computeOffer(input, figures, policy);
+  const f = formatOffer(input, r);
+  return {
+    figures: f,
+    feeLine: input.fee ? `An origination fee of ${f.fee} is taken from the amount before it is sent.` : "No origination fee.",
+    payoffLine: input.payoff
+      ? `${money(figures.existingBalance)} of the amount pays off your existing advance. You are not charged again on that balance.`
+      : null,
+    needsSenior: r.needsSenior,
+  };
+}

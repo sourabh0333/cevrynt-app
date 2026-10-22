@@ -1,17 +1,22 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
-import { money, percent, ridgelinePolicy, type OfferInput, type OfferResult } from "@/lib/offer-math";
+import { formatOffer, ridgelinePolicy, type OfferInput, type OfferResult } from "@/lib/offer-math";
 import { merchantPays as t } from "@/lib/sample-data/deal-offer";
 
 const tile = "rounded-tile bg-teal/7 px-3 py-2.5";
 const num = "block font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]";
 
+type Props = { offer: OfferInput; result: OfferResult; onUse: () => void };
+
 /**
  * "The merchant pays" from design/Deal-Offer.html: the live result of the
- * builder on the mint card. The debt-share meter grows in once and then
- * eases as the offer changes. No hover.
+ * builder on the mint card, worded by formatOffer so the disclosure shows
+ * the same text. The debt-share meter grows in once and then eases as the
+ * offer changes. "Use this offer" loads the figures into the disclosure
+ * and the send card. No hover.
  */
-export function MerchantPays({ offer, result: r }: { offer: OfferInput; result: OfferResult }) {
+export function MerchantPays({ offer, result: r, onUse }: Props) {
+  const f = formatOffer(offer, r);
   const barStyle: CSSProperties & { "--delay"?: string } = {
     width: `${Math.min(100, (r.share / ridgelinePolicy.maxShare) * 100).toFixed(1)}%`,
     "--delay": "0.2s",
@@ -29,19 +34,19 @@ export function MerchantPays({ offer, result: r }: { offer: OfferInput; result: 
       </div>
       <div aria-live="polite" className="contents">
         <b className="font-heading text-[30px] leading-none font-semibold tabular-nums tracking-[-0.03em]">
-          {money(r.payment)}
-          <span className="text-[15px] font-medium text-muted"> {t.per[offer.freq]}</span>
+          {f.payment}
+          <span className="text-[15px] font-medium text-muted"> {f.per}</span>
         </b>
         <span className="text-[12.5px] text-muted">
-          {t.count[offer.freq](r.count)} · {t.total} {money(r.payback)}
+          {f.count} · {t.total} {f.payback}
         </span>
         <span className="self-start rounded-pill bg-white/10 px-2.5 py-1 text-[11.5px] font-semibold text-muted">
-          {offer.method === "split" ? t.collect.split(percent(r.cardShare)) : t.collect.ach}
+          {offer.method === "split" ? t.collect.split(f.cardShare) : t.collect.ach}
         </span>
         <div className="rounded-[16px] border border-teal/7 bg-teal/7 p-3">
           <div className="flex justify-between text-label">
             <span className="text-muted">{t.share.label}</span>
-            <b>{percent(r.share)}</b>
+            <b>{f.share}</b>
           </div>
           <div className="relative mt-2 h-2 rounded-[4px] bg-teal/7">
             <div className={`anim-grow-x h-full rounded-[4px] transition-[width] duration-500 ${r.withinPolicy ? "bg-mint" : "bg-red-light"}`} style={barStyle} />
@@ -55,24 +60,24 @@ export function MerchantPays({ offer, result: r }: { offer: OfferInput; result: 
         <div className="grid grid-cols-2 gap-1.5">
           <span className={tile}>
             <span className="text-label-sm text-muted">{t.tiles.net}</span>
-            <b className={num}>{money(r.net)}</b>
+            <b className={num}>{f.net}</b>
           </span>
           <span className={tile}>
             <span className="text-label-sm text-muted">{t.tiles.apr}</span>
-            <b className={num}>{Math.round(r.apr)}%</b>
+            <b className={num}>{f.apr}</b>
           </span>
           <span className={tile}>
             <span className="text-label-sm text-muted">{t.tiles.commission}</span>
-            <b className={num}>{money(r.commission)}</b>
+            <b className={num}>{f.commission}</b>
           </span>
           <span className={tile}>
             <span className="text-label-sm text-muted">{t.tiles.margin}</span>
-            <b className={`${num} text-teal-deep`}>{money(r.margin)}</b>
+            <b className={`${num} text-teal-deep`}>{f.margin}</b>
           </span>
         </div>
-        <span className="text-[11.5px] text-muted">{t.renew(r.renewMonth)}</span>
+        <span className="text-[11.5px] text-muted">{t.renew(f.renewMonth)}</span>
       </div>
-      <Button glow className="mt-auto h-[46px]">
+      <Button glow className="mt-auto h-[46px]" onClick={onUse}>
         {t.cta}
       </Button>
     </article>
