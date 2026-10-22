@@ -4,6 +4,7 @@
  * Renewal figures come from renewalOffer in lib/offer-math.ts.
  */
 import { LOYALTY_DISCOUNT } from "@/lib/offer-math";
+import { defaultRenewalRules as rules } from "@/lib/renewal-rules";
 
 export const renewalsHeader = {
   title: "Renewals",
@@ -150,9 +151,10 @@ export const readyRules = {
   subtitle: "All four must be true",
   link: { label: "Edit rules", href: "/settings/renewals" },
   rules: [
-    { label: "Repaid at least", value: "50%" },
-    { label: "Returned payments in 30 days", value: "0" },
-    { label: "Revenue vs at funding", value: "90%" },
+    // The same saved rules Settings › Renewal rules edits (lib/renewal-rules.ts).
+    { label: "Repaid at least", value: `${rules.paid}%` },
+    { label: `Returned payments in ${rules.ret} days`, value: "0" },
+    { label: "Revenue vs at funding", value: `${rules.rev}%` },
     { label: "New advances elsewhere", value: "0" },
   ],
   loyalty: { label: "Loyalty price", value: `−${LOYALTY_DISCOUNT.toFixed(2)} factor` },

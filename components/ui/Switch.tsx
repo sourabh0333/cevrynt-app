@@ -11,10 +11,18 @@ export type SwitchProps = {
   checked: boolean;
   onChange: (next: boolean) => void;
   label: string;
+  /** "md" 38 × 22 (rule rows), "sm" 34 × 20 (outreach step cards in Settings › Renewal rules) */
+  size?: "md" | "sm";
   className?: string;
 };
 
-export function Switch({ checked, onChange, label, className = "" }: SwitchProps) {
+const sizes = {
+  md: { track: "h-[22px] w-[38px]", knob: "h-4 w-4", on: "translate-x-4" },
+  sm: { track: "h-5 w-[34px]", knob: "h-3.5 w-3.5", on: "translate-x-3.5" },
+};
+
+export function Switch({ checked, onChange, label, size = "md", className = "" }: SwitchProps) {
+  const s = sizes[size];
   return (
     <button
       type="button"
@@ -22,11 +30,11 @@ export function Switch({ checked, onChange, label, className = "" }: SwitchProps
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-[22px] w-[38px] flex-none cursor-pointer rounded-pill border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-mint ${checked ? "bg-teal" : "bg-line-strong"} ${className}`}
+      className={`relative ${s.track} flex-none cursor-pointer rounded-pill border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-mint ${checked ? "bg-teal" : "bg-line-strong"} ${className}`}
     >
       <span
         aria-hidden="true"
-        className={`absolute top-[3px] left-[3px] h-4 w-4 rounded-full bg-tile shadow-[0_1px_2px_rgba(15,21,19,.2)] transition-transform duration-150 motion-reduce:transition-none ${checked ? "translate-x-4" : ""}`}
+        className={`absolute top-[3px] left-[3px] ${s.knob} rounded-full bg-tile shadow-[0_1px_2px_rgba(15,21,19,.2)] transition-transform duration-150 motion-reduce:transition-none ${checked ? s.on : ""}`}
       />
     </button>
   );
