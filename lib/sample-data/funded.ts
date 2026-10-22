@@ -156,6 +156,43 @@ export const returnedPayments = {
   note: "Retries follow bank rules: no more than two tries per payment.",
 };
 
+export const recovery = {
+  title: "Getting deals back on track",
+  subtitle: "Deals behind on payments, by step",
+  link: { label: "Open collections", href: "/funded#book" },
+  stages: [
+    { n: "01", label: "Behind", count: "2", note: "$46K", tone: "red" },
+    { n: "02", label: "Contacted", count: "1", note: "$31K", tone: "plain" },
+    { n: "03", label: "Payment plan", count: "2", note: "$41K", tone: "plain" },
+    { n: "04", label: "Back on track", count: "4", note: "this quarter", tone: "mint" },
+    { n: "05", label: "Written off", count: "1", note: "$22K this year", tone: "dashed" },
+  ] as { n: string; label: string; count: string; note: string; tone: "red" | "plain" | "mint" | "dashed" }[],
+  note: "Payment plans lower the daily amount for a set time. Every change is logged and the merchant signs it.",
+};
+
+export const returns = {
+  title: "Returns this year",
+  subtitle: "On deals that have finished",
+  tiles: [
+    { label: "Collected per $1 funded", value: "$1.27", good: true },
+    { label: "Loss rate", value: "2.1%" },
+    { label: "Written off", value: "$46K" },
+    { label: "Commission clawed back", value: "$3.2K" },
+  ] as { label: string; value: string; good?: boolean }[],
+  note: "Clawbacks: brokers return commission when a deal fails early.",
+};
+
+export const payingOff = {
+  title: "Paying off in the next 30 days",
+  text: "7 merchants, $210K of advances ending. The best time to offer a renewal is before they finish.",
+  merchants: [
+    { ini: "CD", g: ["#24588A", "#4F86BD"], name: "Coastal Dental", when: "Nov" },
+    { ini: "OD", g: ["#8A5A2B", "#B98552"], name: "Oakview Deli", when: "Dec" },
+    { ini: "+5", g: ["#57418A", "#8670B8"], name: "5 more" },
+  ] as { ini: string; g: [string, string]; name: string; when?: string }[],
+  cta: { label: "Go to Renewals", href: "/renewals" },
+};
+
 export const fundedDeals: FundedDeal[] = [
   { ini: "CD", g: ["#24588A", "#4F86BD"], name: "Coastal Dental Group", funded: "$70K", when: "Apr 2026", broker: "Apex Funding", paid: 72, left: "$25.5K", pay: "$430/day", hist: "cccccccccc", rev: "+18%", status: "soon", payoff: "Late November", trend: [1, 1.02, 1.05, 1.08, 1.12, 1.15, 1.18], flag: "Ready to renew. $80K renewal already accepted.", flagTone: "g", action: "Open renewal" },
   { ini: "KP", g: ["#2C5F73", "#5A90A6"], name: "Kestrel Plumbing", funded: "$45K", when: "Jul 2026", broker: "Keystone", paid: 48, left: "$31.2K", pay: "$412/day", hist: "ccccccrccs", rev: "−22%", status: "slow", payoff: "Late January", trend: [1, 1.03, 0.98, 0.95, 0.88, 0.82, 0.78], flag: "Deposits down 22% and one payment returned this week. A reconciliation request came in yesterday.", flagTone: "a", action: "Call the merchant" },
