@@ -19,7 +19,8 @@ import type { CSSProperties, ComponentPropsWithoutRef, ReactNode } from "react";
  *          entirely (an icon, a number with a caption).
  * caption  small hint text under the label, for big rings ("done today").
  * track    the unfilled part: "line" (default, #ECE8E0), "teal" (teal at 7%,
- *          on mint cards) or "white" (white at 14%, on a solid teal tile).
+ *          on mint cards), "white" (white at 14%, on a solid teal tile) or
+ *          "tile" (solid white, the security score on its mint card).
  * delay    seconds before the sweep starts, so lists can stagger.
  *
  * The ring sweeps clockwise from the top once when it first appears and
@@ -35,7 +36,7 @@ export type RingColor =
   | "grey"
   | "ink";
 
-export type RingTrack = "line" | "teal" | "white";
+export type RingTrack = "line" | "teal" | "white" | "tile";
 
 export type RingProps = {
   value: number;
@@ -66,6 +67,7 @@ const trackClass: Record<RingTrack, string> = {
   line: "stroke-line",
   teal: "stroke-teal/7",
   white: "stroke-white/14",
+  tile: "stroke-tile",
 };
 
 export function ringColorFor(value: number): Exclude<RingColor, "auto"> {
