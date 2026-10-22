@@ -20,7 +20,6 @@ const placeholders: Record<string, string> = {
   "/funded": "Funded deals",
   "/renewals": "Renewals",
   "/stacking": "Stacking Watch",
-  "/whats-coming": "What's coming",
 };
 
 export function generateStaticParams() {
