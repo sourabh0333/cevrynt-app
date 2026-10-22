@@ -186,6 +186,53 @@ export function computeOffer(
   };
 }
 
+/**
+ * Renewals (design/Renewals.html). A loyal merchant renews at the base
+ * factor less a loyalty discount; part of the new advance clears what is
+ * left on the old one, and the rest is new cash. The "unearned fee" is
+ * the share of the old advance's fee that sits in the unpaid balance,
+ * which a funder can forgive so the merchant does not pay it twice.
+ */
+export const LOYALTY_DISCOUNT = 0.04;
+
+export type RenewalInput = {
+  /** the new advance */
+  amount: number;
+  /** the factor the merchant would get as a new customer */
+  baseFactor: number;
+  /** what is left to collect on the current advance */
+  left: number;
+  /** share of the current advance repaid, 0–100 */
+  paid: number;
+  /** the current advance's factor */
+  currentFactor: number;
+};
+
+export type RenewalResult = {
+  loyaltyFactor: number;
+  /** the new advance less the payoff */
+  cash: number;
+  /** share of the new advance that is new cash, 0–100 */
+  cashPercent: number;
+  /** the daily payment on the renewal, from the shared offer math */
+  daily: number;
+  /** the fee from the old advance still inside the unpaid balance */
+  unearnedFee: number;
+};
+
+export function renewalOffer(r: RenewalInput, figures: DealFigures = harborFigures, policy: OfferPolicy = ridgelinePolicy): RenewalResult {
+  const loyaltyFactor = Math.round((r.baseFactor - LOYALTY_DISCOUNT) * 100) / 100;
+  const cash = Math.max(0, r.amount - r.left);
+  const cashPercent = r.amount ? (cash / r.amount) * 100 : 0;
+  const daily = r.amount
+    ? computeOffer({ amount: r.amount, factor: loyaltyFactor, term: 6, freq: "daily", fee: 0, method: "ach", payoff: false }, figures, policy).daily
+    : 0;
+  const total = r.left / (1 - r.paid / 100);
+  const funded = total / r.currentFactor;
+  const unearnedFee = ((total - funded) * r.left) / total;
+  return { loyaltyFactor, cash, cashPercent, daily, unearnedFee };
+}
+
 /** "$40,000" */
 export const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 

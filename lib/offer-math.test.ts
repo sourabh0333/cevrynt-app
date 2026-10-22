@@ -10,6 +10,7 @@ import {
   moneyShort,
   percent,
   recommendedOffer,
+  renewalOffer,
   type OfferInput,
 } from "./offer-math.ts";
 
@@ -154,6 +155,33 @@ describe("the disclosure shows the builder's figures", () => {
     assert.match(d.payoffLine ?? "", /\$9,400 of the amount pays off/);
     assert.equal(d.figures.net, "$37,640");
     assert.equal(d.needsSenior, true);
+  });
+});
+
+describe("renewalOffer (design/Renewals.html, Harborview Bistro)", () => {
+  const r = renewalOffer({ amount: 55000, baseFactor: 1.32, left: 9900, paid: 81, currentFactor: 1.3 });
+
+  it("takes 0.04 off the base factor for loyalty", () => {
+    assert.equal(r.loyaltyFactor, 1.28);
+  });
+
+  it("splits $55,000 into the $9,900 payoff and $45,100 new cash, 82% of it", () => {
+    assert.equal(r.cash, 45100);
+    assert.equal(Math.round(r.cashPercent), 82);
+  });
+
+  it("prices the daily payment through the shared offer math: $559 a day", () => {
+    assert.equal(money(r.daily), "$559");
+  });
+
+  it("finds $2,285 of unearned fee inside the unpaid balance", () => {
+    assert.equal(money(r.unearnedFee), "$2,285");
+  });
+
+  it("gives no cash or payment for a merchant that is not ready", () => {
+    const n = renewalOffer({ amount: 0, baseFactor: 1.37, left: 31200, paid: 48, currentFactor: 1.3 });
+    assert.equal(n.cash, 0);
+    assert.equal(n.daily, 0);
   });
 });
 
