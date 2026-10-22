@@ -20,15 +20,6 @@ const placeholders: Record<string, string> = {
   "/funded": "Funded deals",
   "/renewals": "Renewals",
   "/stacking": "Stacking Watch",
-  "/settings/policy": "Policy",
-  "/settings/pricing": "Pricing",
-  "/settings/intake": "Intake channels",
-  "/settings/renewals": "Renewal rules",
-  "/settings/team": "Team",
-  "/settings/workspace": "Workspace",
-  "/settings/plan": "Plan",
-  "/settings/security": "Security",
-  "/settings/audit": "Audit log",
   "/whats-coming": "What's coming",
 };
 
