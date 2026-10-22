@@ -1,12 +1,14 @@
 import { PageActions } from "@/components/shell/PageActions";
 import { reportsHeader } from "@/lib/sample-data/reports";
+import { DeclinesSection } from "./DeclinesSection";
 import { FunnelRow } from "./FunnelRow";
+import { SavedRow, TeamSection, UnitEconomics } from "./LowerRows";
 import { Scoreboard } from "./Scoreboard";
 
 /**
- * Reports from design/Reports.html. This step holds the header, the period
- * switch, the key-number scoreboard, and the funnel beside the monthly
- * chart. Declines, unit economics, team, and saved reports come next.
+ * Reports from design/Reports.html: the header, the period switch, the
+ * key-number scoreboard, the funnel beside the monthly chart, declines and
+ * their rules, what every $1 earns, the team, and saved reports.
  */
 export function ReportsView() {
   return (
@@ -20,6 +22,10 @@ export function ReportsView() {
       </header>
       <Scoreboard />
       <FunnelRow />
+      <DeclinesSection />
+      <UnitEconomics />
+      <TeamSection />
+      <SavedRow />
     </>
   );
 }
