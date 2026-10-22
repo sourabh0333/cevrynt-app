@@ -1,13 +1,13 @@
 import { PageActions } from "@/components/shell/PageActions";
 import { brokersHeader } from "@/lib/sample-data/brokers";
+import { BottomRows } from "./BottomRows";
 import { ScorecardsView } from "./ScorecardsView";
 import { SummaryTiles } from "./SummaryTiles";
 
 /**
- * Brokers from design/Brokers.html. This step holds the header, the five
- * summary tiles and the scorecards beside the broker detail. The ownership,
- * payout, applications, paperwork, what-we-fund and portal rows come in the
- * next step.
+ * Brokers from design/Brokers.html: the header, the five summary tiles,
+ * the scorecards beside the broker detail, then deal ownership and payout,
+ * new applicants and paperwork, and what we fund beside the broker portal.
  */
 export function BrokersView() {
   return (
@@ -21,6 +21,7 @@ export function BrokersView() {
       </header>
       <SummaryTiles />
       <ScorecardsView />
+      <BottomRows />
     </>
   );
 }

@@ -83,5 +83,87 @@ export const brokers: Broker[] = [
   { ini: "GP", why: [["Revenue too low", 5], ["Missing documents", 4], ["Too young a business", 2]], rights: "Keeps renewals for 6 months", g: ["#3E4A46", "#6B7873"], name: "Granite Peak ISO", contact: "Ava Lind · ava@granitepeak.io", score: 70, sent: 18, funded: 5, complete: 66, flags: 0, vol: "$150K", late: 6.0, reply: "11h", points: "8 pts", owed: "$0", weeks: [1, 2, 2, 3, 2, 2, 3, 3], note: "New this year. Reasonable start; check again next quarter.", t: "n" },
 ];
 
+export const ownership = {
+  title: "Same merchant, two brokers",
+  subtitle: "Your rule: the first complete file owns the deal for 30 days",
+  chip: "2 this week",
+  winnerChip: "Owns the deal",
+  vs: "vs",
+  cases: [
+    { merchant: "Riverbend Landscaping", winner: { name: "Summit Capital ISO", sub: "Complete at 10:42" }, other: { name: "Harbor Lane Capital", tag: "Told politely", sub: "Sent 12:30" } },
+    { merchant: "Northgate Fitness", winner: { name: "Granite Peak ISO", sub: "Complete at 11:15" }, other: { name: "BlueRock Advisors", tag: "Incomplete", sub: "Missing statements" } },
+  ],
+};
+
+export const payout = {
+  title: "Payout · Fri Oct 16",
+  chip: "Ready",
+  amount: "$14,200",
+  sub: "to 3 brokers by ACH",
+  lines: [
+    { label: "Commission, 7 deals", value: "15,400.00" },
+    { label: "Clawback, early default", value: "−1,200.00", clawback: true },
+  ] as { label: string; value: string; clawback?: boolean }[],
+  net: { label: "Net", value: "14,200.00" },
+  cta: "Review statements",
+};
+
+export type CheckState = "ok" | "wait" | "bad";
+export type ApplicantResult = "approve" | "waiting" | "decline";
+
+export const applicants = {
+  title: "Brokers asking to join",
+  subtitle: "Three checks before anyone can send you deals",
+  chip: "3 applications",
+  columns: ["Applicant", "Background", "Registered", "References", "Result"],
+  checkLabel: { ok: "Passed", wait: "Waiting", bad: "Problem found" } as Record<CheckState, string>,
+  resultLabel: { approve: "Approve", waiting: "Waiting", decline: "Decline" } as Record<ApplicantResult, string>,
+  rows: [
+    { name: "Coastline Business Funding", sub: "Applied Oct 6", checks: ["ok", "ok", "ok"], result: "approve" },
+    { name: "Metro Merchant Partners", sub: "Applied Oct 9", checks: ["ok", "wait", "ok"], result: "waiting" },
+    { name: "QuickCap Advisors", sub: "Owner linked to a blocked broker", checks: ["bad", "ok", "wait"], result: "decline" },
+  ] as { name: string; sub: string; checks: [CheckState, CheckState, CheckState]; result: ApplicantResult }[],
+};
+
+export const paperwork = {
+  title: "Paperwork on file",
+  chip: "2 to fix",
+  items: [
+    { label: "Broker agreement", have: 24, total: 24 },
+    { label: "Tax form W-9", have: 24, total: 24 },
+    { label: "State registration", have: 22, total: 24 },
+  ],
+  note: "Some states now require broker registration, for example Texas from Dec 31, 2026.",
+};
+
+export const appetite = {
+  chip: "Sent to brokers every Monday",
+  title: "What we fund this week",
+  text: "Built from your policy, so brokers send deals you can say yes to.",
+  industries: [
+    { name: "Restaurants", out: false },
+    { name: "Dental", out: false },
+    { name: "Trades", out: false },
+    { name: "Trucking", out: true },
+  ],
+  /** left / right are the gaps at each end of the range bar, in % */
+  ranges: [
+    { label: "Amount", value: "$10K – $150K", left: 5, right: 25 },
+    { label: "Monthly revenue", value: "$15K and up", left: 15, right: 0 },
+  ],
+  facts: [
+    { label: "In business", value: "6 months+" },
+    { label: "Open positions", value: "Up to 2" },
+  ],
+};
+
+export const portal = {
+  title: "Broker portal",
+  chip: "Coming soon",
+  text: "Brokers will submit deals, answer stips and see status themselves, instead of emailing your team.",
+  items: ["Live status on every deal they sent", "Upload stips straight into the deal", "Their own scorecard and payouts"],
+  cta: { label: "Join early access", href: "/whats-coming" },
+};
+
 /** "$1.06M" → 1060, "$390K" → 390, for sorting by funded volume */
 export const volumeNumber = (v: string) => parseFloat(v.replace(/[$MK,]/g, "")) * (v.includes("M") ? 1000 : 1);

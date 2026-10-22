@@ -124,6 +124,7 @@
 
   /* Offers & funding (design/Offers.html) */
   --color-red-bar: #e7a08f; /* weekly bars of a broker on watch */
+  --color-amber-ink: #5c3305; /* the "…" waiting mark on an amber-light circle */
   --color-mint-faint: #f7fbf9; /* a ticked row in the funding queue */
   --color-cream-faint: #fffbf3; /* the on-hold row in the funding queue */
 
