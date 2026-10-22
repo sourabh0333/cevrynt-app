@@ -31,7 +31,7 @@ export const settingsGroups: { label: string; items: SettingsSection[] }[] = [
       { href: "/settings/workspace", label: "Workspace", line: "Workspace", built: true },
       { href: "/settings/plan", label: "Plan & usage", line: "Plan & usage", built: true },
       { href: "/settings/security", label: "Security", line: "Security", built: true },
-      { href: "/settings/audit", label: "Audit log", line: "Audit log" },
+      { href: "/settings/audit", label: "Audit log", line: "Audit log", built: true },
     ],
   },
 ];
