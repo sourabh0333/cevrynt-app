@@ -109,6 +109,81 @@ export const offerPanel = {
   foot: "Built from fresh bank data. No new application needed.",
 };
 
+export const readyCards = {
+  title: "Ready to renew",
+  subtitle: "Best first",
+  action: "Send all to brokers",
+  suggested: "Suggested",
+  revenue: (rev: number) => `${rev >= 0 ? "+" : "−"}${Math.abs(rev)}% revenue`,
+};
+
+export const outreach = {
+  title: "Automatic outreach",
+  subtitle: "Messages go out by themselves as merchants repay. You step in when they reply.",
+  chip: "On",
+  steps: [
+    { at: "40%", via: "Broker", title: "Heads-up to broker", note: "“Your merchant is close to renewal”" },
+    { at: "50%", via: "Email + text", title: "Pre-approved offer", note: "Amount ready, one tap to accept", key: true },
+    { at: "65%", via: "Underwriter", title: "Personal call", note: "If they haven't answered yet" },
+    { at: "90%", via: "Email", title: "Last chance", note: "Before the advance ends" },
+  ] as { at: string; via: string; title: string; note: string; key?: boolean }[],
+  results: [
+    { label: "Sent this month", value: "64" },
+    { label: "Merchants replied", value: "41%" },
+    { label: "Became renewals", value: "6", good: true },
+  ] as { label: string; value: string; good?: boolean }[],
+};
+
+export const brokerPay = {
+  title: "Broker pay on renewals",
+  subtitle: "Set once, applied to every renewal",
+  rows: [
+    { label: "New deal", value: "8 pts" },
+    { label: "Renewal, same broker", value: "5 pts" },
+    { label: "Renewal, direct to you", value: "0 pts" },
+  ],
+  saved: { before: "Saved ", amount: "$9,600", after: " in commission this quarter on renewals" },
+};
+
+export const readyRules = {
+  title: "Who counts as ready",
+  subtitle: "All four must be true",
+  link: { label: "Edit rules", href: "/settings/renewals" },
+  rules: [
+    { label: "Repaid at least", value: "50%" },
+    { label: "Returned payments in 30 days", value: "0" },
+    { label: "Revenue vs at funding", value: "90%" },
+    { label: "New advances elsewhere", value: "0" },
+  ],
+  loyalty: { label: "Loyalty price", value: `−${LOYALTY_DISCOUNT.toFixed(2)} factor` },
+};
+
+export const atRisk = {
+  title: "Might go elsewhere",
+  subtitle: "Spotted by Stacking Watch",
+  total: "$150K",
+  totalLabel: "at risk",
+  barLabel: "Value at risk: Pine Ridge 70K, Harborview 55K, Lighthouse 25K",
+  merchants: [
+    { name: "Pine Ridge Vet Clinic", sign: "Another funder checked their credit", likelihood: 80, when: "act today", amount: "$70K", k: 70, tone: "red", icon: "card" },
+    { name: "Harborview Bistro", sign: "Broker asked for a payoff letter", likelihood: 60, when: "this week", amount: "$55K", k: 55, tone: "amber", icon: "doc" },
+    { name: "Lighthouse Coffee Co", sign: "Opened a competitor's offer", likelihood: 45, when: "this week", amount: "$25K", k: 25, tone: "soft", icon: "eye" },
+  ] as { name: string; sign: string; likelihood: number; when: string; amount: string; k: number; tone: "red" | "amber" | "soft"; icon: "card" | "doc" | "eye" }[],
+};
+
+export const comingUp = {
+  title: "Coming up",
+  subtitle: "Reaching the 50% line in 30 days",
+  count: "12",
+  merchants: [
+    { name: "Seaside Yoga Studio", when: "Oct 21", percent: 90 },
+    { name: "Maple St Barbers", when: "Oct 28", percent: 84 },
+    { name: "Bayside Hardware", when: "Nov 4", percent: 78 },
+    { name: "Kestrel Plumbing", when: "Paying slowly", percent: 70, slow: true },
+  ] as { name: string; when: string; percent: number; slow?: boolean }[],
+  link: { label: "See all 12", href: "#" },
+};
+
 export const renewalMerchants: RenewalMerchant[] = [
   { ini: "HB", g: ["#0A5E50", "#2F8F7A"], name: "Harborview Bistro", industry: "Restaurant", broker: "Apex Funding", score: 94, paid: 81, rev: 9, suggested: 55000, max: 65000, left: 9900, baseFactor: 1.32, now: 410, status: "ready" },
   { ini: "PR", g: ["#24588A", "#4F86BD"], name: "Pine Ridge Vet Clinic", industry: "Veterinary", broker: "Summit Capital", score: 92, paid: 58, rev: 12, suggested: 70000, max: 80000, left: 27300, baseFactor: 1.32, now: 520, status: "ready" },

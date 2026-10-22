@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { PageActions } from "@/components/shell/PageActions";
 import { hero, radar, renewalMerchants, renewalsHeader } from "@/lib/sample-data/renewals";
+import { BottomPanel } from "./BottomPanel";
+import { BrokerPayCard, OutreachCard } from "./OutreachRow";
 import { RadarRow, type RenewalState } from "./RadarRow";
+import { ReadyCards } from "./ReadyCards";
 import { RenewalsHero } from "./RenewalsHero";
 
 /**
- * Renewals from design/Renewals.html. This step holds the header, the
- * hero and the radar beside the offer panel. The ready cards, outreach,
- * commission, rules, at-risk and coming-up rows come in the next step.
- * The selection, amounts, sent offers and forgiven fees live here so
- * the hero's "Offer sent" count follows the panel.
+ * Renewals from design/Renewals.html: the header, the hero, the radar
+ * beside the offer panel, the ready cards, outreach beside broker pay,
+ * and the bottom panel. The selection, amounts, sent offers and forgiven
+ * fees live here so the hero, radar, cards and panel all follow them.
  */
 export function RenewalsView() {
   const [s, setS] = useState<RenewalState>({ sel: radar.startSelected, amounts: {}, sent: {}, forgive: {} });
@@ -34,6 +36,12 @@ export function RenewalsView() {
         onSend={(ini) => setS((x) => ({ ...x, sent: { ...x.sent, [ini]: true } }))}
         onForgive={(ini) => setS((x) => ({ ...x, forgive: { ...x.forgive, [ini]: !x.forgive[ini] } }))}
       />
+      <ReadyCards s={s} onPick={(sel) => setS((x) => ({ ...x, sel }))} />
+      <section aria-label="Automatic outreach and broker pay" className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
+        <OutreachCard />
+        <BrokerPayCard />
+      </section>
+      <BottomPanel />
     </>
   );
 }
