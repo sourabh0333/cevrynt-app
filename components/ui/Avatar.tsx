@@ -11,13 +11,13 @@ import type { ComponentPropsWithoutRef } from "react";
  *   cream  #F2E7CF  (Sam Lee)
  *   purple #EDE4F7  (L. P.)
  *
- * Sizes: 28 / 32 / 40 px. Initials are bold and scale with the circle
+ * Sizes: 28 / 32 / 34 / 40 px (34 is the Team & roles people list). Initials are bold and scale with the circle
  * (10 / 11 / 12 px), matching the 30–42px avatars in the design.
  * Pass `name` for an accessible label; the initials themselves are hidden
  * from screen readers.
  */
 export type AvatarColor = "sand" | "blue" | "mint" | "red" | "cream" | "purple";
-export type AvatarSize = 28 | 32 | 40;
+export type AvatarSize = 28 | 32 | 34 | 40;
 
 export type AvatarProps = {
   initials: string;
@@ -39,6 +39,7 @@ const colorClass: Record<AvatarColor, string> = {
 const sizeClass: Record<AvatarSize, string> = {
   28: "h-7 w-7 text-[10px]",
   32: "h-8 w-8 text-[11px]",
+  34: "h-[34px] w-[34px] text-[11px]",
   40: "h-10 w-10 text-[12px]",
 };
 

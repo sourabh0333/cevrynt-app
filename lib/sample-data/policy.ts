@@ -3,7 +3,23 @@
  * design/prototypes/Settings.dc.html (look: design/Settings.html).
  * Real API calls replace this later behind the same types.
  */
+import { moneyShort, ridgelinePolicy } from "@/lib/offer-math";
 import type { SimInput, SimTile, SimVerdict } from "@/lib/policy-sim";
+
+/**
+ * The policy's money limits, shared by the Policy rules, the Offer tab
+ * (ridgelinePolicy.approvalLimit) and the approval ladder in Team & roles.
+ */
+export const policyLimits = {
+  /** smallest offer */
+  minAmount: 10000,
+  /** deals over this need a senior underwriter; the same limit the Offer tab checks */
+  seniorAbove: ridgelinePolicy.approvalLimit,
+  /** what a senior underwriter can approve alone */
+  seniorLimit: 100000,
+  /** largest offer; above this a deal is outside policy */
+  maxAmount: 150000,
+};
 
 export const policyHeader = {
   live: "Live · version 3",
@@ -58,9 +74,9 @@ export const ruleGroups: { title: string; rules: PolicyRule[] }[] = [
   {
     title: "Amount and approval",
     rules: [
-      { id: "amount", parts: ["Offer up to ", { value: "1.5×" }, " monthly true revenue, between ", { value: "$10K" }, " and ", { value: "$150K" }], outcome: "review", on: true },
+      { id: "amount", parts: ["Offer up to ", { value: "1.5×" }, " monthly true revenue, between ", { value: moneyShort(policyLimits.minAmount) }, " and ", { value: moneyShort(policyLimits.maxAmount) }], outcome: "review", on: true },
       { id: "stated", parts: ["Stated revenue more than ", { value: "150%" }, " of verified"], outcome: "flag", on: true },
-      { id: "senior", parts: ["Deals over ", { value: "$45K" }, " need a senior underwriter"], outcome: "review", on: true },
+      { id: "senior", parts: ["Deals over ", { value: moneyShort(policyLimits.seniorAbove) }, " need a senior underwriter"], outcome: "review", on: true },
     ],
   },
 ];

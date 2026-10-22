@@ -27,7 +27,7 @@ export const settingsGroups: { label: string; items: SettingsSection[] }[] = [
   {
     label: "Organization",
     items: [
-      { href: "/settings/team", label: "Team & roles", line: "Team & roles" },
+      { href: "/settings/team", label: "Team & roles", line: "Team & roles", built: true },
       { href: "/settings/workspace", label: "Workspace", line: "Workspace" },
       { href: "/settings/plan", label: "Plan & usage", line: "Plan & usage" },
       { href: "/settings/security", label: "Security", line: "Security" },
