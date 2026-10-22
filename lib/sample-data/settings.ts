@@ -20,7 +20,7 @@ export const settingsGroups: { label: string; items: SettingsSection[] }[] = [
   {
     label: "Deal flow",
     items: [
-      { href: "/settings/intake", label: "Intake channels", line: "Intake channels" },
+      { href: "/settings/intake", label: "Intake channels", line: "Intake channels", built: true },
       { href: "/settings/renewals", label: "Renewal rules", line: "Renewal rules" },
     ],
   },
