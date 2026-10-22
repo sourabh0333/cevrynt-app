@@ -122,6 +122,10 @@
   --color-paper-deep: #e7e2d7; /* the desk behind the statement page, dark end */
   --color-ink-soft: #2a302d; /* body text of the credit memo document */
 
+  /* Offers & funding (design/Offers.html) */
+  --color-mint-faint: #f7fbf9; /* a ticked row in the funding queue */
+  --color-cream-faint: #fffbf3; /* the on-hold row in the funding queue */
+
   /* Shell */
   --color-hover: #f3f1ec; /* sidebar item hover, the only hover in the app */
   --color-icon-soft: #8e9994; /* chevrons and quiet icons */
