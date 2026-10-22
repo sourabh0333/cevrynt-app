@@ -28,7 +28,8 @@ export type ProgressBarColor =
   | "blue"
   | "grey"
   | "ink"
-  | "purple";
+  | "purple"
+  | "teal-soft";
 export type ProgressBarHeight = 4 | 5 | 6 | 8 | 10;
 export type ProgressBarTrack = "ink" | "teal" | "white" | "faint" | "line";
 
@@ -53,6 +54,7 @@ const fillClass: Record<ProgressBarColor, string> = {
   grey: "bg-grey-dot",
   ink: "bg-ink",
   purple: "bg-purple-text",
+  "teal-soft": "bg-teal-soft",
 };
 
 const trackClass: Record<ProgressBarTrack, string> = {
