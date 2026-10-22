@@ -97,7 +97,7 @@ export function BookView() {
 
   return (
     <div className="flex flex-wrap items-stretch gap-3.5">
-      <section aria-labelledby="h-book" className="flex min-w-0 flex-[999_1_640px] flex-col gap-3 rounded-card-lg bg-card p-[18px] text-ink">
+      <section id="book" aria-labelledby="h-book" className="flex min-w-0 flex-[999_1_640px] flex-col gap-3 rounded-card-lg bg-card p-[18px] text-ink">
         <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 pt-1">
           <h2 id="h-book" className="m-0 font-heading text-[22px] font-semibold">{t.title}</h2>
           <label className="flex h-[38px] min-w-[200px] items-center gap-2 rounded-pill bg-tile px-3.5 text-hint">

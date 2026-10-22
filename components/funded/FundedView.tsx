@@ -1,13 +1,16 @@
 import { PageActions } from "@/components/shell/PageActions";
 import { fundedHeader } from "@/lib/sample-data/funded";
 import { BookView } from "./BookView";
+import { ForecastCard, ReconciliationCard, ReturnedCard, VintagesCard, WarningsCard } from "./MiddleRows";
 import { TodayRow } from "./TodayRow";
 
+const row = "grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1";
+
 /**
- * Funded deals from design/Funded.html. This step holds the header,
- * today's payments with the stat tiles, and the book beside its detail
- * panel. The warnings, vintages, reconciliation, forecast, returns,
- * recovery and paying-off rows come in later steps.
+ * Funded deals from design/Funded.html: the header, today's payments with
+ * the stat tiles, the book beside its detail panel, then early warnings,
+ * vintages and reconciliation, and the forecast beside returned payments.
+ * The recovery, returns and paying-off rows come in the next step.
  */
 export function FundedView() {
   return (
@@ -21,6 +24,15 @@ export function FundedView() {
       </header>
       <TodayRow />
       <BookView />
+      <section aria-label="Early warnings, vintages and reconciliation" className={row}>
+        <WarningsCard />
+        <VintagesCard />
+        <ReconciliationCard />
+      </section>
+      <section aria-label="Money coming in and returned payments" className={row}>
+        <ForecastCard />
+        <ReturnedCard />
+      </section>
     </>
   );
 }

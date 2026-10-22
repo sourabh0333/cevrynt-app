@@ -89,6 +89,73 @@ export const detail = {
   open: "Open",
 };
 
+export const warnings = {
+  title: "Early warnings",
+  subtitle: "Spotted before a payment is missed",
+  chip: "4 new",
+  items: [
+    { who: "Granite State Builders", what: "took a new advance", detail: "Funder deposit $35K seen yesterday", tone: "red", href: "/stacking" },
+    { who: "Kestrel Plumbing", what: "deposits down 22%", detail: "Last 3 weeks vs funding month", tone: "amber", href: "#book" },
+    { who: "Westfield Auto Group", what: "balance below $500", detail: "3 of the last 5 days", tone: "amber", href: "#book" },
+    { who: "Rivera Landscaping", what: "changed bank account", detail: "Payments now going to a new account", tone: "red", href: "#book" },
+  ] as { who: string; what: string; detail: string; tone: "red" | "amber"; href: string }[],
+};
+
+export const vintages = {
+  title: "How each month's deals perform",
+  subtitle: "Share collected so far, by month funded",
+  months: [
+    { label: "May", percent: 96, color: "teal-ink" },
+    { label: "Jun", percent: 81, color: "teal" },
+    { label: "Jul", percent: 62, color: "teal-mid" },
+    { label: "Aug", percent: 44, color: "teal-soft" },
+    { label: "Sep", percent: 22, color: "mint" },
+  ] as { label: string; percent: number; color: "teal-ink" | "teal" | "teal-mid" | "teal-soft" | "mint" }[],
+  note: { label: "Every month is at or ahead of plan", result: "On track" },
+};
+
+export const reconciliation = {
+  title: "Reconciliation requests",
+  subtitle: "Merchants asking to pay less because sales fell",
+  chip: "Coming soon",
+  request: { name: "Kestrel Plumbing", detail: "Asked yesterday · sales down 22%", days: "4 days", daysLabel: "to respond" },
+  note: "Soon: Cevrynt works out the fair new payment from bank data and keeps proof that you replied on time.",
+  cta: { label: "See what's coming", href: "/whats-coming" },
+};
+
+export const forecast = {
+  title: "Money coming in",
+  subtitle: "Expected collections for the next 6 weeks, from the payment schedules",
+  legend: { expected: "Expected", atRisk: "At risk" },
+  chartLabel: "Expected weekly collections falling from $142K to $118K over six weeks as advances pay off, with $4K to $7K a week at risk",
+  /** column heights in px from the design's 150px chart */
+  weeks: [
+    { label: "Oct 13", value: "$142K", bar: 130, cap: 12 },
+    { label: "Oct 20", value: "$139K", bar: 124, cap: 15 },
+    { label: "Oct 27", value: "$137K", bar: 122, cap: 15 },
+    { label: "Nov 3", value: "$131K", bar: 113, cap: 18 },
+    { label: "Nov 10", value: "$126K", bar: 108, cap: 18 },
+    { label: "Nov 17", value: "$118K", bar: 97, cap: 21 },
+  ],
+  tiles: [
+    { label: "Next 6 weeks", value: "$793K" },
+    { label: "At risk", value: "$33K", warn: true },
+    { label: "Why it falls", value: "Advances paying off", small: true },
+  ] as { label: string; value: string; warn?: boolean; small?: boolean }[],
+};
+
+export const returnedPayments = {
+  title: "Returned payments",
+  subtitle: "This week, with what happens next",
+  chip: "7 · $3.1K",
+  items: [
+    { name: "Westfield Auto Group", detail: "$628 · not enough money", status: "Retry Thu", tone: "amber" },
+    { name: "Kestrel Plumbing", detail: "$412 · not enough money", status: "Retry cleared", tone: "green" },
+    { name: "Rivera Landscaping", detail: "$458 · payment blocked by merchant", status: "Needs a call", tone: "red" },
+  ] as { name: string; detail: string; status: string; tone: "amber" | "green" | "red" }[],
+  note: "Retries follow bank rules: no more than two tries per payment.",
+};
+
 export const fundedDeals: FundedDeal[] = [
   { ini: "CD", g: ["#24588A", "#4F86BD"], name: "Coastal Dental Group", funded: "$70K", when: "Apr 2026", broker: "Apex Funding", paid: 72, left: "$25.5K", pay: "$430/day", hist: "cccccccccc", rev: "+18%", status: "soon", payoff: "Late November", trend: [1, 1.02, 1.05, 1.08, 1.12, 1.15, 1.18], flag: "Ready to renew. $80K renewal already accepted.", flagTone: "g", action: "Open renewal" },
   { ini: "KP", g: ["#2C5F73", "#5A90A6"], name: "Kestrel Plumbing", funded: "$45K", when: "Jul 2026", broker: "Keystone", paid: 48, left: "$31.2K", pay: "$412/day", hist: "ccccccrccs", rev: "−22%", status: "slow", payoff: "Late January", trend: [1, 1.03, 0.98, 0.95, 0.88, 0.82, 0.78], flag: "Deposits down 22% and one payment returned this week. A reconciliation request came in yesterday.", flagTone: "a", action: "Call the merchant" },

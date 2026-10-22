@@ -459,8 +459,30 @@ body {
   animation: pay-dot 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay, 0s) backwards;
 }
 
+/* Funded deals: the forecast columns rise one by one, each at-risk cap appearing after its column. */
+@keyframes fc-col {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes fc-cap {
+  0%,
+  70% {
+    opacity: 0;
+  }
+}
+.anim-fc-col {
+  transform-origin: 50% 100%;
+  animation: fc-col 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) backwards;
+}
+.anim-fc-cap {
+  animation: fc-cap 0.9s ease var(--delay, 0s) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .anim-pay-dot {
+  .anim-pay-dot,
+  .anim-fc-col,
+  .anim-fc-cap {
     animation: none;
   }
   .anim-grow-x,
