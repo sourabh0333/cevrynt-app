@@ -17,6 +17,8 @@ import {
   type Relationship,
   type Segment,
 } from "@/lib/sample-data/merchants";
+import { BiggestBalancesCard, OwnerGroupsCard } from "./ConcentrationRow";
+import { IndustryCard, RepeatCard, StateCard } from "./MixRow";
 import { StatsRow } from "./StatsRow";
 
 /*
@@ -53,11 +55,13 @@ function Avatar({ m, size }: { m: Merchant; size: 36 | 48 }) {
 }
 
 /**
- * Merchants from design/Merchants.html and its prototype. This step holds
- * the header, the five stat tiles, the "All merchants" list and the
- * preview column. The list matches the column's height and scrolls inside
- * it under sticky headings (layout rule 2); clicking a row updates the
- * preview. Balance bars grow in once. No hover.
+ * Merchants from design/Merchants.html and its prototype: the header, the
+ * five stat tiles, the "All merchants" list beside the preview column, the
+ * portfolio mix (industry, state, repeat merchants) and the concentration
+ * row (biggest balances, owner groups). The list matches the column's
+ * height and scrolls inside it under sticky headings (layout rule 2);
+ * clicking a row updates the preview. Bars and the ring animate in once.
+ * No hover.
  */
 export function MerchantsView() {
   const [seg, setSeg] = useState<Segment>("all");
@@ -226,6 +230,16 @@ export function MerchantsView() {
           </article>
         </aside>
       </div>
+
+      <section aria-label="Portfolio mix" className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
+        <IndustryCard />
+        <StateCard />
+        <RepeatCard />
+      </section>
+      <section aria-label="Concentration and owner groups" className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
+        <BiggestBalancesCard />
+        <OwnerGroupsCard />
+      </section>
     </>
   );
 }

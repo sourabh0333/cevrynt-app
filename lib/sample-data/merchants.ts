@@ -90,6 +90,69 @@ export const preview = {
   none: "—",
 };
 
+export const byIndustry = {
+  title: "By industry",
+  subtitle: "Share of money still to collect",
+  total: "$4.9M",
+  slices: [
+    { label: "Restaurants & food", percent: 31, color: "teal-ink" },
+    { label: "Retail & other", percent: 22, color: "sand" },
+    { label: "Health & dental", percent: 18, color: "teal" },
+    { label: "Construction", percent: 17, color: "teal-soft" },
+    { label: "Auto services", percent: 12, color: "mint" },
+  ] as { label: string; percent: number; color: "teal-ink" | "sand" | "teal" | "teal-soft" | "mint" }[],
+  limit: { label: "Largest industry vs your 40% limit", result: "31%, OK" },
+};
+
+export const byState = {
+  title: "By state",
+  subtitle: "Where active merchants are",
+  chip: "86 active",
+  states: [
+    { code: "ME", name: "Maine", count: 28, percent: 100, color: "teal-ink" },
+    { code: "NH", name: "New Hampshire", count: 19, percent: 68, color: "teal" },
+    { code: "MA", name: "Massachusetts", count: 14, percent: 50, color: "teal-mid" },
+    { code: "VT", name: "Vermont", count: 11, percent: 39, color: "teal-soft" },
+    { code: "AZ", name: "Arizona", count: 8, percent: 29, color: "mint" },
+  ] as { code: string; name: string; count: number; percent: number; color: "teal-ink" | "teal" | "teal-mid" | "teal-soft" | "mint" }[],
+  note: { label: "Disclosure template", result: "Follows each state" },
+};
+
+export const repeatMerchants = {
+  title: "Repeat merchants",
+  subtitle: "First advance vs coming back",
+  chip: "3× better",
+  first: { label: ["Late payments", "first advance"], value: "7.1%" },
+  repeat: { label: ["Late payments", "repeat merchant"], value: "2.4%", barPercent: 34 },
+  facts: [
+    { value: "38%", label: "take a 2nd advance" },
+    { value: "1.3×", label: "larger 2nd advance" },
+  ],
+  cta: { label: "Open Renewals · 9 ready", href: "/renewals" },
+};
+
+export const biggestBalances = {
+  title: "Biggest balances",
+  subtitle: "Where most of your money is, so no single merchant can hurt the book",
+  chip: "Top 5 = 7% of book",
+  rows: [
+    { name: "Cedar Street Pharmacy", balance: "$79.2K", share: "1.6%", percent: 100 },
+    { name: "Westfield Auto Group", balance: "$72.6K", share: "1.5%", percent: 92 },
+    { name: "Granite State Builders", balance: "$68.1K", share: "1.4%", percent: 86 },
+  ],
+  note: "No merchant is above your 3% limit per business.",
+};
+
+export const ownerGroups = {
+  title: "Same owner, several businesses",
+  intro: "Owners count once for risk, however many companies they run.",
+  owners: [
+    { ini: "EB", name: "Elena Brooks", businesses: "Harbor Street Bakery, Harbor Street Catering", count: 2, fill: "sand" },
+    { ini: "MD", name: "Mike Dunn", businesses: "Summit Roofing, Dunn Gutter Co", count: 2, fill: "blue" },
+  ] as { ini: string; name: string; businesses: string; count: number; fill: "sand" | "blue" }[],
+  link: { label: "See all 12 owner groups", href: "#" },
+};
+
 export const merchants: Merchant[] = [
   {
     ini: "CD", g: ["#24588A", "#4F86BD"], name: "Coastal Dental Group", industry: "Dental", state: "ME", rel: "renew", deals: "3 · 2 funded", balance: "$25.5K", paid: 72, health: 92, last: "Renewal accepted", owner: "Dr. Ana Ruiz", funded: "$130K",
