@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar } from "@/components/ui/Avatar";
+import { Avatar, type AvatarColor } from "@/components/ui/Avatar";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import {
   accessReview as ar,
-  DAILY_CAPACITY,
-  invite,
+  firstName,
   ladder,
   leaving,
   limitText,
   outside,
-  people,
   peopleCard as pc,
   permissions as pm,
   roleNames,
@@ -20,17 +18,32 @@ import {
   sharing,
   teamHeader as th,
   twoPeople,
+  type ApprovalLimits,
   type Perm,
-  type RoleKey,
-} from "@/lib/sample-data/team";
+} from "@/lib/copy/team";
+import type { AccessReview, Invite, IsoDateTime, OutsideAccess, Role, TeamMember } from "@/lib/data/types";
+import { dateShort, daysBetween } from "@/lib/format";
 
-const roleChip: Record<RoleKey, string> = {
-  uw: "bg-mint-bg text-teal-dark",
-  sr: "bg-teal text-white",
-  fund: "bg-blue-bg text-blue-text",
-  col: "bg-amber-bg text-amber-text",
-  adm: "bg-purple-bg text-purple-text",
+const roleChip: Record<Role, string> = {
+  underwriter: "bg-mint-bg text-teal-dark",
+  senior: "bg-teal text-white",
+  funding: "bg-blue-bg text-blue-text",
+  collections: "bg-amber-bg text-amber-text",
+  admin: "bg-purple-bg text-purple-text",
 };
+
+/* Colors are not data: each person's avatar fill, by id, as the design shows them. */
+const avatarColor: Record<string, AvatarColor> = {
+  usr_maya: "sand",
+  usr_ari: "sand",
+  usr_jordan: "mint",
+  usr_priya: "blue",
+  usr_sam: "cream",
+  usr_leo: "purple",
+  usr_nina: "red",
+};
+/* The three faces in the header, then "+N" for everyone else. */
+const headerFaces = ["usr_maya", "usr_priya", "usr_jordan"];
 const markStyle: Record<Perm, string> = {
   y: "bg-teal text-white",
   l: "bg-amber-bg text-amber-text",
@@ -57,20 +70,38 @@ const mintCard = "box-border flex min-w-0 flex-col rounded-card-lg border border
 const h2 = "m-0 font-heading text-card-title font-semibold";
 const row3 = "grid grid-cols-3 gap-3.5 @max-[700px]:grid-cols-1";
 
+export type TeamViewProps = {
+  members: TeamMember[];
+  invites: Invite[];
+  accessReview: AccessReview;
+  outsideAccess: OutsideAccess;
+  /** the policy's approval lines, for the ladder and the permissions grid */
+  limits: ApprovalLimits;
+  now: IsoDateTime;
+};
+
 /**
  * Settings → Team & roles from design/Settings-Team.html and its prototype.
- * The People list toggles each person between Working and Away; workloads
- * come from the Submissions page's figures. Clicking a role highlights its
- * column in the permissions grid. The approval ladder reads the same
- * limits the Offer and Policy pages use. No hover.
+ * The records come from the data layer (lib/data/team) as props; the same
+ * workloads show on Submissions. The People list toggles each person
+ * between Working and Away. Clicking a role highlights its column in the
+ * permissions grid. The approval ladder reads the same limits the Offer and
+ * Policy pages use. No hover.
  */
-export function TeamView() {
-  const [away, setAway] = useState<Record<string, boolean>>({});
-  const [role, setRole] = useState<RoleKey>("uw");
+export function TeamView({ members, invites, accessReview, outsideAccess, limits, now }: TeamViewProps) {
+  const [away, setAway] = useState<Record<string, boolean>>(() => Object.fromEntries(members.map((m) => [m.id, m.away])));
+  const [role, setRole] = useState<Role>("underwriter");
   const ci = roleOrder.indexOf(role);
-  const faces = th.faces.map((ini) => people.find((p) => p.ini === ini)!);
+  const faces = headerFaces.map((id) => members.find((m) => m.id === id)).filter((m): m is TeamMember => !!m);
+  const capacity = members.find((m) => m.openDeals !== null)?.dailyCapacity ?? 0;
+  const senior = members.find((m) => m.role === "senior");
+  const reviewer = members.find((m) => m.id === accessReview.lastDoneBy);
+  const reviewFacts = [
+    { label: ar.lastDone.label, value: ar.lastDone.value(dateShort(accessReview.lastDoneAt), reviewer ? firstName(reviewer.name) : "") },
+    { label: ar.wasDue, value: dateShort(accessReview.dueAt) },
+  ];
 
-  const roleButton = (k: RoleKey) => (
+  const roleButton = (k: Role) => (
     <button
       key={k}
       type="button"
@@ -93,12 +124,12 @@ export function TeamView() {
           <span className="text-[12.5px] text-grey-text">{th.text}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex" aria-label={`${people.length} people`}>
+          <span className="flex" aria-label={th.people(members.length)}>
             {faces.map((p, i) => (
-              <Avatar key={p.ini} initials={p.ini} name={p.name} color={p.avatar} size={32} className={`border-2 border-mint-light ${i ? "-ml-2" : ""}`} />
+              <Avatar key={p.id} initials={p.initials} name={p.name} color={avatarColor[p.id]} size={32} className={`border-2 border-mint-light ${i ? "-ml-2" : ""}`} />
             ))}
             <span className="-ml-2 grid h-8 w-8 place-items-center rounded-full border-2 border-mint-light bg-tile text-[10.5px] font-bold">
-              +{people.length - faces.length}
+              +{members.length - faces.length}
             </span>
           </span>
           <button type="button" className="h-[42px] cursor-pointer rounded-pill border-0 bg-teal px-4 text-[12.5px] font-semibold text-white">
@@ -110,7 +141,7 @@ export function TeamView() {
       <section aria-labelledby="h-mem" className={`@container ${greyCard} gap-2.5`}>
         <div>
           <h2 id="h-mem" className="m-0 font-heading text-[19px] font-semibold">{pc.title}</h2>
-          <span className="text-label text-hint">{pc.subtitle}</span>
+          <span className="text-label text-hint">{pc.subtitle(members.length, invites.length)}</span>
         </div>
         <div className="flex flex-col gap-1.5">
           <div className={`${pcols} items-end! px-3.5 pb-0.5 text-[10px] leading-[1.3] font-semibold tracking-[0.08em] uppercase text-hint`}>
@@ -120,31 +151,31 @@ export function TeamView() {
               </span>
             ))}
           </div>
-          {people.map((p, i) => {
-            const isAway = !!away[p.ini];
-            const isUw = p.role === "uw" || p.role === "sr";
-            const load = typeof p.load === "number" ? p.load : 0;
+          {members.map((p, i) => {
+            const isAway = !!away[p.id];
+            const isUw = p.openDeals !== null;
+            const load = p.openDeals ?? 0;
             return (
-              <div key={p.ini} className={`${pcols} rounded-[16px] bg-tile px-3.5 py-2.5 text-[12.5px]`}>
+              <div key={p.id} className={`${pcols} rounded-[16px] bg-tile px-3.5 py-2.5 text-[12.5px]`}>
                 <span className="flex min-w-0 items-center gap-2.5">
-                  <Avatar initials={p.ini} color={p.avatar} size={34} />
+                  <Avatar initials={p.initials} color={avatarColor[p.id]} size={34} />
                   <span className="min-w-0">
                     <b className="block truncate text-body-sm">{p.name}</b>
                     <span className="block truncate text-[11.5px] text-hint">{p.email}</span>
                   </span>
                 </span>
                 <span className={`max-w-full justify-self-start truncate rounded-pill px-[9px] py-[3px] text-label-sm font-bold ${roleChip[p.role]}`}>{roleNames[p.role]}</span>
-                <b className="font-heading tabular-nums tracking-[-0.03em]">{limitText(p.limit)}</b>
+                <b className="font-heading tabular-nums tracking-[-0.03em]">{limitText(p.approvalLimit)}</b>
                 <span className="min-w-0">
-                  <span className="block truncate text-label">{isUw ? pc.loadText(load) : p.load}</span>
+                  <span className="block truncate text-label">{isUw ? pc.loadText(load, p.dailyCapacity) : p.todayNote}</span>
                   <ProgressBar
                     className="mt-1"
-                    value={isUw ? (load / DAILY_CAPACITY) * 100 : 0}
+                    value={isUw ? (load / p.dailyCapacity) * 100 : 0}
                     height={5}
                     track="line"
                     color={load >= 9 ? "amber" : "teal"}
                     delay={0.2 + i * 0.06}
-                    aria-label={isUw ? `${p.name}: ${pc.loadText(load)}` : undefined}
+                    aria-label={isUw ? `${p.name}: ${pc.loadText(load, p.dailyCapacity)}` : undefined}
                   />
                 </span>
                 <span className={`justify-self-start rounded-pill px-[9px] py-[3px] text-label-sm font-bold ${p.mfa ? "bg-mint-bg text-teal-dark" : "bg-red-bg text-red-text"}`}>
@@ -154,7 +185,7 @@ export function TeamView() {
                   type="button"
                   aria-pressed={isAway}
                   aria-label={`${p.name}: ${isAway ? pc.status.away : pc.status.working}`}
-                  onClick={() => setAway((a) => ({ ...a, [p.ini]: !a[p.ini] }))}
+                  onClick={() => setAway((a) => ({ ...a, [p.id]: !a[p.id] }))}
                   className={`h-[30px] cursor-pointer justify-self-start rounded-pill border-0 px-3 text-[11.5px] font-semibold ${isAway ? "bg-amber-bg text-amber-text" : "bg-card text-grey-text"}`}
                 >
                   {isAway ? pc.status.away : pc.status.working}
@@ -162,22 +193,24 @@ export function TeamView() {
               </div>
             );
           })}
-          <div className={`${pcols} rounded-[16px] border-[1.5px] border-dashed border-line-dash-soft px-3.5 py-2.5 text-[12.5px]`}>
-            <span className="flex min-w-0 items-center gap-2.5">
-              <span className="box-border grid h-[34px] w-[34px] flex-none place-items-center rounded-full border-[1.5px] border-dashed border-grey-dot text-label-sm text-hint">{invite.ini}</span>
-              <span className="min-w-0">
-                <b className="block truncate text-body-sm">{invite.name}</b>
-                <span className="block truncate text-[11.5px] text-hint">{invite.email}</span>
+          {invites.map((invite) => (
+            <div key={invite.id} className={`${pcols} rounded-[16px] border-[1.5px] border-dashed border-line-dash-soft px-3.5 py-2.5 text-[12.5px]`}>
+              <span className="flex min-w-0 items-center gap-2.5">
+                <span className="box-border grid h-[34px] w-[34px] flex-none place-items-center rounded-full border-[1.5px] border-dashed border-grey-dot text-label-sm text-hint">{invite.initials}</span>
+                <span className="min-w-0">
+                  <b className="block truncate text-body-sm">{invite.name}</b>
+                  <span className="block truncate text-[11.5px] text-hint">{invite.email}</span>
+                </span>
               </span>
-            </span>
-            <span className="truncate">{roleNames[invite.role]}</span>
-            <span className="font-heading tabular-nums tracking-[-0.03em]">{limitText(invite.limit)}</span>
-            <span className="truncate text-[11.5px] text-hint">{invite.sent}</span>
-            <span />
-            <button type="button" className="h-[30px] cursor-pointer justify-self-start rounded-pill border-0 bg-card px-3 text-[11.5px] font-semibold text-ink">
-              {invite.resend}
-            </button>
-          </div>
+              <span className="truncate">{roleNames[invite.role]}</span>
+              <span className="font-heading tabular-nums tracking-[-0.03em]">{limitText(invite.approvalLimit)}</span>
+              <span className="truncate text-[11.5px] text-hint">{pc.inviteSent(daysBetween(invite.sentAt, now))}</span>
+              <span />
+              <button type="button" className="h-[30px] cursor-pointer justify-self-start rounded-pill border-0 bg-card px-3 text-[11.5px] font-semibold text-ink">
+                {pc.resend}
+              </button>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -200,7 +233,7 @@ export function TeamView() {
             <span />
             {roleOrder.map(roleButton)}
           </div>
-          {pm.rows.map((r) => (
+          {pm.rows(limits).map((r) => (
             <div key={r.label} className={`${mcols} items-center rounded-[12px] bg-card px-2.5 py-2 text-[12.5px]`}>
               <span className="min-w-0">{r.label}</span>
               {r.marks.map((m, i) => (
@@ -224,7 +257,7 @@ export function TeamView() {
           <article aria-labelledby="h-lad" className={`${mintCard} gap-2.5`}>
             <h2 id="h-lad" className={h2}>{ladder.title}</h2>
             <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
-              {ladder.steps.map((s) => (
+              {ladder.steps(limits).map((s) => (
                 <li key={s.range} className={`flex items-center gap-2.5 rounded-tile px-3 py-[11px] ${s.outside ? "bg-red-bg text-red-text" : "bg-tile"}`}>
                   <b className="w-[104px] flex-none whitespace-nowrap font-heading text-body-sm tabular-nums tracking-[-0.03em]">{s.range}</b>
                   <span className="min-w-0 text-[12.5px]">{s.who}</span>
@@ -248,7 +281,7 @@ export function TeamView() {
 
           <article aria-labelledby="h-asg" className={`${greyCard} gap-2`}>
             <h2 id="h-asg" className={h2}>{sharing.title}</h2>
-            {sharing.rows.map((s) => (
+            {sharing.rows({ capacity, seniorLimit: limits.seniorLimit, senior: senior ? firstName(senior.name) : "" }).map((s) => (
               <span key={s.label} className="flex justify-between gap-2 rounded-tile bg-tile px-3 py-2.5 text-[12.5px]">
                 <span>{s.label}</span>
                 <b className="text-right">{s.value}</b>
@@ -261,7 +294,7 @@ export function TeamView() {
           <article aria-labelledby="h-out" className={`${whiteCard} gap-2`}>
             <h2 id="h-out" className={h2}>{outside.title}</h2>
             <span className="text-label text-hint">{outside.text}</span>
-            {outside.rows.map((o) => (
+            {outside.rows(outsideAccess).map((o) => (
               <span key={o.title} className="flex items-center justify-between gap-2 rounded-tile bg-card px-3 py-[11px] text-[12.5px]">
                 <span className="min-w-0">
                   <b className="block">{o.title}</b>
@@ -279,11 +312,11 @@ export function TeamView() {
           <article aria-labelledby="h-rev" className="box-border flex min-w-0 flex-col gap-2.5 rounded-card-lg bg-red-bg p-5 text-ink">
             <div className="flex items-center justify-between gap-2">
               <h2 id="h-rev" className={h2}>{ar.title}</h2>
-              <span className="whitespace-nowrap rounded-pill bg-tile px-[9px] py-[3px] text-label-sm font-bold text-red-text">{ar.chip}</span>
+              <span className="whitespace-nowrap rounded-pill bg-tile px-[9px] py-[3px] text-label-sm font-bold text-red-text">{ar.chip(daysBetween(accessReview.dueAt, now))}</span>
             </div>
             <span className="text-[12.5px] text-red-deep">{ar.text}</span>
             <div className="grid grid-cols-2 gap-1.5">
-              {ar.facts.map((f) => (
+              {reviewFacts.map((f) => (
                 <span key={f.label} className="min-w-0 rounded-tile bg-white/75 px-3 py-2.5">
                   <span className="block text-label-sm text-red-deep">{f.label}</span>
                   <b className="text-body-sm">{f.value}</b>

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { dateShort, dayAndTime, dayLabel, money, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
+import { dateShort, dayAndTime, dayLabel, daysBetween, money, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
 
 describe("money and shares", () => {
   it("formats dollars the way the designs show them", () => {
@@ -35,5 +35,11 @@ describe("dates in the workspace's zone (Eastern)", () => {
     assert.equal(dayLabel("2026-10-14T01:30:00Z", now), "Yesterday");
     assert.equal(dayLabel("2026-10-11T14:00:00Z", now), "Oct 11");
     assert.equal(dayAndTime("2026-10-14T12:12:00Z", now), "Today 08:12");
+  });
+
+  it("counts whole calendar days between two dates", () => {
+    assert.equal(daysBetween("2026-10-01T09:00:00-04:00", "2026-10-13T10:45:00-04:00"), 12);
+    assert.equal(daysBetween("2026-10-13T23:30:00-04:00", "2026-10-14T00:10:00-04:00"), 1);
+    assert.equal(daysBetween("2026-10-14T08:00:00-04:00", "2026-10-14T18:00:00-04:00"), 0);
   });
 });

@@ -10,7 +10,10 @@ import { money, moneyShort, recommendedOffer } from "@/lib/offer-math";
 import { currentPolicy } from "@/lib/policy-sim";
 import { pipeline } from "@/lib/sample-data/offers";
 import { signIns } from "@/lib/sample-data/security";
-import { invite, roleNames } from "@/lib/sample-data/team";
+import { roleNames } from "@/lib/copy/team";
+import { teamInvites } from "@/lib/data/sample/team";
+
+const invite = teamInvites[0];
 
 export type AuditCategory = "money" | "policy" | "decision" | "access" | "data" | "settings";
 export type AuditActor = "PS" | "MC" | "NO" | "SL" | "C" | "?";
@@ -66,7 +69,7 @@ export const auditEntries: AuditEntry[] = [
   { id: "e6", time: "09:35", actor: "PS", category: "data", what: "Exported the October portfolio report", object: "PDF · 14 pages", where: "Boston, MA", note: "Name stamped on every page.", link: { href: "/reports", label: "Open Reports" } },
   { id: "e7", time: blocked.time, actor: "?", category: "access", what: "Blocked sign-in to Ari Kaplan’s account", object: "Wrong 2-step code", where: blocked.where, note: "Ari was told and asked to change his password.", link: { href: "/settings/security", label: "Open Security" } },
   { id: "e8", time: bayview.time, actor: "PS", category: "money", what: `Released ${bayview.amount} to Bayview Nail Spa`, object: "ACH · trace …184477", where: "Boston, MA", before: "Awaiting release", after: "Sent", note: "Second person on a payment Sam Lee started at 09:12.", link: { href: "/offers", label: "Open Offers & funding" } },
-  { id: "e9", time: "08:30", actor: "NO", category: "settings", what: `Invited ${invite.name}`, object: `${roleNames[invite.role]}, up to ${moneyShort(invite.limit)}`, where: "Boston, MA", note: "Invite still open.", link: { href: "/settings/team", label: "Open Team & roles" } },
+  { id: "e9", time: "08:30", actor: "NO", category: "settings", what: `Invited ${invite.name}`, object: `${roleNames[invite.role]}, up to ${moneyShort(invite.approvalLimit ?? 0)}`, where: "Boston, MA", note: "Invite still open.", link: { href: "/settings/team", label: "Open Team & roles" } },
 ];
 
 /** Entry numbers count down from the newest; the seal is the prototype's hash-like code for that number. */

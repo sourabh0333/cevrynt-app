@@ -1,11 +1,14 @@
 /**
  * Sample data for Settings → Security, copied from
  * design/prototypes/Settings-Security.dc.html (look: design/Settings-Security.html).
- * Who has 2-step login comes from Team & roles, and the access review from
- * the same card there, so the pages always agree. Real API calls replace this.
+ * Who has 2-step login and the access review come from the team records in
+ * lib/data/sample/team, so the pages always agree. Real API calls replace this.
  */
+import { accessReview as reviewCopy, firstName } from "@/lib/copy/team";
+import { SAMPLE_NOW } from "@/lib/data/sample/clock";
+import { accessReview, teamMembers as people } from "@/lib/data/sample/team";
+import { daysBetween } from "@/lib/format";
 import type { ProtectionKey, ScoreBand } from "@/lib/security-score";
-import { accessReview, people } from "@/lib/sample-data/team";
 
 export const securityHeader = {
   title: "Security",
@@ -15,17 +18,20 @@ export const securityHeader = {
 };
 
 const noMfa = people.filter((p) => !p.mfa);
-const first = (name: string) => name.split(" ")[0];
 
-/** The "to fix" list: everyone without 2-step login (from Team & roles), then the overdue access review. */
+/**
+ * The "to fix" list: everyone without 2-step login, then the overdue access
+ * review. Both read the team records Settings › Team & roles shows (until
+ * Security moves to the data layer), so the pages always agree.
+ */
 export const toFix = [
   ...noMfa.map((p) => ({
-    key: `mfa-${p.ini}`,
+    key: `mfa-${p.initials}`,
     title: `${p.name} has no 2-step login`,
     text: "Required for everyone, but he joined before the rule",
-    action: `Remind ${first(p.name)}`,
+    action: `Remind ${firstName(p.name)}`,
   })),
-  { key: "review", title: `Access review is ${accessReview.chip}`, text: "Confirm everyone still needs their access", action: accessReview.cta },
+  { key: "review", title: `Access review is ${reviewCopy.chip(daysBetween(accessReview.dueAt, SAMPLE_NOW))}`, text: "Confirm everyone still needs their access", action: reviewCopy.cta },
 ];
 export const toFixTitle = `${toFix.length} to fix`;
 

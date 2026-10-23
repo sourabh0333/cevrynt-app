@@ -12,8 +12,13 @@ import { renewalsHeader } from "@/lib/sample-data/renewals";
 import { unitEconomics } from "@/lib/sample-data/reports";
 import { signIns, toFix } from "@/lib/sample-data/security";
 import { DECISION_TARGET_HOURS, deals, teamWorkload } from "@/lib/sample-data/submissions";
-import { people } from "@/lib/sample-data/team";
-import { workingHours } from "@/lib/sample-data/workspace";
+import { accessReview as reviewCopy, peopleCard } from "@/lib/copy/team";
+import { workingHours } from "@/lib/copy/workspace";
+import { getNow } from "@/lib/data/clock";
+import { getWorkspace } from "@/lib/data/settings";
+import { getAccessReview, listInvites, listTeam } from "@/lib/data/team";
+import { daysBetween } from "@/lib/format";
+import { usage } from "@/lib/sample-data/plan";
 
 /*
  * Today's cross-page facts (DATA-PLAN.md, step 0). Several pages show the
@@ -61,16 +66,32 @@ describe("Deals by channel and cost per deal", () => {
 });
 
 describe("Team", () => {
-  it("underwriter workloads are 7 / 9 / 6 / 3 on Submissions and Team & roles", () => {
-    assert.deepEqual(teamWorkload.people.map((p) => p.open), [7, 9, 6, 3]);
-    const byIni = (ini: string) => people.find((p) => p.ini === ini)?.load;
+  it("underwriter workloads are 7 / 9 / 6 / 3 on Submissions and Team & roles", async () => {
+    const team = await listTeam();
+    const byIni = (ini: string) => team.find((m) => m.initials === ini)?.openDeals;
     assert.deepEqual(["MC", "AK", "JR", "PS"].map(byIni), [7, 9, 6, 3]);
+    assert.deepEqual(teamWorkload.people.map((p) => [p.initials, p.open, p.percent]), [["MC", 7, 70], ["AK", 9, 90], ["JR", 6, 60], ["PS", 3, 30]]);
+    assert.equal(teamWorkload.subtitle, "Open deals per underwriter, out of a daily capacity of 10");
   });
 
-  it("only Leo has no 2-step login, on Team & roles and Security", () => {
-    assert.deepEqual(people.filter((p) => !p.mfa).map((p) => p.name), ["Leo Park"]);
+  it("only Leo has no 2-step login, on Team & roles and Security", async () => {
+    assert.deepEqual((await listTeam()).filter((m) => !m.mfa).map((m) => m.name), ["Leo Park"]);
     assert.ok(toFix.some((f) => f.title === "Leo Park has no 2-step login"));
     assert.equal(signIns.rows.find((r) => r.person === "Leo Park")?.result, "nomfa");
+  });
+
+  it("7 people and 1 invite: the People card, Plan & usage seats and the Audit log agree", async () => {
+    const [team, invites] = await Promise.all([listTeam(), listInvites()]);
+    assert.equal(peopleCard.subtitle(team.length, invites.length), "7 people · 1 invite waiting");
+    assert.equal(usage.seats.used, 7);
+    assert.equal(usage.seats.hint, "1 invite pending");
+    assert.equal(invites[0].name, "Kim Tran");
+  });
+
+  it("the access review is 12 days late, on Team & roles and Security", async () => {
+    const [review, now] = await Promise.all([getAccessReview(), getNow()]);
+    assert.equal(reviewCopy.chip(daysBetween(review.dueAt, now)), "12 days late");
+    assert.ok(toFix.some((f) => f.title === "Access review is 12 days late"));
   });
 
   it("one failed sign-in, on Security and the Audit log", () => {
@@ -101,9 +122,11 @@ describe("Policy limits", () => {
 });
 
 describe("Decision target", () => {
-  it("4 working hours: a new deal on Submissions starts with 4h left, and Workspace says the same", () => {
-    assert.equal(DECISION_TARGET_HOURS, 4);
+  it("4 working hours: a new deal on Submissions starts with 4h left, and Workspace says the same", async () => {
+    const ws = await getWorkspace();
+    assert.equal(ws.decisionTargetHours, 4);
+    assert.equal(DECISION_TARGET_HOURS, ws.decisionTargetHours);
     assert.ok(deals.some((d) => d.status === "new" && d.sla === "4h left"));
-    assert.equal(workingHours.rows.find((r) => r.label === "Decision target")?.value, "4 working hours");
+    assert.equal(workingHours.rows(ws).find((r) => r.label === "Decision target")?.value, "4 working hours");
   });
 });

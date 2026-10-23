@@ -2,3 +2,5 @@
 export type * from "./common";
 export type * from "./roadmap";
 export type * from "./source";
+export type * from "./team";
+export type * from "./workspace";

@@ -5,20 +5,31 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Switch } from "@/components/ui/Switch";
 import {
   brand,
-  brandColors,
-  channelWord,
   company,
   dataDocs,
   moneyFlow as mf,
-  notificationChannels,
   notifications as nt,
   webAddresses as wa,
   workingHours,
   workspaceHeader as wh,
   yourData,
-} from "@/lib/sample-data/workspace";
+} from "@/lib/copy/workspace";
+import type { NotificationRule, TeamMember, Workspace } from "@/lib/data/types";
 
 type BrandVar = CSSProperties & { "--brand"?: string };
+
+/**
+ * The brand colors a funder can pick for what merchants and brokers see.
+ * These are the customer's choices, not Cevrynt tokens: picking one
+ * recolors the three previews only, never the app itself. The saved choice
+ * is the workspace's brandColor.
+ */
+const brandColors = [
+  { name: "Teal", hex: "#0E6B5C" },
+  { name: "Navy", hex: "#1F4C78" },
+  { name: "Plum", hex: "#57418A" },
+  { name: "Graphite", hex: "#2F3B37" },
+];
 
 const h2 = "m-0 font-heading text-card-title font-semibold";
 const cap = "text-cap font-semibold uppercase text-hint";
@@ -47,16 +58,24 @@ function Row({ label, value, tile }: { label: string; value: string; tile: "whit
   );
 }
 
+export type WorkspaceViewProps = {
+  workspace: Workspace;
+  notificationRules: NotificationRule[];
+  /** the team member who signs contracts (workspace.signerId) */
+  signer: TeamMember | null;
+};
+
 /**
  * Settings → Workspace from design/Settings-Workspace.html and its prototype.
- * Picking a brand color recolors the three merchant-facing previews together
- * (through one --brand variable on the preview area); the app's own colors
- * never change. The notification switches work. The decision target comes
- * from Submissions. No hover.
+ * The records come from the data layer (lib/data/settings) as props; the
+ * decision target is the same one Submissions counts down. Picking a brand
+ * color recolors the three merchant-facing previews together (through one
+ * --brand variable on the preview area); the app's own colors never change.
+ * The notification switches work. No hover.
  */
-export function WorkspaceView() {
-  const [color, setColor] = useState(0);
-  const [notes, setNotes] = useState<boolean[][]>(() => nt.events.map((e) => [...e.on]));
+export function WorkspaceView({ workspace: ws, notificationRules, signer }: WorkspaceViewProps) {
+  const [color, setColor] = useState(() => Math.max(0, brandColors.findIndex((c) => c.hex.toLowerCase() === ws.brandColor.toLowerCase())));
+  const [notes, setNotes] = useState<boolean[][]>(() => notificationRules.map((r) => nt.channels.map((c) => r.channels[c.key])));
   const brandStyle: BrandVar = { "--brand": brandColors[color].hex };
   const p = brand.previews;
 
@@ -64,7 +83,7 @@ export function WorkspaceView() {
     <span
       className={`grid flex-none place-items-center bg-(--brand) font-bold text-white ${size === 22 ? "h-[22px] w-[22px] rounded-[7px] text-[9px]" : "h-7 w-7 rounded-[9px] text-label-sm"}`}
     >
-      {wh.initials}
+      {ws.initials}
     </span>
   );
 
@@ -76,10 +95,10 @@ export function WorkspaceView() {
       >
         <div className="flex items-center gap-4">
           <span aria-hidden="true" className="grid h-16 w-16 flex-none place-items-center rounded-tile-lg bg-teal-forest font-heading text-[20px] font-bold text-white">
-            {wh.initials}
+            {ws.initials}
           </span>
           <div className="flex flex-col gap-1">
-            <h2 id="h-ws" className="m-0 font-heading text-[24px] font-semibold">{wh.name}</h2>
+            <h2 id="h-ws" className="m-0 font-heading text-[24px] font-semibold">{ws.name}</h2>
             <span className="text-[12.5px] text-grey-text">{wh.text}</span>
           </div>
         </div>
@@ -91,17 +110,19 @@ export function WorkspaceView() {
       <section aria-labelledby="h-co" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-card p-5 text-ink">
         <h2 id="h-co" className={h2}>{company.title}</h2>
         <dl className="m-0 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2.5">
-          {company.fields.map((f) => (
+          {company.fields(ws).map((f) => (
             <div key={f.label} className="flex min-w-0 flex-col gap-1">
               <dt className="text-[11.5px] text-hint">{f.label}</dt>
               <dd className={`m-0 truncate rounded-[12px] border border-line bg-tile px-3 py-[11px] text-body-sm ${f.mono ? "font-mono" : ""}`}>{f.value}</dd>
             </div>
           ))}
         </dl>
-        <span className="flex items-center gap-2 text-label text-teal-deep">
-          <span className="h-2 w-2 flex-none rounded-full bg-teal" />
-          {company.verified}
-        </span>
+        {ws.emailVerified ? (
+          <span className="flex items-center gap-2 text-label text-teal-deep">
+            <span className="h-2 w-2 flex-none rounded-full bg-teal" />
+            {company.verified}
+          </span>
+        ) : null}
       </section>
 
       <section aria-labelledby="h-brand" className="@container box-border flex min-w-0 flex-wrap gap-[18px] rounded-card-lg border border-line bg-tile p-5 text-ink">
@@ -142,7 +163,7 @@ export function WorkspaceView() {
             <div className="flex flex-1 flex-col gap-2 rounded-tile bg-tile p-3">
               <div className="flex items-center gap-1.5">
                 {mark(22)}
-                <b className="truncate text-[11.5px]">{wh.name}</b>
+                <b className="truncate text-[11.5px]">{ws.name}</b>
               </div>
               <span className="text-[11.5px]">{p.link.greeting}</span>
               <span className="h-1.5 rounded-[3px] bg-line">
@@ -154,7 +175,7 @@ export function WorkspaceView() {
           <div className="flex min-w-0 flex-col gap-2 rounded-tile-lg bg-card p-3.5">
             <span className={cap}>{p.email.cap}</span>
             <div className="flex flex-1 flex-col overflow-hidden rounded-tile bg-tile">
-              <span className="truncate bg-(--brand) px-3 py-2 text-[11.5px] font-bold text-white">{wh.name}</span>
+              <span className="truncate bg-(--brand) px-3 py-2 text-[11.5px] font-bold text-white">{ws.name}</span>
               <div className="flex flex-col gap-2 p-3">
                 <span className="text-[11.5px]">{p.email.text}</span>
                 <span className="self-start rounded-pill bg-(--brand) px-3 py-[7px] text-[11.5px] font-semibold text-white">{p.email.cta}</span>
@@ -190,15 +211,18 @@ export function WorkspaceView() {
         </div>
         {/* The design scrolls this row sideways below 760px; here it stacks top to bottom instead. */}
         <div className="grid grid-cols-[minmax(0,1fr)_110px_minmax(0,1.2fr)_110px_minmax(0,1fr)] items-stretch gap-2 @max-[720px]:grid-cols-1">
-          {[mf.out, mf.in].map((acc, i) => {
+          {[
+            { ...mf.out, account: ws.fundingAccount },
+            { ...mf.in, account: ws.collectionsAccount },
+          ].map((acc, i) => {
             const card = (
               <div key={acc.title} className="flex min-w-0 flex-col gap-2 rounded-[22px] border border-mint-border bg-mint-card p-4">
                 <span className="flex items-center justify-between">
                   <span className={`${cap} text-teal-deep`}>{acc.cap}</span>
-                  <span className="rounded-pill bg-mint-bg px-2 py-0.5 text-[10.5px] font-bold text-teal-dark">{acc.chip}</span>
+                  {acc.account.verified ? <span className="rounded-pill bg-mint-bg px-2 py-0.5 text-[10.5px] font-bold text-teal-dark">{mf.verified}</span> : null}
                 </span>
                 <b className="font-heading text-[16px] font-semibold">{acc.title}</b>
-                <span className="font-mono text-label text-grey-text">{acc.account}</span>
+                <span className="font-mono text-label text-grey-text">{mf.account(acc.account)}</span>
                 <span className="mt-auto text-[11.5px] text-grey-text">{acc.note}</span>
               </div>
             );
@@ -212,19 +236,21 @@ export function WorkspaceView() {
                     <span className="rounded-pill bg-card px-2 py-0.5 text-[10.5px] font-bold">{mf.contract.chip}</span>
                   </span>
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-7 w-7 flex-none place-items-center rounded-[9px] bg-teal text-label-sm font-bold text-white">{wh.initials}</span>
+                    <span className="grid h-7 w-7 flex-none place-items-center rounded-[9px] bg-teal text-label-sm font-bold text-white">{ws.initials}</span>
                     <span className="min-w-0">
-                      <b className="block truncate text-body">{mf.contract.entity}</b>
+                      <b className="block truncate text-body">{ws.legalName}</b>
                       <span className="text-[11.5px] text-hint">{mf.contract.entityNote}</span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-2.5 rounded-tile bg-card px-3 py-2.5">
-                    <Avatar initials={mf.contract.signer.ini} color="blue" size={28} />
-                    <span className="min-w-0 text-label">
-                      <b>{mf.contract.signer.name}</b> {mf.contract.signer.text}
-                      <span className="block text-[11.5px] text-hint">{mf.contract.signer.hint}</span>
-                    </span>
-                  </div>
+                  {signer ? (
+                    <div className="flex items-center gap-2.5 rounded-tile bg-card px-3 py-2.5">
+                      <Avatar initials={signer.initials} color="blue" size={28} />
+                      <span className="min-w-0 text-label">
+                        <b>{signer.name}</b> {mf.contract.signerText}
+                        <span className="block text-[11.5px] text-hint">{mf.contract.signerHint}</span>
+                      </span>
+                    </div>
+                  ) : null}
                   <button type="button" className="h-8 cursor-pointer self-start rounded-pill border-0 bg-card px-3 text-[11.5px] font-semibold text-ink">
                     {mf.contract.add}
                   </button>
@@ -242,10 +268,10 @@ export function WorkspaceView() {
             <span className="text-[11.5px] text-hint">{wa.hint}</span>
           </div>
           <div className="grid grid-cols-3 gap-2 @max-[640px]:grid-cols-1">
-            {wa.items.map((w) => (
+            {ws.webAddresses.map((w) => (
               <div key={w.host} className="flex min-w-0 flex-col gap-1.5 rounded-[18px] bg-tile p-3.5">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="truncate text-[11.5px] text-hint">{w.label}</span>
+                  <span className="truncate text-[11.5px] text-hint">{wa.labels[w.kind]}</span>
                   <span className={`whitespace-nowrap rounded-pill px-2 py-0.5 text-[10.5px] font-bold ${w.live ? "bg-mint-bg text-teal-dark" : "bg-blue-bg text-blue-text"}`}>
                     {w.live ? wa.live : wa.soon}
                   </span>
@@ -266,19 +292,19 @@ export function WorkspaceView() {
         <div className="flex flex-col gap-1">
           <div className="grid grid-cols-[minmax(0,1.8fr)_repeat(3,90px)] items-end gap-2 px-3 pb-1 text-[10px] leading-[1.3] font-semibold tracking-[0.08em] uppercase text-hint @max-[520px]:grid-cols-[minmax(0,1fr)_repeat(3,56px)]">
             <span>{nt.when}</span>
-            {notificationChannels.map((c) => (
-              <span key={c} className="min-w-0 break-words text-center">
-                {c}
+            {nt.channels.map((c) => (
+              <span key={c.key} className="min-w-0 break-words text-center">
+                {c.label}
               </span>
             ))}
           </div>
-          {nt.events.map((e, r) => (
+          {notificationRules.map((e, r) => (
             <div
-              key={e.label}
+              key={e.event}
               className="grid grid-cols-[minmax(0,1.8fr)_repeat(3,90px)] items-center gap-2 rounded-tile bg-card px-3 py-2.5 text-[12.5px] @max-[520px]:grid-cols-[minmax(0,1fr)_repeat(3,56px)]"
             >
               <span className="min-w-0">
-                <b>{e.label}</b>
+                <b>{nt.events[e.event]}</b>
                 {e.urgent ? <span className="ml-2 inline-block rounded-pill bg-red-bg px-[7px] py-0.5 text-[10.5px] font-bold text-red-text">{nt.urgent}</span> : null}
               </span>
               {notes[r].map((on, c) => (
@@ -286,7 +312,7 @@ export function WorkspaceView() {
                   <Switch
                     checked={on}
                     onChange={(v) => setNotes((n) => n.map((row, ri) => (ri === r ? row.map((x, ci) => (ci === c ? v : x)) : row)))}
-                    label={`${e.label} by ${channelWord(c)}`}
+                    label={`${nt.events[e.event]} by ${nt.channels[c].word}`}
                   />
                 </span>
               ))}
@@ -299,13 +325,13 @@ export function WorkspaceView() {
         <section aria-label="Hours, data and export" className={row3}>
           <article aria-labelledby="h-hrs" className="box-border flex min-w-0 flex-col gap-2 rounded-card-lg bg-card p-5 text-ink">
             <h2 id="h-hrs" className={h2}>{workingHours.title}</h2>
-            {workingHours.rows.map((r) => (
+            {workingHours.rows(ws).map((r) => (
               <Row key={r.label} label={r.label} value={r.value} tile="white" />
             ))}
           </article>
           <article aria-labelledby="h-data" className="box-border flex min-w-0 flex-col gap-2 rounded-card-lg border border-line bg-tile p-5 text-ink">
             <h2 id="h-data" className={h2}>{dataDocs.title}</h2>
-            {dataDocs.rows.map((r) => (
+            {dataDocs.rows(ws).map((r) => (
               <Row key={r.label} label={r.label} value={r.value} tile="grey" />
             ))}
           </article>
@@ -316,7 +342,7 @@ export function WorkspaceView() {
               {yourData.export}
             </button>
             <button type="button" className="h-10 cursor-pointer rounded-pill border-0 bg-white/60 text-[12.5px] font-semibold text-ink">
-              {yourData.requests}
+              {yourData.requests(ws.data.openRequests)}
             </button>
           </article>
         </section>

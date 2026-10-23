@@ -42,13 +42,18 @@ export function dateShort(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
   return `${p.month} ${p.day}`;
 }
 
-/** "Today", "Yesterday" or "Oct 14", counted in the workspace's zone. */
-export function dayLabel(iso: string, now: string, timeZone = WORKSPACE_TIME_ZONE) {
+/** Calendar days from one date to a later one in the workspace's zone: Oct 1 → Oct 13 is 12. */
+export function daysBetween(fromIso: string, toIso: string, timeZone = WORKSPACE_TIME_ZONE) {
   const day = (s: string) => {
     const p = parts(s, timeZone);
     return Date.UTC(Number(p.year), new Date(`${p.month} 1, 2000`).getMonth(), Number(p.day));
   };
-  const diff = Math.round((day(now) - day(iso)) / 86_400_000);
+  return Math.round((day(toIso) - day(fromIso)) / 86_400_000);
+}
+
+/** "Today", "Yesterday" or "Oct 14", counted in the workspace's zone. */
+export function dayLabel(iso: string, now: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const diff = daysBetween(iso, now, timeZone);
   if (diff === 0) return "Today";
   if (diff === 1) return "Yesterday";
   return dateShort(iso, timeZone);

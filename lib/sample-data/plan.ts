@@ -5,8 +5,8 @@
  * too. Channel counts come from Intake channels and seats from Team & roles,
  * so the pages agree. Real API calls replace this later.
  */
+import { teamInvites, teamMembers } from "@/lib/data/sample/team";
 import { channelPerformance } from "@/lib/sample-data/intake-channels";
-import { invite, people } from "@/lib/sample-data/team";
 
 /** What one deal costs on the current plan, in dollars. Shown here and in Reports. */
 export const COST_PER_DEAL = 5.2;
@@ -41,7 +41,7 @@ export const usage = {
   warn: "Warn me at 80%",
   deals: { label: "Deals analyzed", used: dealsUsed, of: currentPlan.includedDeals, hint: "On pace for about 380 by Oct 31" },
   pages: { label: "Pages you didn't pay for", chip: "Free", value: "1,840", unit: " pages", text: "Blank pages, cover sheets and duplicates we skipped", hint: "You pay per deal, never per page" },
-  seats: { label: "Team seats", used: people.length, of: currentPlan.seats, hint: `${invite ? 1 : 0} invite pending` },
+  seats: { label: "Team seats", used: teamMembers.length, of: currentPlan.seats, hint: `${teamInvites.length} invite pending` },
   link: { label: "Merchant Link sessions", value: 118, unit: " this month", chip: "∞", bar: 30, hint: "Unlimited on your plan" },
   perDay: {
     label: "Deals analyzed per working day",

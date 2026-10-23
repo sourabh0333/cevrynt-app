@@ -1,4 +1,7 @@
+import type { IsoDateTime } from "./common";
 import type { RoadmapFeature } from "./roadmap";
+import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
+import type { NotificationRule, Workspace } from "./workspace";
 
 /**
  * What a data source must provide. The sample source (lib/data/sample) and,
@@ -7,7 +10,21 @@ import type { RoadmapFeature } from "./roadmap";
  * at a time as pages are converted (DATA-PLAN.md, section 4).
  */
 export interface DataSource {
+  /** The current time. The sample world is fixed on one working day. */
+  clock: {
+    now(): Promise<IsoDateTime>;
+  };
   roadmap: {
     listFeatures(): Promise<RoadmapFeature[]>;
+  };
+  team: {
+    listMembers(): Promise<TeamMember[]>;
+    listInvites(): Promise<Invite[]>;
+    getAccessReview(): Promise<AccessReview>;
+    getOutsideAccess(): Promise<OutsideAccess>;
+  };
+  settings: {
+    getWorkspace(): Promise<Workspace>;
+    listNotificationRules(): Promise<NotificationRule[]>;
   };
 }

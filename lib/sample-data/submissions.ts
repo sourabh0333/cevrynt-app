@@ -4,13 +4,16 @@
  * the same types.
  */
 import type { ChipColor } from "@/components/ui/Chip";
+import { teamMembers } from "@/lib/data/sample/team";
+import { workspace } from "@/lib/data/sample/workspace";
 
 /**
  * The decision target: every new deal gets this many working hours. A deal
  * that has just arrived shows the full "4h left"; Settings › Workspace shows
- * the same target under Working hours.
+ * the same target under Working hours. It lives in the workspace record
+ * (lib/data/sample/workspace) until Submissions moves to the data layer.
  */
-export const DECISION_TARGET_HOURS = 4;
+export const DECISION_TARGET_HOURS = workspace.decisionTargetHours;
 
 export type DealStatus = "new" | "docs" | "review" | "ready" | "offer";
 export type Risk = "Low" | "Medium" | "High" | "Not scored";
@@ -146,14 +149,20 @@ export const initialSelected = "APP-9K2M7R";
 export const bulkActions = ["Assign", "Request documents", "Decline"];
 
 export type Workload = { initials: string; name: string; open: number; percent: number; overdue?: number; warn?: boolean };
+
+/*
+ * Open deals per underwriter come from the team records (the same ones
+ * Settings › Team & roles lists), so the two pages can't disagree.
+ */
+const deciders = teamMembers.filter((m) => m.openDeals !== null);
+const overdueById: Record<string, number> = { usr_ari: 1 };
 export const teamWorkload = {
-  subtitle: "Open deals per underwriter, out of a daily capacity of 10",
-  people: [
-    { initials: "MC", name: "Maya Chen", open: 7, percent: 70 },
-    { initials: "AK", name: "Ari Kaplan", open: 9, percent: 90, overdue: 1, warn: true },
-    { initials: "JR", name: "Jordan Reyes", open: 6, percent: 60 },
-    { initials: "PS", name: "Priya Shah", open: 3, percent: 30 },
-  ] as Workload[],
+  subtitle: `Open deals per underwriter, out of a daily capacity of ${deciders[0]?.dailyCapacity ?? 0}`,
+  people: deciders.map((m): Workload => {
+    const open = m.openDeals ?? 0;
+    const overdue = overdueById[m.id];
+    return { initials: m.initials, name: m.name, open, percent: Math.round((open / m.dailyCapacity) * 100), ...(overdue ? { overdue, warn: true } : {}) };
+  }),
   unassigned: 3,
 };
 
