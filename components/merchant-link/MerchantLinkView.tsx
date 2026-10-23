@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState } from "react";
+import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
 import { Ring } from "@/components/ui/Ring";
 import {
   application,
-  funder,
   helpCard as hc,
   languages,
-  linkFooter,
   linkSteps,
   merchant,
   minutesLeft,
@@ -75,12 +73,7 @@ export function MerchantLinkView() {
   return (
     <div lang={lang} className="box-border flex min-h-full flex-col bg-page font-sans text-body text-ink">
       <header className="flex flex-wrap items-center justify-between gap-3 px-8 py-[18px] max-[900px]:px-4 max-[900px]:py-3">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-[11px] bg-teal font-heading text-body-sm font-bold text-white max-[900px]:h-8 max-[900px]:w-8">
-            {funder.initials}
-          </span>
-          <b className="font-heading text-card-title font-semibold max-[900px]:text-[16px]">{funder.name}</b>
-        </div>
+        <FunderBrand />
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex h-[34px] items-center gap-[7px] rounded-pill bg-tile px-3 text-label font-semibold text-teal-deep max-[900px]:hidden">
             <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="stroke-teal">
@@ -293,22 +286,7 @@ export function MerchantLinkView() {
         </div>
       </main>
 
-      <footer className="flex flex-wrap justify-between gap-3 border-t border-line-strong px-8 py-[18px] text-label text-hint max-[900px]:px-4 max-[900px]:pb-28">
-        <span>{funder.legal}</span>
-        <span className="flex flex-wrap gap-4">
-          <a href="#" className="text-hint no-underline">
-            {linkFooter.privacy}
-          </a>
-          <a href="#" className="text-hint no-underline">
-            {linkFooter.terms}
-          </a>
-          <span className="inline-flex items-center gap-1.5">
-            {linkFooter.powered}
-            <Image src="/brand/cevrynt-mark-solid.png" alt="" width={15} height={14} className="h-3.5 w-auto" />
-            {linkFooter.brand}
-          </span>
-        </span>
-      </footer>
+      <PublicFooter barSpace />
 
       {/* Phones: a fixed bar with the next step and a round message button. */}
       <div className="fixed inset-x-0 bottom-0 z-10 hidden items-center gap-2.5 border-t border-line-strong bg-tile/95 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur max-[900px]:flex">
