@@ -1,4 +1,5 @@
 import type { IsoDateTime } from "./common";
+import type { Policy, Pricing } from "./policy";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
 import type { NotificationRule, Workspace } from "./workspace";
@@ -26,5 +27,7 @@ export interface DataSource {
   settings: {
     getWorkspace(): Promise<Workspace>;
     listNotificationRules(): Promise<NotificationRule[]>;
+    getPolicy(): Promise<Policy>;
+    getPricing(): Promise<Pricing>;
   };
 }

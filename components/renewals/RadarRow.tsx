@@ -33,6 +33,8 @@ export type RenewalState = {
 
 type Props = {
   s: RenewalState;
+  /** Pricing's loyalty price, taken off the base factor */
+  loyaltyDiscount: number;
   onPick: (ini: string) => void;
   onAmount: (ini: string, amount: number) => void;
   onSend: (ini: string) => void;
@@ -51,12 +53,12 @@ export const amountOf = (m: RenewalMerchant, amounts: Record<string, number>) =>
  * factor, the daily payment against today's, the re-check chips and the
  * disclosure with the forgive switch. No hover.
  */
-export function RadarRow({ s, onPick, onAmount, onSend, onForgive }: Props) {
+export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgive }: Props) {
   const m = renewalMerchants.find((x) => x.ini === s.sel) ?? renewalMerchants[0];
   const st = statusOf(m, s.sent);
   const amount = amountOf(m, s.amounts);
   const can = m.suggested > 0;
-  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor });
+  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor }, undefined, undefined, loyaltyDiscount);
   const forgive = !!s.forgive[m.ini];
   const clamp = (v: number) => Math.max(t.amount.min, Math.min(m.max, v));
   const q = radar.quadrants;

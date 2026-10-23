@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import type { Pricing } from "@/lib/data/types";
 import { earlyPayoff, money, type OfferInput } from "@/lib/offer-math";
 import { earlyPayoffCard as t, offerHistory } from "@/lib/sample-data/deal-offer";
 
-/** "Early payoff discount": the three tiers and the full term, from the shared math. */
-export function EarlyPayoffCard({ offer }: { offer: OfferInput }) {
-  const tiers = earlyPayoff(offer);
+/** "Early payoff discount": Pricing's tiers and the full term, from the shared math. */
+export function EarlyPayoffCard({ offer, table }: { offer: OfferInput; table: Pricing["earlyPayoff"] }) {
+  const tiers = earlyPayoff(offer, table);
   return (
     <Card as="article" aria-labelledby="h-early" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
       <div className="flex flex-wrap items-end justify-between gap-2.5">

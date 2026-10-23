@@ -1,15 +1,24 @@
 /**
  * Sample data for the Offer & disclosures tab, copied from
  * design/prototypes/Deal-Offer.dc.html (look: design/Deal-Offer.html).
- * The numbers themselves come from lib/offer-math.ts.
+ * The numbers themselves come from lib/offer-math.ts; the limits quoted in
+ * the notes (debt limit, approval line, the deal's range) come from the
+ * offer policy the page loads, so they're functions here.
  */
+import { moneyShort, percent } from "@/lib/format";
 import type { CollectFrom, Frequency, OfferInput } from "@/lib/offer-math";
 
 export const builder = {
   title: "Offer builder",
   subtitle: "Change any number. Everything else updates, and your policy limits are checked live.",
   reset: "Reset to recommended",
-  amount: { label: "Amount", min: 30000, max: 48000, step: 1000, floor: "Floor $30K", recommended: "Recommended $40K", ceiling: "Ceiling $48K" },
+  amount: {
+    label: "Amount",
+    step: 1000,
+    floor: (n: number) => `Floor ${moneyShort(n)}`,
+    recommended: "Recommended $40K",
+    ceiling: (n: number) => `Ceiling ${moneyShort(n)}`,
+  },
   factor: { label: "Factor rate", options: [1.28, 1.32, 1.36, 1.4] },
   term: { label: "Term", group: "Term in months", options: [4, 5, 6, 7, 8] },
   freq: {
@@ -38,10 +47,10 @@ export const builder = {
   },
   payoff: { label: "Pay off Kingsway", note: "~$9,400 from this advance" },
   rules: {
-    debtShare: { label: (share: string) => `Debt share ${share}`, note: "Limit 65% of revenue" },
-    ceiling: { label: "Amount within ceiling", note: "Up to $48K for this deal" },
-    factor: { label: "Factor in range", note: "1.28 – 1.40 for score 80+" },
-    approval: { ok: "Your approval limit", warn: "Needs senior sign-off", note: "You can approve up to $45K" },
+    debtShare: { label: (share: string) => `Debt share ${share}`, note: (maxShare: number) => `Limit ${percent(maxShare)} of revenue` },
+    ceiling: { label: "Amount within ceiling", note: (ceiling: number) => `Up to ${moneyShort(ceiling)} for this deal` },
+    factor: { label: "Factor in range", note: (min: number, max: number) => `${min.toFixed(2)} – ${max.toFixed(2)} for score 80+` },
+    approval: { ok: "Your approval limit", warn: "Needs senior sign-off", note: (limit: number) => `You can approve up to ${moneyShort(limit)}` },
   },
 };
 
@@ -52,7 +61,7 @@ export const merchantPays = {
   count: { daily: (n: number) => `${n} business-day payments`, weekly: (n: number) => `${n} weekly payments` },
   total: "total",
   collect: { ach: "Taken from Chase ••7712 by ACH", split: (share: string) => `Taken from card sales: about ${share} of each day` },
-  share: { label: "All debt payments vs revenue", zero: "0%", max: "Policy max 65%" },
+  share: { label: "All debt payments vs revenue", zero: "0%", max: (maxShare: number) => `Policy max ${percent(maxShare)}` },
   tiles: { net: "Cash to merchant", apr: "Estimated APR", commission: "Broker commission", margin: "Your margin" },
   renew: (month: number) => `Renewal possible once half is repaid, around month ${month}.`,
   cta: "Use this offer",
@@ -116,7 +125,7 @@ export const sendOffer = {
   expires: { label: "Offer expires", value: "In 72 hours" },
   approval: {
     ok: "Within your approval limit. Sends straight away.",
-    senior: "Above $45K, so Priya Shah (senior) approves before it is sent.",
+    senior: (limit: number) => `Above ${moneyShort(limit)}, so Priya Shah (senior) approves before it is sent.`,
   },
   button: { ok: "Send offer", senior: "Send for senior approval" },
 };

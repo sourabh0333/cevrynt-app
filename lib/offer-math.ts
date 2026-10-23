@@ -4,7 +4,14 @@
  * in design/prototypes/Deal-Offer.dc.html so every number on the tab
  * comes from one place. Pure: no React, no formatting side effects.
  * Tested in lib/offer-math.test.ts (`npm test`).
+ *
+ * The workspace's policy and pricing (debt limit, approval limit, early
+ * payoff tiers, loyalty price) come from the data layer. Pages pass the
+ * values they loaded; the defaults here are the sample workspace's same
+ * records, used by the tests and the sample deal.
  */
+import type { Policy, Pricing } from "@/lib/data/types";
+import { policy as samplePolicy, pricing as samplePricing } from "@/lib/data/sample/policy";
 import { money, moneyShort, percent } from "@/lib/format";
 
 export type Frequency = "daily" | "weekly";
@@ -39,6 +46,7 @@ export type DealFigures = {
   cardMonthly: number;
 };
 
+/** What one deal's offer is checked against: the workspace policy plus the deal's own range. */
 export type OfferPolicy = {
   /** all debt payments as a share of revenue */
   maxShare: number;
@@ -50,6 +58,9 @@ export type OfferPolicy = {
   approvalLimit: number;
 };
 
+/** The deal's own range: the amount floor and ceiling and the factor range for its score. */
+export type DealOfferRange = Pick<OfferPolicy, "ceiling" | "floor" | "factorMin" | "factorMax">;
+
 export const harborFigures: DealFigures = {
   revenue: 61400,
   existingMonthly: 6185,
@@ -58,14 +69,18 @@ export const harborFigures: DealFigures = {
   cardMonthly: 28200,
 };
 
-export const ridgelinePolicy: OfferPolicy = {
-  maxShare: 0.65,
-  ceiling: 48000,
-  floor: 30000,
-  factorMin: 1.28,
-  factorMax: 1.4,
-  approvalLimit: 45000,
-};
+/** Harbor Street Bakery's range (sample deal data, until the deal tabs move to the data layer). */
+export const harborOfferRange: DealOfferRange = { ceiling: 48000, floor: 30000, factorMin: 1.28, factorMax: 1.4 };
+
+/** The checks for one deal: the debt limit and approval line from the policy, the range from the deal. */
+export const offerPolicyFrom = (p: Pick<Policy, "maxDebtShare" | "limits">, range: DealOfferRange = harborOfferRange): OfferPolicy => ({
+  maxShare: p.maxDebtShare,
+  approvalLimit: p.limits.seniorAbove,
+  ...range,
+});
+
+/** The sample workspace's policy applied to the sample deal (65% debt limit, $45K approval). */
+export const ridgelinePolicy: OfferPolicy = offerPolicyFrom(samplePolicy);
 
 export const recommendedOffer: OfferInput = {
   amount: 40000,
@@ -193,8 +208,9 @@ export function computeOffer(
  * left on the old one, and the rest is new cash. The "unearned fee" is
  * the share of the old advance's fee that sits in the unpaid balance,
  * which a funder can forgive so the merchant does not pay it twice.
+ * The loyalty discount is Pricing's; this default is the sample workspace's.
  */
-export const LOYALTY_DISCOUNT = 0.04;
+export const LOYALTY_DISCOUNT: Pricing["loyaltyDiscount"] = samplePricing.loyaltyDiscount;
 
 export type RenewalInput = {
   /** the new advance */
@@ -221,8 +237,13 @@ export type RenewalResult = {
   unearnedFee: number;
 };
 
-export function renewalOffer(r: RenewalInput, figures: DealFigures = harborFigures, policy: OfferPolicy = ridgelinePolicy): RenewalResult {
-  const loyaltyFactor = Math.round((r.baseFactor - LOYALTY_DISCOUNT) * 100) / 100;
+export function renewalOffer(
+  r: RenewalInput,
+  figures: DealFigures = harborFigures,
+  policy: OfferPolicy = ridgelinePolicy,
+  loyaltyDiscount: number = LOYALTY_DISCOUNT,
+): RenewalResult {
+  const loyaltyFactor = Math.round((r.baseFactor - loyaltyDiscount) * 100) / 100;
   const cash = Math.max(0, r.amount - r.left);
   const cashPercent = r.amount ? (cash / r.amount) * 100 : 0;
   const daily = r.amount
@@ -243,12 +264,9 @@ export const sameOffer = (a: OfferInput, b: Partial<OfferInput>) =>
 /**
  * The early payoff discount table (Settings › Pricing): paying everything
  * within N days charges the smaller of the tier's factor and the offer's.
+ * The default is the sample workspace's table; pages pass Pricing's.
  */
-export const earlyPayoffTiers: { days: number; factor: number }[] = [
-  { days: 30, factor: 1.2 },
-  { days: 60, factor: 1.24 },
-  { days: 90, factor: 1.28 },
-];
+export const earlyPayoffTiers: Pricing["earlyPayoff"] = samplePricing.earlyPayoff;
 
 export type EarlyPayoffTier = { days: number | null; factor: number; total: number; saves: number };
 

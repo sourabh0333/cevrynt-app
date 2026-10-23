@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Switch } from "@/components/ui/Switch";
-import { currentPolicy, simRanges, simulatePolicy, type SimInput, type SimTone } from "@/lib/policy-sim";
 import {
   outcomeLabel,
   policyHeader as ph,
-  ruleGroups,
+  ruleGroups as groups,
+  ruleParts,
+  ruleSentence,
   rulesCard as rc,
   simulator as sm,
   sliderText,
-  type RuleOutcome,
   type RulePart,
-} from "@/lib/sample-data/policy";
+} from "@/lib/copy/policy";
+import type { Policy, RuleOutcome } from "@/lib/data/types";
+import { simInputFrom, simRanges, simulatePolicy, type SimInput, type SimTone } from "@/lib/policy-sim";
 
 const outcomeChip: Record<RuleOutcome, string> = {
   decline: "bg-red-bg text-red-text",
@@ -53,15 +55,26 @@ function Sentence({ parts, sim }: { parts: RulePart[]; sim: SimInput }) {
  * math in lib/policy-sim.ts) and the matching green value in the rules.
  * Any change, a slider or a rule switched off, turns "Published" into
  * "Publish as version 4". The simulator sticks while the rules scroll and
- * never scrolls or shrinks itself.
+ * never scrolls or shrinks itself. The rules, their values and the
+ * simulator's starting point all come from the live policy (props).
  */
-export function PolicyTop() {
-  const [sim, setSim] = useState<SimInput>(currentPolicy);
-  const [on, setOn] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(ruleGroups.flatMap((g) => g.rules.map((r) => [r.id, r.on]))),
+export function PolicyTop({ policy }: { policy: Policy }) {
+  const live = useMemo(() => simInputFrom(policy), [policy]);
+  const ruleGroups = useMemo(
+    () =>
+      groups.map((g) => ({
+        title: g.title,
+        rules: g.ids.flatMap((id) => {
+          const r = policy.rules.find((x) => x.id === id);
+          return r ? [{ ...r, parts: ruleParts[id](policy) }] : [];
+        }),
+      })),
+    [policy],
   );
+  const [sim, setSim] = useState<SimInput>(live);
+  const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(policy.rules.map((r) => [r.id, r.on])));
 
-  const result = simulatePolicy(sim);
+  const result = simulatePolicy(sim, live);
   const rulesChanged = ruleGroups.some((g) => g.rules.some((r) => on[r.id] !== r.on));
   const changed = result.changed || rulesChanged;
   const verdictBox = !result.changed ? "bg-card text-grey-text" : result.risky ? "bg-red-bg text-red-text" : "bg-mint-light text-teal-dark";
@@ -75,10 +88,10 @@ export function PolicyTop() {
         <div className="flex flex-col gap-1.5">
           <span className="inline-flex items-center gap-[7px] self-start rounded-pill bg-tile px-[11px] py-1 text-[11.5px] font-semibold text-teal-deep">
             <span className="h-[7px] w-[7px] rounded-full bg-teal" />
-            {ph.live}
+            {ph.live(policy.version)}
           </span>
           <h2 id="h-pol" className="m-0 font-heading text-[24px] font-semibold">{ph.title}</h2>
-          <span className="text-[12.5px] text-grey-text">{ph.text}</span>
+          <span className="text-[12.5px] text-grey-text">{ph.text(policy.rules.length)}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="h-[42px] cursor-pointer rounded-pill border-0 bg-tile px-4 text-[12.5px] font-semibold text-ink">
@@ -90,7 +103,7 @@ export function PolicyTop() {
             aria-live="polite"
             className={`h-[42px] rounded-pill border-0 px-4 text-[12.5px] font-semibold ${changed ? "cursor-pointer bg-teal text-white" : "cursor-default bg-white/60 text-hint"}`}
           >
-            {changed ? ph.publishNext : ph.published}
+            {changed ? ph.publishNext(policy.version + 1) : ph.published}
           </button>
         </div>
       </section>
@@ -127,7 +140,7 @@ export function PolicyTop() {
                       className="justify-self-end"
                       checked={on[r.id]}
                       onChange={(v) => setOn((x) => ({ ...x, [r.id]: v }))}
-                      label={r.parts.map((p) => (typeof p === "string" ? p : "value" in p ? p.value : sliderText[p.slider](sim[p.slider]))).join("")}
+                      label={ruleSentence(r.parts, sim)}
                     />
                   </div>
                 ))}
@@ -180,7 +193,7 @@ export function PolicyTop() {
             <div className={`rounded-[16px] px-3.5 py-3 text-[12.5px] ${verdictBox}`}>{sm.verdict[result.verdict]}</div>
             <button
               type="button"
-              onClick={() => setSim(currentPolicy)}
+              onClick={() => setSim(live)}
               className="h-10 min-h-10 cursor-pointer rounded-pill border-0 bg-card text-[12.5px] font-semibold text-ink"
             >
               {sm.reset}

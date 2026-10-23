@@ -2,10 +2,10 @@
  * Sample data for the public application form preview (/apply), copied from
  * design/prototypes/Apply-Form.dc.html (look: design/Apply-Form.html).
  * Public forms are "coming soon" (CLAUDE.md), so the page carries the blue
- * preview banner. The amount range comes from policyLimits, the same
- * $10K–$150K the Policy rules use. Nothing here is sent anywhere.
+ * preview banner. The amount range comes from the policy (getPolicy, passed
+ * in by the page), the same $10K–$150K the Policy rules use. Nothing here is
+ * sent anywhere.
  */
-import { policyLimits } from "@/lib/sample-data/policy";
 
 export const applyBanner = {
   lead: "Preview · coming soon.",
@@ -45,8 +45,8 @@ export const ownerFields = {
   note: "We'll text a code to this number to keep your application safe.",
 };
 
-/** The amount slider spans the policy's offer range. */
-export const amountRange = { min: policyLimits.minAmount, max: policyLimits.maxAmount, step: 5000, start: 40000 };
+/** The amount slider's step and starting point; its ends are the policy's offer range. */
+export const amountSlider = { step: 5000, start: 40000 };
 
 export const fundingFields = {
   amount: { label: "How much do you need?" },
@@ -85,7 +85,7 @@ export const formNav = { back: "Back", saved: "Saved automatically", next: "Cont
  * policy's largest offer (the prototype's rule). Not an offer.
  */
 const REVENUE_MULTIPLE = 1.0;
-export const estimateUpTo = (monthlyRevenue: number) => Math.min(policyLimits.maxAmount, Math.round((monthlyRevenue * REVENUE_MULTIPLE) / 5000) * 5000);
+export const estimateUpTo = (monthlyRevenue: number, maxAmount: number) => Math.min(maxAmount, Math.round((monthlyRevenue * REVENUE_MULTIPLE) / 5000) * 5000);
 
 export const firstLook = {
   title: "A first look",

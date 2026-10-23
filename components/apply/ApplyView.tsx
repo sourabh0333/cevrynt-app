@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
+import type { PolicyLimits } from "@/lib/data/types";
 import { money } from "@/lib/offer-math";
 import {
-  amountRange,
+  amountSlider,
   applyBanner,
   applyHeader,
   applyHero,
@@ -88,8 +89,10 @@ function BackArrow() {
  * are ticked, then the "Application sent" card. "A first look" updates with
  * the amount and monthly revenue. Below 900px it is one column with a fixed
  * bottom bar (round Back, big Continue / Send). Nothing is really sent.
+ * The amount slider spans the policy's offer range (props, from the data layer).
  */
-export function ApplyView() {
+export function ApplyView({ limits }: { limits: Pick<PolicyLimits, "minAmount" | "maxAmount"> }) {
+  const amountRange = { min: limits.minAmount, max: limits.maxAmount, ...amountSlider };
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState(amountRange.start);
   const [rev, setRev] = useState(ff.revenue.start);
@@ -102,7 +105,7 @@ export function ApplyView() {
   const current = applySteps[step - 1];
   const canSend = signStep.permissions.every((p) => perms[p.key]);
   const last = step === total;
-  const estimate = estimateUpTo(rev);
+  const estimate = estimateUpTo(rev, limits.maxAmount);
   const fits = amount <= estimate;
 
   const back = () => setStep((s) => Math.max(1, s - 1));

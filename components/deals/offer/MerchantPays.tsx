@@ -1,12 +1,13 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
-import { formatOffer, ridgelinePolicy, type OfferInput, type OfferResult } from "@/lib/offer-math";
+import { formatOffer, type OfferInput, type OfferResult } from "@/lib/offer-math";
 import { merchantPays as t } from "@/lib/sample-data/deal-offer";
 
 const tile = "rounded-tile bg-teal/7 px-3 py-2.5";
 const num = "block font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]";
 
-type Props = { offer: OfferInput; result: OfferResult; onUse: () => void };
+/** maxShare: the policy's debt limit (0.65), from the data layer */
+type Props = { offer: OfferInput; result: OfferResult; maxShare: number; onUse: () => void };
 
 /**
  * "The merchant pays" from design/Deal-Offer.html: the live result of the
@@ -15,10 +16,10 @@ type Props = { offer: OfferInput; result: OfferResult; onUse: () => void };
  * offer changes. "Use this offer" loads the figures into the disclosure
  * and the send card. No hover.
  */
-export function MerchantPays({ offer, result: r, onUse }: Props) {
+export function MerchantPays({ offer, result: r, maxShare, onUse }: Props) {
   const f = formatOffer(offer, r);
   const barStyle: CSSProperties & { "--delay"?: string } = {
-    width: `${Math.min(100, (r.share / ridgelinePolicy.maxShare) * 100).toFixed(1)}%`,
+    width: `${Math.min(100, (r.share / maxShare) * 100).toFixed(1)}%`,
     "--delay": "0.2s",
   };
   return (
@@ -54,7 +55,7 @@ export function MerchantPays({ offer, result: r, onUse }: Props) {
           </div>
           <div className="mt-1.5 flex justify-between text-[10.5px] text-muted">
             <span>{t.share.zero}</span>
-            <span>{t.share.max}</span>
+            <span>{t.share.max(maxShare)}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-1.5">

@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Switch } from "@/components/ui/Switch";
-import { LOYALTY_DISCOUNT } from "@/lib/offer-math";
+import type { Pricing } from "@/lib/data/types";
 import { autoApproveCount, defaultRenewalRules, isReady, notReadyReason, readiness, renewalRuleRanges, type RenewalRules } from "@/lib/renewal-rules";
-import { disclosures } from "@/lib/sample-data/pricing";
-import { brokerPay } from "@/lib/sample-data/renewals";
 import {
   approval,
   neverOffer,
@@ -20,22 +18,19 @@ import {
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
-const points = (v: string) => parseInt(v, 10);
 
 /*
- * "What they're offered": the shared values come from where the rest of
- * the app already keeps them, so the tiles can't drift: the loyalty price
- * from the offer math, broker points from the Renewals page, and unearned
- * fees from the Pricing "forgive on renewals" switch.
+ * "What they're offered": the shared values all come from Pricing, so the
+ * tiles can't drift: the loyalty price, the broker points and the
+ * "forgive unearned fees on renewals" switch.
  */
-const forgiveByDefault = disclosures.toggles.find((t) => t.key === "forgive")?.on ?? true;
-const [newDealPay, renewalPay] = brokerPay.rows;
-const offerTiles: { label: string; value: string; note: string; hero?: boolean }[] = [
+type OfferTerms = Pick<Pricing, "loyaltyDiscount" | "brokerPoints" | "forgiveUnearnedFees">;
+const offerTilesFor = ({ loyaltyDiscount, brokerPoints, forgiveUnearnedFees: forgive }: OfferTerms): { label: string; value: string; note: string; hero?: boolean }[] => [
   { label: "Most you offer", value: "1.25×", note: "of revenue right now" },
-  { label: "Loyalty price", value: `−${LOYALTY_DISCOUNT.toFixed(2)}`, note: "off the first factor", hero: true },
+  { label: "Loyalty price", value: `−${loyaltyDiscount.toFixed(2)}`, note: "off the first factor", hero: true },
   { label: "Current balance", value: "Paid off", note: "from the renewal amount" },
-  { label: "Unearned fees", value: forgiveByDefault ? "Forgiven" : "Charged", note: forgiveByDefault ? "no paying twice" : "included in the payoff" },
-  { label: "Broker commission", value: renewalPay.value, note: `vs ${points(newDealPay.value)} on new deals` },
+  { label: "Unearned fees", value: forgive ? "Forgiven" : "Charged", note: forgive ? "no paying twice" : "included in the payoff" },
+  { label: "Broker commission", value: `${brokerPoints.renewal} pts`, note: `vs ${brokerPoints.newDeal} on new deals` },
   { label: "Broker keeps renewals", value: "12 mo", note: "then they're yours" },
 ];
 
@@ -47,8 +42,10 @@ const h2 = "m-0 font-heading text-[19px] font-semibold";
  * readiness check (lib/renewal-rules.ts): the funnel, the ready count, the
  * merchant list and the change vs today all update live. With today's
  * rules exactly 9 merchants are ready, the Renewals page count. No hover.
+ * The renewal price terms come from Pricing (props, from the data layer).
  */
-export function RenewalRulesView() {
+export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
+  const offerTiles = offerTilesFor(terms);
   const [rules, setRules] = useState<RenewalRules>(defaultRenewalRules);
   const [auto, setAuto] = useState(true);
   const [cap, setCap] = useState(approval.auto.cap.start);

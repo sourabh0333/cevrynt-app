@@ -1,4 +1,4 @@
-import { computeOffer, money, moneyShort, percent, recommendedOffer, sameOffer, type OfferInput } from "@/lib/offer-math";
+import { computeOffer, harborFigures, money, moneyShort, percent, recommendedOffer, sameOffer, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
 import { presets } from "@/lib/sample-data/deal-offer";
 
 /**
@@ -7,7 +7,7 @@ import { presets } from "@/lib/sample-data/deal-offer";
  * revenue from the shared offer math. Picking one loads it into the
  * builder; the one that matches the builder shows as chosen. No hover.
  */
-export function PresetCards({ offer, onPick }: { offer: OfferInput; onPick: (patch: Partial<OfferInput>) => void }) {
+export function PresetCards({ offer, policy, onPick }: { offer: OfferInput; policy: OfferPolicy; onPick: (patch: Partial<OfferInput>) => void }) {
   return (
     <section aria-labelledby="h-opts" className="flex flex-col gap-3">
       <div className="px-1 pt-1">
@@ -18,7 +18,7 @@ export function PresetCards({ offer, onPick }: { offer: OfferInput; onPick: (pat
         {presets.items.map((p) => {
           const on = sameOffer(offer, p.offer);
           const input = { ...recommendedOffer, ...p.offer };
-          const r = computeOffer(input);
+          const r = computeOffer(input, harborFigures, policy);
           const cells = [
             [presets.tiles.amount, moneyShort(input.amount)],
             [presets.tiles.daily, money(r.daily)],

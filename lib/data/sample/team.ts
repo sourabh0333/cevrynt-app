@@ -1,5 +1,7 @@
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "@/lib/data/types";
-import { policyLimits } from "@/lib/sample-data/policy";
+import { policy } from "./policy";
+
+const policyLimits = policy.limits;
 
 /**
  * Sample team records, copied from design/prototypes/Settings-Team.dc.html.

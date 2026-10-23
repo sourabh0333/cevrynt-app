@@ -18,8 +18,8 @@ export const moneyShort = (n: number) => "$" + (n / 1000).toFixed(n % 1000 ? 1 :
 /** "$1.24M" for amounts of a million and up, otherwise like moneyShort. */
 export const moneyCompact = (n: number) => (Math.abs(n) >= 1_000_000 ? "$" + (n / 1_000_000).toFixed(2) + "M" : moneyShort(n));
 
-/** "25%" from a fraction (0.254). */
-export const percent = (fraction: number) => Math.round(fraction * 100) + "%";
+/** "25%" from a fraction (0.254); "2.6%" with one decimal place. */
+export const percent = (fraction: number, digits = 0) => (digits ? (fraction * 100).toFixed(digits) : Math.round(fraction * 100)) + "%";
 
 /** "1 step", "3 steps" */
 export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -49,6 +49,12 @@ export function daysBetween(fromIso: string, toIso: string, timeZone = WORKSPACE
     return Date.UTC(Number(p.year), new Date(`${p.month} 1, 2000`).getMonth(), Number(p.day));
   };
   return Math.round((day(toIso) - day(fromIso)) / 86_400_000);
+}
+
+/** "Aug 2026" */
+export function monthYear(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const p = parts(iso, timeZone);
+  return `${p.month} ${p.year}`;
 }
 
 /** "Today", "Yesterday" or "Oct 14", counted in the workspace's zone. */

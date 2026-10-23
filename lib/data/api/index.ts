@@ -26,5 +26,7 @@ export const apiSource: DataSource = {
   settings: {
     getWorkspace: notConnected("workspace"),
     listNotificationRules: notConnected("workspace"),
+    getPolicy: notConnected("policy"),
+    getPricing: notConnected("pricing"),
   },
 };

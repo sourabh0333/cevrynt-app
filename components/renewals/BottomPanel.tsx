@@ -41,7 +41,7 @@ function RiskIcon({ kind }: { kind: "card" | "doc" | "eye" }) {
  * value-at-risk bar grows, the risk rings sweep) and Coming up (bars
  * toward the 50% line grow). No hover.
  */
-export function BottomPanel() {
+export function BottomPanel({ loyaltyDiscount }: { loyaltyDiscount: number }) {
   return (
     <section
       aria-label="Renewal rules, risks and pipeline"
@@ -66,7 +66,7 @@ export function BottomPanel() {
         ))}
         <div className="mt-auto flex items-center justify-between gap-2 rounded-tile bg-teal px-3 py-2.5 text-label text-white">
           <span>{readyRules.loyalty.label}</span>
-          <b className="text-mint">{readyRules.loyalty.value}</b>
+          <b className="text-mint">{readyRules.loyalty.value(loyaltyDiscount)}</b>
         </div>
       </div>
 

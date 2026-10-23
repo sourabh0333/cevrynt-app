@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { disclosureFor, type OfferInput } from "@/lib/offer-math";
+import { disclosureFor, harborFigures, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
 import { disclosure as t, sendOffer } from "@/lib/sample-data/deal-offer";
 
 const cell = "rounded-[12px] bg-tile p-3";
@@ -12,8 +12,8 @@ const big = "font-heading text-[18px] font-semibold tabular-nums tracking-[-0.03
  * in from the chosen offer through disclosureFor, so every figure matches
  * the builder. No hover.
  */
-export function DisclosureCard({ offer }: { offer: OfferInput }) {
-  const d = disclosureFor(offer);
+export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: OfferPolicy }) {
+  const d = disclosureFor(offer, harborFigures, policy);
   const f = d.figures;
   const L = t.doc.labels;
   return (
@@ -86,9 +86,9 @@ export function DisclosureCard({ offer }: { offer: OfferInput }) {
 
 /**
  * "Send the offer": what goes out, who gets it, and the approval rule.
- * Above the underwriter's $45K limit the senior must sign off first.
+ * Above the underwriter's approval limit ($45K) the senior must sign off first.
  */
-export function SendCard({ needsSenior, withinPolicy }: { needsSenior: boolean; withinPolicy: boolean }) {
+export function SendCard({ needsSenior, withinPolicy, approvalLimit }: { needsSenior: boolean; withinPolicy: boolean; approvalLimit: number }) {
   return (
     <article aria-labelledby="h-send" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-card-deep p-5 text-ink">
       <h2 id="h-send" className="m-0 font-heading text-[20px] font-semibold">{sendOffer.title}</h2>
@@ -110,7 +110,7 @@ export function SendCard({ needsSenior, withinPolicy }: { needsSenior: boolean; 
         ))}
       </div>
       <div aria-live="polite" className={`rounded-tile px-3 py-2.5 text-label ${needsSenior ? "bg-amber-tint text-amber-mute" : "bg-white/75 text-grey-text"}`}>
-        {needsSenior ? sendOffer.approval.senior : sendOffer.approval.ok}
+        {needsSenior ? sendOffer.approval.senior(approvalLimit) : sendOffer.approval.ok}
       </div>
       <button
         type="button"

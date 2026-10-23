@@ -37,7 +37,7 @@ export function OutreachCard() {
 }
 
 /** "Broker pay on renewals": the three point rates and the commission saved. */
-export function BrokerPayCard() {
+export function BrokerPayCard({ points }: { points: { newDeal: number; renewal: number } }) {
   return (
     <article aria-labelledby="h-comm" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-cream p-5 text-ink">
       <div>
@@ -45,7 +45,7 @@ export function BrokerPayCard() {
         <span className="text-label text-amber-mute">{brokerPay.subtitle}</span>
       </div>
       <div className="flex flex-col gap-1.5">
-        {brokerPay.rows.map((r) => (
+        {brokerPay.rows(points).map((r) => (
           <span key={r.label} className="flex items-center justify-between rounded-[16px] bg-white/75 p-3 text-[12.5px]">
             <span>{r.label}</span>
             <b className="font-heading text-[18px] font-semibold tabular-nums tracking-[-0.03em]">{r.value}</b>

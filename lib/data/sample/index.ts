@@ -1,5 +1,6 @@
 import type { DataSource } from "@/lib/data/types";
 import { SAMPLE_NOW } from "./clock";
+import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
 import { accessReview, outsideAccess, teamInvites, teamMembers } from "./team";
 import { notificationRules, workspace } from "./workspace";
@@ -40,6 +41,12 @@ export const sampleSource: DataSource = {
     },
     async listNotificationRules() {
       return notificationRules.map((r) => ({ ...r, channels: { ...r.channels } }));
+    },
+    async getPolicy() {
+      return structuredClone(policy);
+    },
+    async getPricing() {
+      return structuredClone(pricing);
     },
   },
 };

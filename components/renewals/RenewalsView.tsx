@@ -14,8 +14,9 @@ import { RenewalsHero } from "./RenewalsHero";
  * beside the offer panel, the ready cards, outreach beside broker pay,
  * and the bottom panel. The selection, amounts, sent offers and forgiven
  * fees live here so the hero, radar, cards and panel all follow them.
+ * The loyalty price and broker points come from Pricing (props).
  */
-export function RenewalsView() {
+export function RenewalsView({ loyaltyDiscount, brokerPoints }: { loyaltyDiscount: number; brokerPoints: { newDeal: number; renewal: number } }) {
   const [s, setS] = useState<RenewalState>({ sel: radar.startSelected, amounts: {}, sent: {}, forgive: {} });
   const sentCount = hero.journey.sentBase + renewalMerchants.filter((m) => s.sent[m.ini] && m.status === "ready").length;
 
@@ -31,6 +32,7 @@ export function RenewalsView() {
       <RenewalsHero sentCount={sentCount} />
       <RadarRow
         s={s}
+        loyaltyDiscount={loyaltyDiscount}
         onPick={(sel) => setS((x) => ({ ...x, sel }))}
         onAmount={(ini, amount) => setS((x) => ({ ...x, amounts: { ...x.amounts, [ini]: amount } }))}
         onSend={(ini) => setS((x) => ({ ...x, sent: { ...x.sent, [ini]: true } }))}
@@ -39,9 +41,9 @@ export function RenewalsView() {
       <ReadyCards s={s} onPick={(sel) => setS((x) => ({ ...x, sel }))} />
       <section aria-label="Automatic outreach and broker pay" className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
         <OutreachCard />
-        <BrokerPayCard />
+        <BrokerPayCard points={brokerPoints} />
       </section>
-      <BottomPanel />
+      <BottomPanel loyaltyDiscount={loyaltyDiscount} />
     </>
   );
 }

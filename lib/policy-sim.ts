@@ -3,15 +3,27 @@
  * Replays the last 90 days against three changed limits and returns the
  * four result tiles and the verdict exactly as the prototype computes them.
  * Real replays replace this later behind the same shape.
+ *
+ * The starting point is the live policy from the data layer (simInputFrom);
+ * the default is the sample workspace's same record, used by the tests.
  */
+import type { Policy } from "@/lib/data/types";
+import { policy as samplePolicy } from "@/lib/data/sample/policy";
 
 export type SimInput = { maxPos: number; debt: number; minRev: number };
 export type SimTone = "flat" | "good" | "bad";
 export type SimTile = { key: "approvals" | "late" | "funded" | "profit"; value: string; delta: string; tone: SimTone };
 export type SimVerdict = "current" | "risky" | "safer" | "better";
 
+/** The simulator's three sliders for a policy: open positions, debt share in %, minimum revenue in $K. */
+export const simInputFrom = (p: Pick<Policy, "maxPositions" | "maxDebtShare" | "minMonthlyRevenue">): SimInput => ({
+  maxPos: p.maxPositions,
+  debt: Math.round(p.maxDebtShare * 100),
+  minRev: p.minMonthlyRevenue / 1000,
+});
+
 /** Today's published policy: 2 open positions, 65% debt share, $15K minimum revenue. */
-export const currentPolicy: SimInput = { maxPos: 2, debt: 65, minRev: 15 };
+export const currentPolicy: SimInput = simInputFrom(samplePolicy);
 
 /** Slider ranges from the design. */
 export const simRanges = {
@@ -31,10 +43,11 @@ function signed(v: number, unit: string, dp: number) {
 }
 const tone = (v: number, good: boolean): SimTone => (v === 0 ? "flat" : good ? "good" : "bad");
 
-export function simulatePolicy(s: SimInput) {
-  const dPos = s.maxPos - currentPolicy.maxPos;
-  const dDebt = (s.debt - currentPolicy.debt) / 5;
-  const dRev = (s.minRev - currentPolicy.minRev) / 5;
+/** Replays the last 90 days with `s` against the live policy `base`. */
+export function simulatePolicy(s: SimInput, base: SimInput = currentPolicy) {
+  const dPos = s.maxPos - base.maxPos;
+  const dDebt = (s.debt - base.debt) / 5;
+  const dRev = (s.minRev - base.minRev) / 5;
 
   const approvals = BASE.approvals + dPos * (dPos < 0 ? 9 : 11) + dDebt * 2 - dRev * 6;
   const late = BASE.late + dPos * (dPos < 0 ? 0.5 : 0.9) + dDebt * 0.2 - dRev * 0.3;

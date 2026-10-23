@@ -1,9 +1,9 @@
 /**
  * Sample data for the Renewals page, copied from
  * design/prototypes/Renewals.dc.html (look: design/Renewals.html).
- * Renewal figures come from renewalOffer in lib/offer-math.ts.
+ * Renewal figures come from renewalOffer in lib/offer-math.ts. The loyalty
+ * price and broker points are Pricing's (getPricing), passed in by the page.
  */
-import { LOYALTY_DISCOUNT } from "@/lib/offer-math";
 import { defaultRenewalRules as rules } from "@/lib/renewal-rules";
 
 export const renewalsHeader = {
@@ -94,7 +94,7 @@ export const offerPanel = {
   stats: { repaid: "Repaid", revenue: "Revenue", score: "Score" },
   amount: { label: "Renewal amount", upTo: (max: string) => `up to ${max}`, notYet: "Not yet", step: 5000, min: 10000 },
   split: { paysOff: (left: string) => `Pays off ${left}`, newCash: (cash: string) => `${cash} new cash` },
-  factor: { label: "Loyalty factor", discount: LOYALTY_DISCOUNT },
+  factor: { label: "Loyalty factor" },
   daily: { label: (now: string) => `Daily, was ${now}` },
   checks: ["✓ Fresh bank data", "✓ Stacking check", "✓ Registry active"],
   disclosure: {
@@ -138,9 +138,10 @@ export const outreach = {
 export const brokerPay = {
   title: "Broker pay on renewals",
   subtitle: "Set once, applied to every renewal",
-  rows: [
-    { label: "New deal", value: "8 pts" },
-    { label: "Renewal, same broker", value: "5 pts" },
+  /** Pricing's broker points; a renewal that comes direct pays no broker. */
+  rows: (points: { newDeal: number; renewal: number }) => [
+    { label: "New deal", value: `${points.newDeal} pts` },
+    { label: "Renewal, same broker", value: `${points.renewal} pts` },
     { label: "Renewal, direct to you", value: "0 pts" },
   ],
   saved: { before: "Saved ", amount: "$9,600", after: " in commission this quarter on renewals" },
@@ -157,7 +158,7 @@ export const readyRules = {
     { label: "Revenue vs at funding", value: `${rules.rev}%` },
     { label: "New advances elsewhere", value: "0" },
   ],
-  loyalty: { label: "Loyalty price", value: `−${LOYALTY_DISCOUNT.toFixed(2)} factor` },
+  loyalty: { label: "Loyalty price", value: (discount: number) => `−${discount.toFixed(2)} factor` },
 };
 
 export const atRisk = {

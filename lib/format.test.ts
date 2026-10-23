@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { dateShort, dayAndTime, dayLabel, daysBetween, money, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
+import { dateShort, dayAndTime, dayLabel, daysBetween, money, monthYear, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
 
 describe("money and shares", () => {
   it("formats dollars the way the designs show them", () => {
@@ -11,6 +11,8 @@ describe("money and shares", () => {
     assert.equal(moneyCompact(1240000), "$1.24M");
     assert.equal(moneyCompact(402000), "$402K");
     assert.equal(percent(0.254), "25%");
+    assert.equal(percent(0.026, 1), "2.6%");
+    assert.equal(percent(1.5), "150%");
   });
 
   it("counts things in plain words", () => {
@@ -27,6 +29,7 @@ describe("dates in the workspace's zone (Eastern)", () => {
     assert.equal(timeOfDay("2026-10-14T12:12:00Z"), "08:12");
     assert.equal(timeOfDay("2026-10-14T20:40:00Z"), "16:40");
     assert.equal(dateShort("2026-10-02T14:00:00Z"), "Oct 2");
+    assert.equal(monthYear("2027-07-01T12:00:00-04:00"), "Jul 2027");
   });
 
   it("says Today and Yesterday by the workspace's calendar, not UTC", () => {

@@ -3,8 +3,8 @@ import { TeamSkeleton } from "@/components/settings/team/TeamSkeleton";
 import { TeamView } from "@/components/settings/team/TeamView";
 import { Arrive } from "@/components/ui/Skeleton";
 import { getNow } from "@/lib/data/clock";
+import { getPolicy } from "@/lib/data/settings";
 import { getAccessReview, getOutsideAccess, listInvites, listTeam } from "@/lib/data/team";
-import { policyLimits } from "@/lib/sample-data/policy";
 
 export const metadata = { title: "Team & roles · Settings · Cevrynt" };
 
@@ -22,16 +22,16 @@ export default function TeamPage() {
 }
 
 async function TeamData() {
-  const [members, invites, accessReview, outsideAccess, now] = await Promise.all([
+  const [members, invites, accessReview, outsideAccess, now, policy] = await Promise.all([
     listTeam(),
     listInvites(),
     getAccessReview(),
     getOutsideAccess(),
     getNow(),
+    getPolicy(),
   ]);
-  // The approval lines still come from the Policy sample until Policy moves
-  // to the data layer (DATA-PLAN.md, step 4).
-  const { seniorAbove, seniorLimit, maxAmount } = policyLimits;
+  // The approval ladder and permissions grid quote the policy's own lines.
+  const { seniorAbove, seniorLimit, maxAmount } = policy.limits;
   return (
     <Arrive>
       <TeamView

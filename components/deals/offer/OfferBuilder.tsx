@@ -1,11 +1,13 @@
 import { Card } from "@/components/ui/Card";
-import { money, percent, type OfferInput, type OfferResult } from "@/lib/offer-math";
+import { money, percent, type OfferInput, type OfferPolicy, type OfferResult } from "@/lib/offer-math";
 import { builder } from "@/lib/sample-data/deal-offer";
 import { Pills } from "./Pills";
 
 type Props = {
   offer: OfferInput;
   result: OfferResult;
+  /** the policy limits and this deal's range, from the data layer */
+  policy: OfferPolicy;
   onChange: (patch: Partial<OfferInput>) => void;
   onReset: () => void;
 };
@@ -19,13 +21,13 @@ const label = "text-body-sm font-semibold";
  * slider, the factor, term, payments, fee and collect-from pill groups, the
  * Kingsway payoff tick box, and the four live policy checks. No hover.
  */
-export function OfferBuilder({ offer, result, onChange, onReset }: Props) {
+export function OfferBuilder({ offer, result, policy: p, onChange, onReset }: Props) {
   const r = result.rules;
   const rules: Rule[] = [
-    { ok: r.debtShare, label: builder.rules.debtShare.label(percent(result.share)), note: builder.rules.debtShare.note },
-    { ok: r.ceiling, label: builder.rules.ceiling.label, note: builder.rules.ceiling.note },
-    { ok: r.factor, label: builder.rules.factor.label, note: builder.rules.factor.note },
-    { ok: r.approval, warn: true, label: r.approval ? builder.rules.approval.ok : builder.rules.approval.warn, note: builder.rules.approval.note },
+    { ok: r.debtShare, label: builder.rules.debtShare.label(percent(result.share)), note: builder.rules.debtShare.note(p.maxShare) },
+    { ok: r.ceiling, label: builder.rules.ceiling.label, note: builder.rules.ceiling.note(p.ceiling) },
+    { ok: r.factor, label: builder.rules.factor.label, note: builder.rules.factor.note(p.factorMin, p.factorMax) },
+    { ok: r.approval, warn: true, label: r.approval ? builder.rules.approval.ok : builder.rules.approval.warn, note: builder.rules.approval.note(p.approvalLimit) },
   ];
 
   return (
@@ -50,17 +52,17 @@ export function OfferBuilder({ offer, result, onChange, onReset }: Props) {
         <input
           id="o-amt"
           type="range"
-          min={builder.amount.min}
-          max={builder.amount.max}
+          min={p.floor}
+          max={p.ceiling}
           step={builder.amount.step}
           value={offer.amount}
           onChange={(e) => onChange({ amount: Number(e.target.value) })}
           className="m-0 w-full cursor-pointer accent-teal"
         />
         <div className="flex justify-between text-[11.5px] text-hint">
-          <span>{builder.amount.floor}</span>
+          <span>{builder.amount.floor(p.floor)}</span>
           <span className="font-semibold text-teal-deep">{builder.amount.recommended}</span>
-          <span>{builder.amount.ceiling}</span>
+          <span>{builder.amount.ceiling(p.ceiling)}</span>
         </div>
       </div>
 

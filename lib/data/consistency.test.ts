@@ -1,24 +1,27 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { comingNote, comingHeader } from "@/lib/copy/coming";
+import { ruleParts, ruleSentence } from "@/lib/copy/policy";
+import { adjustments, limits as pricingLimits, sizing } from "@/lib/copy/pricing";
+import { accessReview as reviewCopy, ladder, peopleCard } from "@/lib/copy/team";
+import { workingHours } from "@/lib/copy/workspace";
+import { getNow } from "@/lib/data/clock";
 import { listRoadmapFeatures } from "@/lib/data/roadmap";
-import { ridgelinePolicy } from "@/lib/offer-math";
+import { getPolicy, getPricing, getWorkspace } from "@/lib/data/settings";
+import { getAccessReview, listInvites, listTeam } from "@/lib/data/team";
+import { daysBetween } from "@/lib/format";
+import { earlyPayoffTiers, LOYALTY_DISCOUNT, offerPolicyFrom, ridgelinePolicy } from "@/lib/offer-math";
+import { currentPolicy, simInputFrom } from "@/lib/policy-sim";
 import { defaultRenewalRules, readiness } from "@/lib/renewal-rules";
+import { estimateUpTo } from "@/lib/sample-data/apply";
 import { auditHeader } from "@/lib/sample-data/audit";
-import { COST_PER_DEAL, costPerDeal, dealsUsed, usageByChannel } from "@/lib/sample-data/plan";
-import { policyLimits, ruleGroups } from "@/lib/sample-data/policy";
+import { builder, sendOffer } from "@/lib/sample-data/deal-offer";
+import { COST_PER_DEAL, costPerDeal, dealsUsed, usage, usageByChannel } from "@/lib/sample-data/plan";
 import { readinessMerchants } from "@/lib/sample-data/renewal-rules";
-import { renewalsHeader } from "@/lib/sample-data/renewals";
+import { brokerPay, readyRules, renewalsHeader } from "@/lib/sample-data/renewals";
 import { unitEconomics } from "@/lib/sample-data/reports";
 import { signIns, toFix } from "@/lib/sample-data/security";
 import { DECISION_TARGET_HOURS, deals, teamWorkload } from "@/lib/sample-data/submissions";
-import { accessReview as reviewCopy, peopleCard } from "@/lib/copy/team";
-import { workingHours } from "@/lib/copy/workspace";
-import { getNow } from "@/lib/data/clock";
-import { getWorkspace } from "@/lib/data/settings";
-import { getAccessReview, listInvites, listTeam } from "@/lib/data/team";
-import { daysBetween } from "@/lib/format";
-import { usage } from "@/lib/sample-data/plan";
 
 /*
  * Today's cross-page facts (DATA-PLAN.md, step 0). Several pages show the
@@ -101,23 +104,77 @@ describe("Team", () => {
 });
 
 describe("Policy limits", () => {
-  it("offers run $10K to $150K; seniors approve over $45K and alone up to $100K", () => {
-    assert.deepEqual(policyLimits, { minAmount: 10000, seniorAbove: 45000, seniorLimit: 100000, maxAmount: 150000 });
+  it("offers run $10K to $150K; seniors approve over $45K and alone up to $100K", async () => {
+    const { limits } = await getPolicy();
+    assert.deepEqual(limits, { minAmount: 10000, seniorAbove: 45000, seniorLimit: 100000, maxAmount: 150000 });
   });
 
-  it("the Offer tab's approval limit is the policy's senior line", () => {
-    assert.equal(ridgelinePolicy.approvalLimit, policyLimits.seniorAbove);
+  it("the Offer tab checks the policy's 65% debt limit and $45K approval line", async () => {
+    const policy = await getPolicy();
+    const offer = offerPolicyFrom(policy);
+    assert.equal(offer.maxShare, 0.65);
+    assert.equal(offer.approvalLimit, policy.limits.seniorAbove);
+    // the offer math's sample default is the same record, so its tests run on what the page shows
+    assert.deepEqual(ridgelinePolicy, offer);
+    assert.equal(builder.rules.debtShare.note(offer.maxShare), "Limit 65% of revenue");
+    assert.equal(builder.rules.approval.note(offer.approvalLimit), "You can approve up to $45K");
+    assert.match(sendOffer.approval.senior(offer.approvalLimit), /^Above \$45K/);
   });
 
-  it("the Policy rules print the same limits", () => {
-    const sentence = (id: string) =>
-      ruleGroups
-        .flatMap((g) => g.rules)
-        .find((r) => r.id === id)!
-        .parts.map((p) => (typeof p === "string" ? p : "value" in p ? p.value : ""))
-        .join("");
-    assert.match(sentence("amount"), /between \$10K and \$150K/);
-    assert.match(sentence("senior"), /over \$45K/);
+  it("the Policy rules print the same limits", async () => {
+    const policy = await getPolicy();
+    const sim = simInputFrom(policy);
+    assert.match(ruleSentence(ruleParts.amount(policy), sim), /between \$10K and \$150K/);
+    assert.match(ruleSentence(ruleParts.senior(policy), sim), /over \$45K/);
+    assert.equal(ruleSentence(ruleParts.debt(policy), sim), "All debt payments under 65% of revenue");
+  });
+
+  it("the simulator starts from the live policy: 2 positions, 65%, $15K", async () => {
+    const sim = simInputFrom(await getPolicy());
+    assert.deepEqual(sim, { maxPos: 2, debt: 65, minRev: 15 });
+    assert.deepEqual(currentPolicy, sim);
+  });
+
+  it("Team & roles and Pricing quote the same lines", async () => {
+    const policy = await getPolicy();
+    const team = await listTeam();
+    assert.deepEqual(ladder.steps(policy.limits).map((s) => s.range), ["Up to $45K", "$45K – $100K", "$100K – $150K", "Over $150K"]);
+    assert.equal(team.find((m) => m.role === "senior")?.approvalLimit, policy.limits.seniorLimit);
+    assert.equal(sizing.note(policy), "Still capped by the policy's $10K to $150K range and the 65% debt limit.");
+  });
+
+  it("the application form's estimate never goes above the largest offer", async () => {
+    const { limits } = await getPolicy();
+    assert.equal(estimateUpTo(400000, limits.maxAmount), 150000);
+    assert.equal(estimateUpTo(40000, limits.maxAmount), 40000);
+  });
+});
+
+describe("Pricing", () => {
+  it("one loyalty price, −0.04: Pricing, Renewals and the renewal math", async () => {
+    const pricing = await getPricing();
+    assert.equal(pricing.loyaltyDiscount, 0.04);
+    assert.equal(LOYALTY_DISCOUNT, pricing.loyaltyDiscount);
+    assert.equal(adjustments.rows(pricing)[0].delta, -0.04);
+    assert.equal(readyRules.loyalty.value(pricing.loyaltyDiscount), "−0.04 factor");
+  });
+
+  it("one early payoff table, 1.20 / 1.24 / 1.28: Pricing and the Offer tab", async () => {
+    const { earlyPayoff } = await getPricing();
+    assert.deepEqual(earlyPayoff.map((t) => [t.days, t.factor]), [[30, 1.2], [60, 1.24], [90, 1.28]]);
+    assert.deepEqual(earlyPayoffTiers, earlyPayoff);
+  });
+
+  it("broker points 8 / 5: Pricing's cap and the Renewals broker pay", async () => {
+    const pricing = await getPricing();
+    assert.equal(pricingLimits.rows(pricing).find((r) => r.label === "Broker commission cap")?.value, "8 / 5 pts");
+    assert.deepEqual(brokerPay.rows(pricing.brokerPoints).map((r) => r.value), ["8 pts", "5 pts", "0 pts"]);
+  });
+
+  it("the factor grid: 1.32 for scores 80 – 89 at 6 months, the recommended offer's factor", async () => {
+    const { grid, terms } = await getPricing();
+    const band = grid.find((b) => b.minScore === 80)!;
+    assert.equal(band.factors[terms.indexOf(6)], 1.32);
   });
 });
 

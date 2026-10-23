@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { computeOffer, money } from "@/lib/offer-math";
 import {
   adjustments,
+  bandLabel,
   disclosures as dc,
   earlyPayoffCard,
   example as ex,
   factorGrid as fg,
-  gridTerms,
   guardrails as gr,
   industryAdjustments as ia,
   limits,
@@ -18,9 +17,10 @@ import {
   signedFactor,
   sizing,
   toneOf,
-  type DisclosureStatus,
   type Tone,
-} from "@/lib/sample-data/pricing";
+} from "@/lib/copy/pricing";
+import type { DisclosureStatus, Policy, Pricing } from "@/lib/data/types";
+import { computeOffer, harborFigures, money, offerPolicyFrom } from "@/lib/offer-math";
 
 /* Six shades from the prototype, cheap (mint) to expensive (amber). */
 const rateFill = ["bg-mint-bg", "bg-rate-2", "bg-rate-3", "bg-amber-bg", "bg-rate-5", "bg-rate-6"];
@@ -51,24 +51,32 @@ const discCols =
  * beside it is worked out with the shared offer math (computeOffer), so it
  * matches the Offer tab. Early payoff reads the same tier table the Offer
  * tab uses. The guardrail sliders update the highest factor any merchant
- * can see, and the two disclosure switches work. No hover.
+ * can see, and the two disclosure switches work. No hover. Every price
+ * comes from the data layer (props); the sizing note quotes the policy.
  */
-export function PricingView() {
+export function PricingView({ pricing: p, policy }: { pricing: Pricing; policy: Pick<Policy, "limits" | "maxDebtShare"> }) {
   const [cell, setCell] = useState(fg.start);
-  const [up, setUp] = useState(gr.upsell.start);
-  const [floor, setFloor] = useState(gr.floor.start);
-  const [toggles, setToggles] = useState<Record<string, boolean>>(() => Object.fromEntries(dc.toggles.map((t) => [t.key, t.on])));
+  const [up, setUp] = useState(p.guardrails.brokerUpsellPoints);
+  const [floor, setFloor] = useState(p.guardrails.minMarginPercent);
+  const [toggles, setToggles] = useState<Record<string, boolean>>(() => ({ forgive: p.forgiveUnearnedFees, brokerPay: p.showBrokerPay }));
 
+  const bands = p.grid.map((b, i) => ({ band: bandLabel(b.minScore, b.maxScore), sub: fg.bandSub(i, p.grid.length), factors: b.factors }));
   const [r, c] = cell.split("-").map(Number);
-  const band = fg.bands[r];
+  const band = bands[r];
   const factor = band.factors[c];
-  const term = gridTerms[c];
-  const offer = computeOffer({ amount: ex.amount, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false });
+  const term = p.terms[c];
+  // The example is the offer builder's own math, with the workspace's commission and policy.
+  const offer = computeOffer(
+    { amount: ex.amount, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false },
+    { ...harborFigures, commission: p.brokerPoints.newDeal / 100 },
+    offerPolicyFrom(policy),
+  );
 
-  const highestGrid = Math.max(...fg.bands.flatMap((b) => b.factors));
-  const highestIndustry = Math.max(...ia.rows.map((x) => x.delta));
+  const highestGrid = Math.max(...p.grid.flatMap((b) => b.factors));
+  const highestIndustry = Math.max(...p.industryAdjustments.map((x) => x.delta));
   const highest = (highestGrid + highestIndustry + up / 100).toFixed(2);
-  const maxMultiple = Math.max(...sizing.rows.map((x) => x.multiple));
+  const maxMultiple = Math.max(...p.sizing.map((x) => x.multiple));
+  const lowestScore = Math.min(...p.grid.map((b) => b.minScore));
 
   return (
     <>
@@ -99,12 +107,12 @@ export function PricingView() {
           </div>
           <div role="group" aria-label={fg.title} className="grid grid-cols-[110px_repeat(3,minmax(0,1fr))] gap-1.5">
             <span />
-            {gridTerms.map((t) => (
+            {p.terms.map((t) => (
               <span key={t} className="text-center text-cap font-semibold uppercase text-hint">
                 {fg.termLabel(t)}
               </span>
             ))}
-            {fg.bands.map((b, ri) => (
+            {bands.map((b, ri) => (
               <div key={b.band} className="contents">
                 <span className="flex flex-col justify-center px-1.5">
                   <b className="text-body-sm">{b.band}</b>
@@ -118,7 +126,7 @@ export function PricingView() {
                       key={key}
                       type="button"
                       aria-pressed={on}
-                      aria-label={`Score ${b.band}, ${gridTerms[ci]} months, factor ${f.toFixed(2)}`}
+                      aria-label={`Score ${b.band}, ${p.terms[ci]} months, factor ${f.toFixed(2)}`}
                       onClick={() => setCell(key)}
                       className={`h-[54px] cursor-pointer rounded-tile border-0 font-heading text-card-title-sm font-bold tabular-nums ${on ? "bg-teal text-white shadow-[0_10px_22px_-14px_rgba(14,107,92,.8)]" : `${rateFill[rateTone(f)]} text-ink`}`}
                     >
@@ -129,7 +137,7 @@ export function PricingView() {
               </div>
             ))}
           </div>
-          <span className="text-[11.5px] text-hint">{fg.note}</span>
+          <span className="text-[11.5px] text-hint">{fg.note(lowestScore)}</span>
         </section>
 
         <aside
@@ -137,7 +145,7 @@ export function PricingView() {
           aria-live="polite"
           className="box-border flex min-w-0 flex-[1_1_280px] flex-col gap-2.5 rounded-card-lg border border-line bg-tile p-5 text-ink shadow-[0_18px_40px_-30px_rgba(15,21,19,.35)]"
         >
-          <span className="self-start rounded-pill bg-mint-bg px-[9px] py-0.5 text-[10.5px] font-bold text-teal-dark">{ex.chip}</span>
+          <span className="self-start rounded-pill bg-mint-bg px-[9px] py-0.5 text-[10.5px] font-bold text-teal-dark">{ex.chip(ex.amount)}</span>
           <h2 id="h-ex" className="m-0 font-heading text-[19px] font-semibold">{ex.title(band.band, term, factor)}</h2>
           <div className="grid grid-cols-2 gap-1.5">
             {[
@@ -152,7 +160,7 @@ export function PricingView() {
               </span>
             ))}
           </div>
-          <span className="mt-auto text-label text-muted">{ex.note}</span>
+          <span className="mt-auto text-label text-muted">{ex.note(p.brokerPoints.newDeal)}</span>
         </aside>
       </div>
 
@@ -160,7 +168,7 @@ export function PricingView() {
         <section aria-label="Adjustments, limits and early payoff" className={row3}>
           <article aria-labelledby="h-adj" className={whiteCard}>
             <h2 id="h-adj" className={h2}>{adjustments.title}</h2>
-            {adjustments.rows.map((a) => (
+            {adjustments.rows(p).map((a) => (
               <span key={a.label} className="flex justify-between gap-2 rounded-tile bg-card px-3 py-2.5 text-[12.5px]">
                 <span>{a.label}</span>
                 <b className={a.delta !== undefined ? toneText[toneOf(a.delta)] : ""}>{a.delta !== undefined ? signedFactor(a.delta) : a.text}</b>
@@ -170,7 +178,7 @@ export function PricingView() {
 
           <article aria-labelledby="h-limits" className={`${greyCard} gap-2`}>
             <h2 id="h-limits" className={h2}>{limits.title}</h2>
-            {limits.rows.map((l) => (
+            {limits.rows(p).map((l) => (
               <span key={l.label} className="flex justify-between gap-2 rounded-tile bg-tile px-3 py-2.5 text-[12.5px]">
                 <span>{l.label}</span>
                 <b className="text-right">{l.value}</b>
@@ -182,7 +190,7 @@ export function PricingView() {
             <h2 id="h-early" className={h2}>{earlyPayoffCard.title}</h2>
             <span className="text-label text-grey-text">{earlyPayoffCard.text}</span>
             <div className="mt-auto grid grid-cols-3 gap-1.5">
-              {earlyPayoffCard.tiers.map((t) => (
+              {p.earlyPayoff.map((t) => (
                 <span key={t.days} className="min-w-0 rounded-[16px] bg-tile px-2.5 py-3 text-center">
                   <b className="block font-heading text-card-title-lg tabular-nums tracking-[-0.03em]">{t.factor.toFixed(2)}</b>
                   <span className="text-label-sm text-muted">{earlyPayoffCard.dayLabel(t.days)}</span>
@@ -201,9 +209,9 @@ export function PricingView() {
               </button>
             </div>
             <span className="text-label text-hint">{ia.text}</span>
-            {ia.rows.map((x) => (
-              <span key={x.label} className="flex items-center justify-between gap-2 rounded-[12px] bg-card px-3 py-[9px] text-[12.5px]">
-                <span>{x.label}</span>
+            {p.industryAdjustments.map((x) => (
+              <span key={x.industry} className="flex items-center justify-between gap-2 rounded-[12px] bg-card px-3 py-[9px] text-[12.5px]">
+                <span>{x.industry}</span>
                 <b className={`font-heading tabular-nums tracking-[-0.03em] ${toneText[toneOf(x.delta)]}`}>{signedFactor(x.delta)}</b>
               </span>
             ))}
@@ -214,15 +222,18 @@ export function PricingView() {
             <span className="text-label text-hint">{sizing.text}</span>
             {/* Label and value columns size to their text (shared across rows) so the bars get the room. */}
             <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-2.5 gap-y-2.5 rounded-[18px] bg-white/55 p-3.5">
-              {sizing.rows.map((s, i) => (
-                <div key={s.band} className="grid grid-cols-subgrid col-span-3 items-center text-[12.5px]">
-                  <b>{s.band}</b>
-                  <ProgressBar value={(s.multiple / maxMultiple) * 100} height={10} track="tile" delay={0.2 + i * 0.1} aria-label={`${s.band}: up to ${sizing.multipleLabel(s.multiple)} monthly revenue`} />
-                  <b className="text-right font-heading tabular-nums tracking-[-0.03em]">{sizing.multipleLabel(s.multiple)}</b>
-                </div>
-              ))}
+              {p.sizing.map((s, i) => {
+                const label = bandLabel(s.minScore, s.maxScore);
+                return (
+                  <div key={label} className="grid grid-cols-subgrid col-span-3 items-center text-[12.5px]">
+                    <b>{label}</b>
+                    <ProgressBar value={(s.multiple / maxMultiple) * 100} height={10} track="tile" delay={0.2 + i * 0.1} aria-label={`${label}: up to ${sizing.multipleLabel(s.multiple)} monthly revenue`} />
+                    <b className="text-right font-heading tabular-nums tracking-[-0.03em]">{sizing.multipleLabel(s.multiple)}</b>
+                  </div>
+                );
+              })}
             </div>
-            <span className="mt-auto text-[11.5px] text-muted">{sizing.note}</span>
+            <span className="mt-auto text-[11.5px] text-muted">{sizing.note(policy)}</span>
           </article>
 
           <article aria-labelledby="h-up" className={`${mintCard} gap-2.5`}>
@@ -287,12 +298,12 @@ export function PricingView() {
                 </span>
               ))}
             </div>
-            {dc.rows.map((d) => (
-              <div key={d.state} className={`${discCols} rounded-[16px] bg-tile px-3.5 py-[11px] text-[12.5px]`}>
-                <b className="truncate">{d.state}</b>
+            {p.disclosures.map((d) => (
+              <div key={d.states} className={`${discCols} rounded-[16px] bg-tile px-3.5 py-[11px] text-[12.5px]`}>
+                <b className="truncate">{d.states}</b>
                 <span className="truncate text-grey-text">{d.template}</span>
-                <span className="truncate">{d.apr}</span>
-                <span className="truncate text-hint">{d.review}</span>
+                <span className="truncate">{dc.apr(d.apr)}</span>
+                <span className="truncate text-hint">{dc.review(d)}</span>
                 <span className={`max-w-full justify-self-start truncate rounded-pill px-[9px] py-[3px] text-label-sm font-bold ${statusChip[d.status]}`}>{dc.statusLabel[d.status]}</span>
               </div>
             ))}
