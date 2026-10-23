@@ -1,4 +1,4 @@
-import type { DealBusiness, DealCashFlow, DealChecks, DealConditions, DealIntegrity, DealPositions, DealSummary, StatementLine } from "@/lib/data/types";
+import type { DealActivity, DealBusiness, DealCashFlow, DealChecks, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary, StatementLine } from "@/lib/data/types";
 
 /**
  * Sample deal-tab records for Harbor Street Bakery LLC (APP-7H2K4Q), copied
@@ -334,6 +334,7 @@ export const harborBusiness: DealBusiness = {
       phone: "(207) 555-0188",
       identityVerified: true,
       guarantor: true,
+      subject: "she",
       possessive: "her",
       checks: [
         { label: "Photo ID", detail: "Maine licence, genuine, not expired", done: true },
@@ -394,5 +395,92 @@ export const harborConditions: DealConditions = {
     { label: "Credit report consent", status: "sent" },
     { label: "Live bank connection", status: "not-sent" },
     { label: "Kingsway payoff letter", status: "if-paying-off" },
+  ],
+};
+
+/* ---------- Offer, Decision & memo, Activity (design/Deal-Offer, -Decision, -Activity) ---------- */
+
+const at = (time: string) => `2026-10-13T${time}:00-04:00`;
+
+export const harborOffer: DealOffer = {
+  range: { floor: 30000, ceiling: 48000, factorMin: 1.28, factorMax: 1.4 },
+  presets: [
+    { name: "Recommended", tag: "Best balance", why: "Second position next to Kingsway, well inside your limits.", offer: { amount: 40000, factor: 1.32, term: 6, freq: "daily", payoff: false } },
+    { name: "Lower payment", tag: "Easier on cash flow", why: "Same amount over 8 months. Smaller daily payment, slightly more total cost.", offer: { amount: 40000, factor: 1.36, term: 8, freq: "daily", payoff: false } },
+    { name: "Pay off Kingsway", tag: "You go first", why: "Clears the existing advance, leaving you in first position.", offer: { amount: 40000, factor: 1.32, term: 6, freq: "daily", payoff: true } },
+  ],
+  history: [
+    { kind: "asked", at: at("09:40"), amount: 45000, by: "Apex Funding" },
+    { kind: "recommended", at: at("09:41"), amount: 40000, factor: 1.32, termMonths: 6 },
+  ],
+  validHours: 72,
+  sentAt: null,
+};
+
+export const harborDecision: DealDecision = {
+  suggestedAt: at("09:41"),
+  suggestedReasons: ["revenue", "clean", "debt"],
+  counter: { amount: 35000, factor: 1.36, term: 6 },
+  recorded: null,
+  memo: {
+    createdAt: at("09:41"),
+    version: 2,
+    updatedAt: at("10:05"),
+    updateNote: "after the landlord letter request",
+    sections: {
+      business:
+        "Retail bakery in Portland, ME, trading since 2016, active and in good standing. Owner Elena Brooks (100%) is verified, with a clean public record. She also owns Harbor Street Catering LLC.",
+      cashFlow:
+        "True revenue averages $61.4K a month, up 3.1% a month from June to September, with no NSFs and no days below zero. Average balance $9.8K; lowest $1.2K on Aug 2.",
+      risks:
+        "A $12,000 August transfer from the owner’s catering business is left out of revenue, which is why we offer $5,000 less than requested. A landlord letter is required before funding.",
+      exceptions: "No policy exceptions are needed and no conditions have been waived. If either changes, it is listed here with who approved it.",
+    },
+  },
+};
+
+export const harborActivity: DealActivity = {
+  events: [
+    { kind: "message", at: at("10:20"), by: "DR", title: "Dana Ruiz replied", detail: "Apex Funding · by email", quote: "Asked Elena, she’ll have it from the landlord tomorrow morning." },
+    { kind: "note", at: at("10:12"), by: "MC", title: "Maya marked integrity reviewed", detail: "Catering transfer checked, same owner, left out of revenue" },
+    { kind: "message", at: at("10:05"), by: "MC", title: "Landlord letter requested", detail: "Sent to Dana Ruiz at Apex Funding, due Wed" },
+    { kind: "system", at: at("10:05"), title: "Memo updated to version 2", detail: "Added the landlord letter condition" },
+    { kind: "check", at: at("09:59"), title: "Identity and sanctions clear", detail: "Photo ID, selfie match, OFAC and other lists" },
+    { kind: "doc", at: at("09:58"), by: "EB", title: "Elena uploaded 3 files", detail: "Photo ID, selfie and voided check through Merchant Link" },
+    { kind: "system", at: at("09:42"), title: "Assigned to Maya Chen", detail: "Automatic, by team workload" },
+    { kind: "check", at: at("09:41"), title: "Analysis complete", detail: "Score 88 · fraud risk low · recommend approve $40,000" },
+    { kind: "check", at: at("09:41"), title: "Fit check passed", detail: "Industry, time in business, revenue and positions within policy" },
+    { kind: "doc", at: at("09:40"), by: "AP", title: "Package received", detail: "7 files from Apex Funding Partners, sorted and named" },
+  ],
+  stages: [
+    { stage: "reading", seconds: 41 },
+    { stage: "checks", seconds: 19 },
+    { stage: "uploads", seconds: 16 * 60 },
+    { stage: "waiting", seconds: (2 * 60 + 32) * 60 },
+  ],
+  queuedMinutes: 2 * 60 + 50,
+  people: [
+    { name: "Maya Chen", side: "us" },
+    { name: "Dana Ruiz", side: "broker" },
+    { name: "Elena Brooks", side: "merchant" },
+  ],
+  followerIds: ["usr_maya", "usr_priya"],
+  mentionIds: ["usr_priya", "usr_jordan"],
+  threads: {
+    broker: [
+      { from: "me", text: "Could you send a landlord letter for 418 Commercial St by Wednesday?", at: at("10:05"), seen: { kind: "opened", at: at("10:09") } },
+      { from: "them", by: "Dana Ruiz", text: "Asked Elena, she’ll have it from the landlord tomorrow morning.", at: at("10:20") },
+    ],
+    merchant: [
+      { from: "system", text: "Merchant Link sent to elena@harborstreetbakery.com", at: at("09:43") },
+      { from: "them", by: "Elena Brooks", text: "Uploaded my license, a selfie and a voided check.", at: at("09:58") },
+      { from: "me", text: "Thank you, Elena. Everything checks out so far.", at: at("10:01"), seen: { kind: "read", at: at("10:02") } },
+    ],
+  },
+  unreadMessages: 0,
+  access: [
+    { who: "Maya Chen", action: "edited", at: at("10:12") },
+    { who: "Priya Shah", action: "viewed", at: at("10:31") },
+    { who: "Shared memo link", action: "opened by Apex", at: at("10:40") },
   ],
 };

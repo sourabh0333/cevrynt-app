@@ -5,6 +5,7 @@ import { DealHeader } from "@/components/deals/DealHeader";
 import { DealLiveProvider } from "@/components/deals/DealLive";
 import { DealTabs } from "@/components/deals/DealTabs";
 import { Arrive } from "@/components/ui/Skeleton";
+import { tabStates } from "@/lib/copy/deal";
 import { checkSet } from "@/lib/copy/deal-conditions";
 import { dealFrameView } from "@/lib/data/views/deals";
 
@@ -38,7 +39,7 @@ async function DealFrame({ params }: { params: LayoutProps<"/deals/[id]">["param
   return (
     <Arrive>
       <DealHeader deal={frame.deal} now={frame.now} />
-      <DealTabs dealId={frame.deal.id} checks={checkSet(frame.deal.checks, frame.conditions)} />
+      <DealTabs dealId={frame.deal.id} states={tabStates(checkSet(frame.deal.checks, frame.conditions), frame.progress)} />
     </Arrive>
   );
 }

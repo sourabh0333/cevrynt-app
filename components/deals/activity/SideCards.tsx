@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { messages as m, noteCard as t, type Thread } from "@/lib/sample-data/deal-activity";
+import { messagesCopy as m, noteCopy as t } from "@/lib/copy/deal-activity";
+import type { DealActivity, MessageThread } from "@/lib/data/types";
+
+type Person = { name: string; initials: string };
 
 /**
  * "Add a note" from design/Deal-Activity.html and its prototype: the note
- * box with the @Priya and @Jordan buttons, the Following avatars and the
+ * box with a button for each suggested @mention, the Following avatars and the
  * "Remind me tomorrow" toggle. Posting hands the note to the timeline.
  */
-export function NoteCard({ onAdd }: { onAdd: (text: string) => void }) {
+export function NoteCard({ mentions, followers, onAdd }: { mentions: Person[]; followers: Person[]; onAdd: (text: string) => void }) {
   const [draft, setDraft] = useState("");
   const [remind, setRemind] = useState(false);
   const can = draft.trim().length > 0;
@@ -24,7 +27,7 @@ export function NoteCard({ onAdd }: { onAdd: (text: string) => void }) {
       <h2 id="h-note" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
       <span className="text-[12.5px] text-grey-text">{t.intro}</span>
       <textarea
-        aria-label="Note"
+        aria-label={t.label}
         rows={3}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -33,7 +36,7 @@ export function NoteCard({ onAdd }: { onAdd: (text: string) => void }) {
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-1.5">
-          {t.mentions.map((name) => (
+          {mentions.map((p) => t.mention(p.name)).map((name) => (
             <button key={name} type="button" onClick={() => mention(name)} className="h-8 cursor-pointer rounded-pill border-0 bg-white/75 px-3 text-label font-semibold text-ink">
               {name}
             </button>
@@ -51,16 +54,16 @@ export function NoteCard({ onAdd }: { onAdd: (text: string) => void }) {
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink/8 pt-2.5">
         <span className="flex items-center gap-2 text-label text-grey-text">
           <span className="flex">
-            {t.following.people.map((p, i) => (
+            {followers.map((p, i) => (
               <span
-                key={p.ini}
-                className={`grid h-[26px] w-[26px] place-items-center rounded-full border-2 border-card-deep text-[9px] font-bold ${p.fill} ${i > 0 ? "-ml-2" : ""}`}
+                key={p.initials}
+                className={`grid h-[26px] w-[26px] place-items-center rounded-full border-2 border-card-deep text-[9px] font-bold ${t.fills[i % t.fills.length]} ${i > 0 ? "-ml-2" : ""}`}
               >
-                {p.ini}
+                {p.initials}
               </span>
             ))}
           </span>
-          {t.following.label}
+          {t.following}
         </span>
         <button
           type="button"
@@ -82,8 +85,9 @@ const bubble = {
 };
 
 /** "Messages": the Broker / Merchant threads with delivery status and the reply box. */
-export function MessagesCard() {
-  const [thread, setThread] = useState<Thread>("broker");
+export function MessagesCard({ threads, people, me }: { threads: DealActivity["threads"]; people: DealActivity["people"]; me: string }) {
+  const [thread, setThread] = useState<MessageThread>("broker");
+  const other = people.find((p) => p.side === thread)?.name ?? "";
   return (
     <article
       aria-labelledby="h-msg"
@@ -91,7 +95,7 @@ export function MessagesCard() {
     >
       <div className="flex items-center justify-between gap-2">
         <h2 id="h-msg" className="m-0 font-heading text-[20px] font-semibold">{m.title}</h2>
-        <div role="group" aria-label="Conversation" className="flex gap-0.5 rounded-pill bg-teal/7 p-[3px]">
+        <div role="group" aria-label={m.group} className="flex gap-0.5 rounded-pill bg-teal/7 p-[3px]">
           {m.tabs.map((tab) => {
             const on = tab.key === thread;
             return (
@@ -109,28 +113,28 @@ export function MessagesCard() {
         </div>
       </div>
       <div className="flex flex-col gap-2.5" aria-live="polite">
-        {m.threads[thread].map((msg) => (
-          <div key={msg.text} className={bubble[msg.from]}>
+        {threads[thread].map((msg) => (
+          <div key={`${msg.at}-${msg.text}`} className={bubble[msg.from]}>
             {msg.text}
             {msg.from === "system" ? (
-              <span className="ml-1.5 text-[10.5px] text-muted">{msg.meta}</span>
+              <span className="ml-1.5 text-[10.5px] text-muted">{m.meta(msg, me)}</span>
             ) : (
-              <span className="mt-1 block text-[10.5px] text-muted">{msg.meta}</span>
+              <span className="mt-1 block text-[10.5px] text-muted">{m.meta(msg, me)}</span>
             )}
           </div>
         ))}
       </div>
       <div className="mt-1 flex gap-1.5">
         <input
-          aria-label="Reply"
-          placeholder={m.replyHint[thread]}
+          aria-label={m.replyLabel}
+          placeholder={m.replyHint(other)}
           className="box-border h-10 min-w-0 flex-1 rounded-pill border border-teal/7 bg-teal/7 px-3.5 text-[12.5px] text-ink outline-none placeholder:text-hint focus:outline-2 focus:outline-offset-1 focus:outline-teal"
         />
         <button type="button" className="h-10 cursor-pointer rounded-pill border-0 bg-card px-3.5 text-label font-semibold text-ink">
           {m.send}
         </button>
       </div>
-      <span className="text-label-sm text-muted">{m.channel[thread]}</span>
+      <span className="text-label-sm text-muted">{m.channel[thread](other)}</span>
     </article>
   );
 }

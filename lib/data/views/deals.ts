@@ -1,7 +1,7 @@
 import "server-only";
 import type { Deal, DealCondition, DealListItem, DealOwner, DealQueueStats, DealQueueSummary, Id, IsoDateTime, TeamMember, WorkloadRow } from "@/lib/data/types";
 import { getNow } from "../clock";
-import { getDeal, getDealConditions, getQueueStats, getQueueSummary, listDeals } from "../deals";
+import { getDeal, getDealActivity, getDealConditions, getDealDecision, getDealOffer, getQueueStats, getQueueSummary, listDeals } from "../deals";
 import { getCurrentUser, listTeam } from "../team";
 
 /*
@@ -51,11 +51,27 @@ export type DealFrameData = {
   deal: DealListItem;
   /** the deal's conditions, which the tab bar's Conditions count follows */
   conditions: DealCondition[];
+  /** what the Offer, Decision and Activity tabs show after their labels */
+  progress: { offerSent: boolean; decided: boolean; unreadMessages: number };
   now: IsoDateTime;
 };
 
 /** The deal frame (header and tabs) for one deal; null when there is no such deal. */
 export async function dealFrameView(id: Id): Promise<DealFrameData | null> {
-  const [deal, conditions, team, now] = await Promise.all([getDeal(id), getDealConditions(id), listTeam(), getNow()]);
-  return deal ? { deal: withOwner(deal, team), conditions: conditions?.items ?? [], now } : null;
+  const [deal, conditions, offer, decision, activity, team, now] = await Promise.all([
+    getDeal(id),
+    getDealConditions(id),
+    getDealOffer(id),
+    getDealDecision(id),
+    getDealActivity(id),
+    listTeam(),
+    getNow(),
+  ]);
+  if (!deal) return null;
+  return {
+    deal: withOwner(deal, team),
+    conditions: conditions?.items ?? [],
+    progress: { offerSent: !!offer?.sentAt, decided: !!decision?.recorded, unreadMessages: activity?.unreadMessages ?? 0 },
+    now,
+  };
 }

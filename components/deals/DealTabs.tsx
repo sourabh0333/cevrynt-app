@@ -2,29 +2,28 @@
 
 import { usePathname } from "next/navigation";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
-import { dealTabHref, dealTabs, dealTabsLabel, tabCheck, tabMark } from "@/lib/copy/deal";
-import type { CheckState, DealCheckSet } from "@/lib/data/types";
+import { dealTabHref, dealTabs, dealTabsLabel, tabMark, type DealTabKey, type TabState } from "@/lib/copy/deal";
 import { useLiveWaiting } from "./DealLive";
 
 /**
  * The nine deal tabs from design/Deal-Summary.html. Each is a link to its
- * route; the one matching the current path is solid teal. The dots and the
- * Conditions count show the deal's own checks; while the Conditions tab is
+ * route; the one matching the current path is solid teal. The dots and
+ * counts show the deal's own data (tabStates); while the Conditions tab is
  * open, its count follows the conditions on the page.
  */
-export function DealTabs({ dealId, checks }: { dealId: string; checks: DealCheckSet }) {
+export function DealTabs({ dealId, states }: { dealId: string; states: Partial<Record<DealTabKey, TabState>> }) {
   const pathname = usePathname();
   const live = useLiveWaiting();
   const base = `/deals/${dealId}`;
   const current =
     dealTabs.find((t) => t.path !== "" && pathname.startsWith(base + t.path))?.key ?? "summary";
 
-  const state = (key: keyof DealCheckSet): CheckState =>
-    key === "conditions" && live !== null ? (live ? { state: "open", count: live } : { state: "ok" }) : checks[key];
+  const state = (key: DealTabKey): TabState | undefined =>
+    key === "conditions" && live !== null ? (live ? { state: "open", count: live } : { state: "ok" }) : states[key];
 
   const items: TabItem[] = dealTabs.map((t) => {
-    const check = tabCheck[t.key];
-    const mark = check ? tabMark(state(check)) : {};
+    const s = state(t.key);
+    const mark = s ? tabMark(s) : {};
     return {
       value: t.key,
       label: t.label,

@@ -1,28 +1,38 @@
-import { computeOffer, harborFigures, money, moneyShort, percent, recommendedOffer, sameOffer, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
-import { presets } from "@/lib/sample-data/deal-offer";
+import { presetsCopy as t } from "@/lib/copy/deal-offer";
+import type { DealOffer } from "@/lib/data/types";
+import { computeOffer, money, moneyShort, percent, sameOffer, type DealFigures, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
+
+type Props = {
+  offer: OfferInput;
+  recommended: OfferInput;
+  presets: DealOffer["presets"];
+  figures: DealFigures;
+  policy: OfferPolicy;
+  onPick: (patch: Partial<OfferInput>) => void;
+};
 
 /**
  * "Three ways to offer it" from design/Deal-Offer.html and its prototype:
- * three preset cards, each with its amount, daily payment and share of
+ * the deal's preset cards, each with its amount, daily payment and share of
  * revenue from the shared offer math. Picking one loads it into the
  * builder; the one that matches the builder shows as chosen. No hover.
  */
-export function PresetCards({ offer, policy, onPick }: { offer: OfferInput; policy: OfferPolicy; onPick: (patch: Partial<OfferInput>) => void }) {
+export function PresetCards({ offer, recommended, presets, figures, policy, onPick }: Props) {
   return (
     <section aria-labelledby="h-opts" className="flex flex-col gap-3">
       <div className="px-1 pt-1">
-        <h2 id="h-opts" className="m-0 font-heading text-[20px] font-semibold">{presets.title}</h2>
-        <div className="mt-[3px] text-label text-hint">{presets.subtitle}</div>
+        <h2 id="h-opts" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
+        <div className="mt-[3px] text-label text-hint">{t.subtitle}</div>
       </div>
       <div className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
-        {presets.items.map((p) => {
+        {presets.map((p) => {
           const on = sameOffer(offer, p.offer);
-          const input = { ...recommendedOffer, ...p.offer };
-          const r = computeOffer(input, harborFigures, policy);
+          const input = { ...recommended, ...p.offer };
+          const r = computeOffer(input, figures, policy);
           const cells = [
-            [presets.tiles.amount, moneyShort(input.amount)],
-            [presets.tiles.daily, money(r.daily)],
-            [presets.tiles.share, percent(r.share)],
+            [t.tiles.amount, moneyShort(input.amount)],
+            [t.tiles.daily, money(r.daily)],
+            [t.tiles.share, percent(r.share)],
           ];
           return (
             <button

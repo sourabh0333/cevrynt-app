@@ -3,8 +3,9 @@
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { formatOffer, recommendedOffer } from "@/lib/offer-math";
-import { memo as t } from "@/lib/sample-data/deal-decision";
+import { memo as t, type PolicyRow } from "@/lib/copy/deal-decision";
+import type { DecisionTabData } from "@/lib/data/views/deal-tabs";
+import { computeOffer, formatOffer } from "@/lib/offer-math";
 
 const tile = "rounded-[12px] bg-tile px-3 py-2.5";
 const body = "text-body-sm leading-[1.6] text-ink-soft";
@@ -15,10 +16,23 @@ const body = "text-body-sm leading-[1.6] text-ink-soft";
  * sections. Clicking a section jumps to it. Offer figures in the memo
  * come from the shared offer math. No hover.
  */
-export function CreditMemo() {
+export function CreditMemo({ data, rules }: { data: DecisionTabData; rules: PolicyRow[] }) {
   const [active, setActive] = useState(t.sections[0].id);
-  const f = formatOffer(recommendedOffer);
-  const { factor, term } = recommendedOffer;
+  const r = data.recommended;
+  const f = formatOffer(r, computeOffer(r, data.figures, data.offerPolicy));
+  const { factor, term } = r;
+  const { memo } = data.decision;
+  const summary = t.summary({
+    merchant: data.merchantName,
+    requested: data.requested,
+    f,
+    factor,
+    term,
+    score: data.score,
+    risk: data.risk,
+    met: rules.filter((x) => x.met).length,
+    total: rules.length,
+  });
 
   const jump = (id: string) => {
     setActive(id);
@@ -30,15 +44,17 @@ export function CreditMemo() {
   const sectionBody: Record<string, ReactNode> = {
     m1: (
       <>
-        Harbor Street Bakery LLC asks for $45,000. We recommend <b>approving {f.amount}</b> at a {factor.toFixed(2)} factor over {term} months ({f.payment} {f.per}). Score {t.doc.score}, fraud risk low, all policy rules met.
+        {summary.before}
+        <b>{summary.bold}</b>
+        {summary.after}
       </>
     ),
-    m2: t.body.m2,
-    m3: t.body.m3,
-    m4: t.body.m4(f),
-    m5: t.body.m5,
-    m6: t.body.m6(f, factor, term),
-    m7: t.body.m7,
+    m2: memo.sections.business,
+    m3: memo.sections.cashFlow,
+    m4: t.debt(data.positions, f, data.offerPolicy.maxShare),
+    m5: memo.sections.risks,
+    m6: t.recommendation(f, factor, term, r.freq, data.bank, data.openConditions),
+    m7: memo.sections.exceptions,
   };
 
   return (
@@ -61,7 +77,7 @@ export function CreditMemo() {
 
       <div className="flex flex-wrap items-start gap-4">
         <nav
-          aria-label="Memo sections"
+          aria-label={t.nav.label}
           className="scrollbar-none sticky top-0 z-[2] box-border flex max-h-[calc(100vh-64px)] max-w-[240px] flex-[1_1_200px] flex-col gap-1 self-start overflow-y-auto rounded-tile-lg bg-tile p-3 shadow-[0_12px_28px_-24px_rgba(15,21,19,.5)]"
         >
           <span className="px-2 pt-1 pb-2 text-cap font-semibold uppercase text-hint">{t.nav.caption}</span>
@@ -82,7 +98,7 @@ export function CreditMemo() {
               </a>
             );
           })}
-          <span className="mt-2 rounded-[12px] bg-card p-2.5 text-[11.5px] text-muted">{t.nav.version}</span>
+          <span className="mt-2 rounded-[12px] bg-card p-2.5 text-[11.5px] text-muted">{t.nav.version(memo.version, memo.updatedAt, memo.updateNote)}</span>
         </nav>
 
         <div className="min-w-0 flex-[999_1_460px] rounded-[22px] bg-[radial-gradient(120%_100%_at_0%_0%,var(--color-paper),var(--color-paper-deep))] p-[18px]">
@@ -90,12 +106,12 @@ export function CreditMemo() {
             <div className="flex flex-wrap items-end justify-between gap-3 border-b-[1.5px] border-ink pb-3">
               <span>
                 <span className="text-cap font-semibold uppercase text-hint">{t.doc.caption}</span>
-                <b className="block font-heading text-[22px] font-semibold">{t.doc.merchant}</b>
+                <b className="block font-heading text-[22px] font-semibold">{data.merchantName}</b>
               </span>
               <span className="text-right font-mono text-[10.5px] text-hint">
-                {t.doc.ref[0]}
+                {data.id}
                 <br />
-                {t.doc.ref[1]}
+                {t.doc.ref(data.funder, memo.createdAt)}
               </span>
             </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2">
@@ -105,11 +121,11 @@ export function CreditMemo() {
               </span>
               <span className={tile}>
                 <span className="block text-[10.5px] text-hint">{t.doc.tiles.score}</span>
-                <b className="font-heading text-[16px] font-semibold tabular-nums tracking-[-0.03em]">{t.doc.score}</b>
+                <b className="font-heading text-[16px] font-semibold tabular-nums tracking-[-0.03em]">{data.score}</b>
               </span>
               <span className={tile}>
                 <span className="block text-[10.5px] text-hint">{t.doc.tiles.revenue}</span>
-                <b className="font-heading text-[16px] font-semibold tabular-nums tracking-[-0.03em]">{t.doc.revenue}</b>
+                <b className="font-heading text-[16px] font-semibold tabular-nums tracking-[-0.03em]">{t.doc.revenue(data.figures.revenue)}</b>
               </span>
               <span className={tile}>
                 <span className="block text-[10.5px] text-hint">{t.doc.tiles.share}</span>
@@ -117,7 +133,7 @@ export function CreditMemo() {
               </span>
               <span className={tile}>
                 <span className="block text-[10.5px] text-hint">{t.doc.tiles.fraud}</span>
-                <b className="text-body font-bold">{t.doc.fraud}</b>
+                <b className="text-body font-bold">{t.doc.fraud(data.risk)}</b>
               </span>
             </div>
             {t.sections.map((sec, i) => (
@@ -127,7 +143,7 @@ export function CreditMemo() {
                 <span className={body}>{sectionBody[sec.id]}</span>
               </div>
             ))}
-            <span className="text-label-sm text-hint">{t.doc.footer}</span>
+            <span className="text-label-sm text-hint">{t.doc.footer(data.me.name)}</span>
           </div>
         </div>
       </div>

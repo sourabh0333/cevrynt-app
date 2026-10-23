@@ -28,6 +28,9 @@ export const apiSource: DataSource = {
     getIntegrity: notConnected("deals"),
     getBusiness: notConnected("deals"),
     getConditions: notConnected("deals"),
+    getOffer: notConnected("deals"),
+    getDecision: notConnected("deals"),
+    getActivity: notConnected("deals"),
   },
   team: {
     getCurrentUserId: notConnected("team"),

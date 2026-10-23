@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { formatOffer, money, recommendedOffer } from "@/lib/offer-math";
-import { decisionCard as t, outcomes, type Outcome } from "@/lib/sample-data/deal-decision";
+import { dealTabHref } from "@/lib/copy/deal";
+import { decisionCard as t, outcomes, type Outcome } from "@/lib/copy/deal-decision";
+import type { DecisionTabData } from "@/lib/data/views/deal-tabs";
+import { computeOffer, formatOffer, money } from "@/lib/offer-math";
 import type { DecisionState } from "./DecisionTab";
 
 const input =
   "box-border h-[42px] min-w-0 rounded-[12px] border border-amber-light/60 bg-card px-3 text-body font-semibold text-ink outline-none focus:outline-2 focus:outline-offset-1 focus:outline-teal";
 
 type Props = {
+  data: DecisionTabData;
   s: DecisionState;
   recordedAt: Date | null;
   onPick: (o: Outcome) => void;
@@ -29,17 +32,19 @@ const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: 
  * notice), the reasons, the note, and the record button. Recording shows
  * "What happens now". No hover.
  */
-export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleExtra, onCounter, onNote, onRecord }: Props) {
+export function DecisionCard({ data, s, recordedAt, onPick, onToggleReason, onToggleExtra, onCounter, onNote, onRecord }: Props) {
   const rec = recordedAt !== null;
   const isDecline = s.out === "decline";
   const isCounter = s.out === "counter";
-  const reasons = isDecline ? t.reasons.decline : t.reasons.approve;
+  const reasons = isDecline ? t.reasons.decline : t.reasons.approve(data.facts.years);
   const nPicked = reasons.filter((r) => s.picked[r.key]).length;
   const canRecord = nPicked > 0;
 
-  const offer = isCounter ? { ...recommendedOffer, ...s.counter } : recommendedOffer;
-  const f = formatOffer(offer);
-  const label = t.label(s.out, money(recommendedOffer.amount), money(s.counter.amount));
+  const recommended = data.recommended;
+  const offer = isCounter ? { ...recommended, ...s.counter } : recommended;
+  const f = formatOffer(offer, computeOffer(offer, data.figures, data.offerPolicy));
+  const label = t.label(s.out, money(recommended.amount), money(s.counter.amount));
+  const parties = { broker: data.broker, owner: data.owner, validHours: data.validHours, openItems: data.openConditions.length };
   const declineList = reasons.filter((r) => s.picked[r.key]).map((r) => r.label.toLowerCase()).join(", ") || t.decline.none;
 
   return (
@@ -47,14 +52,14 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
       <div className="flex flex-wrap items-end justify-between gap-2.5">
         <div>
           <h2 id="h-dec" className="m-0 font-heading text-[22px] font-semibold">{t.title}</h2>
-          <div className="mt-[3px] text-label text-hint">{t.subtitle}</div>
+          <div className="mt-[3px] text-label text-hint">{t.subtitle(recommended.amount)}</div>
         </div>
         <span className={`rounded-pill px-2.5 py-1 text-label-sm font-semibold ${rec ? "bg-mint-bg text-teal-dark" : "bg-amber-tint text-amber-deep"}`}>
           {rec ? t.chip.recorded : t.chip.open}
         </span>
       </div>
 
-      <div role="group" aria-label="Outcome" className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
+      <div role="group" aria-label={t.outcomeGroup} className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
         {outcomes.map((o) => {
           const on = o.key === s.out;
           return (
@@ -77,14 +82,14 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
         <div className="rounded-[18px] bg-tile p-3.5">
           <span className="text-[11.5px] text-hint">{t.amount.label}</span>
           <b className="block font-heading text-[24px] font-semibold tabular-nums tracking-[-0.03em]">{isDecline ? t.amount.none : f.amount}</b>
-          <Link href={t.amount.link.href} className="text-[11.5px] font-semibold text-teal no-underline">
-            {t.amount.link.label}
+          <Link href={dealTabHref(data.id, { path: "/offer" })} className="text-[11.5px] font-semibold text-teal no-underline">
+            {t.amount.link}
           </Link>
         </div>
         <div className="rounded-[18px] bg-tile p-3.5">
           <span className="text-[11.5px] text-hint">{t.terms.label}</span>
-          <b className="mt-1 block text-[15px]">{isDecline ? t.terms.none : t.terms.line(f, offer.factor, offer.term)}</b>
-          <span className="text-[11.5px] text-hint">{isDecline ? t.terms.noneSub : t.terms.sub(f)}</span>
+          <b className="mt-1 block text-[15px]">{isDecline ? t.terms.none : t.terms.line(offer.factor, offer.term)}</b>
+          <span className="text-[11.5px] text-hint">{isDecline ? t.terms.noneSub : t.terms.sub(f, data.bank)}</span>
         </div>
       </div>
 
@@ -111,7 +116,7 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
             <label className="flex flex-col gap-1 text-[11.5px] text-amber-mute">
               {t.counter.fields.term}
               <input
-                value={`${s.counter.term} months`}
+                value={t.counter.term(s.counter.term)}
                 onChange={(e) => onCounter({ term: Number(e.target.value.replace(/\D/g, "")) || 1 })}
                 className={input}
               />
@@ -125,7 +130,7 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
         <div className="flex flex-col gap-2.5 rounded-[18px] bg-mint-light p-4">
           <span className="text-body-sm font-semibold text-teal-dark">{t.conditions.title}</span>
           <div className="flex flex-wrap gap-1.5">
-            {t.conditions.options.map((x) => {
+            {t.conditions.options(data.positions[0]?.funder ?? null).map((x) => {
               const on = !!s.extra[x.key];
               return (
                 <button
@@ -147,7 +152,7 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
       {isDecline ? (
         <div className="flex flex-col gap-2.5 rounded-[18px] bg-red-bg p-4">
           <span className="text-body-sm font-semibold text-red-text">{t.decline.title}</span>
-          <span className="rounded-tile bg-card px-3.5 py-3 text-[12.5px] leading-[1.55]">{t.decline.notice(declineList)}</span>
+          <span className="rounded-tile bg-card px-3.5 py-3 text-[12.5px] leading-[1.55]">{t.decline.notice(data.merchantName, data.id, declineList)}</span>
           <label className="flex items-center gap-2 text-[12.5px] text-red-deep">
             <input type="checkbox" defaultChecked className="m-0 h-[18px] w-[18px] accent-coral-text" />
             {t.decline.alsoMerchant}
@@ -200,7 +205,7 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
       {rec ? (
         <div className="flex flex-col gap-2 rounded-[18px] bg-teal p-3.5 text-white">
           <span className="text-label font-semibold text-mint">{t.next.title}</span>
-          {t.next.steps[s.out].map((step) => (
+          {t.next.steps(s.out, parties).map((step) => (
             <span key={step} className="flex items-center gap-2.5 text-[12.5px]">
               <span className="h-1.5 w-1.5 flex-none rounded-full bg-mint" />
               {step}
@@ -211,7 +216,7 @@ export function DecisionCard({ s, recordedAt, onPick, onToggleReason, onToggleEx
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
         <span className="text-label text-hint" aria-live="polite">
-          {rec ? t.foot.recorded(timeOf(recordedAt)) : canRecord ? t.foot.ready : t.foot.pick}
+          {rec ? t.foot.recorded(data.me.name, timeOf(recordedAt)) : canRecord ? t.foot.ready : t.foot.pick}
         </span>
         <button
           type="button"

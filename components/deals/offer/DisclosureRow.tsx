@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { disclosureFor, harborFigures, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
-import { disclosure as t, sendOffer } from "@/lib/sample-data/deal-offer";
+import { disclosure as t, sendOffer } from "@/lib/copy/deal-offer";
+import { disclosureFor, type DealFigures, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
 
 const cell = "rounded-[12px] bg-tile p-3";
 const cap = "block text-label-sm text-hint";
 const big = "font-heading text-[18px] font-semibold tabular-nums tracking-[-0.03em]";
 
 /**
- * "Cost disclosure" from design/Deal-Offer.html: the Maine template filled
- * in from the chosen offer through disclosureFor, so every figure matches
+ * "Cost disclosure" from design/Deal-Offer.html: the business state's template
+ * filled in from the chosen offer through disclosureFor, so every figure matches
  * the builder. No hover.
  */
-export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: OfferPolicy }) {
-  const d = disclosureFor(offer, harborFigures, policy);
+type DisclosureProps = { offer: OfferInput; figures: DealFigures; policy: OfferPolicy; id: string; state: string; funder: string };
+
+export function DisclosureCard({ offer, figures, policy, id, state, funder }: DisclosureProps) {
+  const d = disclosureFor(offer, figures, policy);
   const f = d.figures;
   const L = t.doc.labels;
   return (
@@ -21,7 +23,7 @@ export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: O
       <div className="flex flex-wrap items-end justify-between gap-2.5">
         <div>
           <h2 id="h-disc" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
-          <div className="mt-[3px] text-label text-hint">{t.subtitle}</div>
+          <div className="mt-[3px] text-label text-hint">{t.subtitle(state)}</div>
         </div>
         <Link href={t.link.href} className="text-label font-semibold text-teal no-underline">
           {t.link.label}
@@ -31,7 +33,7 @@ export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: O
         <div className="flex flex-col gap-3 rounded-[12px] bg-card px-[22px] py-5 shadow-[0_18px_40px_-24px_rgba(15,21,19,.45)]" aria-live="polite">
           <div className="flex items-end justify-between gap-2.5 border-b-[1.5px] border-ink pb-2.5">
             <b className="font-heading text-[16px] font-semibold">{t.doc.title}</b>
-            <span className="font-mono text-[10.5px] text-hint">{t.doc.ref}</span>
+            <span className="font-mono text-[10.5px] text-hint">{t.doc.ref(funder, id)}</span>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-2">
             <span className={cell}>
@@ -69,7 +71,7 @@ export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: O
           </div>
           <span className="text-label-sm text-hint">
             {d.feeLine} {d.payoffLine ? `${d.payoffLine} ` : ""}
-            {t.doc.brokerLine(f.commission)} {t.doc.reconcileLine}
+            {t.doc.brokerLine(f.commission, funder)} {t.doc.reconcileLine}
           </span>
         </div>
       </div>
@@ -86,9 +88,12 @@ export function DisclosureCard({ offer, policy }: { offer: OfferInput; policy: O
 
 /**
  * "Send the offer": what goes out, who gets it, and the approval rule.
- * Above the underwriter's approval limit ($45K) the senior must sign off first.
+ * Above the underwriter's approval limit (the policy's senior line) the
+ * senior must sign off first.
  */
-export function SendCard({ needsSenior, withinPolicy, approvalLimit }: { needsSenior: boolean; withinPolicy: boolean; approvalLimit: number }) {
+type SendProps = { needsSenior: boolean; withinPolicy: boolean; approvalLimit: number; senior: string; validHours: number };
+
+export function SendCard({ needsSenior, withinPolicy, approvalLimit, senior, validHours }: SendProps) {
   return (
     <article aria-labelledby="h-send" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-card-deep p-5 text-ink">
       <h2 id="h-send" className="m-0 font-heading text-[20px] font-semibold">{sendOffer.title}</h2>
@@ -102,7 +107,7 @@ export function SendCard({ needsSenior, withinPolicy, approvalLimit }: { needsSe
         ))}
       </div>
       <div className="grid grid-cols-2 gap-1.5">
-        {[sendOffer.to, sendOffer.expires].map((x) => (
+        {[sendOffer.to, { label: sendOffer.expires.label, value: sendOffer.expires.value(validHours) }].map((x) => (
           <span key={x.label} className="rounded-tile bg-white/75 px-3 py-2.5">
             <span className="block text-label-sm text-hint">{x.label}</span>
             <b className="text-[12.5px]">{x.value}</b>
@@ -110,7 +115,7 @@ export function SendCard({ needsSenior, withinPolicy, approvalLimit }: { needsSe
         ))}
       </div>
       <div aria-live="polite" className={`rounded-tile px-3 py-2.5 text-label ${needsSenior ? "bg-amber-tint text-amber-mute" : "bg-white/75 text-grey-text"}`}>
-        {needsSenior ? sendOffer.approval.senior(approvalLimit) : sendOffer.approval.ok}
+        {needsSenior ? sendOffer.approval.senior(approvalLimit, senior) : sendOffer.approval.ok}
       </div>
       <button
         type="button"

@@ -1,4 +1,4 @@
-import type { IsoDateTime, Money } from "./common";
+import type { Id, IsoDateTime, Money } from "./common";
 import type { ScorePart } from "./policy";
 
 /*
@@ -202,7 +202,8 @@ export type DealBusiness = {
     phone: string;
     identityVerified: boolean;
     guarantor: boolean;
-    /** as the owner gave it, e.g. "her" */
+    /** pronouns as the owner gave them, e.g. "she" and "her" */
+    subject: string;
     possessive: string;
     checks: { label: string; detail: string; done: boolean }[];
   }[];
@@ -287,4 +288,69 @@ export type DealPositions = {
   recurringPayees: { label: string; count: number; advance?: boolean }[];
   otherDebt: { category: string; found: boolean }[];
   cardAutopay: Money;
+};
+
+/* ---------- Offer & disclosures ---------- */
+
+/** An offer's terms as the offer builder takes them; any left out keep the recommended offer's. */
+export type OfferTerms = { amount: Money; factor: number; term: number; freq: "daily" | "weekly"; payoff: boolean };
+
+export type DealOffer = {
+  /** the amount floor and ceiling and the factor range for this deal's score */
+  range: { floor: Money; ceiling: Money; factorMin: number; factorMax: number };
+  /** the ways to offer it that Cevrynt suggests, each worded by the analysis */
+  presets: { name: string; tag: string; why: string; offer: Partial<OfferTerms> }[];
+  /** every round so far, oldest first */
+  history: { kind: "asked" | "recommended" | "sent" | "countered"; at: IsoDateTime; amount: Money; factor?: number; termMonths?: number; by?: string }[];
+  /** how long a sent offer stays open */
+  validHours: number;
+  /** null until the offer goes out */
+  sentAt: IsoDateTime | null;
+};
+
+/* ---------- Decision & memo ---------- */
+
+export type DecisionOutcome = "approve" | "conditions" | "counter" | "decline";
+
+export type DealDecision = {
+  /** when Cevrynt made its suggestion */
+  suggestedAt: IsoDateTime;
+  /** the reasons Cevrynt picks for approving (keys of the reasons in lib/copy) */
+  suggestedReasons: string[];
+  /** the counter-offer the page starts from */
+  counter: { amount: Money; factor: number; term: number };
+  /** null until someone records a decision */
+  recorded: { outcome: DecisionOutcome; at: IsoDateTime; byId: Id } | null;
+  memo: {
+    createdAt: IsoDateTime;
+    version: number;
+    updatedAt: IsoDateTime;
+    /** what the last update was for, finishing "updated 10:05 …" */
+    updateNote: string;
+    /** the memo's written sections; the ones with offer figures are worked out from the offer math */
+    sections: { business: string; cashFlow: string; risks: string; exceptions: string };
+  };
+};
+
+/* ---------- Activity ---------- */
+
+export type ActivityKind = "system" | "check" | "doc" | "message" | "note";
+export type MessageThread = "broker" | "merchant";
+
+export type DealActivity = {
+  /** newest first */
+  events: { kind: ActivityKind; at: IsoDateTime; title: string; detail: string; quote?: string; /** initials of who did it, for documents, messages and notes */ by?: string }[];
+  /** how long each stage took, in seconds */
+  stages: { stage: "reading" | "checks" | "uploads" | "waiting"; seconds: number }[];
+  /** minutes the deal has been in the queue */
+  queuedMinutes: number;
+  /** everyone working on the deal */
+  people: { name: string; side: "us" | "broker" | "merchant" }[];
+  /** team members following the deal, and the ones suggested for @mentions */
+  followerIds: Id[];
+  mentionIds: Id[];
+  threads: Record<MessageThread, { from: "me" | "them" | "system"; by?: string; text: string; at: IsoDateTime; seen?: { kind: "opened" | "read"; at: IsoDateTime } }[]>;
+  /** messages from the broker or merchant nobody has opened yet */
+  unreadMessages: number;
+  access: { who: string; action: string; at: IsoDateTime }[];
 };

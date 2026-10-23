@@ -5,7 +5,7 @@
  * turns their plain values into what people read: statuses, deadlines,
  * received times, amounts and the quick-look figures.
  */
-import type { CheckKey, CheckState, Deal, DealDeadline, DealRisk, DealStatus, IsoDateTime } from "@/lib/data/types";
+import type { CheckKey, CheckState, Deal, DealCheckSet, DealDeadline, DealRisk, DealStatus, IsoDateTime } from "@/lib/data/types";
 import { daysBetween, money, moneyK, moneyShort, timeOfDay, weekdayShort } from "@/lib/format";
 
 export const dealStatusLabel: Record<DealStatus, string> = {
@@ -145,8 +145,8 @@ export type DealTab = {
 };
 
 /*
- * The dots and the Conditions count after the labels come from each deal's
- * own checks (see tabCheck and DealTabs).
+ * The dots and counts after the labels come from each deal's own data
+ * (see tabStates and DealTabs).
  */
 export const dealTabs: DealTab[] = [
   { key: "summary", label: "Summary", path: "", title: "Deal summary" },
@@ -177,8 +177,30 @@ export const tabCheck: Partial<Record<DealTabKey, CheckKey>> = {
   conditions: "conditions",
 };
 
-/** What a tab shows for its check: a count of open items, or a dot. */
-export const tabMark = (c: CheckState): { dot?: "teal" | "amber"; count?: number } => (c.state === "open" ? { count: c.count } : { dot: checkDot(c) });
+/** Where a tab stands: a check's state, or nothing to show yet. */
+export type TabState = CheckState | { state: "none" };
+
+/** What a tab shows after its label: a count of open items, a dot, or nothing. */
+export const tabMark = (c: TabState): { dot?: "teal" | "amber"; count?: number } =>
+  c.state === "none" ? {} : c.state === "open" ? { count: c.count } : { dot: checkDot(c) };
+
+/** The deal's progress the Offer, Decision and Activity tabs show. */
+export type DealProgress = { offerSent: boolean; decided: boolean; unreadMessages: number };
+
+/**
+ * Every tab's state from the deal's own data: the checks for the analysis
+ * tabs, then a teal dot once the offer is sent or a decision recorded, and
+ * a count of messages nobody has opened on Activity. Before any of that
+ * (as on the sample deal) those three show nothing, as in the design.
+ */
+export function tabStates(checks: DealCheckSet, progress: DealProgress): Partial<Record<DealTabKey, TabState>> {
+  const states: Partial<Record<DealTabKey, TabState>> = {};
+  for (const [tab, key] of Object.entries(tabCheck) as [DealTabKey, CheckKey][]) states[tab] = checks[key];
+  states.offer = progress.offerSent ? { state: "ok" } : { state: "none" };
+  states.decision = progress.decided ? { state: "ok" } : { state: "none" };
+  states.activity = progress.unreadMessages ? { state: "open", count: progress.unreadMessages } : { state: "none" };
+  return states;
+}
 
 export const dealTabHref = (id: string, tab: Pick<DealTab, "path">) => `/deals/${id}${tab.path}`;
 

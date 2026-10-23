@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/Card";
+import { builder, factorOptions } from "@/lib/copy/deal-offer";
 import { money, percent, type OfferInput, type OfferPolicy, type OfferResult } from "@/lib/offer-math";
-import { builder } from "@/lib/sample-data/deal-offer";
 import { Pills } from "./Pills";
 
 type Props = {
@@ -8,6 +8,12 @@ type Props = {
   result: OfferResult;
   /** the policy limits and this deal's range, from the data layer */
   policy: OfferPolicy;
+  /** the recommended amount, marked under the slider */
+  recommended: number;
+  /** the pricing band the deal's score is in ("score 80+") */
+  scoreBandFrom: number | null;
+  /** the existing advance the offer can pay off; no tick box without one */
+  payoff: { funder: string; balance: number } | null;
   onChange: (patch: Partial<OfferInput>) => void;
   onReset: () => void;
 };
@@ -19,14 +25,14 @@ const label = "text-body-sm font-semibold";
 /**
  * "Offer builder" from design/Deal-Offer.html and its prototype: the amount
  * slider, the factor, term, payments, fee and collect-from pill groups, the
- * Kingsway payoff tick box, and the four live policy checks. No hover.
+ * payoff tick box for the existing advance, and the four live policy checks. No hover.
  */
-export function OfferBuilder({ offer, result, policy: p, onChange, onReset }: Props) {
+export function OfferBuilder({ offer, result, policy: p, recommended, scoreBandFrom, payoff, onChange, onReset }: Props) {
   const r = result.rules;
   const rules: Rule[] = [
     { ok: r.debtShare, label: builder.rules.debtShare.label(percent(result.share)), note: builder.rules.debtShare.note(p.maxShare) },
     { ok: r.ceiling, label: builder.rules.ceiling.label, note: builder.rules.ceiling.note(p.ceiling) },
-    { ok: r.factor, label: builder.rules.factor.label, note: builder.rules.factor.note(p.factorMin, p.factorMax) },
+    { ok: r.factor, label: builder.rules.factor.label, note: builder.rules.factor.note(p.factorMin, p.factorMax, scoreBandFrom) },
     { ok: r.approval, warn: true, label: r.approval ? builder.rules.approval.ok : builder.rules.approval.warn, note: builder.rules.approval.note(p.approvalLimit) },
   ];
 
@@ -61,7 +67,7 @@ export function OfferBuilder({ offer, result, policy: p, onChange, onReset }: Pr
         />
         <div className="flex justify-between text-[11.5px] text-hint">
           <span>{builder.amount.floor(p.floor)}</span>
-          <span className="font-semibold text-teal-deep">{builder.amount.recommended}</span>
+          <span className="font-semibold text-teal-deep">{builder.amount.recommended(recommended)}</span>
           <span>{builder.amount.ceiling(p.ceiling)}</span>
         </div>
       </div>
@@ -69,11 +75,11 @@ export function OfferBuilder({ offer, result, policy: p, onChange, onReset }: Pr
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
         <div className="flex flex-col gap-2">
           <span className={label}>{builder.factor.label}</span>
-          <Pills label={builder.factor.label} options={builder.factor.options.map((f) => ({ value: f, label: f.toFixed(2) }))} value={offer.factor} onChange={(factor) => onChange({ factor })} />
+          <Pills label={builder.factor.label} options={factorOptions(p.factorMin, p.factorMax).map((f) => ({ value: f, label: f.toFixed(2) }))} value={offer.factor} onChange={(factor) => onChange({ factor })} />
         </div>
         <div className="flex flex-col gap-2">
           <span className={label}>{builder.term.label}</span>
-          <Pills label={builder.term.group} options={builder.term.options.map((t) => ({ value: t, label: `${t} mo` }))} value={offer.term} onChange={(term) => onChange({ term })} compact />
+          <Pills label={builder.term.group} options={builder.term.options.map((t) => ({ value: t, label: builder.term.option(t) }))} value={offer.term} onChange={(term) => onChange({ term })} compact />
         </div>
         <div className="flex flex-col gap-2">
           <span className={label}>{builder.freq.label}</span>
@@ -87,13 +93,15 @@ export function OfferBuilder({ offer, result, policy: p, onChange, onReset }: Pr
           <span className={label}>{builder.method.label}</span>
           <Pills label={builder.method.group} options={builder.method.options} value={offer.method} onChange={(method) => onChange({ method })} />
         </div>
-        <label className="flex min-h-12 cursor-pointer items-center justify-between gap-2.5 self-end rounded-[16px] bg-tile px-3.5 text-body-sm">
-          <span>
-            <b className="block">{builder.payoff.label}</b>
-            <span className="text-[11.5px] text-hint">{builder.payoff.note}</span>
-          </span>
-          <input type="checkbox" checked={offer.payoff} onChange={(e) => onChange({ payoff: e.target.checked })} className="m-0 h-5 w-5 accent-teal" />
-        </label>
+        {payoff ? (
+          <label className="flex min-h-12 cursor-pointer items-center justify-between gap-2.5 self-end rounded-[16px] bg-tile px-3.5 text-body-sm">
+            <span>
+              <b className="block">{builder.payoff.label(payoff.funder)}</b>
+              <span className="text-[11.5px] text-hint">{builder.payoff.note(payoff.balance)}</span>
+            </span>
+            <input type="checkbox" checked={offer.payoff} onChange={(e) => onChange({ payoff: e.target.checked })} className="m-0 h-5 w-5 accent-teal" />
+          </label>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2" aria-live="polite">

@@ -1,13 +1,14 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
+import { accountLabel, merchantPays as t } from "@/lib/copy/deal-offer";
+import type { DealCashFlow } from "@/lib/data/types";
 import { formatOffer, type OfferInput, type OfferResult } from "@/lib/offer-math";
-import { merchantPays as t } from "@/lib/sample-data/deal-offer";
 
 const tile = "rounded-tile bg-teal/7 px-3 py-2.5";
 const num = "block font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]";
 
-/** maxShare: the policy's debt limit (0.65), from the data layer */
-type Props = { offer: OfferInput; result: OfferResult; maxShare: number; onUse: () => void };
+/** maxShare: the policy's debt limit (0.65); bank: the account ACH payments come from */
+type Props = { offer: OfferInput; result: OfferResult; maxShare: number; bank: DealCashFlow["bank"]; onUse: () => void };
 
 /**
  * "The merchant pays" from design/Deal-Offer.html: the live result of the
@@ -16,7 +17,7 @@ type Props = { offer: OfferInput; result: OfferResult; maxShare: number; onUse: 
  * offer changes. "Use this offer" loads the figures into the disclosure
  * and the send card. No hover.
  */
-export function MerchantPays({ offer, result: r, maxShare, onUse }: Props) {
+export function MerchantPays({ offer, result: r, maxShare, bank, onUse }: Props) {
   const f = formatOffer(offer, r);
   const barStyle: CSSProperties & { "--delay"?: string } = {
     width: `${Math.min(100, (r.share / maxShare) * 100).toFixed(1)}%`,
@@ -42,7 +43,7 @@ export function MerchantPays({ offer, result: r, maxShare, onUse }: Props) {
           {f.count} · {t.total} {f.payback}
         </span>
         <span className="self-start rounded-pill bg-white/10 px-2.5 py-1 text-[11.5px] font-semibold text-muted">
-          {offer.method === "split" ? t.collect.split(f.cardShare) : t.collect.ach}
+          {offer.method === "split" ? t.collect.split(f.cardShare) : t.collect.ach(accountLabel(bank))}
         </span>
         <div className="rounded-[16px] border border-teal/7 bg-teal/7 p-3">
           <div className="flex justify-between text-label">

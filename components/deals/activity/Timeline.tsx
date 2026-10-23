@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
-import { eventKinds, timeline as t, type ActivityEvent, type EventKind } from "@/lib/sample-data/deal-activity";
+import { eventKinds, timelineCopy as t, type TimelineEvent } from "@/lib/copy/deal-activity";
+import type { ActivityKind } from "@/lib/data/types";
 
-type Filter = EventKind | "all";
+type Filter = ActivityKind | "all";
 
 /**
  * "Timeline" from design/Deal-Activity.html and its prototype: search,
@@ -13,7 +14,7 @@ type Filter = EventKind | "all";
  * of the column beside it and the events scroll inside it under the
  * sticky day label (layout rule 2). Rows stagger in once. No hover.
  */
-export function Timeline({ events }: { events: ActivityEvent[] }) {
+export function Timeline({ events, day }: { events: TimelineEvent[]; /** the day label over the events, "Today · Tuesday, Oct 13" */ day: string }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -48,7 +49,7 @@ export function Timeline({ events }: { events: ActivityEvent[] }) {
         </div>
       </div>
 
-      <div role="group" aria-label="Show" className="flex flex-wrap gap-1.5">
+      <div role="group" aria-label={t.filterGroup} className="flex flex-wrap gap-1.5">
         {t.filters.map((f) => {
           const on = f.key === filter;
           return (
@@ -68,7 +69,7 @@ export function Timeline({ events }: { events: ActivityEvent[] }) {
 
       {/* flex-1 with a zero basis: fills the card's height and scrolls inside it */}
       <div className="scrollbar-thin -mx-1.5 h-0 min-h-[380px] flex-1 basis-0 overflow-y-auto px-1.5">
-        <span className="sticky top-0 z-[2] block bg-card pt-1 pb-2 text-cap font-semibold uppercase text-hint">{t.day}</span>
+        <span className="sticky top-0 z-[2] block bg-card pt-1 pb-2 text-cap font-semibold uppercase text-hint">{day}</span>
         <div className="relative flex flex-col gap-1" aria-live="polite">
           <span aria-hidden="true" className="absolute top-2.5 bottom-2.5 left-[19px] w-0.5 bg-line" />
           {rows.map((e, i) => {

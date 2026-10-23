@@ -1,6 +1,6 @@
 import type { Id, IsoDateTime } from "./common";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
-import type { DealBusiness, DealCashFlow, DealConditions, DealIntegrity, DealPositions, DealSummary } from "./deal-tabs";
+import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
 import type { Policy, Pricing } from "./policy";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
@@ -31,6 +31,9 @@ export interface DataSource {
     getIntegrity(id: Id): Promise<DealIntegrity | null>;
     getBusiness(id: Id): Promise<DealBusiness | null>;
     getConditions(id: Id): Promise<DealConditions | null>;
+    getOffer(id: Id): Promise<DealOffer | null>;
+    getDecision(id: Id): Promise<DealDecision | null>;
+    getActivity(id: Id): Promise<DealActivity | null>;
   };
   team: {
     /** the signed-in person's team member id */

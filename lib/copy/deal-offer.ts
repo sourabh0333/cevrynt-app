@@ -1,12 +1,26 @@
 /**
- * Sample data for the Offer & disclosures tab, copied from
- * design/prototypes/Deal-Offer.dc.html (look: design/Deal-Offer.html).
- * The numbers themselves come from lib/offer-math.ts; the limits quoted in
- * the notes (debt limit, approval line, the deal's range) come from the
- * offer policy the page loads, so they're functions here.
+ * Interface wording for the deal Offer & disclosures tab
+ * (design/Deal-Offer.html). The deal's range, presets and offer history
+ * come from the data layer (offerTabView); every figure comes from
+ * lib/offer-math. This file words them, with the limits quoted from the
+ * offer policy the page loads.
  */
-import { moneyShort, percent } from "@/lib/format";
-import type { CollectFrom, Frequency, OfferInput } from "@/lib/offer-math";
+import type { DealCashFlow, DealOffer } from "@/lib/data/types";
+import type { CollectFrom, Frequency } from "@/lib/offer-math";
+import { money, moneyShort, percent, timeOfDay } from "@/lib/format";
+
+const firstWord = (s: string) => s.split(" ")[0];
+const firstName = firstWord;
+
+/** "Chase ••7712": the bank's short name and the account's last digits. */
+export const accountLabel = (bank: DealCashFlow["bank"]) => `${firstWord(bank.name)} ••${bank.last4}`;
+
+/** The factor choices across the deal's range, 0.04 apart: 1.28, 1.32, 1.36, 1.40. */
+export const factorOptions = (min: number, max: number) => {
+  const out: number[] = [];
+  for (let f = min; f <= max + 1e-9; f += 0.04) out.push(Math.round(f * 100) / 100);
+  return out;
+};
 
 export const builder = {
   title: "Offer builder",
@@ -16,11 +30,11 @@ export const builder = {
     label: "Amount",
     step: 1000,
     floor: (n: number) => `Floor ${moneyShort(n)}`,
-    recommended: "Recommended $40K",
+    recommended: (n: number) => `Recommended ${moneyShort(n)}`,
     ceiling: (n: number) => `Ceiling ${moneyShort(n)}`,
   },
-  factor: { label: "Factor rate", options: [1.28, 1.32, 1.36, 1.4] },
-  term: { label: "Term", group: "Term in months", options: [4, 5, 6, 7, 8] },
+  factor: { label: "Factor rate" },
+  term: { label: "Term", group: "Term in months", options: [4, 5, 6, 7, 8], option: (t: number) => `${t} mo` },
   freq: {
     label: "Payments",
     group: "Payment frequency",
@@ -45,11 +59,18 @@ export const builder = {
       { value: "split", label: "Card sales" },
     ] as { value: CollectFrom; label: string }[],
   },
-  payoff: { label: "Pay off Kingsway", note: "~$9,400 from this advance" },
+  /** "Pay off Kingsway", "~$9,400 from this advance" */
+  payoff: {
+    label: (funder: string) => `Pay off ${firstWord(funder)}`,
+    note: (balance: number) => `~${money(Math.round(balance / 100) * 100)} from this advance`,
+  },
   rules: {
     debtShare: { label: (share: string) => `Debt share ${share}`, note: (maxShare: number) => `Limit ${percent(maxShare)} of revenue` },
     ceiling: { label: "Amount within ceiling", note: (ceiling: number) => `Up to ${moneyShort(ceiling)} for this deal` },
-    factor: { label: "Factor in range", note: (min: number, max: number) => `${min.toFixed(2)} – ${max.toFixed(2)} for score 80+` },
+    factor: {
+      label: "Factor in range",
+      note: (min: number, max: number, bandFrom: number | null) => `${min.toFixed(2)} – ${max.toFixed(2)}${bandFrom === null ? "" : ` for score ${bandFrom}+`}`,
+    },
     approval: { ok: "Your approval limit", warn: "Needs senior sign-off", note: (limit: number) => `You can approve up to ${moneyShort(limit)}` },
   },
 };
@@ -57,10 +78,8 @@ export const builder = {
 export const merchantPays = {
   title: "The merchant pays",
   verdict: { ok: "Within policy", over: "Over limit" },
-  per: { daily: "a business day", weekly: "a week" },
-  count: { daily: (n: number) => `${n} business-day payments`, weekly: (n: number) => `${n} weekly payments` },
   total: "total",
-  collect: { ach: "Taken from Chase ••7712 by ACH", split: (share: string) => `Taken from card sales: about ${share} of each day` },
+  collect: { ach: (account: string) => `Taken from ${account} by ACH`, split: (share: string) => `Taken from card sales: about ${share} of each day` },
   share: { label: "All debt payments vs revenue", zero: "0%", max: (maxShare: number) => `Policy max ${percent(maxShare)}` },
   tiles: { net: "Cash to merchant", apr: "Estimated APR", commission: "Broker commission", margin: "Your margin" },
   renew: (month: number) => `Renewal possible once half is repaid, around month ${month}.`,
@@ -69,7 +88,7 @@ export const merchantPays = {
 
 export const earlyPayoffCard = {
   title: "Early payoff discount",
-  subtitle: "What Elena would owe in total if she pays everything off early",
+  subtitle: (owner: { name: string; subject: string }) => `What ${firstName(owner.name)} would owe in total if ${owner.subject} pays everything off early`,
   link: { label: "Edit discount table", href: "/settings/pricing" },
   within: (days: number) => `Within ${days} days`,
   fullTerm: "Full term",
@@ -77,22 +96,34 @@ export const earlyPayoffCard = {
   noDiscount: "No discount",
 };
 
+type OfferEvent = DealOffer["history"][number];
+
 export const offerHistory = {
   title: "Offer history",
-  events: [
-    { title: "Broker asked for $45,000", note: "Apex Funding · on the application, 09:40", tone: "grey" },
-    { title: "Cevrynt recommended $40,000", note: "1.32 factor, 6 months · 09:41", tone: "teal" },
-  ] as { title: string; note: string; tone: "grey" | "teal" }[],
+  eventTitle: {
+    asked: (e: OfferEvent) => `Broker asked for ${money(e.amount)}`,
+    recommended: (e: OfferEvent) => `Cevrynt recommended ${money(e.amount)}`,
+    sent: (e: OfferEvent) => `Offer sent for ${money(e.amount)}`,
+    countered: (e: OfferEvent) => `Broker countered at ${money(e.amount)}`,
+  } as Record<OfferEvent["kind"], (e: OfferEvent) => string>,
+  note: (e: OfferEvent) =>
+    e.kind === "asked"
+      ? `${e.by ?? ""} · on the application, ${timeOfDay(e.at)}`
+      : e.factor !== undefined && e.termMonths !== undefined
+        ? `${e.factor.toFixed(2)} factor, ${e.termMonths} months · ${timeOfDay(e.at)}`
+        : timeOfDay(e.at),
+  /** Cevrynt's and our own rounds are teal; the broker's are grey */
+  tone: (e: OfferEvent): "grey" | "teal" => (e.kind === "asked" || e.kind === "countered" ? "grey" : "teal"),
   empty: "No offer sent yet. Counter-offers from the broker will appear here.",
 };
 
 export const disclosure = {
   title: "Cost disclosure",
-  subtitle: "Filled in from this offer, using the disclosure template set for Maine",
+  subtitle: (state: string) => `Filled in from this offer, using the disclosure template set for ${state}`,
   link: { label: "Disclosure templates", href: "/settings/pricing" },
   doc: {
     title: "Your financing offer",
-    ref: "Ridgeline Capital · APP-7H2K4Q",
+    ref: (funder: string, id: string) => `${funder} · ${id}`,
     labels: {
       amount: "Amount of financing",
       receive: (net: string) => `You receive ${net}`,
@@ -107,7 +138,7 @@ export const disclosure = {
       earlyValue: "Discount available",
       earlyNote: "See section 4 of the agreement",
     },
-    brokerLine: (commission: string) => `Broker compensation of ${commission} is paid by Ridgeline Capital, not by you.`,
+    brokerLine: (commission: string, funder: string) => `Broker compensation of ${commission} is paid by ${funder}, not by you.`,
     reconcileLine: "If your sales drop, you can ask us to reconcile your payments to what you actually earn.",
   },
   notice: "State rules differ and change often. Templates and the APR method are set by your compliance team in Settings and should be reviewed by counsel.",
@@ -122,28 +153,22 @@ export const sendOffer = {
     { kind: "SIGN", label: "Agreement, guarantee, payment authorization" },
   ],
   to: { label: "To", value: "Broker and merchant" },
-  expires: { label: "Offer expires", value: "In 72 hours" },
+  expires: { label: "Offer expires", value: (hours: number) => `In ${hours} hours` },
   approval: {
     ok: "Within your approval limit. Sends straight away.",
-    senior: (limit: number) => `Above ${moneyShort(limit)}, so Priya Shah (senior) approves before it is sent.`,
+    senior: (limit: number, senior: string) => `Above ${moneyShort(limit)}, so ${senior} (senior) approves before it is sent.`,
   },
   button: { ok: "Send offer", senior: "Send for senior approval" },
 };
 
-export type Preset = {
-  name: string;
-  tag: string;
-  why: string;
-  offer: Partial<OfferInput>;
-};
-
-export const presets = {
+export const presetsCopy = {
   title: "Three ways to offer it",
   subtitle: "Pick one to load it into the builder",
   tiles: { amount: "Amount", daily: "Daily", share: "Of revenue" },
-  items: [
-    { name: "Recommended", tag: "Best balance", why: "Second position next to Kingsway, well inside your limits.", offer: { amount: 40000, factor: 1.32, term: 6, freq: "daily", payoff: false } },
-    { name: "Lower payment", tag: "Easier on cash flow", why: "Same amount over 8 months. Smaller daily payment, slightly more total cost.", offer: { amount: 40000, factor: 1.36, term: 8, freq: "daily", payoff: false } },
-    { name: "Pay off Kingsway", tag: "You go first", why: "Clears the existing advance, leaving you in first position.", offer: { amount: 40000, factor: 1.32, term: 6, freq: "daily", payoff: true } },
-  ] as Preset[],
+};
+
+export const offerSections = {
+  builder: "Offer builder and what the merchant pays",
+  early: "Early payoff and offer history",
+  disclosure: "Cost disclosure and sending the offer",
 };

@@ -1,5 +1,5 @@
 import "server-only";
-import type { Deal, DealBusiness, DealCashFlow, DealConditions, DealIntegrity, DealPositions, DealQueueStats, DealQueueSummary, DealSummary, Id } from "@/lib/data/types";
+import type { Deal, DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealQueueStats, DealQueueSummary, DealSummary, Id } from "@/lib/data/types";
 import { source } from "./source";
 
 /** The open queue, in the order Submissions lists it. */
@@ -50,4 +50,19 @@ export async function getDealBusiness(id: Id): Promise<DealBusiness | null> {
 /** The Conditions & stips tab's conditions for one deal, with terms and final checks. */
 export async function getDealConditions(id: Id): Promise<DealConditions | null> {
   return source.deals.getConditions(id);
+}
+
+/** The Offer & disclosures tab's record for one deal: its range, presets and offer history. */
+export async function getDealOffer(id: Id): Promise<DealOffer | null> {
+  return source.deals.getOffer(id);
+}
+
+/** The Decision & memo tab's record for one deal: Cevrynt's suggestion, any recorded decision and the memo. */
+export async function getDealDecision(id: Id): Promise<DealDecision | null> {
+  return source.deals.getDecision(id);
+}
+
+/** The Activity tab's record for one deal: the timeline, stages, messages and who opened it. */
+export async function getDealActivity(id: Id): Promise<DealActivity | null> {
+  return source.deals.getActivity(id);
 }

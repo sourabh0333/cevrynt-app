@@ -15,7 +15,7 @@ import { currentPolicy, simInputFrom } from "@/lib/policy-sim";
 import { defaultRenewalRules, readiness } from "@/lib/renewal-rules";
 import { estimateUpTo } from "@/lib/sample-data/apply";
 import { auditHeader } from "@/lib/sample-data/audit";
-import { builder, sendOffer } from "@/lib/sample-data/deal-offer";
+import { builder, sendOffer } from "@/lib/copy/deal-offer";
 import { COST_PER_DEAL, costPerDeal, dealsUsed, usage, usageByChannel } from "@/lib/sample-data/plan";
 import { readinessMerchants } from "@/lib/sample-data/renewal-rules";
 import { brokerPay, readyRules, renewalsHeader } from "@/lib/sample-data/renewals";
@@ -25,18 +25,21 @@ import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabe
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
 import { getDeal, listDeals } from "@/lib/data/deals";
 import { dealFrameView, submissionsView } from "@/lib/data/views/deals";
-import { checkDot, dealTabs, tabCheck, tabMark } from "@/lib/copy/deal";
+import { checkDot, dealTabs, tabMark, tabStates } from "@/lib/copy/deal";
+import { duration, messagesCopy, paceCopy, timelineCopy } from "@/lib/copy/deal-activity";
+import { decisionCard, memo as memoCopy, policyCheck, policyRows, signOff } from "@/lib/copy/deal-decision";
+import { builder as offerBuilder, disclosure, earlyPayoffCard, factorOptions, merchantPays, offerHistory } from "@/lib/copy/deal-offer";
 import { businessCopy, nameInitials, ownerCopy, publicRecordsCopy, wholeYears } from "@/lib/copy/deal-business";
 import { roomToPayCopy } from "@/lib/copy/deal-cash-flow";
 import { boardCopy, checkSet, composerCopy, conditionsCheck, finalChecksCopy } from "@/lib/copy/deal-conditions";
 import { evidenceCopy, patternCopy } from "@/lib/copy/deal-integrity";
 import { glanceCopy } from "@/lib/copy/deal-positions";
 import { keyNumbersCopy, scoreCardCopy } from "@/lib/copy/deal-summary";
-import { businessTabView, conditionsTabView, dealTabsView, integrityTabView } from "@/lib/data/views/deal-tabs";
+import { activityTabView, businessTabView, conditionsTabView, dealTabsView, decisionTabView, integrityTabView, offerTabView } from "@/lib/data/views/deal-tabs";
 import { statusOf } from "@/lib/deal-conditions";
 import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
 import { money, moneyK, moneyK1, percent } from "@/lib/format";
-import { computeOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
+import { computeOffer, formatOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -138,7 +141,7 @@ describe("Policy limits", () => {
     assert.deepEqual(ridgelinePolicy, offer);
     assert.equal(builder.rules.debtShare.note(offer.maxShare), "Limit 65% of revenue");
     assert.equal(builder.rules.approval.note(offer.approvalLimit), "You can approve up to $45K");
-    assert.match(sendOffer.approval.senior(offer.approvalLimit), /^Above \$45K/);
+    assert.equal(sendOffer.approval.senior(offer.approvalLimit, "Priya Shah"), "Above $45K, so Priya Shah (senior) approves before it is sent.");
   });
 
   it("the Policy rules print the same limits", async () => {
@@ -258,11 +261,16 @@ describe("Deal tabs: Summary, Cash flow, Positions", () => {
   it("the tab bar's dots and Conditions count are the deal's own checks", async () => {
     const frame = (await dealFrameView("APP-7H2K4Q"))!;
     const checks = checkSet(frame.deal.checks, frame.conditions);
-    const marks = Object.fromEntries(dealTabs.map((t) => [t.key, tabCheck[t.key] ? tabMark(checks[tabCheck[t.key]!]) : {}]));
+    const states = tabStates(checks, frame.progress);
+    const marks = Object.fromEntries(dealTabs.map((t) => [t.key, states[t.key] ? tabMark(states[t.key]!) : {}]));
     assert.deepEqual(
       [marks["cash-flow"], marks.positions, marks.integrity, marks.business, marks.conditions, marks.summary],
       [{ dot: "teal" }, { dot: "teal" }, { dot: "amber" }, { dot: "teal" }, { count: 2 }, {}],
     );
+    // Nothing sent, decided or unread yet on the sample deal, so Offer, Decision and Activity show nothing, as in the design.
+    assert.deepEqual([marks.offer, marks.decision, marks.activity], [{}, {}, {}]);
+    const later = tabStates(checks, { offerSent: true, decided: true, unreadMessages: 2 });
+    assert.deepEqual([tabMark(later.offer!), tabMark(later.decision!), tabMark(later.activity!)], [{ dot: "teal" }, { dot: "teal" }, { count: 2 }]);
     assert.equal(checkDot({ state: "warn" }), "amber");
   });
 
@@ -383,5 +391,89 @@ describe("Deals", () => {
     assert.equal(dealHeader.about(mesa.deal, mesa.now), "BlueRock Advisors · received 08:55 by bulk ZIP");
     assert.deepEqual([dealHeader.requested(mesa.deal), dealHeader.recommended(mesa.deal), dealHeader.due(mesa.deal)], ["$35K", "Not set", "25m left"]);
     assert.equal(await dealFrameView("APP-NOPE"), null);
+  });
+});
+
+describe("Deal tabs: Offer, Decision & memo, Activity", () => {
+  it("an unknown deal has none of these tabs", async () => {
+    assert.equal(await offerTabView("APP-NOPE"), null);
+    assert.equal(await decisionTabView("APP-NOPE"), null);
+    assert.equal(await activityTabView("APP-NOPE"), null);
+  });
+
+  it("Offer: the deal's own range, figures and parties, with the policy's limits", async () => {
+    const d = (await offerTabView("APP-7H2K4Q"))!;
+    const policy = await getPolicy();
+    assert.equal(d.offerPolicy.approvalLimit, policy.limits.seniorAbove);
+    assert.deepEqual(factorOptions(d.offerPolicy.factorMin, d.offerPolicy.factorMax), [1.28, 1.32, 1.36, 1.4]);
+    assert.equal(offerBuilder.rules.factor.note(d.offerPolicy.factorMin, d.offerPolicy.factorMax, d.scoreBandFrom), "1.28 – 1.40 for score 80+");
+    assert.equal(offerBuilder.amount.recommended(d.recommended.amount), "Recommended $40K");
+    assert.deepEqual([offerBuilder.payoff.label(d.payoff!.funder), offerBuilder.payoff.note(d.payoff!.balance)], ["Pay off Kingsway", "~$9,400 from this advance"]);
+    assert.equal(merchantPays.collect.ach("Chase ••7712"), "Taken from Chase ••7712 by ACH");
+    assert.equal(earlyPayoffCard.subtitle(d.owner!), "What Elena would owe in total if she pays everything off early");
+    assert.deepEqual(
+      d.offer.history.map((e) => [offerHistory.eventTitle[e.kind](e), offerHistory.note(e)]),
+      [
+        ["Broker asked for $45,000", "Apex Funding · on the application, 09:40"],
+        ["Cevrynt recommended $40,000", "1.32 factor, 6 months · 09:41"],
+      ],
+    );
+    assert.equal(disclosure.subtitle(d.state), "Filled in from this offer, using the disclosure template set for Maine");
+    assert.equal(disclosure.doc.ref(d.workspace, d.id), "Ridgeline Capital · APP-7H2K4Q");
+    // The deal's own figures are the ones the offer math's sample default uses, so its tests cover this page.
+    assert.deepEqual(d.figures, harborFigures);
+  });
+
+  it("Decision: the policy check, sign-off and memo quote the policy's own values", async () => {
+    const d = (await decisionTabView("APP-7H2K4Q"))!;
+    const share = computeOffer(d.recommended, d.figures, d.offerPolicy).share;
+    const rows = policyRows(d, d.recommended.amount, share);
+    assert.deepEqual(
+      rows.map((r) => [r.label, r.value]),
+      [
+        ["Time in business, 6 months or more", "10 years"],
+        ["Industry on approved list", "Bakery"],
+        ["Debt payments under 65% of revenue", "25%"],
+        ["NSFs under 8 a month", "0"],
+        ["Amount under 1.5× monthly revenue", "0.65×"],
+        ["Stated revenue within 150% of verified", "104%"],
+        ["No more than 2 open positions", "1"],
+        ["Owner clear on sanctions lists", "Clear"],
+      ],
+    );
+    assert.equal(policyCheck.chip(rows.filter((r) => r.met).length, rows.length), "8 of 8 met");
+    // A stricter policy is quoted, and checked, as it stands.
+    const strict = policyRows({ ...d, policy: { ...d.policy, maxDebtShare: 0.2 } }, d.recommended.amount, share);
+    assert.deepEqual([strict[2].label, strict[2].met], ["Debt payments under 20% of revenue", false]);
+    const limit = d.policy.limits.seniorAbove;
+    assert.deepEqual([signOff.role.underwriter(limit), signOff.role.senior(limit)], ["Underwriter · up to $45K", "Senior · above $45K or waivers"]);
+    assert.equal(signOff.note(d.recommended.amount, limit, d.me.name, d.senior.name), "$40,000 is within Maya's limit, so one sign-off is enough.");
+    assert.equal(signOff.note(50000, limit, d.me.name, d.senior.name), "$50,000 is above Maya's limit, so Priya signs too.");
+    const f = formatOffer(d.recommended, computeOffer(d.recommended, d.figures, d.offerPolicy));
+    assert.equal(
+      memoCopy.debt(d.positions, f, d.offerPolicy.maxShare),
+      "One disclosed advance with Kingsway Capital at $285 a day, about $9.4K left. After our offer, all debt payments take 25% of revenue against a 65% limit.",
+    );
+    assert.equal(
+      memoCopy.recommendation(f, d.recommended.factor, d.recommended.term, d.recommended.freq, d.bank, d.openConditions),
+      "Approve $40,000, 1.32 factor, 6 months, daily ACH from Chase ••7712. Conditions: landlord letter, signed contract, funding call, final checks before funding.",
+    );
+    assert.deepEqual(decisionCard.next.steps("approve", { broker: d.broker, owner: d.owner, validHours: d.validHours, openItems: d.openConditions.length }), [
+      "Offer goes to Apex Funding and Elena, valid for 72 hours",
+      "Conditions & stips keeps track of the 3 open items",
+      "Stacking Watch keeps checking until funding",
+    ]);
+  });
+
+  it("Activity: stages, people and messages read as the design shows them", async () => {
+    const d = (await activityTabView("APP-7H2K4Q"))!;
+    const a = d.activity;
+    assert.deepEqual(a.stages.map((s) => duration(s.seconds)), ["41 sec", "19 sec", "16 min", "2h 32m"]);
+    assert.equal(paceCopy.people.note(a.people), "Maya, Dana (broker), Elena (merchant)");
+    assert.equal(paceCopy.queue.note(d.deadline), "Decision due in 1h 10m");
+    assert.deepEqual(d.mentions.map((p) => p.name), ["Priya Shah", "Jordan Reyes"]);
+    assert.deepEqual(a.threads.broker.map((m) => messagesCopy.meta(m, d.me.name)), ["Maya · 10:05 · delivered, opened 10:09", "Dana Ruiz · 10:20"]);
+    // The timeline's day follows the workspace clock: the sample deal's events are all today.
+    assert.equal(timelineCopy.day(a.events[0].at, d.now), "Today · Tuesday, Oct 13");
   });
 });

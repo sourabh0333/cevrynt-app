@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import type { Pricing } from "@/lib/data/types";
+import { earlyPayoffCard as t, offerHistory } from "@/lib/copy/deal-offer";
+import type { DealOffer, Pricing } from "@/lib/data/types";
 import { earlyPayoff, money, type OfferInput } from "@/lib/offer-math";
-import { earlyPayoffCard as t, offerHistory } from "@/lib/sample-data/deal-offer";
 
 /** "Early payoff discount": Pricing's tiers and the full term, from the shared math. */
-export function EarlyPayoffCard({ offer, table }: { offer: OfferInput; table: Pricing["earlyPayoff"] }) {
+export function EarlyPayoffCard({ offer, table, owner }: { offer: OfferInput; table: Pricing["earlyPayoff"]; owner: { name: string; subject: string } | null }) {
   const tiers = earlyPayoff(offer, table);
   return (
     <Card as="article" aria-labelledby="h-early" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
       <div className="flex flex-wrap items-end justify-between gap-2.5">
         <div>
           <h2 id="h-early" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
-          <div className="mt-[3px] text-label text-hint">{t.subtitle}</div>
+          {owner ? <div className="mt-[3px] text-label text-hint">{t.subtitle(owner)}</div> : null}
         </div>
         <Link href={t.link.href} className="text-label font-semibold text-teal no-underline">
           {t.link.label}
@@ -34,17 +34,17 @@ export function EarlyPayoffCard({ offer, table }: { offer: OfferInput; table: Pr
   );
 }
 
-/** "Offer history": the two events so far and the empty slot for counter-offers. */
-export function OfferHistoryCard() {
+/** "Offer history": the deal's rounds so far and the empty slot for counter-offers. */
+export function OfferHistoryCard({ history }: { history: DealOffer["history"] }) {
   return (
     <article aria-labelledby="h-hist" className="box-border flex min-w-0 flex-col gap-2.5 rounded-card-lg bg-card-deep p-5 text-ink">
       <h2 id="h-hist" className="m-0 font-heading text-[20px] font-semibold">{offerHistory.title}</h2>
-      {offerHistory.events.map((e) => (
-        <div key={e.title} className="flex gap-2.5 rounded-tile bg-white/75 px-3 py-[11px] text-[12.5px]">
-          <span className={`mt-1.5 h-2 w-2 flex-none rounded-full ${e.tone === "teal" ? "bg-teal" : "bg-grey-dot"}`} />
+      {history.map((e) => (
+        <div key={`${e.kind}-${e.at}`} className="flex gap-2.5 rounded-tile bg-white/75 px-3 py-[11px] text-[12.5px]">
+          <span className={`mt-1.5 h-2 w-2 flex-none rounded-full ${offerHistory.tone(e) === "teal" ? "bg-teal" : "bg-grey-dot"}`} />
           <span>
-            <b>{e.title}</b>
-            <span className="block text-[11.5px] text-hint">{e.note}</span>
+            <b>{offerHistory.eventTitle[e.kind](e)}</b>
+            <span className="block text-[11.5px] text-hint">{offerHistory.note(e)}</span>
           </span>
         </div>
       ))}

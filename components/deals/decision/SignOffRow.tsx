@@ -1,12 +1,31 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { money, recommendedOffer } from "@/lib/offer-math";
-import { decisionRecord as rec, signOff as t } from "@/lib/sample-data/deal-decision";
+import { decisionRecord as rec, signOff as t } from "@/lib/copy/deal-decision";
 
 const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-/** "Who signs off": the approval chain. Maya's chip turns to Signed once the decision is recorded. */
-export function WhoSignsOff({ recorded }: { recorded: boolean }) {
+type Person = { name: string; initials: string };
+
+type SignOffProps = {
+  recorded: boolean;
+  /** the recommended amount, and the policy's line above which a senior signs */
+  amount: number;
+  limit: number;
+  me: Person;
+  senior: Person;
+};
+
+/**
+ * "Who signs off": the approval chain from the team's limits. The
+ * underwriter's chip turns to Signed once the decision is recorded; the
+ * senior is only needed above the policy's line.
+ */
+export function WhoSignsOff({ recorded, amount, limit, me, senior }: SignOffProps) {
+  const seniorNeeded = amount > limit;
+  const people = [
+    { ...me, role: t.role.underwriter(limit), me: true },
+    { ...senior, role: t.role.senior(limit), me: false },
+  ];
   return (
     <article
       aria-labelledby="h-chain"
@@ -14,31 +33,38 @@ export function WhoSignsOff({ recorded }: { recorded: boolean }) {
     >
       <h2 id="h-chain" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
       <span className="text-[12.5px] text-muted">{t.intro}</span>
-      {t.people.map((p) => (
+      {people.map((p) => (
         <div key={p.name} className="flex items-center gap-2.5 rounded-[16px] bg-teal/7 p-3">
           <span className="grid h-9 w-9 flex-none place-items-center rounded-[12px] bg-sand text-label-sm font-bold text-sand-text">{p.initials}</span>
           <span className="flex-1">
             <b className="block text-body-sm">{p.name}</b>
             <span className="text-[11.5px] text-muted">{p.role}</span>
           </span>
-          {p.me ? (
-            <span className={`rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${recorded ? "bg-mint text-teal-dark" : "bg-amber-light/20 text-amber-deep"}`}>
-              {recorded ? t.status.signed : t.status.waiting}
+          {p.me || seniorNeeded ? (
+            <span className={`rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${p.me && recorded ? "bg-mint text-teal-dark" : "bg-amber-light/20 text-amber-deep"}`}>
+              {p.me && recorded ? t.status.signed : t.status.waiting}
             </span>
           ) : (
             <span className="rounded-pill bg-white/10 px-[9px] py-[3px] text-label-sm font-semibold text-muted">{t.status.notNeeded}</span>
           )}
         </div>
       ))}
-      <span className="mt-auto text-[11.5px] text-muted">{t.note(money(recommendedOffer.amount))}</span>
+      <span className="mt-auto text-[11.5px] text-muted">{t.note(amount, limit, me.name, senior.name)}</span>
     </article>
   );
 }
 
-type RecordProps = { recordedAt: Date | null; label: string; agrees: boolean };
+type RecordProps = {
+  recordedAt: Date | null;
+  label: string;
+  agrees: boolean;
+  me: string;
+  /** Cevrynt's suggestion: the amount, the score and policy version it used, and when */
+  suggested: { amount: number; score: number; version: number; at: string };
+};
 
 /** "Decision record": Cevrynt's suggestion beside the person's decision, and Export. */
-export function DecisionRecord({ recordedAt, label, agrees }: RecordProps) {
+export function DecisionRecord({ recordedAt, label, agrees, me, suggested }: RecordProps) {
   const done = recordedAt !== null;
   return (
     <Card as="article" aria-labelledby="h-rec2" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
@@ -54,8 +80,8 @@ export function DecisionRecord({ recordedAt, label, agrees }: RecordProps) {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">
         <div className="flex flex-col gap-1.5 rounded-tile-lg bg-tile p-4">
           <span className="text-cap font-semibold uppercase text-hint">{rec.suggested.caption}</span>
-          <b className="font-heading text-[18px] font-semibold">{rec.suggested.title(money(recommendedOffer.amount))}</b>
-          <span className="text-label text-hint">{rec.suggested.meta}</span>
+          <b className="font-heading text-[18px] font-semibold">{rec.suggested.title(suggested.amount)}</b>
+          <span className="text-label text-hint">{rec.suggested.meta(suggested.score, suggested.version, suggested.at)}</span>
           <span className="text-label text-muted">{rec.suggested.why}</span>
         </div>
         <div
@@ -63,8 +89,8 @@ export function DecisionRecord({ recordedAt, label, agrees }: RecordProps) {
           className={`flex flex-col gap-1.5 rounded-tile-lg p-4 ${done ? "bg-mint-bg text-teal-dark" : "border-[1.5px] border-dashed border-line-dash-soft"}`}
         >
           <span className={`text-cap font-semibold uppercase ${done ? "text-teal-deep" : "text-hint"}`}>{rec.person.caption}</span>
-          <b className="font-heading text-[18px] font-semibold">{done ? label : rec.person.waiting.title}</b>
-          <span className="text-label opacity-80">{done ? rec.person.sub(timeOf(recordedAt)) : rec.person.waiting.sub}</span>
+          <b className="font-heading text-[18px] font-semibold">{done ? label : rec.person.waiting.title(me)}</b>
+          <span className="text-label opacity-80">{done ? rec.person.sub(me, timeOf(recordedAt)) : rec.person.waiting.sub}</span>
           <span className="text-label opacity-85">{done ? (agrees ? rec.person.agrees : rec.person.differs) : rec.person.waiting.why}</span>
         </div>
       </div>

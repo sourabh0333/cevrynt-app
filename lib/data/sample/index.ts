@@ -1,6 +1,6 @@
 import type { DataSource } from "@/lib/data/types";
 import { SAMPLE_NOW } from "./clock";
-import { harborBusiness, harborCashFlow, harborConditions, harborIntegrity, harborPositions, harborSummary } from "./deal-tabs";
+import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
 import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
@@ -55,6 +55,15 @@ export const sampleSource: DataSource = {
     },
     async getConditions(id) {
       return deals.some((d) => d.id === id) ? structuredClone(harborConditions) : null;
+    },
+    async getOffer(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborOffer) : null;
+    },
+    async getDecision(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborDecision) : null;
+    },
+    async getActivity(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborActivity) : null;
     },
   },
   team: {
