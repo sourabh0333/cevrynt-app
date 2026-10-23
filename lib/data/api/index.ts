@@ -17,7 +17,14 @@ export const apiSource: DataSource = {
     },
   },
   roadmap: { listFeatures: notConnected("roadmap") },
+  deals: {
+    list: notConnected("deals"),
+    get: notConnected("deals"),
+    getQueueSummary: notConnected("deals"),
+    getQueueStats: notConnected("deals"),
+  },
   team: {
+    getCurrentUserId: notConnected("team"),
     listMembers: notConnected("team"),
     listInvites: notConnected("team"),
     getAccessReview: notConnected("team"),

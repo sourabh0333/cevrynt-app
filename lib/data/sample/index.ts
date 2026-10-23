@@ -1,8 +1,9 @@
 import type { DataSource } from "@/lib/data/types";
 import { SAMPLE_NOW } from "./clock";
+import { deals, queueStats, queueSummary } from "./deals";
 import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
-import { accessReview, outsideAccess, teamInvites, teamMembers } from "./team";
+import { accessReview, CURRENT_USER_ID, outsideAccess, teamInvites, teamMembers } from "./team";
 import { notificationRules, workspace } from "./workspace";
 
 /**
@@ -21,7 +22,25 @@ export const sampleSource: DataSource = {
       return roadmapFeatures.map((f) => ({ ...f, outcomes: [...f.outcomes] }));
     },
   },
+  deals: {
+    async list() {
+      return structuredClone(deals);
+    },
+    async get(id) {
+      const deal = deals.find((d) => d.id === id);
+      return deal ? structuredClone(deal) : null;
+    },
+    async getQueueSummary() {
+      return structuredClone(queueSummary);
+    },
+    async getQueueStats() {
+      return structuredClone(queueStats);
+    },
+  },
   team: {
+    async getCurrentUserId() {
+      return CURRENT_USER_ID;
+    },
     async listMembers() {
       return teamMembers.map((m) => ({ ...m }));
     },

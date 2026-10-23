@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
-import { dealTabHref, dealTabs } from "@/lib/sample-data/deal";
+import { dealTabHref, dealTabs, dealTabsLabel } from "@/lib/copy/deal";
 
 /**
  * The nine deal tabs from design/Deal-Summary.html. Each is a link to its
@@ -23,5 +23,5 @@ export function DealTabs({ dealId }: { dealId: string }) {
     countColor: t.count !== undefined ? "amber" : undefined,
   }));
 
-  return <Tabs items={items} value={current} label="Deal sections" />;
+  return <Tabs items={items} value={current} label={dealTabsLabel} />;
 }

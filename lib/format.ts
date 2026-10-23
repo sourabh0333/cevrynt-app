@@ -15,6 +15,9 @@ export const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 /** "$40K", "$9.4K" */
 export const moneyShort = (n: number) => "$" + (n / 1000).toFixed(n % 1000 ? 1 : 0) + "K";
 
+/** "$61.4K", "$74.0K", "$118K": one decimal under $100K, as the queue shows revenue and balances. */
+export const moneyK = (n: number) => "$" + (n / 1000).toFixed(n < 100_000 ? 1 : 0) + "K";
+
 /** "$1.24M" for amounts of a million and up, otherwise like moneyShort. */
 export const moneyCompact = (n: number) => (Math.abs(n) >= 1_000_000 ? "$" + (n / 1_000_000).toFixed(2) + "M" : moneyShort(n));
 
@@ -49,6 +52,11 @@ export function daysBetween(fromIso: string, toIso: string, timeZone = WORKSPACE
     return Date.UTC(Number(p.year), new Date(`${p.month} 1, 2000`).getMonth(), Number(p.day));
   };
   return Math.round((day(toIso) - day(fromIso)) / 86_400_000);
+}
+
+/** "Thu" */
+export function weekdayShort(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  return new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(new Date(iso));
 }
 
 /** "Aug 2026" */

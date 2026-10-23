@@ -7,6 +7,12 @@ export async function listTeam(): Promise<TeamMember[]> {
   return source.team.listMembers();
 }
 
+/** The signed-in person ("Maya Chen" in the sample); null if they're no longer on the team. */
+export async function getCurrentUser(): Promise<TeamMember | null> {
+  const [id, team] = await Promise.all([source.team.getCurrentUserId(), listTeam()]);
+  return team.find((m) => m.id === id) ?? null;
+}
+
 /** Invites sent and not yet accepted. */
 export async function listInvites(): Promise<Invite[]> {
   return source.team.listInvites();

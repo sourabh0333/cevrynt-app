@@ -21,7 +21,12 @@ import { readinessMerchants } from "@/lib/sample-data/renewal-rules";
 import { brokerPay, readyRules, renewalsHeader } from "@/lib/sample-data/renewals";
 import { unitEconomics } from "@/lib/sample-data/reports";
 import { signIns, toFix } from "@/lib/sample-data/security";
-import { DECISION_TARGET_HOURS, deals, teamWorkload } from "@/lib/sample-data/submissions";
+import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabel } from "@/lib/copy/deal";
+import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
+import { getDeal, listDeals } from "@/lib/data/deals";
+import { dealFrameView, submissionsView } from "@/lib/data/views/deals";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /*
  * Today's cross-page facts (DATA-PLAN.md, step 0). Several pages show the
@@ -73,8 +78,11 @@ describe("Team", () => {
     const team = await listTeam();
     const byIni = (ini: string) => team.find((m) => m.initials === ini)?.openDeals;
     assert.deepEqual(["MC", "AK", "JR", "PS"].map(byIni), [7, 9, 6, 3]);
-    assert.deepEqual(teamWorkload.people.map((p) => [p.initials, p.open, p.percent]), [["MC", 7, 70], ["AK", 9, 90], ["JR", 6, 60], ["PS", 3, 30]]);
-    assert.equal(teamWorkload.subtitle, "Open deals per underwriter, out of a daily capacity of 10");
+    const { workload, mine } = await submissionsView();
+    assert.deepEqual(workload.map((p) => [p.initials, p.open, Math.round((p.open / p.capacity) * 100), p.overdue]), [["MC", 7, 70, 0], ["AK", 9, 90, 1], ["JR", 6, 60, 0], ["PS", 3, 30, 0]]);
+    assert.equal(workloadCard.subtitle(workload[0].capacity), "Open deals per underwriter, out of a daily capacity of 10");
+    // "Mine · 7" on Submissions is Maya's own workload
+    assert.equal(mine, 7);
   });
 
   it("only Leo has no 2-step login, on Team & roles and Security", async () => {
@@ -182,8 +190,50 @@ describe("Decision target", () => {
   it("4 working hours: a new deal on Submissions starts with 4h left, and Workspace says the same", async () => {
     const ws = await getWorkspace();
     assert.equal(ws.decisionTargetHours, 4);
-    assert.equal(DECISION_TARGET_HOURS, ws.decisionTargetHours);
-    assert.ok(deals.some((d) => d.status === "new" && d.sla === "4h left"));
+    const fresh = (await listDeals()).filter((d) => d.deadline.kind === "left" && d.deadline.minutes === ws.decisionTargetHours * 60);
+    assert.deepEqual(fresh.map((d) => [d.status, deadlineLabel(d.deadline)]), [["new", "4h left"]]);
     assert.equal(workingHours.rows(ws).find((r) => r.label === "Decision target")?.value, "4 working hours");
+  });
+});
+
+describe("Deals", () => {
+  it("Submissions: 28 open, 2 past their deadline, 12 on this page", async () => {
+    const { deals, summary } = await submissionsView();
+    assert.equal(submissionsHeader.line(summary), "28 open deals · 2 past their deadline");
+    assert.equal(deals.length, 12);
+    assert.equal(Object.values(summary.byStatus).reduce((a, b) => a + b, 0), summary.open);
+  });
+
+  it("every deal link in the app opens a real deal", async () => {
+    const dir = join(process.cwd(), "lib/sample-data");
+    const ids = new Set(readdirSync(dir).flatMap((f) => [...readFileSync(join(dir, f), "utf8").matchAll(/\/deals\/(APP-[A-Z0-9]+)/g)].map((m) => m[1])));
+    for (const d of await listDeals()) ids.add(d.id);
+    for (const id of ids) assert.ok(await getDeal(id), `no deal ${id}`);
+    assert.equal(await getDeal("APP-NOPE"), null);
+  });
+
+  it("the queue rows read as the design shows them", async () => {
+    const { deals, now } = await submissionsView();
+    const row = (id: string) => {
+      const d = deals.find((x) => x.id === id)!;
+      return [receivedLabel(d, now), recommendedLabel(d), deadlineLabel(d.deadline), metricLabels(d).revenue];
+    };
+    assert.deepEqual(row("APP-7H2K4Q"), ["09:40, uploaded", "Rec. $40K", "1h 10m left", "$61.4K/mo"]);
+    assert.deepEqual(row("APP-RN4D2C"), ["yesterday, renewal", "Renewal · rec. $80K", "2h 05m left", "$118K/mo"]);
+    assert.deepEqual(row("APP-0SP4PD"), ["yesterday, bulk ZIP", "Not set", "15m overdue", "$74.0K/mo"]);
+    assert.deepEqual(row("APP-6RB3LO"), ["10:42 by upload", "Analysing", "3h 55m left", "Running"]);
+    assert.deepEqual(row("APP-1TS5PC"), ["Fri, uploaded", "Offered $110K", "Expires Thu", "$186K/mo"]);
+    assert.deepEqual(row("APP-7CK2CF"), ["09:20, manual", "Waiting on docs", "3h 50m left", "Pending"]);
+  });
+
+  it("the deal header: Harbor Street's full design figures, the queue's for the rest", async () => {
+    const harbor = (await dealFrameView("APP-7H2K4Q"))!;
+    assert.equal(dealHeader.about(harbor.deal, harbor.now), "Bakery · Portland, ME · since 2016 · Owner Elena Brooks");
+    assert.deepEqual([dealHeader.requested(harbor.deal), dealHeader.recommended(harbor.deal), dealHeader.due(harbor.deal)], ["$45,000", "$40,000", "In 1h 10m"]);
+    assert.equal(harbor.deal.owner?.name, "Maya Chen");
+    const mesa = (await dealFrameView("APP-9K2M7R"))!;
+    assert.equal(dealHeader.about(mesa.deal, mesa.now), "BlueRock Advisors · received 08:55 by bulk ZIP");
+    assert.deepEqual([dealHeader.requested(mesa.deal), dealHeader.recommended(mesa.deal), dealHeader.due(mesa.deal)], ["$35K", "Not set", "25m left"]);
+    assert.equal(await dealFrameView("APP-NOPE"), null);
   });
 });

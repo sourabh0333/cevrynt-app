@@ -1,5 +1,4 @@
-import type { DealTabKey } from "@/lib/sample-data/deal";
-import { dealTabs } from "@/lib/sample-data/deal";
+import { dealTabs, type DealTabKey } from "@/lib/copy/deal";
 
 /** Simple content placeholder until each deal tab is built in its own step. */
 export function DealPlaceholder({ tab }: { tab: DealTabKey }) {

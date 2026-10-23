@@ -217,12 +217,12 @@ export const homeData: HomeData = {
     targetPercent: 75,
     items: [
       { id: "APP-7H2K4Q", href: "/deals/APP-7H2K4Q", initials: "HB", tone: "light", merchant: "Harbor Street Bakery LLC", status: "Ready for decision", statusColor: "green", amount: "$45K", time: "9:40", decided: true },
-      { id: "APP-NH1", href: "/deals/APP-NH1", initials: "NH", tone: "amber", merchant: "Northline HVAC Services", status: "Needs stips", statusColor: "amber", amount: "$120K", time: "10:15", decided: true },
-      { id: "APP-CD1", href: "/deals/APP-CD1", initials: "CD", tone: "blue", merchant: "Coastal Dental Group", status: "Renewal", statusColor: "blue", amount: "$80K", time: "10:50", decided: false },
-      { id: "APP-MA1", href: "/deals/APP-MA1", initials: "MA", tone: "red", merchant: "Mesa Auto Repair", status: "Integrity flag", statusColor: "red", amount: "$35K", time: "11:30", decided: false },
-      { id: "APP-BC1", href: "/deals/APP-BC1", initials: "BC", tone: "grey", merchant: "Brightside Cleaning Co", status: "New", statusColor: "grey", amount: "$25K", time: "12:05", decided: false },
-      { id: "APP-PF1", href: "/deals/APP-PF1", initials: "PF", tone: "purple", merchant: "Pinecrest Fitness Studio", status: "Ready for decision", statusColor: "green", amount: "$60K", time: "12:40", decided: false },
-      { id: "APP-GL1", href: "/deals/APP-GL1", initials: "GL", tone: "light", merchant: "Golden Lotus Restaurant", status: "New", statusColor: "grey", amount: "$30K", time: "13:10", decided: false },
+      { id: "APP-3QW8LP", href: "/deals/APP-3QW8LP", initials: "NH", tone: "amber", merchant: "Northline HVAC Services", status: "Needs stips", statusColor: "amber", amount: "$120K", time: "10:15", decided: true },
+      { id: "APP-RN4D2C", href: "/deals/APP-RN4D2C", initials: "CD", tone: "blue", merchant: "Coastal Dental Group", status: "Renewal", statusColor: "blue", amount: "$80K", time: "10:50", decided: false },
+      { id: "APP-9K2M7R", href: "/deals/APP-9K2M7R", initials: "MA", tone: "red", merchant: "Mesa Auto Repair", status: "Integrity flag", statusColor: "red", amount: "$35K", time: "11:30", decided: false },
+      { id: "APP-5TY6UB", href: "/deals/APP-5TY6UB", initials: "BC", tone: "grey", merchant: "Brightside Cleaning Co", status: "New", statusColor: "grey", amount: "$25K", time: "12:05", decided: false },
+      { id: "APP-8PL2MN", href: "/deals/APP-8PL2MN", initials: "PF", tone: "purple", merchant: "Pinecrest Fitness Studio", status: "Ready for decision", statusColor: "green", amount: "$60K", time: "12:40", decided: false },
+      { id: "APP-2GL7RT", href: "/deals/APP-2GL7RT", initials: "GL", tone: "light", merchant: "Golden Lotus Restaurant", status: "New", statusColor: "grey", amount: "$30K", time: "13:10", decided: false },
     ],
   },
 

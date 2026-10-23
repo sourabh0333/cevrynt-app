@@ -1,4 +1,5 @@
-import type { IsoDateTime } from "./common";
+import type { Id, IsoDateTime } from "./common";
+import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { Policy, Pricing } from "./policy";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
@@ -18,7 +19,15 @@ export interface DataSource {
   roadmap: {
     listFeatures(): Promise<RoadmapFeature[]>;
   };
+  deals: {
+    list(): Promise<Deal[]>;
+    get(id: Id): Promise<Deal | null>;
+    getQueueSummary(): Promise<DealQueueSummary>;
+    getQueueStats(): Promise<DealQueueStats>;
+  };
   team: {
+    /** the signed-in person's team member id */
+    getCurrentUserId(): Promise<Id>;
     listMembers(): Promise<TeamMember[]>;
     listInvites(): Promise<Invite[]>;
     getAccessReview(): Promise<AccessReview>;
