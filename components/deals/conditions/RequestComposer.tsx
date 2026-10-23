@@ -76,7 +76,8 @@ export function RequestComposer() {
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2.5">
           <span className="text-label text-hint">
             {composer.reminder}
-            <Link href={composer.seeLink.href} className="font-semibold text-teal no-underline">
+            {/* Opens the merchant's page in a new tab: it has no app chrome to come back from. */}
+            <Link href={composer.seeLink.href} target="_blank" rel="noopener" className="font-semibold text-teal no-underline">
               {composer.seeLink.label}
             </Link>
           </span>

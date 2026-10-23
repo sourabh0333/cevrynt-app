@@ -66,7 +66,8 @@ function MerchantLinkPanel() {
       <div className="box-border flex min-w-0 flex-[1_1_240px] flex-col gap-2.5 rounded-[22px] bg-tile p-4 shadow-[0_14px_30px_-24px_rgba(15,21,19,.5)]">
         <span className="flex items-center justify-between gap-2">
           <span className={cap}>{ml.previewCap}</span>
-          <Link href={ml.previewLink.href} className="text-[11.5px] font-semibold text-teal no-underline">
+          {/* Opens the merchant's page in a new tab: it has no app chrome to come back from. */}
+          <Link href={ml.previewLink.href} target="_blank" rel="noopener" className="text-[11.5px] font-semibold text-teal no-underline">
             {ml.previewLink.label}
           </Link>
         </span>
