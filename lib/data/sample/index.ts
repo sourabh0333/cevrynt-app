@@ -1,5 +1,6 @@
 import type { DataSource } from "@/lib/data/types";
 import { SAMPLE_NOW } from "./clock";
+import { harborCashFlow, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
 import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
@@ -35,6 +36,16 @@ export const sampleSource: DataSource = {
     },
     async getQueueStats() {
       return structuredClone(queueStats);
+    },
+    // Only Harbor Street is designed; every other known deal shows its tabs (see deal-tabs.ts).
+    async getSummary(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborSummary) : null;
+    },
+    async getCashFlow(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborCashFlow) : null;
+    },
+    async getPositions(id) {
+      return deals.some((d) => d.id === id) ? structuredClone(harborPositions) : null;
     },
   },
   team: {

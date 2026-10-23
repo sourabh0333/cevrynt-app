@@ -1,5 +1,6 @@
 import type { Id, IsoDateTime } from "./common";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
+import type { DealCashFlow, DealPositions, DealSummary } from "./deal-tabs";
 import type { Policy, Pricing } from "./policy";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
@@ -24,6 +25,9 @@ export interface DataSource {
     get(id: Id): Promise<Deal | null>;
     getQueueSummary(): Promise<DealQueueSummary>;
     getQueueStats(): Promise<DealQueueStats>;
+    getSummary(id: Id): Promise<DealSummary | null>;
+    getCashFlow(id: Id): Promise<DealCashFlow | null>;
+    getPositions(id: Id): Promise<DealPositions | null>;
   };
   team: {
     /** the signed-in person's team member id */

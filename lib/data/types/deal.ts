@@ -1,4 +1,5 @@
 import type { Id, IsoDateTime, Money } from "./common";
+import type { DealChecks } from "./deal-tabs";
 
 export type DealStatus = "new" | "docs" | "review" | "ready" | "offer";
 export type DealRisk = "low" | "medium" | "high";
@@ -67,6 +68,8 @@ export type Deal = {
   nextStep: string;
   /** the merchant's own details, where we have them */
   profile: MerchantProfile | null;
+  /** where each check stands: the Summary's check cards and the tab bar's dots */
+  checks: DealChecks;
 };
 
 /** Counts across the whole open queue (the list itself is one page of it). */

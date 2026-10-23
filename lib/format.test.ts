@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { dateShort, dayAndTime, dayLabel, daysBetween, money, moneyK, monthYear, weekdayShort, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
+import { dateShort, dayAndTime, dayLabel, daysBetween, money, moneyK, monthName, monthYear, weekdayShort, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
 
 describe("money and shares", () => {
   it("formats dollars the way the designs show them", () => {
@@ -34,6 +34,8 @@ describe("dates in the workspace's zone (Eastern)", () => {
     assert.equal(dateShort("2026-10-02T14:00:00Z"), "Oct 2");
     assert.equal(monthYear("2027-07-01T12:00:00-04:00"), "Jul 2027");
     assert.equal(weekdayShort("2026-10-15T17:00:00-04:00"), "Thu");
+    assert.equal(monthName("2026-06"), "Jun");
+    assert.equal(monthName("2026-09", "long"), "September");
     // 01:30 UTC on Saturday is still Friday evening in Boston.
     assert.equal(weekdayShort("2026-10-10T01:30:00Z"), "Fri");
   });

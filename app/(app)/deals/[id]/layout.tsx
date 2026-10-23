@@ -36,7 +36,7 @@ async function DealFrame({ params }: { params: LayoutProps<"/deals/[id]">["param
   return (
     <Arrive>
       <DealHeader deal={frame.deal} now={frame.now} />
-      <DealTabs dealId={frame.deal.id} />
+      <DealTabs dealId={frame.deal.id} checks={frame.deal.checks} />
     </Arrive>
   );
 }

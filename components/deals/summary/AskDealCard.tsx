@@ -1,11 +1,11 @@
-import { askDeal } from "@/lib/sample-data/deal";
+import { askDealCopy as t } from "@/lib/copy/deal-summary";
 
 /**
  * "Ask about this deal" from design/Deal-Summary.html: the ink spark mark,
- * the title and hint, and three suggested questions as outlined pills.
+ * the title and hint, and the deal's suggested questions as outlined pills.
  * The questions do nothing yet (Ask Cevrynt answers arrive later). No hover.
  */
-export function AskDealCard() {
+export function AskDealCard({ prompts }: { prompts: string[] }) {
   return (
     <section
       aria-labelledby="h-ask"
@@ -17,11 +17,11 @@ export function AskDealCard() {
         </svg>
       </span>
       <div className="flex-[1_1_200px]">
-        <h2 id="h-ask" className="m-0 font-heading text-[17px] font-semibold">{askDeal.title}</h2>
-        <span className="text-label text-hint">{askDeal.hint}</span>
+        <h2 id="h-ask" className="m-0 font-heading text-[17px] font-semibold">{t.title}</h2>
+        <span className="text-label text-hint">{t.hint}</span>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {askDeal.prompts.map((p) => (
+        {prompts.map((p) => (
           <button
             key={p}
             type="button"

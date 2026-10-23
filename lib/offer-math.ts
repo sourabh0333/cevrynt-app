@@ -10,9 +10,14 @@
  * values they loaded; the defaults here are the sample workspace's same
  * records, used by the tests and the sample deal.
  */
-import type { Policy, Pricing } from "@/lib/data/types";
+import type { DealCashFlow, DealPositions, Policy, Pricing } from "@/lib/data/types";
+import { harborCashFlow as sampleCashFlow, harborPositions as samplePositions } from "@/lib/data/sample/deal-tabs";
 import { policy as samplePolicy, pricing as samplePricing } from "@/lib/data/sample/policy";
 import { money, moneyShort, percent } from "@/lib/format";
+
+/** Business days per month used for the schedule, and the average used for monthly cost. */
+const BUSINESS_DAYS_PER_MONTH = 21;
+export const AVG_BUSINESS_DAYS = 21.7;
 
 export type Frequency = "daily" | "weekly";
 export type CollectFrom = "ach" | "split";
@@ -61,13 +66,28 @@ export type OfferPolicy = {
 /** The deal's own range: the amount floor and ceiling and the factor range for its score. */
 export type DealOfferRange = Pick<OfferPolicy, "ceiling" | "floor" | "factorMin" | "factorMax">;
 
-export const harborFigures: DealFigures = {
-  revenue: 61400,
-  existingMonthly: 6185,
-  existingBalance: 9400,
-  commission: 0.08,
-  cardMonthly: 28200,
-};
+/**
+ * A deal's figures from its own data: true revenue and card sales averaged
+ * over the statement months, the existing advances' payments (a month of
+ * business days) and balances, and the broker's points from Pricing.
+ */
+export function dealFiguresFrom(
+  cashFlow: Pick<DealCashFlow, "months" | "cardSales">,
+  positions: Pick<DealPositions, "positions">,
+  commissionPoints: number,
+): DealFigures {
+  const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
+  return {
+    revenue: avg(cashFlow.months.map((m) => m.trueRevenue)),
+    existingMonthly: Math.round(positions.positions.reduce((s, p) => s + p.dailyPayment, 0) * AVG_BUSINESS_DAYS),
+    existingBalance: positions.positions.reduce((s, p) => s + p.estBalance, 0),
+    commission: commissionPoints / 100,
+    cardMonthly: avg(cashFlow.cardSales.months.map((m) => m.amount)),
+  };
+}
+
+/** Harbor Street Bakery's figures, from its sample records ($61.4K revenue, $285 a day to Kingsway). */
+export const harborFigures: DealFigures = dealFiguresFrom(sampleCashFlow, samplePositions, samplePricing.brokerPoints.newDeal);
 
 /** Harbor Street Bakery's range (sample deal data, until the deal tabs move to the data layer). */
 export const harborOfferRange: DealOfferRange = { ceiling: 48000, floor: 30000, factorMin: 1.28, factorMax: 1.4 };
@@ -91,10 +111,6 @@ export const recommendedOffer: OfferInput = {
   method: "ach",
   payoff: false,
 };
-
-/** Business days per month used for the schedule, and the average used for monthly cost. */
-const BUSINESS_DAYS_PER_MONTH = 21;
-const AVG_BUSINESS_DAYS = 21.7;
 
 export type OfferResult = {
   payback: number;

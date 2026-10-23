@@ -22,6 +22,9 @@ export const apiSource: DataSource = {
     get: notConnected("deals"),
     getQueueSummary: notConnected("deals"),
     getQueueStats: notConnected("deals"),
+    getSummary: notConnected("deals"),
+    getCashFlow: notConnected("deals"),
+    getPositions: notConnected("deals"),
   },
   team: {
     getCurrentUserId: notConnected("team"),

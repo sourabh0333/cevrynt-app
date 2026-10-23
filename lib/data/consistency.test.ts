@@ -25,6 +25,14 @@ import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabe
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
 import { getDeal, listDeals } from "@/lib/data/deals";
 import { dealFrameView, submissionsView } from "@/lib/data/views/deals";
+import { checkDot, dealTabs } from "@/lib/copy/deal";
+import { roomToPayCopy } from "@/lib/copy/deal-cash-flow";
+import { glanceCopy } from "@/lib/copy/deal-positions";
+import { keyNumbersCopy, scoreCardCopy } from "@/lib/copy/deal-summary";
+import { dealTabsView } from "@/lib/data/views/deal-tabs";
+import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
+import { money, moneyK, moneyK1, percent } from "@/lib/format";
+import { computeOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -193,6 +201,65 @@ describe("Decision target", () => {
     const fresh = (await listDeals()).filter((d) => d.deadline.kind === "left" && d.deadline.minutes === ws.decisionTargetHours * 60);
     assert.deepEqual(fresh.map((d) => [d.status, deadlineLabel(d.deadline)]), [["new", "4h left"]]);
     assert.equal(workingHours.rows(ws).find((r) => r.label === "Decision target")?.value, "4 working hours");
+  });
+});
+
+describe("Deal tabs: Summary, Cash flow, Positions", () => {
+  const harbor = async () => (await dealTabsView("APP-7H2K4Q"))!;
+
+  it("the offer math's Harbor Street figures are worked out from its own records", async () => {
+    const d = await harbor();
+    assert.deepEqual(d.figures, { revenue: 61400, existingMonthly: 6185, existingBalance: 9400, commission: 0.08, cardMonthly: 28200 });
+    assert.deepEqual(harborFigures, d.figures);
+    assert.deepEqual(d.recommended, recommendedOffer);
+  });
+
+  it("every 65% on the three tabs is the policy's debt limit", async () => {
+    const d = await harbor();
+    const max = d.policy.maxDebtShare;
+    assert.equal(max, 0.65);
+    assert.equal(keyNumbersCopy.debt.note(max), "of revenue · max 65%");
+    assert.equal(glanceCopy.today.max(max), "Policy max 65%");
+    assert.equal(roomToPayCopy.note.after(max), ". Your policy allows up to 65%.");
+    const today = debtToday(d.cashFlow);
+    assert.deepEqual([keyNumbersCopy.debt.value(today.share), ofLimit(today.share, max)], ["9.8%", 15]);
+  });
+
+  it("the score is measured against the policy's weights and approval line", async () => {
+    const d = await harbor();
+    const max = Object.fromEntries(d.policy.scoreWeights.map((w) => [w.part, w.points]));
+    assert.deepEqual(d.summary.score.parts.map((p) => `${p.points}/${max[p.part]}`), ["24/25", "18/20", "16/20", "15/15", "15/20"]);
+    assert.equal(scoreCardCopy.summary(d.summary.score.total, d.policy.scoreBands.approvalFrom, d.summary.score.holdsBack), "18 above your approval line of 70. Integrity holds it back.");
+  });
+
+  it("room to pay and the payoff comparison come from the offer math", async () => {
+    const d = await harbor();
+    const offer = computeOffer(d.recommended, d.figures, d.offerPolicy);
+    const room = roomToPay(d.cashFlow, existingDaily(d.positions), offer.daily);
+    assert.deepEqual(room.parts.map((p) => [money(p.amount), p.share]), [["$285", 10.1], ["$419", 14.8], ["$2,126", 75.1]]);
+    const { keep, pay } = scenarios(d.recommended, d.figures, d.offerPolicy);
+    assert.deepEqual([money(keep.net), money(existingDaily(d.positions) + keep.daily), percent(keep.share), ofLimit(keep.share, 0.65)], ["$40,000", "$704", "25%", 38]);
+    assert.deepEqual([money(pay.net), money(pay.daily), percent(pay.share), ofLimit(pay.share, 0.65)], ["$30,600", "$419", "15%", 23]);
+    assert.equal(moneyK(d.figures.existingMonthly + keep.perMonth), "$15.3K");
+  });
+
+  it("the month table and totals read as the design shows them", async () => {
+    const d = await harbor();
+    const a = monthAverages(d.cashFlow);
+    assert.deepEqual([a.deposits, a.trueRevenue, a.withdrawals, a.debtPayments, a.avgBalance, a.lowestBalance].map(moneyK), ["$67.5K", "$61.4K", "$64.1K", "$6.1K", "$9.8K", "$1.2K"]);
+    const t = revenueTotals(d.cashFlow);
+    assert.deepEqual([moneyK1(t.deposited), moneyK1(t.trueRevenue), percent(t.counted)], ["$269.8K", "$245.6K", "91%"]);
+  });
+
+  it("the tab bar's Cash flow and Positions dots are the deal's own checks", async () => {
+    const deal = (await getDeal("APP-7H2K4Q"))!;
+    assert.deepEqual([checkDot(deal.checks.cashFlow), checkDot(deal.checks.positions)], ["teal", "teal"]);
+    assert.equal(checkDot({ state: "warn" }), "amber");
+    assert.equal(dealTabs.find((x) => x.key === "cash-flow")?.dot, undefined);
+  });
+
+  it("an unknown deal has no tab data", async () => {
+    assert.equal(await dealTabsView("APP-NOPE"), null);
   });
 });
 

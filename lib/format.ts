@@ -18,6 +18,9 @@ export const moneyShort = (n: number) => "$" + (n / 1000).toFixed(n % 1000 ? 1 :
 /** "$61.4K", "$74.0K", "$118K": one decimal under $100K, as the queue shows revenue and balances. */
 export const moneyK = (n: number) => "$" + (n / 1000).toFixed(n < 100_000 ? 1 : 0) + "K";
 
+/** "$269.8K": always one decimal, for totals shown next to the monthly figures. */
+export const moneyK1 = (n: number) => "$" + (n / 1000).toFixed(1) + "K";
+
 /** "$1.24M" for amounts of a million and up, otherwise like moneyShort. */
 export const moneyCompact = (n: number) => (Math.abs(n) >= 1_000_000 ? "$" + (n / 1_000_000).toFixed(2) + "M" : moneyShort(n));
 
@@ -52,6 +55,19 @@ export function daysBetween(fromIso: string, toIso: string, timeZone = WORKSPACE
     return Date.UTC(Number(p.year), new Date(`${p.month} 1, 2000`).getMonth(), Number(p.day));
   };
   return Math.round((day(toIso) - day(fromIso)) / 86_400_000);
+}
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** A statement month "2026-06" as "Jun" or "June". */
+export const monthName = (yearMonth: string, length: "short" | "long" = "short") => {
+  const name = MONTHS[Number(yearMonth.slice(5, 7)) - 1] ?? "";
+  return length === "short" ? name.slice(0, 3) : name;
+};
+
+/** "August 2" */
+export function dateLong(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  return new Intl.DateTimeFormat("en-US", { timeZone, month: "long", day: "numeric" }).format(new Date(iso));
 }
 
 /** "Thu" */

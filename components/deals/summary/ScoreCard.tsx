@@ -1,16 +1,18 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
-import { scoreCard, type ScorePartColor } from "@/lib/sample-data/deal";
+import { scoreBandLabel, scoreCardCopy as t } from "@/lib/copy/deal-summary";
+import { scoreWeights, type WeightTone } from "@/lib/copy/policy";
+import type { DealTabsData } from "@/lib/data/views/deal-tabs";
 
-const stroke: Record<ScorePartColor, string> = {
+const stroke: Record<WeightTone, string> = {
   teal: "stroke-teal",
   "teal-mid": "stroke-teal-mid",
   amber: "stroke-amber",
   "mint-deep": "stroke-mint-deep",
   "teal-ink": "stroke-teal-ink",
 };
-const swatch: Record<ScorePartColor, string> = {
+const swatch: Record<WeightTone, string> = {
   teal: "bg-teal",
   "teal-mid": "bg-teal-mid",
   amber: "bg-amber",
@@ -27,24 +29,33 @@ const pct = (len: number) => (len / CIRC) * 100;
 /**
  * "Underwriting score" from design/Deal-Summary.html: a five-part ring
  * (each part sweeps in, staggered), the score and band in the middle, the
- * five part rows, and the teal summary line. No hover.
+ * five part rows, and the teal summary line. Each part is out of the
+ * policy's weight for it (the same weights Settings › Policy shows), and
+ * the line measures the score against the policy's approval line. No hover.
  */
-export function ScoreCard() {
-  const { parts } = scoreCard;
+export function ScoreCard({ data }: { data: DealTabsData }) {
+  const { score } = data.summary;
+  const { scoreWeights: weights, scoreBands } = data.policy;
+  const parts = score.parts.map((p) => ({
+    key: p.part,
+    label: t.partLabel(p.part),
+    value: p.points,
+    max: weights.find((w) => w.part === p.part)?.points ?? 0,
+    color: scoreWeights.parts[p.part].tone,
+    warn: p.part === score.holdsBack,
+  }));
   const tracks = parts.map((p) => (p.max / 100) * (CIRC - parts.length * GAP));
   const offsets = tracks.map((_, i) =>
     tracks.slice(0, i).reduce((sum, t) => sum + t + GAP, 0),
   );
-  const aria = `Score ${scoreCard.score} of 100: ${parts
-    .map((p) => `${p.label.toLowerCase().replace("&", "and")} ${p.value} of ${p.max}`)
-    .join(", ")}`;
+  const aria = t.aria(score.total, parts.map((p) => ({ part: p.key, points: p.value, max: p.max })));
 
   return (
     <Card as="article" aria-labelledby="h-score" className="gap-3.5">
       <div className="flex items-center justify-between">
-        <h2 id="h-score" className="m-0 font-heading text-[20px] font-semibold">{scoreCard.title}</h2>
-        <Link href={scoreCard.link.href} className="text-label font-semibold text-teal no-underline">
-          {scoreCard.link.label}
+        <h2 id="h-score" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
+        <Link href={t.link.href} className="text-label font-semibold text-teal no-underline">
+          {t.link.label}
         </Link>
       </div>
 
@@ -85,10 +96,10 @@ export function ScoreCard() {
           <div className="anim-pop absolute inset-0 grid place-items-center text-center">
             <span>
               <b className="block font-heading text-[26px] leading-none font-semibold tabular-nums tracking-[-0.03em]">
-                {scoreCard.score}
+                {score.total}
               </b>
               <span className="mt-1 inline-block rounded-pill bg-mint-bg px-2.5 py-[3px] text-[10.5px] font-semibold text-teal-dark">
-                {scoreCard.band}
+                {scoreBandLabel(score.total, scoreBands)}
               </span>
             </span>
           </div>
@@ -115,7 +126,7 @@ export function ScoreCard() {
 
       <div className="mt-auto flex items-center gap-2.5 rounded-tile bg-teal px-3 py-[9px] text-label text-white">
         <span className="h-2 w-2 flex-none rounded-full bg-mint" />
-        <span>{scoreCard.summary}</span>
+        <span>{t.summary(score.total, scoreBands.approvalFrom, score.holdsBack)}</span>
       </div>
     </Card>
   );
