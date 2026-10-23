@@ -1,7 +1,7 @@
 import "server-only";
-import type { Deal, DealListItem, DealOwner, DealQueueStats, DealQueueSummary, Id, IsoDateTime, TeamMember, WorkloadRow } from "@/lib/data/types";
+import type { Deal, DealCondition, DealListItem, DealOwner, DealQueueStats, DealQueueSummary, Id, IsoDateTime, TeamMember, WorkloadRow } from "@/lib/data/types";
 import { getNow } from "../clock";
-import { getDeal, getQueueStats, getQueueSummary, listDeals } from "../deals";
+import { getDeal, getDealConditions, getQueueStats, getQueueSummary, listDeals } from "../deals";
 import { getCurrentUser, listTeam } from "../team";
 
 /*
@@ -47,8 +47,15 @@ export async function submissionsView(): Promise<SubmissionsData> {
   };
 }
 
+export type DealFrameData = {
+  deal: DealListItem;
+  /** the deal's conditions, which the tab bar's Conditions count follows */
+  conditions: DealCondition[];
+  now: IsoDateTime;
+};
+
 /** The deal frame (header and tabs) for one deal; null when there is no such deal. */
-export async function dealFrameView(id: Id): Promise<{ deal: DealListItem; now: IsoDateTime } | null> {
-  const [deal, team, now] = await Promise.all([getDeal(id), listTeam(), getNow()]);
-  return deal ? { deal: withOwner(deal, team), now } : null;
+export async function dealFrameView(id: Id): Promise<DealFrameData | null> {
+  const [deal, conditions, team, now] = await Promise.all([getDeal(id), getDealConditions(id), listTeam(), getNow()]);
+  return deal ? { deal: withOwner(deal, team), conditions: conditions?.items ?? [], now } : null;
 }

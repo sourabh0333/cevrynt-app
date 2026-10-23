@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { location } from "@/lib/sample-data/deal-business";
+import { locationCopy as t } from "@/lib/copy/deal-business";
+import type { DealBusiness } from "@/lib/data/types";
 
 /** The stylised street map behind the pin. Decorative only. */
 function MapArt() {
@@ -33,34 +34,35 @@ function MapArt() {
  * the address pin (pops in once), the three confirmation rows and the
  * street view link. No hover.
  */
-export function LocationCard() {
+export function LocationCard({ address }: { address: DealBusiness["address"] }) {
+  const rows = t.rows(address);
   const pinStyle: CSSProperties & { "--delay"?: string } = { "--delay": "0.3s" };
   return (
     <article aria-labelledby="h-loc" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-card-deep p-5 text-ink">
       <div className="flex items-center justify-between">
-        <h2 id="h-loc" className="m-0 font-heading text-[20px] font-semibold">{location.title}</h2>
-        <span className="rounded-pill bg-teal px-2.5 py-1 text-label-sm font-semibold text-white">{location.chip}</span>
+        <h2 id="h-loc" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
+        <span className="rounded-pill bg-teal px-2.5 py-1 text-label-sm font-semibold text-white">{t.chip(address)}</span>
       </div>
-      <div role="img" aria-label={`Map with ${location.pin} marked`} className="relative h-[170px] overflow-hidden rounded-tile-lg bg-[#F1ECE1]">
+      <div role="img" aria-label={t.mapLabel(address.street)} className="relative h-[170px] overflow-hidden rounded-tile-lg bg-[#F1ECE1]">
         <MapArt />
         <span className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-full">
           <span className="anim-pop flex origin-bottom flex-col items-center" style={pinStyle}>
-            <span className="whitespace-nowrap rounded-pill bg-teal px-2.5 py-1.5 text-label-sm font-semibold text-white">{location.pin}</span>
+            <span className="whitespace-nowrap rounded-pill bg-teal px-2.5 py-1.5 text-label-sm font-semibold text-white">{address.street}</span>
             <span className="h-2.5 w-0.5 bg-ink" />
             <span className="box-border h-3.5 w-3.5 rounded-full border-[3px] border-white bg-teal shadow-[0_0_0_6px_rgba(14,107,92,.25)]" />
           </span>
         </span>
       </div>
       <div className="flex flex-col gap-1.5 text-[12.5px]">
-        {location.rows.map((r) => (
+        {rows.map((r) => (
           <span key={r.label} className="flex justify-between gap-2 rounded-[12px] bg-white/70 px-3 py-[9px]">
             <span>{r.label}</span>
             <b className={r.good ? "text-teal-deep" : ""}>{r.value}</b>
           </span>
         ))}
       </div>
-      <Link href={location.link.href} className="mt-auto text-[12.5px] font-semibold text-teal-deep no-underline">
-        {location.link.label}
+      <Link href={t.link.href} className="mt-auto text-[12.5px] font-semibold text-teal-deep no-underline">
+        {t.link.label}
       </Link>
     </article>
   );

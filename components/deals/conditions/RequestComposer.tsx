@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { composer, type Recipient } from "@/lib/sample-data/deal-conditions";
+import { composerCopy as composer, type ComposerFacts, type Recipient } from "@/lib/copy/deal-conditions";
 
 const avatarClass: Record<Recipient, string> = { broker: "bg-blue-bg text-blue-text", merchant: "text-sand-text" };
 const merchantFill = { background: "linear-gradient(140deg, #E8C9A1, #C99A6B)" };
@@ -11,11 +11,15 @@ const merchantFill = { background: "linear-gradient(140deg, #E8C9A1, #C99A6B)" }
 /**
  * "Ask for what's missing" from design/Deal-Conditions.html and its
  * prototype: pick the broker or the merchant and the message preview
- * changes with it. No hover.
+ * changes with it. The message is written from the deal's own facts. No
+ * hover.
  */
-export function RequestComposer() {
+export function RequestComposer({ facts }: { facts: ComposerFacts }) {
   const [to, setTo] = useState<Recipient>("broker");
-  const who = composer.recipients.find((r) => r.key === to) ?? composer.recipients[0];
+  const recipients = composer.recipients(facts);
+  const who = recipients.find((r) => r.key === to) ?? recipients[0];
+  const asks = [{ label: facts.ask.title, on: true }, ...composer.extras.map((label) => ({ label, on: false }))];
+  const seeLink = composer.seeLink(facts.parties.merchant.name);
 
   return (
     <section aria-labelledby="h-ask" className="flex flex-wrap gap-[18px] rounded-card-lg bg-card p-[22px] text-ink">
@@ -26,7 +30,7 @@ export function RequestComposer() {
         </div>
         <span className="text-cap font-semibold uppercase text-hint">{composer.sendTo}</span>
         <div role="group" aria-label={composer.sendTo} className="flex flex-col gap-1.5">
-          {composer.recipients.map((r) => {
+          {recipients.map((r) => {
             const on = r.key === to;
             return (
               <button
@@ -52,7 +56,7 @@ export function RequestComposer() {
         </div>
         <span className="mt-1 text-cap font-semibold uppercase text-hint">{composer.askingFor}</span>
         <div className="flex flex-wrap gap-1.5">
-          {composer.asks.map((a) => (
+          {asks.map((a) => (
             <span key={a.label} className={`rounded-pill px-3 py-1.5 text-label ${a.on ? "bg-teal text-white" : "bg-tile"}`}>
               {a.label}
             </span>
@@ -63,7 +67,7 @@ export function RequestComposer() {
       <div className="flex min-w-0 flex-[2_1_380px] flex-col gap-3 rounded-[22px] bg-tile p-[18px]">
         <div className="flex items-center justify-between gap-2 text-label text-hint">
           <span>
-            To <b className="text-ink">{who.to}</b>
+            {composer.to} <b className="text-ink">{who.to}</b>
           </span>
           <span>{composer.preview}</span>
         </div>
@@ -71,14 +75,14 @@ export function RequestComposer() {
           aria-live="polite"
           className="max-w-[520px] self-start whitespace-pre-line rounded-[20px_20px_20px_6px] bg-card px-[18px] py-4 text-body-sm leading-[1.6] shadow-[0_10px_28px_-20px_rgba(15,21,19,.4)]"
         >
-          {composer.messages[to]}
+          {composer.message(to, facts)}
         </div>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2.5">
           <span className="text-label text-hint">
             {composer.reminder}
             {/* Opens the merchant's page in a new tab: it has no app chrome to come back from. */}
-            <Link href={composer.seeLink.href} target="_blank" rel="noopener" className="font-semibold text-teal no-underline">
-              {composer.seeLink.label}
+            <Link href={seeLink.href} target="_blank" rel="noopener" className="font-semibold text-teal no-underline">
+              {seeLink.label}
             </Link>
           </span>
           <div className="flex gap-2">

@@ -1,4 +1,4 @@
-import type { DealCashFlow, DealChecks, DealPositions, DealSummary } from "@/lib/data/types";
+import type { DealBusiness, DealCashFlow, DealChecks, DealConditions, DealIntegrity, DealPositions, DealSummary, StatementLine } from "@/lib/data/types";
 
 /**
  * Sample deal-tab records for Harbor Street Bakery LLC (APP-7H2K4Q), copied
@@ -15,7 +15,6 @@ export const harborChecks: DealChecks = {
   positions: { state: "ok", note: "Kingsway Capital, $285 daily. Disclosed." },
   integrity: { state: "warn", note: "No edits found. One related-party deposit." },
   business: { state: "ok", note: "Active in Maine registry. Owner verified." },
-  conditions: { state: "open", count: 2, note: "Landlord letter, signed contract." },
   stacking: { state: "ok", note: "Watching. No new filings or debits." },
 };
 
@@ -193,4 +192,207 @@ export const harborPositions: DealPositions = {
   ],
   otherDebt: ["Bank loans", "Lines of credit", "Equipment leases", "Vehicle loans", "SBA loans", "Buy now, pay later"].map((category) => ({ category, found: false })),
   cardAutopay: 1140,
+};
+
+/* ---------- Integrity, Business & owners, Conditions (design/Deal-Integrity, -Business, -Conditions) ---------- */
+
+const allPass = { edits: "pass", layout: "pass", math: "pass", history: "pass", ai: "pass" } as const;
+const ln = (date: string, description: string, amount: number, balance: number): StatementLine => ({ date, description, amount, balance });
+
+export const harborIntegrity: DealIntegrity = {
+  risk: "low",
+  headline: "No signs of edited or fake documents",
+  summary: "Every statement matches Chase's real layout and its numbers add up. Points are held back only for one related-business transfer, already left out of revenue.",
+  checkSeconds: 41,
+  documents: [
+    { name: "June statement", detail: "Chase ••7712 · 6 pages", tests: allPass },
+    { name: "July statement", detail: "Chase ••7712 · 5 pages", tests: allPass },
+    { name: "August statement", detail: "Chase ••7712 · 7 pages", tests: allPass },
+    { name: "September statement", detail: "Chase ••7712 · 7 pages", tests: allPass },
+    { name: "Signed application", detail: "PDF · e-signed", tests: { ...allPass, layout: "na", math: "na" } },
+    { name: "Owner photo ID", detail: "Maine driver licence", tests: { ...allPass, math: "na" } },
+    { name: "Voided check", detail: "Phone photo", tests: { ...allPass, math: "na", history: "na" } },
+  ],
+  statementProduct: "Chase Business Complete",
+  evidence: [
+    {
+      title: "Related-business transfer",
+      needsReview: true,
+      month: "2026-08",
+      page: 3,
+      line: 12,
+      lineCount: 41,
+      highlight: 2,
+      outcome: "excluded",
+      why: "Sent by Harbor Street Catering, which has the same owner. Real money, but not sales.",
+      impact: { kind: "revenue", amount: -12000 },
+      lines: [
+        ln("2026-08-13", "SQUARE INC DEPOSIT", 1042.1, 6388.4),
+        ln("2026-08-14", "COUNTER DEPOSIT", 1880, 8268.4),
+        ln("2026-08-14", "TRANSFER FROM HARBOR ST CATERING", 12000, 20268.4),
+        ln("2026-08-14", "KINGSWAY CAPITAL ACH DEBIT", -285, 19983.4),
+        ln("2026-08-15", "SYSCO PORTLAND", -1526, 18457.4),
+        ln("2026-08-15", "DOORDASH PAYOUT", 1964.3, 20421.7),
+      ],
+    },
+    {
+      title: "Owner savings transfer",
+      needsReview: false,
+      month: "2026-07",
+      page: 3,
+      line: 18,
+      lineCount: 38,
+      highlight: 1,
+      outcome: "excluded",
+      why: "Moved from the owner’s own savings account. Normal for a small business.",
+      impact: { kind: "revenue", amount: -2500 },
+      lines: [
+        ln("2026-07-17", "SQUARE INC DEPOSIT", 1210.4, 9920.15),
+        ln("2026-07-18", "ONLINE TRANSFER FROM ••4410", 2500, 12420.15),
+        ln("2026-07-18", "KINGSWAY CAPITAL ACH DEBIT", -285, 12135.15),
+        ln("2026-07-18", "CENTRAL MAINE POWER", -505, 11630.15),
+        ln("2026-07-19", "COUNTER DEPOSIT", 1540, 13170.15),
+        ln("2026-07-20", "SQUARE INC DEPOSIT", 1398.6, 14568.75),
+      ],
+    },
+    {
+      title: "Lowest balance day",
+      needsReview: false,
+      month: "2026-08",
+      page: 1,
+      line: 4,
+      lineCount: 44,
+      highlight: 1,
+      outcome: "none",
+      why: "The balance dipped after payroll but never went below zero and recovered within a day.",
+      impact: { kind: "lowest", amount: 1208 },
+      lines: [
+        ln("2026-08-01", "SQUARE INC DEPOSIT", 986.2, 9628),
+        ln("2026-08-02", "GUSTO PAYROLL", -8420, 1208),
+        ln("2026-08-03", "COUNTER DEPOSIT", 2310, 3518),
+        ln("2026-08-03", "KINGSWAY CAPITAL ACH DEBIT", -285, 3233),
+        ln("2026-08-04", "SQUARE INC DEPOSIT", 1402.8, 4635.8),
+        ln("2026-08-04", "DOORDASH PAYOUT", 2011.45, 6647.25),
+      ],
+    },
+  ],
+  patterns: {
+    roundDollar: { share: 0.03, flagAt: 0.15, scaleMax: 0.25 },
+    cashUnder10k: 0,
+    duplicates: 0,
+    passThrough: 0,
+    holidayDeposits: 0,
+    jumpBeforeApplying: "explained",
+  },
+  signals: [
+    { label: "Email matches business", detail: "elena@harborstreetbakery.com, same domain as the website" },
+    { label: "Real phone line", detail: "Business landline in Portland, ME, not an internet number" },
+    { label: "Signed from Maine", detail: "E-signature location matches the business state" },
+    { label: "Trusted broker", detail: "Apex Funding Partners · 24 deals, 0 fraud flags this month" },
+    { label: "Files not reused", detail: "None of these 7 files appear in any other deal in Cevrynt" },
+  ],
+  liveBankConnected: false,
+  review: { subject: "related-business transfer", detail: "Harbor Street Catering has the same owner. Leaving it out of revenue is the right call." },
+};
+
+const consent = { value: "Waiting on consent", match: false };
+const ok = (value: string) => ({ value, match: true });
+const none = (value: string) => ({ value, match: false });
+
+export const harborBusiness: DealBusiness = {
+  registry: {
+    state: "Maine",
+    checkedAt: "2026-10-12T12:00:00-04:00",
+    active: true,
+    goodStanding: true,
+    legalName: "Harbor Street Bakery LLC",
+    entityType: "Limited liability company",
+    charter: "20160412DC",
+    formedAt: "2016-04-12T12:00:00-04:00",
+    agent: "Elena Brooks",
+    lastAnnualReport: { month: "2026-05", onTime: true },
+    ownershipChanges: 0,
+  },
+  industry: { label: "Retail bakery", naics: "311811" },
+  licence: { label: "Food licence", activeUntil: "2027-06" },
+  einMatches: true,
+  tradeName: "Harbor Street",
+  address: { street: "418 Commercial St", kind: "retail", sourcesAgree: 4, sources: 4 },
+  crossCheck: [
+    { fact: "Legal name", cells: [ok("Harbor Street Bakery LLC"), ok("Harbor Street Bakery LLC"), ok("Harbor Street Bakery LLC"), ok("Harbor Street Bakery"), consent] },
+    { fact: "Address", cells: [ok("418 Commercial St"), ok("418 Commercial St"), ok("418 Commercial St"), ok("418 Commercial St"), consent] },
+    { fact: "Owner", cells: [ok("Elena Brooks"), ok("Elena Brooks, member"), none("—"), ok("Elena Brooks"), consent] },
+    { fact: "EIN", cells: [ok("••-•••7740"), none("Not listed"), none("—"), none("—"), consent] },
+    { fact: "Phone", cells: [ok("(207) 555-0164"), none("—"), none("—"), ok("(207) 555-0164"), consent] },
+    { fact: "Started", cells: [ok("2016"), ok("Apr 2016"), none("Statements from 2026 only"), ok("Reviews since 2016"), consent] },
+  ],
+  owners: [
+    {
+      name: "Elena Brooks",
+      share: 100,
+      email: "elena@harborstreetbakery.com",
+      phone: "(207) 555-0188",
+      identityVerified: true,
+      guarantor: true,
+      possessive: "her",
+      checks: [
+        { label: "Photo ID", detail: "Maine licence, genuine, not expired", done: true },
+        { label: "Selfie match", detail: "Live selfie matches the ID photo", done: true },
+        { label: "Sanctions lists", detail: "No match on OFAC or other lists", done: true },
+        { label: "Home address", detail: "Matches ID and public records", done: true },
+        { label: "Listed on registry", detail: "Member and registered agent", done: true },
+        { label: "Credit report", detail: "Waiting on her consent", done: false },
+      ],
+    },
+  ],
+  related: { name: "Harbor Street Catering LLC", since: 2021, openDeals: 0, note: "The source of the $12,000 August transfer." },
+  publicRecords: [
+    { kind: "ucc", count: 1, detail: "Kingsway, Feb 2026" },
+    { kind: "taxLiens", count: 0 },
+    { kind: "judgments", count: 0 },
+    { kind: "court", count: 0 },
+    { kind: "bankruptcies", count: 0 },
+    { kind: "funderSuits", count: 0 },
+  ],
+  recordsCheckedAt: "2026-10-12T12:00:00-04:00",
+  online: {
+    strength: "strong",
+    website: "harborstreetbakery.com",
+    since: 2016,
+    rating: 4.7,
+    reviews: 312,
+    hours: "Tue – Sun, 6am – 3pm",
+    hoursNote: "Weekend peak matches deposits",
+    recent: "Reviews this week",
+    recentNote: "Open and trading today",
+  },
+};
+
+export const harborConditions: DealConditions = {
+  items: [
+    { id: "landlord", title: "Landlord letter", detail: "Lease at 418 Commercial St is current and rent is paid", party: "broker", status: "wait", action: "received", dueAt: "2026-10-14T17:00:00-04:00", acceptsFile: true },
+    { id: "contract", title: "Signed contract", detail: "Agreement, personal guarantee, payment authorization and cost disclosure", party: "merchant", status: "wait", action: "signed", withOffer: true },
+    { id: "call", title: "Funding call", detail: "Short recorded call to confirm the terms with Elena", party: "us", status: "booked", action: "done", bookedAt: "2026-10-15T10:00:00-04:00" },
+    { id: "stmts", title: "Bank statements", detail: "4 months, read and checked", party: "auto", status: "done", action: "done", doneAt: "2026-10-13T09:41:00-04:00" },
+    { id: "app", title: "Signed application", detail: "E-signed by Elena", party: "merchant", status: "done", action: "done", doneAt: "2026-10-13T09:41:00-04:00" },
+    { id: "id", title: "Photo ID and selfie", detail: "Through Merchant Link", party: "merchant", status: "done", action: "done", doneAt: "2026-10-13T09:58:00-04:00" },
+    { id: "void", title: "Voided check", detail: "Matches account ••7712", party: "merchant", status: "done", action: "done", doneAt: "2026-10-13T09:58:00-04:00" },
+    { id: "kyc", title: "Identity and sanctions", detail: "Clear on every list", party: "auto", status: "done", action: "done", doneAt: "2026-10-13T09:59:00-04:00" },
+  ],
+  parties: {
+    broker: { name: "Apex Funding", initials: "AP", contact: "Dana Ruiz" },
+    merchant: { name: "Elena Brooks", initials: "EB" },
+  },
+  terms: [
+    "No new advances or loans until this one is repaid",
+    "Keep the Chase ••7712 account open for payments",
+    "Payments start 2 business days after funding",
+  ],
+  finalChecks: ["New UCC filings", "New funder activity", "Bank account open", "Registry active", "Last 5 days of activity", "Payout account ••7712"],
+  lastFullCheckAt: "2026-10-13T09:59:00-04:00",
+  recommended: [
+    { label: "Credit report consent", status: "sent" },
+    { label: "Live bank connection", status: "not-sent" },
+    { label: "Kingsway payoff letter", status: "if-paying-off" },
+  ],
 };

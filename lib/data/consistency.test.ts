@@ -25,11 +25,15 @@ import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabe
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
 import { getDeal, listDeals } from "@/lib/data/deals";
 import { dealFrameView, submissionsView } from "@/lib/data/views/deals";
-import { checkDot, dealTabs } from "@/lib/copy/deal";
+import { checkDot, dealTabs, tabCheck, tabMark } from "@/lib/copy/deal";
+import { businessCopy, nameInitials, ownerCopy, publicRecordsCopy, wholeYears } from "@/lib/copy/deal-business";
 import { roomToPayCopy } from "@/lib/copy/deal-cash-flow";
+import { boardCopy, checkSet, composerCopy, conditionsCheck, finalChecksCopy } from "@/lib/copy/deal-conditions";
+import { evidenceCopy, patternCopy } from "@/lib/copy/deal-integrity";
 import { glanceCopy } from "@/lib/copy/deal-positions";
 import { keyNumbersCopy, scoreCardCopy } from "@/lib/copy/deal-summary";
-import { dealTabsView } from "@/lib/data/views/deal-tabs";
+import { businessTabView, conditionsTabView, dealTabsView, integrityTabView } from "@/lib/data/views/deal-tabs";
+import { statusOf } from "@/lib/deal-conditions";
 import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
 import { money, moneyK, moneyK1, percent } from "@/lib/format";
 import { computeOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
@@ -251,15 +255,92 @@ describe("Deal tabs: Summary, Cash flow, Positions", () => {
     assert.deepEqual([moneyK1(t.deposited), moneyK1(t.trueRevenue), percent(t.counted)], ["$269.8K", "$245.6K", "91%"]);
   });
 
-  it("the tab bar's Cash flow and Positions dots are the deal's own checks", async () => {
-    const deal = (await getDeal("APP-7H2K4Q"))!;
-    assert.deepEqual([checkDot(deal.checks.cashFlow), checkDot(deal.checks.positions)], ["teal", "teal"]);
+  it("the tab bar's dots and Conditions count are the deal's own checks", async () => {
+    const frame = (await dealFrameView("APP-7H2K4Q"))!;
+    const checks = checkSet(frame.deal.checks, frame.conditions);
+    const marks = Object.fromEntries(dealTabs.map((t) => [t.key, tabCheck[t.key] ? tabMark(checks[tabCheck[t.key]!]) : {}]));
+    assert.deepEqual(
+      [marks["cash-flow"], marks.positions, marks.integrity, marks.business, marks.conditions, marks.summary],
+      [{ dot: "teal" }, { dot: "teal" }, { dot: "amber" }, { dot: "teal" }, { count: 2 }, {}],
+    );
     assert.equal(checkDot({ state: "warn" }), "amber");
-    assert.equal(dealTabs.find((x) => x.key === "cash-flow")?.dot, undefined);
   });
 
   it("an unknown deal has no tab data", async () => {
     assert.equal(await dealTabsView("APP-NOPE"), null);
+    assert.equal(await integrityTabView("APP-NOPE"), null);
+    assert.equal(await businessTabView("APP-NOPE"), null);
+    assert.equal(await conditionsTabView("APP-NOPE"), null);
+  });
+});
+
+describe("Deal tabs: Integrity, Business & owners, Conditions", () => {
+  it("the Conditions count follows the conditions: waiting ones only, not booked, done or waived", async () => {
+    const d = (await conditionsTabView("APP-7H2K4Q"))!;
+    const items = d.conditions.items;
+    assert.deepEqual(conditionsCheck(items), { state: "open", count: 2, note: "Landlord letter, signed contract." });
+    assert.deepEqual(conditionsCheck(items, { landlord: true }), { state: "open", count: 1, note: "Signed contract." });
+    assert.deepEqual(conditionsCheck(items, { landlord: true }, { contract: "Signed in person" }).state, "ok");
+    // The funding call is booked, so it counts as met only once marked done.
+    assert.deepEqual(items.filter((it) => statusOf(it) === "booked").map((it) => it.title), ["Funding call"]);
+    // The Summary's card shows the same check the tab bar counts.
+    const tabs = (await dealTabsView("APP-7H2K4Q"))!;
+    assert.deepEqual(checkSet(tabs.checks, tabs.conditions).conditions, conditionsCheck(items));
+  });
+
+  it("the Conditions runway and board read as the design shows them", async () => {
+    const d = (await conditionsTabView("APP-7H2K4Q"))!;
+    assert.equal(boardCopy.subtitle(d.amount), "Required by your policy for a $40K deal");
+    assert.equal(boardCopy.waivedNote(d.senior), "Waived items need a senior underwriter to approve before funding. Priya Shah has been asked.");
+    const [landlord, contract, call] = d.conditions.items;
+    assert.deepEqual([boardCopy.meta(landlord), boardCopy.meta(contract), boardCopy.meta(call)], [["Due", "Wed, Oct 14"], ["Sent", "After the offer"], ["Booked", "Thursday 10:00"]]);
+    assert.equal(finalChecksCopy.last(d.conditions.lastFullCheckAt, daysBetween(d.conditions.lastFullCheckAt, d.now) === 0), "Last full check: today 09:59");
+  });
+
+  it("the request message is written from the deal's own facts", async () => {
+    const d = (await conditionsTabView("APP-7H2K4Q"))!;
+    const facts = {
+      dealName: d.merchantName,
+      dealId: d.id,
+      brokerCompany: d.brokerName ?? "",
+      parties: d.conditions.parties,
+      ask: d.conditions.items[0],
+      street: d.street,
+      me: d.me.name,
+      funder: d.funder,
+    };
+    assert.equal(
+      composerCopy.message("broker", facts),
+      "Hi Dana,\n\nHarbor Street Bakery (APP-7H2K4Q) looks good so far. To fund, we still need a landlord letter for 418 Commercial St confirming the lease is current and rent is paid.\n\nCould you send it by Wednesday, Oct 14?\n\nThanks,\nMaya",
+    );
+    assert.ok(composerCopy.message("merchant", facts).endsWith("Maya, Ridgeline Capital"));
+    assert.deepEqual(composerCopy.recipients(facts).map((r) => r.to), ["Dana Ruiz, Apex Funding Partners", "Elena Brooks, through Merchant Link"]);
+  });
+
+  it("Integrity: the ring is out of the policy's integrity weight; evidence reads as the statement prints it", async () => {
+    const d = (await integrityTabView("APP-7H2K4Q"))!;
+    const policy = await getPolicy();
+    assert.deepEqual(d.score, { points: 16, outOf: policy.scoreWeights.find((w) => w.part === "integrity")!.points });
+    assert.equal(d.score.outOf, 20);
+    const [transfer, , lowest] = d.integrity.evidence;
+    assert.equal(evidenceCopy.page(transfer, d.pages[transfer.month]), "Aug 2026 · p. 3 of 7");
+    assert.deepEqual(evidenceCopy.line(transfer.lines[3]), { date: "08/14", amount: "-285.00", balance: "19,983.40" });
+    assert.deepEqual([evidenceCopy.impact(transfer.impact.amount), evidenceCopy.impact(lowest.impact.amount)], ["−$12,000", "$1,208"]);
+    const rows = patternCopy.rows(d.integrity.patterns);
+    assert.deepEqual([rows[0].result, rows.filter((r) => r.status === "clear").length, patternCopy.jumpLink(d.relatedTransfer!)], ["3%", 5, "See the $12,000 transfer"]);
+  });
+
+  it("Business: the industry is allowed by the policy, and the tiles read as the design shows them", async () => {
+    const d = (await businessTabView("APP-7H2K4Q"))!;
+    assert.equal(d.industryAllowed, true);
+    const policy = await getPolicy();
+    assert.ok(!policy.restrictedIndustries.includes(d.business.industry.label));
+    const tiles = businessCopy.tiles(d.business, d.industryAllowed).map((t) => t.value);
+    assert.deepEqual(tiles, ["April 12, 2016", "Elena Brooks", "May 2026, on time", "Retail bakery", "Industry allowed", "Active to Jun 2027", "IRS name matches", "Harbor Street", "None since 2016"]);
+    assert.equal(businessCopy.tiles(d.business, false)[4].value, "Industry restricted");
+    assert.deepEqual([nameInitials(d.business.registry.legalName), businessCopy.age(wholeYears(d.business.registry.formedAt, d.now))], ["HB", "10 yrs"]);
+    assert.equal(publicRecordsCopy.chip(d.business.publicRecords), "Clean");
+    assert.equal(ownerCopy.related.text(d.business.related!), "The source of the $12,000 August transfer. Active since 2021, no open deals with you.");
   });
 });
 

@@ -15,8 +15,17 @@ export type YearMonth = string;
 /** Where one check stands: clear, needs a look, or a number of open items. */
 export type CheckState = { state: "ok" } | { state: "warn" } | { state: "open"; count: number };
 
-/** The deal's checks, shown on the Summary and as the dots in the tab bar. */
-export type DealChecks = Record<"cashFlow" | "positions" | "integrity" | "business" | "conditions" | "stacking", CheckState & { note: string }>;
+export type CheckKey = "cashFlow" | "positions" | "integrity" | "business" | "conditions" | "stacking";
+
+/**
+ * The deal's stored checks, shown on the Summary and as the dots in the tab
+ * bar. Conditions aren't stored here: their state is worked out from the
+ * conditions themselves (see DealCheckSet).
+ */
+export type DealChecks = Record<Exclude<CheckKey, "conditions">, CheckState & { note: string }>;
+
+/** Every check, with the conditions one worked out from the deal's conditions. */
+export type DealCheckSet = Record<CheckKey, CheckState & { note: string }>;
 
 /* ---------- Summary ---------- */
 
@@ -114,6 +123,133 @@ export type DealCashFlow = {
   transactions: Transaction[];
   /** counts across the whole file (the list shows a page of it) */
   transactionCounts: { all: number; in: number; out: number; debt: number; flagged: number };
+};
+
+/* ---------- Integrity ---------- */
+
+export type DocTest = "edits" | "layout" | "math" | "history" | "ai";
+
+/** One line of a statement page, as the bank printed it. */
+export type StatementLine = { date: string; description: string; amount: number; balance: number };
+
+export type EvidenceItem = {
+  title: string;
+  /** amber when it needs the underwriter's review */
+  needsReview: boolean;
+  /** the statement month and page it's on */
+  month: YearMonth;
+  page: number;
+  /** its line number on the page, and the page's line count */
+  line: number;
+  lineCount: number;
+  lines: StatementLine[];
+  /** which of `lines` is the one */
+  highlight: number;
+  outcome: "excluded" | "none";
+  why: string;
+  impact: { kind: "revenue" | "lowest"; amount: number };
+};
+
+export type DealIntegrity = {
+  risk: "low" | "medium" | "high";
+  headline: string;
+  summary: string;
+  checkSeconds: number;
+  documents: { name: string; detail: string; tests: Record<DocTest, "pass" | "na" | "fail"> }[];
+  /** the statement product, as printed on the page */
+  statementProduct: string;
+  evidence: EvidenceItem[];
+  patterns: {
+    roundDollar: { share: number; flagAt: number; scaleMax: number };
+    cashUnder10k: number;
+    duplicates: number;
+    passThrough: number;
+    holidayDeposits: number;
+    jumpBeforeApplying: "none" | "explained" | "found";
+  };
+  signals: { label: string; detail: string }[];
+  liveBankConnected: boolean;
+  /** what the underwriter signs off on */
+  review: { subject: string; detail: string };
+};
+
+/* ---------- Business & owners ---------- */
+
+export type DealBusiness = {
+  registry: {
+    state: string;
+    checkedAt: IsoDateTime;
+    active: boolean;
+    goodStanding: boolean;
+    legalName: string;
+    entityType: string;
+    charter: string;
+    formedAt: IsoDateTime;
+    agent: string;
+    lastAnnualReport: { month: YearMonth; onTime: boolean };
+    ownershipChanges: number;
+  };
+  industry: { label: string; naics: string };
+  licence: { label: string; activeUntil: YearMonth };
+  einMatches: boolean;
+  tradeName: string;
+  address: { street: string; kind: "retail" | "office" | "home" | "virtual"; sourcesAgree: number; sources: number };
+  crossCheck: { fact: string; cells: { value: string; match: boolean }[] }[];
+  owners: {
+    name: string;
+    share: number;
+    email: string;
+    phone: string;
+    identityVerified: boolean;
+    guarantor: boolean;
+    /** as the owner gave it, e.g. "her" */
+    possessive: string;
+    checks: { label: string; detail: string; done: boolean }[];
+  }[];
+  related: { name: string; since: number; openDeals: number; note: string } | null;
+  publicRecords: { kind: "ucc" | "taxLiens" | "judgments" | "court" | "bankruptcies" | "funderSuits"; count: number; detail?: string }[];
+  recordsCheckedAt: IsoDateTime;
+  online: {
+    strength: "strong" | "some" | "none";
+    website: string;
+    since: number;
+    rating: number;
+    reviews: number;
+    hours: string;
+    hoursNote: string;
+    recent: string;
+    recentNote: string;
+  };
+};
+
+/* ---------- Conditions & stips ---------- */
+
+export type ConditionParty = "broker" | "merchant" | "us" | "auto";
+
+export type DealCondition = {
+  id: string;
+  title: string;
+  detail: string;
+  party: ConditionParty;
+  status: "wait" | "booked" | "done";
+  /** what marking it done is called */
+  action: "received" | "signed" | "done";
+  dueAt?: IsoDateTime;
+  bookedAt?: IsoDateTime;
+  /** sent along with the offer */
+  withOffer?: boolean;
+  doneAt?: IsoDateTime;
+  /** the file can be dropped onto it */
+  acceptsFile?: boolean;
+};
+
+export type DealConditions = {
+  items: DealCondition[];
+  parties: { broker: { name: string; initials: string; contact: string }; merchant: { name: string; initials: string } };
+  terms: string[];
+  finalChecks: string[];
+  lastFullCheckAt: IsoDateTime;
+  recommended: { label: string; status: "sent" | "not-sent" | "if-paying-off" }[];
 };
 
 /* ---------- Positions & debt ---------- */

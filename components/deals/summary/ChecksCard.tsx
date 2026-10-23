@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { dealTabHref } from "@/lib/copy/deal";
-import { checksCopy as t, type CheckKey } from "@/lib/copy/deal-summary";
-import type { CheckState, DealChecks, Id } from "@/lib/data/types";
+import { checksCopy as t } from "@/lib/copy/deal-summary";
+import type { CheckKey, CheckState, DealCheckSet, Id } from "@/lib/data/types";
 
 /** Where each check card opens: its deal tab, or Stacking Watch. */
 const checkPath: Record<CheckKey, string> = {
@@ -40,9 +40,10 @@ function Status({ status }: { status: CheckState }) {
  * "Every check at a glance" from design/Deal-Summary.html: six cards, one
  * per check, each linking to its tab. Clear checks are white with a teal
  * tick; the ones that need a look sit on amber. The states are the deal's
- * own checks, the same ones the tab bar's dots show. No hover.
+ * own checks, the same ones the tab bar shows; the conditions one is
+ * worked out from the deal's conditions. No hover.
  */
-export function ChecksCard({ id, checks }: { id: Id; checks: DealChecks }) {
+export function ChecksCard({ id, checks }: { id: Id; checks: DealCheckSet }) {
   return (
     <Card as="article" aria-labelledby="h-checks" className="col-span-2 max-[980px]:col-span-1">
       <div className="flex items-center justify-between">

@@ -4,7 +4,7 @@
  * data layer (dealTabsView); this file turns them, and the policy lines
  * they're measured against, into what people read.
  */
-import type { DealChecks, DealSummary, Policy, ScorePart } from "@/lib/data/types";
+import type { CheckKey, DealSummary, Policy, ScorePart } from "@/lib/data/types";
 import { dateLong, dateShort, money, moneyK, moneyShort, monthName, percent, plural, timeOfDay, weekdayShort } from "@/lib/format";
 import { scoreWeights } from "./policy";
 
@@ -119,8 +119,6 @@ export const lookCopy = {
   count: (n: number) => plural(n, "item"),
   clearCap: "Checked and clear",
 };
-
-export type CheckKey = keyof DealChecks;
 
 export const checksCopy = {
   title: "Every check at a glance",

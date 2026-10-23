@@ -1,3 +1,4 @@
+import { checkSet } from "@/lib/copy/deal-conditions";
 import type { DealTabsData } from "@/lib/data/views/deal-tabs";
 import { AskDealCard } from "./AskDealCard";
 import { ChecksCard } from "./ChecksCard";
@@ -35,7 +36,7 @@ export function SummaryTab({ data }: { data: DealTabsData }) {
       </section>
 
       <section aria-label="Checks and timeline" className={row}>
-        <ChecksCard id={data.id} checks={data.checks} />
+        <ChecksCard id={data.id} checks={checkSet(data.checks, data.conditions)} />
         <TimelineCard id={data.id} summary={data.summary} />
       </section>
 

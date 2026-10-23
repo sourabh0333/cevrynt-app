@@ -5,7 +5,7 @@
  * turns their plain values into what people read: statuses, deadlines,
  * received times, amounts and the quick-look figures.
  */
-import type { CheckState, Deal, DealChecks, DealDeadline, DealRisk, DealStatus, IsoDateTime } from "@/lib/data/types";
+import type { CheckKey, CheckState, Deal, DealDeadline, DealRisk, DealStatus, IsoDateTime } from "@/lib/data/types";
 import { daysBetween, money, moneyK, moneyShort, timeOfDay, weekdayShort } from "@/lib/format";
 
 export const dealStatusLabel: Record<DealStatus, string> = {
@@ -140,27 +140,21 @@ export type DealTab = {
   key: DealTabKey;
   label: string;
   path: string;
-  /** small status dot after the label */
-  dot?: "teal" | "amber";
-  /** open items count after the label */
-  count?: number;
   /** browser tab title */
   title: string;
 };
 
 /*
- * Cash flow's and Positions' dots come from each deal's own checks (see
- * DealTabs). The Integrity and Business dots and the conditions count are
- * still the sample deal's, shown on every deal; they move onto the deal's
- * data when those tabs convert.
+ * The dots and the Conditions count after the labels come from each deal's
+ * own checks (see tabCheck and DealTabs).
  */
 export const dealTabs: DealTab[] = [
   { key: "summary", label: "Summary", path: "", title: "Deal summary" },
   { key: "cash-flow", label: "Cash flow", path: "/cash-flow", title: "Deal cash flow" },
   { key: "positions", label: "Positions & debt", path: "/positions", title: "Deal positions and debt" },
-  { key: "integrity", label: "Integrity", path: "/integrity", dot: "amber", title: "Deal integrity" },
-  { key: "business", label: "Business & owners", path: "/business", dot: "teal", title: "Deal business and owners" },
-  { key: "conditions", label: "Conditions & stips", path: "/conditions", count: 2, title: "Deal conditions and stips" },
+  { key: "integrity", label: "Integrity", path: "/integrity", title: "Deal integrity" },
+  { key: "business", label: "Business & owners", path: "/business", title: "Deal business and owners" },
+  { key: "conditions", label: "Conditions & stips", path: "/conditions", title: "Deal conditions and stips" },
   { key: "offer", label: "Offer & disclosures", path: "/offer", title: "Deal offer and disclosures" },
   { key: "decision", label: "Decision & memo", path: "/decision", title: "Deal decision and memo" },
   { key: "activity", label: "Activity", path: "/activity", title: "Deal activity" },
@@ -171,8 +165,20 @@ export const dealTabsLabel = "Deal sections";
 /** A check's dot in the tab bar: teal when clear, amber when it needs a look. */
 export const checkDot = (c: CheckState): "teal" | "amber" => (c.state === "ok" ? "teal" : "amber");
 
-/** The tabs whose dots come from the deal's checks. */
-export const tabCheck: Partial<Record<DealTabKey, keyof DealChecks>> = { "cash-flow": "cashFlow", positions: "positions" };
+/**
+ * The tabs that show a check after the label: a count of open items when
+ * there are some (Conditions), otherwise the check's dot.
+ */
+export const tabCheck: Partial<Record<DealTabKey, CheckKey>> = {
+  "cash-flow": "cashFlow",
+  positions: "positions",
+  integrity: "integrity",
+  business: "business",
+  conditions: "conditions",
+};
+
+/** What a tab shows for its check: a count of open items, or a dot. */
+export const tabMark = (c: CheckState): { dot?: "teal" | "amber"; count?: number } => (c.state === "open" ? { count: c.count } : { dot: checkDot(c) });
 
 export const dealTabHref = (id: string, tab: Pick<DealTab, "path">) => `/deals/${id}${tab.path}`;
 

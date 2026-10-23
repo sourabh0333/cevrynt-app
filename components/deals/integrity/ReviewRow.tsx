@@ -3,22 +3,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { liveBank, review } from "@/lib/sample-data/deal-integrity";
+import { liveBankCopy, reviewCopy as t } from "@/lib/copy/deal-integrity";
+import type { DealIntegrity } from "@/lib/data/types";
 
-/** "Compare with live bank data": the mint card with the solid teal send button. */
-export function LiveBankCard() {
+/**
+ * "Compare with live bank data": the mint card with the solid teal send
+ * button, addressed to the deal's main owner.
+ */
+export function LiveBankCard({ owner, connected }: { owner: { name: string; possessive: string } | null; connected: boolean }) {
   return (
     <article
       aria-labelledby="h-live"
       className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg border border-mint-edge bg-[linear-gradient(160deg,#F1F6F3,#FFFFFF)] p-[22px] text-ink"
     >
-      <span className="self-start rounded-pill bg-white/10 px-2.5 py-1 text-label-sm font-semibold text-muted">{liveBank.chip}</span>
-      <h2 id="h-live" className="m-0 font-heading text-[21px] font-semibold">{liveBank.title}</h2>
-      <span className="text-[12.5px] text-muted">{liveBank.text}</span>
+      <span className="self-start rounded-pill bg-white/10 px-2.5 py-1 text-label-sm font-semibold text-muted">
+        {connected ? liveBankCopy.chip.done : liveBankCopy.chip.open}
+      </span>
+      <h2 id="h-live" className="m-0 font-heading text-[21px] font-semibold">{liveBankCopy.title}</h2>
+      {owner ? <span className="text-[12.5px] text-muted">{liveBankCopy.text(owner.name, owner.possessive)}</span> : null}
       <div className="mt-auto flex flex-wrap gap-2">
-        <Button glow>{liveBank.send}</Button>
+        {owner && !connected ? <Button glow>{liveBankCopy.send(owner.name)}</Button> : null}
         <button type="button" className="h-[42px] cursor-pointer whitespace-nowrap rounded-pill border border-teal/7 bg-transparent px-4 text-[12.5px] font-semibold text-ink">
-          {liveBank.skip}
+          {liveBankCopy.skip}
         </button>
       </div>
     </article>
@@ -33,7 +39,7 @@ const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: 
  * once the box is ticked; recording the review shows it as done with the
  * reviewer's name and the time.
  */
-export function ReviewCard() {
+export function ReviewCard({ review, reviewer }: { review: DealIntegrity["review"]; reviewer: string }) {
   const [agreed, setAgreed] = useState(false);
   const [note, setNote] = useState("");
   const [signedAt, setSignedAt] = useState<Date | null>(null);
@@ -48,9 +54,9 @@ export function ReviewCard() {
   return (
     <Card as="article" aria-labelledby="h-sign" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        <h2 id="h-sign" className="m-0 font-heading text-[20px] font-semibold">{review.title}</h2>
+        <h2 id="h-sign" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
         <span className={`rounded-pill px-2.5 py-1 text-label-sm font-semibold ${signed ? "bg-mint-bg text-teal-dark" : "bg-amber-tint text-amber-deep"}`}>
-          {signed ? review.chip.done : review.chip.open}
+          {signed ? t.chip.done : t.chip.open}
         </span>
       </div>
       <label className={`flex items-start gap-3 rounded-[16px] bg-tile px-3.5 py-3 ${signed ? "" : "cursor-pointer"}`}>
@@ -62,13 +68,13 @@ export function ReviewCard() {
           className="m-0 mt-px h-5 w-5 flex-none accent-teal"
         />
         <span className="text-body-sm">
-          <b>{review.check.label}</b>
-          <span className="block text-label text-muted">{review.check.detail}</span>
+          <b>{t.check(review.subject)}</b>
+          <span className="block text-label text-muted">{review.detail}</span>
         </span>
       </label>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="i-note" className="text-label font-semibold text-grey-text">
-          {review.note.label}
+          {t.note.label}
         </label>
         <textarea
           id="i-note"
@@ -76,13 +82,13 @@ export function ReviewCard() {
           value={note}
           readOnly={signed}
           onChange={(e) => setNote(e.target.value)}
-          placeholder={review.note.placeholder}
+          placeholder={t.note.placeholder}
           className="box-border resize-y rounded-tile border border-line-soft bg-tile px-3.5 py-3 font-sans text-body-sm text-ink outline-none placeholder:text-hint focus:outline-2 focus:outline-offset-1 focus:outline-teal"
         />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <span className="text-label text-hint" aria-live="polite">
-          {signed ? `Recorded at ${timeOf(signedAt)} by ${review.reviewer}.` : review.hint}
+          {signed ? t.recorded(timeOf(signedAt), reviewer) : t.hint}
         </span>
         <button
           type="button"
@@ -92,7 +98,7 @@ export function ReviewCard() {
           }}
           className={`h-11 whitespace-nowrap rounded-pill border-0 px-[18px] text-body-sm font-semibold ${buttonClass}`}
         >
-          {signed ? review.button.done : review.button.open}
+          {signed ? t.button.done(reviewer) : t.button.open}
         </button>
       </div>
     </Card>

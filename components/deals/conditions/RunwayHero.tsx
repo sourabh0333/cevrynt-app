@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { Ring } from "@/components/ui/Ring";
-import { conditionsTotal, runway } from "@/lib/sample-data/deal-conditions";
+import { runwayCopy as runway } from "@/lib/copy/deal-conditions";
 import type { Derived, StepState } from "./derive";
 
 type Delay = CSSProperties & { "--delay"?: string };
@@ -20,12 +20,12 @@ const sub: Record<StepState, string> = { done: "text-teal-deep", now: "font-semi
 
 /**
  * The funding runway from design/Deal-Conditions.html: the status panel
- * (chip, the met-of-8 ring, counts and the call to action) and the
- * "Road to funding" grid of six steps. The ring sweeps and the segments
+ * (chip, the conditions-met ring, counts and the call to action) and the
+ * "Road to funding" grid of steps. The ring sweeps and the segments
  * grow in once; both follow the board as conditions change. No hover.
  */
 export function RunwayHero({ d }: { d: Derived }) {
-  const { allMet, metCount } = d;
+  const { allMet, metCount, total } = d;
   return (
     <section
       aria-labelledby="h-run"
@@ -40,15 +40,15 @@ export function RunwayHero({ d }: { d: Derived }) {
           {allMet ? runway.met.chip : runway.hold.chip}
         </span>
         <div className="flex items-center gap-4">
-          <Ring value={(metCount / conditionsTotal) * 100} size={92} stroke={9} color="teal" track="teal" ariaLabel={`${metCount} of ${conditionsTotal} conditions met`}>
+          <Ring value={total ? (metCount / total) * 100 : 0} size={92} stroke={9} color="teal" track="teal" ariaLabel={runway.ringLabel(metCount, total)}>
             <b className="font-heading text-[26px] font-semibold tabular-nums tracking-[-0.03em] text-ink">
               {metCount}
-              <span className="text-body text-muted">/{conditionsTotal}</span>
+              <span className="text-body text-muted">/{total}</span>
             </b>
           </Ring>
           <div className="min-w-0">
             <h2 id="h-run" className="m-0 font-heading text-[26px] leading-[1.1] font-semibold">
-              {allMet ? runway.headline.met : runway.headline.left(conditionsTotal - metCount)}
+              {allMet ? runway.headline.met : runway.headline.left(total - metCount)}
             </h2>
             <span className="mt-1 block text-[12.5px] text-muted">{allMet ? runway.subline.met : runway.subline.left}</span>
           </div>
@@ -78,7 +78,7 @@ export function RunwayHero({ d }: { d: Derived }) {
           <b className="text-body">{runway.title}</b>
           <span className="text-label text-muted">{d.nowStep ? runway.next(d.nowStep.title) : runway.allDone}</span>
         </div>
-        <div className="flex h-2 gap-1.5" role="img" aria-label={`${d.steps.filter((s) => s.state === "done").length} of ${d.steps.length} steps done`}>
+        <div className="flex h-2 gap-1.5" role="img" aria-label={runway.stepsLabel(d.steps.filter((s) => s.state === "done").length, d.steps.length)}>
           {d.steps.map((s, i) => {
             const style: Delay = { "--delay": `${0.1 + i * 0.08}s` };
             return <span key={s.n} className={`anim-grow-x flex-1 rounded-[4px] ${seg[s.state]}`} style={style} />;

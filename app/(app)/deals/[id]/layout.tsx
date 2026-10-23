@@ -2,8 +2,10 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { DealFrameSkeleton } from "@/components/deals/DealFrameSkeleton";
 import { DealHeader } from "@/components/deals/DealHeader";
+import { DealLiveProvider } from "@/components/deals/DealLive";
 import { DealTabs } from "@/components/deals/DealTabs";
 import { Arrive } from "@/components/ui/Skeleton";
+import { checkSet } from "@/lib/copy/deal-conditions";
 import { dealFrameView } from "@/lib/data/views/deals";
 
 /**
@@ -19,12 +21,12 @@ import { dealFrameView } from "@/lib/data/views/deals";
  */
 export default function DealLayout({ children, params }: LayoutProps<"/deals/[id]">) {
   return (
-    <>
+    <DealLiveProvider>
       <Suspense fallback={<DealFrameSkeleton />}>
         <DealFrame params={params} />
       </Suspense>
       {children}
-    </>
+    </DealLiveProvider>
   );
 }
 
@@ -36,7 +38,7 @@ async function DealFrame({ params }: { params: LayoutProps<"/deals/[id]">["param
   return (
     <Arrive>
       <DealHeader deal={frame.deal} now={frame.now} />
-      <DealTabs dealId={frame.deal.id} checks={frame.deal.checks} />
+      <DealTabs dealId={frame.deal.id} checks={checkSet(frame.deal.checks, frame.conditions)} />
     </Arrive>
   );
 }

@@ -70,6 +70,16 @@ export function dateLong(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
   return new Intl.DateTimeFormat("en-US", { timeZone, month: "long", day: "numeric" }).format(new Date(iso));
 }
 
+/** "April 12, 2016" */
+export function dateFull(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  return new Intl.DateTimeFormat("en-US", { timeZone, month: "long", day: "numeric", year: "numeric" }).format(new Date(iso));
+}
+
+/** "Thursday" */
+export function weekdayLong(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  return new Intl.DateTimeFormat("en-US", { timeZone, weekday: "long" }).format(new Date(iso));
+}
+
 /** "Thu" */
 export function weekdayShort(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
   return new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(new Date(iso));

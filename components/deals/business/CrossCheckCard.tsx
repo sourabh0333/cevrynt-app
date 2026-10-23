@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
-import { crossCheck } from "@/lib/sample-data/deal-business";
+import { crossCheckCopy as t } from "@/lib/copy/deal-business";
+import type { DealBusiness } from "@/lib/data/types";
 
 const legendDot = { teal: "bg-teal", amber: "bg-amber", stone: "bg-line-dashed" };
 
@@ -11,21 +12,21 @@ const grid = "grid grid-cols-[minmax(0,1fr)_repeat(5,minmax(0,1fr))] items-cente
 const hide = (col: number) => (col === 4 ? "max-[1100px]:hidden" : col === 3 ? "max-[760px]:hidden" : "");
 
 /**
- * "Does everything agree?" from design/Deal-Business.html: six facts
+ * "Does everything agree?" from design/Deal-Business.html: the deal's facts
  * checked across five sources. Matching cells sit on light mint with a
  * teal dot (the dots pop in with a slight stagger); sources with nothing
  * to show are white hints. No hover.
  */
-export function CrossCheckCard() {
+export function CrossCheckCard({ rows, owner }: { rows: DealBusiness["crossCheck"]; owner: string }) {
   return (
     <Card as="section" aria-labelledby="h-x" padding={false} className="p-[22px]">
       <div className="flex flex-wrap items-end justify-between gap-2.5">
         <div>
-          <h2 id="h-x" className="m-0 font-heading text-[20px] font-semibold">{crossCheck.title}</h2>
-          <div className="mt-[3px] text-label text-hint">{crossCheck.subtitle}</div>
+          <h2 id="h-x" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
+          <div className="mt-[3px] text-label text-hint">{t.subtitle}</div>
         </div>
         <div className="flex flex-wrap gap-3 text-[11.5px] text-muted">
-          {crossCheck.legend.map((l) => (
+          {t.legend.map((l) => (
             <span key={l.label} className="inline-flex items-center gap-1.5">
               <span className={`h-2 w-2 rounded-full ${legendDot[l.tone]}`} />
               {l.label}
@@ -35,11 +36,11 @@ export function CrossCheckCard() {
       </div>
       <div className="flex flex-col gap-1.5">
         <div className={`${grid} pb-1 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint`}>
-          {crossCheck.columns.map((c, i) => (
+          {t.columns.map((c, i) => (
             <span key={c} className={`truncate ${hide(i - 1)}`}>{c}</span>
           ))}
         </div>
-        {crossCheck.rows.map((r, ri) => (
+        {rows.map((r, ri) => (
           <div key={r.fact} className={grid}>
             <b className="truncate text-body-sm">{r.fact}</b>
             {r.cells.map((cell, ci) => {
@@ -56,7 +57,7 @@ export function CrossCheckCard() {
           </div>
         ))}
       </div>
-      <span className="text-[12.5px] text-muted">{crossCheck.note}</span>
+      <span className="text-[12.5px] text-muted">{t.note(owner)}</span>
     </Card>
   );
 }
