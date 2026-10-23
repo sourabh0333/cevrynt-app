@@ -363,6 +363,18 @@ body {
 .anim-rise {
   animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
 }
+/*
+  Page content arriving after its loading skeleton (DATA-PLAN.md, section 3):
+  a quick, gentle fade. Skeletons themselves never move.
+*/
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+}
+.anim-arrive {
+  animation: arrive 0.2s ease-out both;
+}
 
 /* Home page visuals (design/Main.html): hero chart, calendar events, now line. */
 @keyframes hero-area {
@@ -627,6 +639,7 @@ body {
   .anim-draw,
   .anim-fade,
   .anim-rise,
+  .anim-arrive,
   .anim-hero-line,
   .anim-hero-area,
   .anim-hero-dot,

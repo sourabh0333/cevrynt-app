@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { Icon } from "./icons";
 import { toggleCollapsed, useCollapsed } from "./sidebar-state";
 import {
@@ -42,12 +43,13 @@ const glide = "transition-[padding] duration-300 ease-sidebar";
  * routes (deal pages) it must sit inside a Suspense boundary; AppShell
  * shows the plain Sidebar as the fallback until the path streams in.
  */
-export function CurrentSidebar() {
+export function CurrentSidebar({ comingNote }: { comingNote?: ReactNode }) {
   const pathname = usePathname();
-  return <Sidebar pathname={pathname} />;
+  return <Sidebar pathname={pathname} comingNote={comingNote} />;
 }
 
-export function Sidebar({ pathname = null }: { pathname?: string | null }) {
+/** comingNote: the "10 new" beside What's coming, rendered on the server from the data layer. */
+export function Sidebar({ pathname = null, comingNote = null }: { pathname?: string | null; comingNote?: ReactNode }) {
   const active = pathname ? activeNavKey(pathname) : null;
   const collapsed = useCollapsed();
   const toggleLabel = collapsed ? "Open sidebar" : "Close sidebar";
@@ -151,7 +153,7 @@ export function Sidebar({ pathname = null }: { pathname?: string | null }) {
           <span
             className={`absolute top-1/2 right-2.5 -translate-y-1/2 text-[10.5px] font-semibold text-teal-deep ${fade}`}
           >
-            {comingItem.note}
+            {comingNote}
           </span>
         </Link>
       </div>

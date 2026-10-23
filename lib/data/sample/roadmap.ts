@@ -1,0 +1,48 @@
+import type { RoadmapFeature } from "@/lib/data/types";
+
+/**
+ * Sample roadmap records, copied from design/prototypes/Coming.dc.html.
+ * Only lib/data reads this file; pages get it through listRoadmapFeatures().
+ */
+export const roadmapFeatures: RoadmapFeature[] = [
+  { id: "portal", lane: "next", name: "Broker portal", short: "Brokers see status and upload stips", votes: 38, progress: 20, eta: "Early 2027", joined: false,
+    description: "A private space for each broker: send deals, upload stips into the right deal, see live status and their own scorecard and payouts.",
+    why: 'Underwriters lose hours answering "any update?" emails. Brokers want answers without waiting.',
+    outcomes: ["Live status on every deal they sent", "Stips land straight in the deal", "Their own scorecard and commission"] },
+  { id: "mail", lane: "now", name: "Email forwarding", short: "Brokers email packages, deals appear", votes: 52, progress: 60, eta: "Next release", joined: false,
+    description: "Every funder gets its own forwarding address. Brokers send packages the way they already do, and each email becomes a checked deal in Submissions.",
+    why: "Brokers already send deals by email. It’s the fastest way to start, with no change in their habits.",
+    outcomes: ["Your own address, with approved senders", "One email with several merchants becomes several deals", "Unknown senders held for review"] },
+  { id: "forms", lane: "next", name: "Public forms", short: "A branded application link", votes: 31, progress: 25, eta: "Early 2027", joined: false,
+    description: "An online application on your own web address, for brokers or merchants applying directly, with the fit check running as soon as it’s sent.",
+    why: "Direct merchants and smaller brokers need a simple way in without emailing files.",
+    outcomes: ["Your colors and logo", "Ask for statements and consents up front", "Put it on your website with one line of code"] },
+  { id: "crm", lane: "next", name: "CRM, LOS and API", short: "Deals in from your CRM, decisions back", votes: 27, progress: 10, eta: "Mid 2027", joined: false,
+    description: "Connect the systems you already use, including MCA CRMs, so deals flow in and decisions, offers and funding updates flow back.",
+    why: "Many funders run their deal flow in a CRM. Keeping both in sync avoids typing everything twice.",
+    outcomes: ["Two-way sync with your CRM", "Webhooks for your own systems", "Field matching you control"] },
+  { id: "rec", lane: "now", name: "Reconciliation Desk", short: 'Handle "my sales dropped" requests properly', votes: 41, progress: 70, eta: "Early 2027", joined: true,
+    description: "When a merchant asks to pay less because sales fell, Cevrynt works out the fair new payment from fresh bank data, tracks your reply deadline and keeps the proof.",
+    why: "Regulators have pushed funders to run a formal reconciliation process. Today most teams do it by email and spreadsheet.",
+    outcomes: ["See every request with its deadline", "Get the fair payment worked out for you", "Keep a record that you answered on time"] },
+  { id: "ai", lane: "now", name: "AI decision log", short: "A clear record of every automatic suggestion", votes: 28, progress: 55, eta: "Before 2027", joined: false,
+    description: "Every suggestion Cevrynt makes, the data it used and what a person decided, in one report you can hand to an examiner. The audit log already records part of this.",
+    why: "New state rules on automated decisions, such as Colorado’s, start applying in 2027.",
+    outcomes: ["Export one report per deal or per month", "See where people overrode a suggestion", "Show which rules drove each suggestion"] },
+  { id: "call", lane: "next", name: "Funding-call assistant", short: "Records the funding call and flags mismatches", votes: 36, progress: 20, eta: "Mid 2027", joined: false,
+    description: "Cevrynt listens to the funding call (with consent), writes a summary and flags anything the merchant says that doesn’t match the application or statements.",
+    why: "The funding call is the last chance to catch a problem, and today nothing checks it.",
+    outcomes: ["Auto summary saved to the deal", 'Flags like "says 1 advance, statements show 2"', "Marks the call done on Conditions"] },
+  { id: "mob", lane: "next", name: "Mobile approvals", short: "Approve and release money from your phone", votes: 22, progress: 15, eta: "Mid 2027", joined: false,
+    description: "Seniors can approve big deals, waive conditions and release payments from their phone, with the same two-person rules.",
+    why: "Deals stall when the one person who can approve is away from their desk.",
+    outcomes: ["Push alert when you are needed", "Face ID before releasing money", "Full deal summary on one screen"] },
+  { id: "peer", lane: "later", name: "Peer benchmarks", short: "Compare a merchant with similar funded ones", votes: 19, progress: 5, eta: "Late 2027", joined: false,
+    description: "See how a bakery doing $60K a month usually performs, based on similar merchants in your own book.",
+    why: "Underwriters judge each deal alone. Context from similar deals makes pricing sharper.",
+    outcomes: ["Typical revenue swings for the industry", "How similar deals paid back", "Suggested price range from your history"] },
+  { id: "net", lane: "later", name: "Cross-funder network", short: "See stacking before any filing shows up", votes: 47, progress: 5, eta: "2028", joined: false,
+    description: "Funders who join share a private signal when the same merchant applies elsewhere, so stacking is caught the same week.",
+    why: "Today stacking is usually found after the fact. No shared, real-time signal exists yet.",
+    outcomes: ["Alert when a merchant applies elsewhere", "Only a signal is shared, never the deal", "Join or leave at any time"] },
+];

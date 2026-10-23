@@ -5,6 +5,7 @@
  * comes from one place. Pure: no React, no formatting side effects.
  * Tested in lib/offer-math.test.ts (`npm test`).
  */
+import { money, moneyShort, percent } from "@/lib/format";
 
 export type Frequency = "daily" | "weekly";
 export type CollectFrom = "ach" | "split";
@@ -233,14 +234,8 @@ export function renewalOffer(r: RenewalInput, figures: DealFigures = harborFigur
   return { loyaltyFactor, cash, cashPercent, daily, unearnedFee };
 }
 
-/** "$40,000" */
-export const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
-
-/** "$40K", "$9.4K" */
-export const moneyShort = (n: number) => "$" + (n / 1000).toFixed(n % 1000 ? 1 : 0) + "K";
-
-/** "25%" */
-export const percent = (fraction: number) => Math.round(fraction * 100) + "%";
+/** Money and share formatting now live in lib/format.ts; re-exported so existing imports keep working. */
+export { money, moneyShort, percent };
 
 export const sameOffer = (a: OfferInput, b: Partial<OfferInput>) =>
   (Object.keys(b) as (keyof OfferInput)[]).every((k) => a[k] === b[k]);

@@ -1,5 +1,4 @@
 import type { IconName } from "@/components/shell/icons";
-import { featureCount } from "@/lib/sample-data/coming";
 
 /**
  * Sidebar navigation. Labels, order, sections and counts come from the
@@ -72,13 +71,13 @@ export const navSections: NavSection[] = [
   },
 ];
 
-export const comingItem: NavItem & { note: string } = {
+// Its "10 new" note is counted from the roadmap through the data layer
+// (components/shell/ComingNote.tsx), so the badge and the page agree.
+export const comingItem: NavItem = {
   key: "coming",
   label: "What's coming",
   href: "/whats-coming",
   icon: "star",
-  // Counted from the What's coming feature list, so the badge and the page agree.
-  note: `${featureCount} new`,
 };
 
 export const workspace = {

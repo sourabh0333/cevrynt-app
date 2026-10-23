@@ -3,18 +3,8 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { PageActions } from "@/components/shell/PageActions";
-import {
-  comingFeatures,
-  comingHeader as ch,
-  comingHero as hero,
-  ideaBox,
-  laneCount,
-  lanes,
-  roadmap as rm,
-  shipped,
-  spotlight as sp,
-  type Lane,
-} from "@/lib/sample-data/coming";
+import { comingHeader as ch, comingHero as hero, ideaBox, lanes, roadmap as rm, shipped, spotlight as sp } from "@/lib/copy/coming";
+import type { RoadmapFeature, RoadmapLane as Lane } from "@/lib/data/types";
 
 type RingVars = CSSProperties & { "--p"?: string; "--lane"?: string; "--delay"?: string };
 
@@ -26,29 +16,32 @@ const laneChip: Record<Lane, string> = { now: "bg-mint-bg text-teal-dark", next:
 const duo = "grid grid-cols-2 gap-1 @max-[760px]:grid-cols-1";
 
 /**
- * What's coming from design/Coming.html and its prototype. The counters,
- * stage counts and "10 features in total" are counted from the feature list
- * (the sidebar's "10 new" reads it too). Switching stage selects that
- * stage's first feature; Vote adds one vote, Join early access toggles the
- * feature onto the list. Progress rings sweep in. No hover.
+ * What's coming from design/Coming.html and its prototype. The features come
+ * from the data layer (listRoadmapFeatures, passed in by the page); the
+ * counters, stage counts and "10 features in total" are counted from that
+ * list, as is the sidebar's "10 new". Switching stage selects that stage's
+ * first feature; Vote adds one vote, Join early access toggles the feature
+ * onto the list (both local until writes go through the data layer).
+ * Progress rings sweep in. No hover.
  */
-export function ComingView() {
+export function ComingView({ features }: { features: RoadmapFeature[] }) {
   const [stage, setStage] = useState<Lane>(rm.start.stage);
   const [sel, setSel] = useState(rm.start.feature);
   const [voted, setVoted] = useState<Record<string, boolean>>({});
-  const [joined, setJoined] = useState<Record<string, boolean>>(() => Object.fromEntries(rm.joined.map((id) => [id, true])));
+  const [joined, setJoined] = useState<Record<string, boolean>>(() => Object.fromEntries(features.filter((x) => x.joined).map((x) => [x.id, true])));
 
+  const laneCount = (l: Lane) => features.filter((x) => x.lane === l).length;
   const votes = (id: string, base: number) => base + (voted[id] ? 1 : 0);
-  const items = comingFeatures.filter((f) => f.lane === stage);
-  const totalVotes = comingFeatures.reduce((s, f) => s + votes(f.id, f.votes), 0);
-  const f = comingFeatures.find((x) => x.id === sel) ?? comingFeatures[0];
+  const items = features.filter((x) => x.lane === stage);
+  const totalVotes = features.reduce((s, x) => s + votes(x.id, x.votes), 0);
+  const f = features.find((x) => x.id === sel) ?? features[0];
   const lane = lanes.find((l) => l.key === f.lane)!;
   const isV = !!voted[f.id];
   const isJ = !!joined[f.id];
 
   const pickStage = (k: Lane) => {
     setStage(k);
-    const first = comingFeatures.find((x) => x.lane === k);
+    const first = features.find((x) => x.lane === k);
     if (first) setSel(first.id);
   };
 
@@ -57,7 +50,7 @@ export function ComingView() {
       <header className="mb-1 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="m-0 font-heading text-[30px] leading-[1.05] font-semibold tracking-[-0.035em] text-ink">{ch.title}</h1>
-          <span className="mt-2.5 inline-flex items-center gap-1.5 text-label font-semibold tracking-[0.06em] uppercase text-ink">{ch.line}</span>
+          <span className="mt-2.5 inline-flex items-center gap-1.5 text-label font-semibold tracking-[0.06em] uppercase text-ink">{ch.line(features.length)}</span>
         </div>
         <PageActions />
       </header>
@@ -106,7 +99,7 @@ export function ComingView() {
             <div className="flex flex-1 flex-col gap-2">
               {items.map((it, i) => {
                 const on = it.id === sel;
-                const ring: RingVars = { "--p": `${it.prog}%`, "--lane": laneColor[it.lane], "--delay": `${0.2 + i * 0.1}s` };
+                const ring: RingVars = { "--p": `${it.progress}%`, "--lane": laneColor[it.lane], "--delay": `${0.2 + i * 0.1}s` };
                 return (
                   <button
                     key={it.id}
@@ -117,12 +110,12 @@ export function ComingView() {
                   >
                     <span
                       role="img"
-                      aria-label={`${it.prog}% built`}
+                      aria-label={`${it.progress}% built`}
                       className="anim-conic grid h-10 w-10 flex-none place-items-center rounded-full bg-[conic-gradient(var(--lane)_var(--p),var(--color-line)_0)]"
                       style={ring}
                     >
                       <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full bg-tile font-mono text-[10px] font-medium">
-                        {it.prog}%
+                        {it.progress}%
                       </span>
                     </span>
                     <span className="min-w-0 flex-1">
@@ -137,7 +130,7 @@ export function ComingView() {
               })}
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line-strong pt-2.5 text-label text-muted">
-              <span>{rm.total}</span>
+              <span>{rm.total(features.length)}</span>
               <span aria-live="polite">{rm.votes(totalVotes)}</span>
             </div>
           </div>
@@ -148,14 +141,14 @@ export function ComingView() {
               <span className="text-[11.5px] text-hint">{f.eta}</span>
             </div>
             <h2 className="m-0 font-heading text-card-title-lg leading-[1.2] font-semibold">{f.name}</h2>
-            <span className="text-body-sm text-grey-text">{f.long}</span>
+            <span className="text-body-sm text-grey-text">{f.description}</span>
             <div className="rounded-[16px] bg-card px-3.5 py-3 text-[12.5px]">
               <b className="mb-0.5 block">{sp.why}</b>
               <span className="text-muted">{f.why}</span>
             </div>
             <span className="text-cap font-semibold uppercase text-hint">{sp.can}</span>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-              {f.points.map((p) => (
+              {f.outcomes.map((p) => (
                 <li key={p} className="flex items-start gap-2.5 text-[12.5px]">
                   <span aria-hidden="true" className="grid h-[18px] w-[18px] flex-none place-items-center rounded-full bg-mint-bg text-[10px] font-bold text-teal-dark">
                     ✓

@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import { AskCevrynt } from "./AskCevrynt";
+import { ComingNote } from "./ComingNote";
 import { ResizeHandle } from "./ResizeHandle";
 import { CurrentSidebar, Sidebar } from "./Sidebar";
 
@@ -14,12 +15,18 @@ import { CurrentSidebar, Sidebar } from "./Sidebar";
  * the invisible drag handle that collapses or opens the sidebar.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+  // Counted on the server from the data layer; appears without a placeholder.
+  const comingNote = (
+    <Suspense fallback={null}>
+      <ComingNote />
+    </Suspense>
+  );
   return (
     <div className="box-border flex h-dvh items-stretch gap-1.5 overflow-hidden bg-page py-3.5 pr-3.5 pl-0 text-body text-ink">
       <div className="z-10 h-full flex-none overflow-hidden">
         {/* The lit nav item needs the URL; on dynamic routes it streams in. */}
-        <Suspense fallback={<Sidebar />}>
-          <CurrentSidebar />
+        <Suspense fallback={<Sidebar comingNote={comingNote} />}>
+          <CurrentSidebar comingNote={comingNote} />
         </Suspense>
       </div>
       <div className="relative h-full min-w-0 flex-[999_1_560px]">

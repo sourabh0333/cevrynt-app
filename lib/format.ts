@@ -1,0 +1,58 @@
+/**
+ * Shared formatting: the data layer returns plain numbers (dollars) and ISO
+ * 8601 dates; components turn them into what people read here. Pure, no
+ * React. Tested in lib/format.test.ts.
+ *
+ * Times show in the workspace's zone (Eastern, Ridgeline Capital) unless a
+ * zone is passed.
+ */
+
+export const WORKSPACE_TIME_ZONE = "America/New_York";
+
+/** "$40,000" */
+export const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
+
+/** "$40K", "$9.4K" */
+export const moneyShort = (n: number) => "$" + (n / 1000).toFixed(n % 1000 ? 1 : 0) + "K";
+
+/** "$1.24M" for amounts of a million and up, otherwise like moneyShort. */
+export const moneyCompact = (n: number) => (Math.abs(n) >= 1_000_000 ? "$" + (n / 1_000_000).toFixed(2) + "M" : moneyShort(n));
+
+/** "25%" from a fraction (0.254). */
+export const percent = (fraction: number) => Math.round(fraction * 100) + "%";
+
+/** "1 step", "3 steps" */
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+const parts = (iso: string, timeZone: string) => {
+  const p = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(iso));
+  const get = (t: Intl.DateTimeFormatPartTypes) => p.find((x) => x.type === t)?.value ?? "";
+  return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour"), minute: get("minute") };
+};
+
+/** "08:12", 24-hour, as the designs show times. */
+export function timeOfDay(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const p = parts(iso, timeZone);
+  return `${p.hour}:${p.minute}`;
+}
+
+/** "Oct 14" */
+export function dateShort(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const p = parts(iso, timeZone);
+  return `${p.month} ${p.day}`;
+}
+
+/** "Today", "Yesterday" or "Oct 14", counted in the workspace's zone. */
+export function dayLabel(iso: string, now: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const day = (s: string) => {
+    const p = parts(s, timeZone);
+    return Date.UTC(Number(p.year), new Date(`${p.month} 1, 2000`).getMonth(), Number(p.day));
+  };
+  const diff = Math.round((day(now) - day(iso)) / 86_400_000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return dateShort(iso, timeZone);
+}
+
+/** "Today 08:12", "Yesterday 16:40", "Oct 14 09:15" */
+export const dayAndTime = (iso: string, now: string, timeZone = WORKSPACE_TIME_ZONE) => `${dayLabel(iso, now, timeZone)} ${timeOfDay(iso, timeZone)}`;
