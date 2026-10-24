@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { money } from "@/lib/offer-math";
 import { queueCopy as t } from "@/lib/copy/offers";
-import type { FundingDesk, QueuedFunding } from "@/lib/data/types";
+import { kindFinding } from "@/lib/copy/stacking";
+import type { AlertKind, FundingDesk, QueuedFunding } from "@/lib/data/types";
 
 /** ready → pending (Fund) → sent (Release as Priya) → closed (Done, after the undo window or by hand). */
 type Step = "ready" | "pending" | "sent" | "closed";
@@ -26,7 +27,7 @@ const ell = "block truncate";
  * start ticked; the undo window, cut-offs and who releases come from the
  * funding desk and the team. No hover.
  */
-export function FundingQueue({ queue, desk, releaser }: { queue: QueuedFunding[]; desk: FundingDesk; releaser: string }) {
+export function FundingQueue({ queue, desk, releaser }: { queue: (QueuedFunding & { hold: AlertKind | null })[]; desk: FundingDesk; releaser: string }) {
   const undoWindow = desk.undoMinutes * 60;
   const deals = queue.map((q) => ({
     key: q.id,
@@ -39,7 +40,7 @@ export function FundingQueue({ queue, desk, releaser }: { queue: QueuedFunding[]
     netNote: t.netNote(q),
     bank: t.bank(q),
     method: t.method(q),
-    check: q.finalCheck.ok ? "" : q.finalCheck.finding,
+    check: q.hold ? kindFinding[q.hold] : "",
     ok: q.finalCheck.ok,
   }));
   const notes = t.summary.note(desk.undoMinutes, releaser);

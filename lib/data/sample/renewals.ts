@@ -63,7 +63,7 @@ export const renewalSummary: RenewalSummary = {
   outreach: { sent: 64, replied: 0.41 },
   commissionSaved: 9600,
   atRisk: [
-    { advanceId: "adv-pr", signal: "credit-check", likelihood: 80, actBy: "today" },
+    { alertId: "al-pr", likelihood: 80, actBy: "today" },
     { advanceId: "adv-hv", signal: "payoff-letter", likelihood: 60, actBy: "week" },
     { advanceId: "adv-lc", signal: "competitor-offer", likelihood: 45, actBy: "week" },
   ],

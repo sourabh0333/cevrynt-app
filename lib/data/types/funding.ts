@@ -50,8 +50,8 @@ export type QueuedFunding = {
   payoff: Money;
   bank: { name: string; last4: string };
   method: "ach" | "wire";
-  /** what the last check before money moves found */
-  finalCheck: { ok: true } | { ok: false; finding: string };
+  /** the last check before money moves: clear, or held by an open Stacking Watch alert */
+  finalCheck: { ok: true } | { ok: false; alertId: Id };
 };
 
 /** Money sent: who started it, who released it, and the bank's reference. */

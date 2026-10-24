@@ -1,10 +1,11 @@
 import "server-only";
-import type { Advance, IsoDateTime, Merchant, RenewalSettings } from "@/lib/data/types";
+import type { Advance, IsoDateTime, Merchant, RenewalSettings, StackingAlert } from "@/lib/data/types";
 import { readiness, readinessOf, type ReadinessMerchant } from "@/lib/renewal-rules";
 import { listAdvances } from "../advances";
 import { getNow } from "../clock";
 import { listMerchants } from "../merchants";
 import { getRenewalRules } from "../renewals";
+import { listStackingAlerts } from "../stacking";
 
 /** A live advance with its merchant joined on. */
 export type LiveAdvance = Advance & { merchant: Merchant };
@@ -21,16 +22,21 @@ export type Portfolio = {
   readyIds: string[];
 };
 
+/** An open Stacking Watch alert that another funder has advanced this merchant. */
+export const tookAnotherAdvance = (alerts: StackingAlert[], advanceId: string) =>
+  alerts.some((x) => x.status === "open" && (x.kind === "debit" || x.kind === "ucc") && x.target.kind === "advance" && x.target.advanceId === advanceId);
+
 /**
  * Every live advance joined to its merchant, and who is ready to renew
- * under the saved rules. Merchants, Funded deals, Renewals and Renewal
- * rules all start from this, so they count the same merchants.
+ * under the saved rules, with stacking read from Stacking Watch's open
+ * alerts. Merchants, Funded deals, Renewals and Renewal rules all start
+ * from this, so they count the same merchants.
  */
 export async function portfolio(): Promise<Portfolio> {
-  const [advances, merchants, settings, now] = await Promise.all([listAdvances(), listMerchants(), getRenewalRules(), getNow()]);
+  const [advances, merchants, settings, alerts, now] = await Promise.all([listAdvances(), listMerchants(), getRenewalRules(), listStackingAlerts(), getNow()]);
   const byId = new Map(merchants.map((m) => [m.id, m]));
   const live = advances.map((a) => ({ ...a, merchant: byId.get(a.merchantId)! }));
-  const inputs = live.map((a) => readinessOf(a, a.merchant, now));
+  const inputs = live.map((a) => readinessOf(a, a.merchant, now, tookAnotherAdvance(alerts, a.id)));
   const { ready } = readiness(inputs, settings.rules, settings.rules);
   return { now, merchants, advances: live, settings, inputs, readyIds: ready.map((m) => m.id) };
 }

@@ -34,10 +34,8 @@ export type Advance = {
   trend: number[];
   flag: { text: string; tone: "good" | "watch" | "risk" | "none" };
   next: "renewal" | "call" | "plan" | "stacking" | "schedule";
-  /** the last returned payment; null when none has bounced */
+  /** the last returned payment; null when none has bounced (another funder's advance shows up as a Stacking Watch alert) */
   lastReturnedAt: IsoDateTime | null;
-  /** another funder has advanced them since */
-  stacking: boolean;
 };
 
 export type FundedBook = {

@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
-import { brokers, profile as p, scorecards as t, tierLabel, volumeNumber, type Broker, type BrokerSort, type BrokerTone } from "@/lib/sample-data/brokers";
+import { profile as p, scorecards as t, startSelected, tierLabel, tierOf, type BrokerSort, type BrokerTone, type BrokerView } from "@/lib/copy/brokers";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -16,7 +16,6 @@ const cols =
   "grid grid-cols-[minmax(0,1.5fr)_56px_minmax(0,1fr)_70px_70px_76px] items-center gap-2.5 max-[900px]:grid-cols-[minmax(0,1.5fr)_56px_minmax(0,1fr)_70px_76px] max-[900px]:[&>:nth-child(4)]:hidden";
 
 type Tier = keyof typeof tierLabel;
-const tierOf = (b: Broker, paused: boolean): Tier => (paused ? "paused" : b.score >= 85 ? "top" : b.score >= 65 ? "good" : "watch");
 const tierChip: Record<Tier, string> = {
   top: "bg-mint-bg text-teal-dark",
   good: "bg-page text-grey-text",
@@ -26,14 +25,14 @@ const tierChip: Record<Tier, string> = {
 const scoreChip = (score: number) => (score >= 85 ? "bg-mint-bg text-teal-dark" : score >= 65 ? "bg-amber-bg text-amber-text" : "bg-red-bg text-red-text");
 const noteBox: Record<BrokerTone, string> = { g: "bg-mint-light text-teal-dark", n: "bg-card text-grey-text", r: "bg-red-bg text-red-text" };
 
-const sortBy: Record<BrokerSort, (a: Broker, b: Broker) => number> = {
+const sortBy: Record<BrokerSort, (a: BrokerView, b: BrokerView) => number> = {
   score: (a, b) => b.score - a.score,
-  vol: (a, b) => volumeNumber(b.vol) - volumeNumber(a.vol),
+  vol: (a, b) => b.volume - a.volume,
   flags: (a, b) => b.flags - a.flags,
 };
 
 /** The broker's initials on its gradient square (36px in the list, 46px in the detail). */
-function Mark({ b, size }: { b: Broker; size: 36 | 46 }) {
+function Mark({ b, size }: { b: BrokerView; size: 36 | 46 }) {
   return (
     <span
       aria-hidden="true"
@@ -51,18 +50,19 @@ function Mark({ b, size }: { b: Broker; size: 36 | 46 }) {
  * a row updates the detail on the right. The list box matches the detail's
  * height and its rows scroll inside it under sticky headings; the detail
  * never scrolls. Pause marks the broker Paused in the list and the button
- * reads Resume. No hover.
+ * reads Resume. No hover. The brokers, with their fraud flags from Stacking
+ * Watch and commission at Pricing's points, come from the data layer.
  */
-export function ScorecardsView() {
+export function ScorecardsView({ brokers }: { brokers: BrokerView[] }) {
   const [sort, setSort] = useState<BrokerSort>("score");
-  const [sel, setSel] = useState(t.startSelected);
+  const [sel, setSel] = useState(() => startSelected(brokers));
   const [paused, setPaused] = useState<Record<string, boolean>>({});
 
   const list = [...brokers].sort(sortBy[sort]);
-  const b = brokers.find((x) => x.ini === sel) ?? brokers[0];
-  const isP = !!paused[b.ini];
+  const b = brokers.find((x) => x.id === sel) ?? brokers[0];
+  const isP = !!paused[b.id];
   const maxWeek = Math.max(...b.weeks);
-  const maxWhy = Math.max(...b.why.map((w) => w[1]));
+  const maxWhy = Math.max(...b.why.map((w) => w.count));
 
   return (
     <div className="flex flex-wrap items-stretch gap-3.5">
@@ -82,15 +82,15 @@ export function ScorecardsView() {
               ))}
             </div>
             {list.map((r, i) => {
-              const on = r.ini === sel;
+              const on = r.id === sel;
               const rate = Math.round((r.funded / r.sent) * 100);
-              const tier = tierOf(r, !!paused[r.ini]);
+              const tier: Tier = tierOf(r.score, !!paused[r.id]);
               return (
                 <button
-                  key={r.ini}
+                  key={r.id}
                   type="button"
                   aria-pressed={on}
-                  onClick={() => setSel(r.ini)}
+                  onClick={() => setSel(r.id)}
                   className={`${cols} box-border w-full cursor-pointer rounded-[16px] border-0 bg-tile px-3 py-2.5 text-left text-ink ${on ? "shadow-[inset_0_0_0_1.5px_var(--color-teal)]" : ""}`}
                 >
                   <span className="flex min-w-0 items-center gap-2.5">
@@ -132,7 +132,7 @@ export function ScorecardsView() {
         <div className="grid grid-cols-3 gap-1.5">
           {[
             [p.tiles.score, String(b.score)],
-            [p.tiles.late, `${b.late}%`],
+            [p.tiles.late, b.late],
             [p.tiles.reply, b.reply],
           ].map(([k, v]) => (
             <span key={k} className="rounded-tile bg-card p-2.5">
@@ -142,7 +142,7 @@ export function ScorecardsView() {
           ))}
         </div>
         <span className="text-cap font-semibold uppercase text-hint">{p.weeks}</span>
-        <div key={b.ini} role="img" aria-label={p.weeksLabel(b.name)} className="flex h-[60px] items-end gap-1 px-0.5">
+        <div key={b.id} role="img" aria-label={p.weeksLabel(b.name)} className="flex h-[60px] items-end gap-1 px-0.5">
           {b.weeks.map((w, i) => (
             <span
               key={i}
@@ -153,14 +153,14 @@ export function ScorecardsView() {
         </div>
         <div className={`rounded-[16px] px-3.5 py-3 text-[12.5px] ${noteBox[b.t]}`}>{b.note}</div>
         <span className="text-cap font-semibold uppercase text-hint">{p.why}</span>
-        <div key={`why-${b.ini}`} className="flex flex-col gap-1.5">
-          {b.why.map(([r, n], i) => (
-            <div key={r} className="text-label">
+        <div key={`why-${b.id}`} className="flex flex-col gap-1.5">
+          {b.why.map((w, i) => (
+            <div key={w.reason} className="text-label">
               <div className="flex justify-between">
-                <span>{r}</span>
-                <b>{n}</b>
+                <span>{w.reason}</span>
+                <b>{w.count}</b>
               </div>
-              <ProgressBar className="mt-1" value={Math.round((n / maxWhy) * 100)} height={5} track="line" color={r.startsWith("Fraud") ? "red" : "amber"} delay={0.3 + i * 0.08} />
+              <ProgressBar className="mt-1" value={Math.round((w.count / maxWhy) * 100)} height={5} track="line" color={w.fraud ? "red" : "amber"} delay={0.3 + i * 0.08} />
             </div>
           ))}
         </div>
@@ -183,7 +183,7 @@ export function ScorecardsView() {
           <button
             type="button"
             aria-pressed={isP}
-            onClick={() => setPaused((x) => ({ ...x, [b.ini]: !isP }))}
+            onClick={() => setPaused((x) => ({ ...x, [b.id]: !isP }))}
             className={`h-[42px] cursor-pointer rounded-pill border-0 px-4 text-[12.5px] font-semibold ${isP ? "bg-mint-bg text-teal-dark" : "bg-red-bg text-red-text"}`}
           >
             {isP ? p.resume : p.pause}

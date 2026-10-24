@@ -1,4 +1,5 @@
 import type { Advance, FundedBook } from "./advances";
+import type { Broker, BrokerBook } from "./brokers";
 import type { Id, IsoDateTime } from "./common";
 import type { FundingDesk, FundingSummary, PipelineOffer, QueuedFunding, Release } from "./funding";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
@@ -9,6 +10,7 @@ import type { Policy, Pricing } from "./policy";
 import type { RenewalCandidate, RenewalSettings, RenewalSummary } from "./renewals";
 import type { Task, TaskBoard } from "./tasks";
 import type { RoadmapFeature } from "./roadmap";
+import type { StackingAlert, StackingSummary } from "./stacking";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
 import type { NotificationRule, Workspace } from "./workspace";
 
@@ -64,6 +66,15 @@ export interface DataSource {
     listCandidates(): Promise<RenewalCandidate[]>;
     getSettings(): Promise<RenewalSettings>;
     getSummary(): Promise<RenewalSummary>;
+  };
+  stacking: {
+    listAlerts(): Promise<StackingAlert[]>;
+    getSummary(): Promise<StackingSummary>;
+  };
+  brokers: {
+    /** in the order the scorecards list them */
+    list(): Promise<Broker[]>;
+    getBook(): Promise<BrokerBook>;
   };
   tasks: {
     list(): Promise<Task[]>;

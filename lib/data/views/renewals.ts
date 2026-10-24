@@ -1,9 +1,10 @@
 import "server-only";
-import type { IsoDateTime, Money, Pricing, RenewalCandidate, RenewalSettings, RenewalSummary, RiskSignal } from "@/lib/data/types";
+import type { AlertKind, IsoDateTime, Money, Pricing, RenewalCandidate, RenewalSettings, RenewalSummary, RiskSignal, StackingAlert } from "@/lib/data/types";
 import type { ReadinessMerchant } from "@/lib/renewal-rules";
 import { getFundedBook } from "../advances";
 import { getRenewalSummary, listRenewalCandidates } from "../renewals";
 import { getPricing } from "../settings";
+import { listStackingAlerts } from "../stacking";
 import { portfolio, type LiveAdvance } from "./portfolio";
 
 /** A merchant on the radar: the renewal, the advance it renews and whether the saved rules call it ready. */
@@ -25,9 +26,17 @@ export type RenewalsData = {
   pricing: Pick<Pricing, "loyaltyDiscount" | "brokerPoints">;
 };
 
+const signalOf: Partial<Record<AlertKind, RiskSignal>> = { inquiry: "credit-check" };
+
+/** The advance a Stacking Watch alert is about, and the renewal risk it signals. */
+const fromAlert = (x: StackingAlert) => ({
+  advanceId: x.target.kind === "advance" ? x.target.advanceId : "",
+  signal: signalOf[x.kind] ?? ("credit-check" as RiskSignal),
+});
+
 /** Everything Renewals shows, loaded in parallel. */
 export async function renewalsView(): Promise<RenewalsData> {
-  const [p, candidates, summary, book, pricing] = await Promise.all([portfolio(), listRenewalCandidates(), getRenewalSummary(), getFundedBook(), getPricing()]);
+  const [p, candidates, summary, book, pricing, alerts] = await Promise.all([portfolio(), listRenewalCandidates(), getRenewalSummary(), getFundedBook(), getPricing(), listStackingAlerts()]);
   const advance = (id: string) => p.advances.find((a) => a.id === id)!;
   const paidOf = (a: LiveAdvance) => p.inputs.find((m) => m.id === a.id)!.paid;
   return {
@@ -40,9 +49,11 @@ export async function renewalsView(): Promise<RenewalsData> {
       return { name: a.merchant.name, paid: paidOf(a), reachesLineAt: c.reachesLineAt };
     }),
     atRisk: summary.atRisk.map((r) => {
-      const a = advance(r.advanceId);
-      const amount = candidates.find((c) => c.advanceId === r.advanceId)?.suggested ?? 0;
-      return { name: a.merchant.name, shortName: a.merchant.shortName ?? a.merchant.name, amount, signal: r.signal, likelihood: r.likelihood, actBy: r.actBy };
+      // An alert from Stacking Watch names the advance and the signal itself.
+      const { advanceId, signal } = "alertId" in r ? fromAlert(alerts.find((x) => x.id === r.alertId)!) : r;
+      const a = advance(advanceId);
+      const amount = candidates.find((c) => c.advanceId === advanceId)?.suggested ?? 0;
+      return { name: a.merchant.name, shortName: a.merchant.shortName ?? a.merchant.name, amount, signal, likelihood: r.likelihood, actBy: r.actBy };
     }),
     settings: { rules: p.settings.rules, outreach: p.settings.outreach },
     renewedThisMonth: book.renewedWithYou,

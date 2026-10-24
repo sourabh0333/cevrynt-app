@@ -53,6 +53,14 @@ export const apiSource: DataSource = {
     getSettings: notConnected("renewals"),
     getSummary: notConnected("renewals"),
   },
+  stacking: {
+    listAlerts: notConnected("stacking"),
+    getSummary: notConnected("stacking"),
+  },
+  brokers: {
+    list: notConnected("brokers"),
+    getBook: notConnected("brokers"),
+  },
   tasks: {
     list: notConnected("tasks"),
     getBoard: notConnected("tasks"),

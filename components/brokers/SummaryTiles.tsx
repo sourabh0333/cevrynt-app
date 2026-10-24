@@ -1,4 +1,5 @@
-import { brokerSummary, type SummaryTone } from "@/lib/sample-data/brokers";
+import { brokersSections, brokerSummary, type SummaryTone } from "@/lib/copy/brokers";
+import type { BrokersData } from "@/lib/data/views/brokers";
 
 const tone: Record<SummaryTone, { card: string; label: string; note: string }> = {
   mint: { card: "bg-mint-card border border-mint-border", label: "text-grey-text", note: "font-semibold text-teal-deep" },
@@ -8,10 +9,10 @@ const tone: Record<SummaryTone, { card: string; label: string; note: string }> =
 };
 
 /** The five summary tiles at the top of design/Brokers.html. */
-export function SummaryTiles() {
+export function SummaryTiles({ data }: { data: BrokersData }) {
   return (
-    <section aria-label="Brokers at a glance" className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3.5">
-      {brokerSummary.map((s) => {
+    <section aria-label={brokersSections.glance} className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3.5">
+      {brokerSummary(data).map((s) => {
         const t = tone[s.tone];
         return (
           <article key={s.label} className={`box-border flex flex-col gap-1.5 rounded-[28px] p-5 text-ink ${t.card}`}>

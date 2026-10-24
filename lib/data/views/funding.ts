@@ -1,9 +1,10 @@
 import "server-only";
-import type { FundedBook, FundingDesk, FundingSummary, IsoDateTime, PipelineOffer, QueuedFunding, Release } from "@/lib/data/types";
+import type { AlertKind, FundedBook, FundingDesk, FundingSummary, IsoDateTime, PipelineOffer, QueuedFunding, Release } from "@/lib/data/types";
 import { listAdvances, getFundedBook } from "../advances";
 import { getNow } from "../clock";
 import { getFundingDesk, getFundingQueue, getFundingSummary, listPipeline, listReleases } from "../funding";
 import { listMerchants } from "../merchants";
+import { listStackingAlerts } from "../stacking";
 import type { LiveAdvance } from "./portfolio";
 import { getPricing } from "../settings";
 import { getCurrentUser, listTeam } from "../team";
@@ -11,7 +12,8 @@ import { getCurrentUser, listTeam } from "../team";
 export type OffersData = {
   now: IsoDateTime;
   offers: PipelineOffer[];
-  queue: QueuedFunding[];
+  /** each with the kind of Stacking Watch alert holding it, if one is */
+  queue: (QueuedFunding & { hold: AlertKind | null })[];
   /** today's releases, with who released each one */
   releases: (Release & { releasedBy: string })[];
   desk: FundingDesk;
@@ -26,7 +28,7 @@ export type OffersData = {
 
 /** Everything Offers & funding shows, loaded in parallel. */
 export async function offersView(): Promise<OffersData> {
-  const [offers, queue, releases, desk, summary, pricing, team, me, now] = await Promise.all([
+  const [offers, queue, releases, desk, summary, pricing, team, me, alerts, now] = await Promise.all([
     listPipeline(),
     getFundingQueue(),
     listReleases(),
@@ -35,13 +37,15 @@ export async function offersView(): Promise<OffersData> {
     getPricing(),
     listTeam(),
     getCurrentUser(),
+    listStackingAlerts(),
     getNow(),
   ]);
+  const holdOf = ({ finalCheck: c }: QueuedFunding) => (c.ok ? null : (alerts.find((a) => a.id === c.alertId)?.kind ?? null));
   const nameOf = (id: string) => team.find((m) => m.id === id)?.name ?? "";
   return {
     now,
     offers,
-    queue,
+    queue: queue.map((q) => ({ ...q, hold: holdOf(q) })),
     releases: releases.map((r) => ({ ...r, releasedBy: nameOf(r.releasedById) })),
     desk,
     summary,

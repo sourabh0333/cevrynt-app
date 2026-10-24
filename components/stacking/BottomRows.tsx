@@ -3,7 +3,9 @@
 import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { autoRules, connections, coverage, thisMonth } from "@/lib/sample-data/stacking";
+import { autoRules, connectionsCopy, coverage, thisMonth } from "@/lib/copy/stacking";
+import type { StackingSummary } from "@/lib/data/types";
+import type { AlertRow } from "@/lib/data/views/stacking";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -35,9 +37,10 @@ function Node({ x, y, title, sub, tone, delay }: { x: number; y: number; title: 
  * applications joined through a shared account and phone. In order: the
  * left nodes fade in, the grey links draw, the shared circle pops, the
  * right nodes fade in, then the red dashed links appear and keep flowing.
+ * Drawn from the alert that links the two businesses, with its deal.
  */
-export function ConnectionsCard() {
-  const c = connections;
+export function ConnectionsCard({ alert }: { alert: AlertRow }) {
+  const c = connectionsCopy(alert);
   return (
     <Card as="article" aria-labelledby="h-map" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
       <div className="flex flex-wrap items-end justify-between gap-2.5">
@@ -81,12 +84,12 @@ export function ConnectionsCard() {
 }
 
 /** "This month": the four outcome rows and the cross-funder network note. */
-export function MonthCard() {
+export function MonthCard({ summary }: { summary: StackingSummary }) {
   return (
     <article aria-labelledby="h-out" className="box-border flex min-w-0 flex-col gap-2.5 rounded-card-lg border border-line bg-tile p-5 text-ink">
       <h2 id="h-out" className="m-0 font-heading text-[18px] font-semibold">{thisMonth.title}</h2>
       <div className="flex flex-col gap-1.5">
-        {thisMonth.rows.map((r) => (
+        {thisMonth.rows(summary).map((r) => (
           <span key={r.label} className={`flex items-center justify-between rounded-tile px-3 py-[11px] text-[12.5px] ${r.good ? "bg-mint-light" : "bg-card"}`}>
             <span>{r.label}</span>
             <b className={`font-heading text-[16px] font-semibold tabular-nums tracking-[-0.03em] ${r.good ? "text-teal-deep" : ""}`}>{r.value}</b>
@@ -103,9 +106,10 @@ export function MonthCard() {
 }
 
 /** "What happens automatically": the five rules with working switches and the "x of 5 on" count. */
-export function RulesCard() {
-  const [on, setOn] = useState<Record<string, boolean>>(Object.fromEntries(autoRules.rules.map((r) => [r.key, r.on])));
-  const count = autoRules.rules.filter((r) => on[r.key]).length;
+export function RulesCard({ summary }: { summary: StackingSummary }) {
+  const rules = autoRules.rules(summary);
+  const [on, setOn] = useState<Record<string, boolean>>(Object.fromEntries(rules.map((r) => [r.key, r.on])));
+  const count = rules.filter((r) => on[r.key]).length;
   return (
     <Card as="article" aria-labelledby="h-rules" padding={false} className="col-span-2 p-[22px] max-[980px]:col-span-1">
       <div className="flex flex-wrap items-end justify-between gap-2.5">
@@ -114,11 +118,11 @@ export function RulesCard() {
           <div className="mt-[3px] text-label text-hint">{autoRules.subtitle}</div>
         </div>
         <span className="rounded-pill bg-tile px-2.5 py-1 text-label-sm font-semibold text-grey-text" aria-live="polite">
-          {autoRules.count(count, autoRules.rules.length)}
+          {autoRules.count(count, rules.length)}
         </span>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-2">
-        {autoRules.rules.map((r) => (
+        {rules.map((r) => (
           <label key={r.key} className="flex cursor-pointer items-center gap-3 rounded-[18px] bg-tile px-3.5 py-3">
             <span className="min-w-0 flex-1">
               <b className="block text-body-sm">{r.title}</b>
@@ -133,36 +137,37 @@ export function RulesCard() {
 }
 
 /** "How well we can see": the coverage bar that grows in, the two counts and the connect button. */
-export function CoverageCard() {
+export function CoverageCard({ summary: s }: { summary: StackingSummary }) {
   const c = coverage;
+  const { full, partial } = s.watched;
   return (
     <article aria-labelledby="h-cov" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg border border-line bg-tile p-5 text-ink">
       <div className="flex items-center justify-between">
         <h2 id="h-cov" className="m-0 font-heading text-[18px] font-semibold">{c.title}</h2>
-        <span className="rounded-pill bg-amber-bg px-[9px] py-[3px] text-label-sm font-semibold text-amber-text">{c.chip}</span>
+        <span className="rounded-pill bg-amber-bg px-[9px] py-[3px] text-label-sm font-semibold text-amber-text">{c.chip(s)}</span>
       </div>
       <span className="text-[12.5px] text-muted">{c.text}</span>
-      <div role="img" aria-label={`${c.full.count} merchants on full watch, ${c.partial.count} on filings and credit only`} className="anim-grow-x flex h-3 gap-0.5 overflow-hidden rounded-[6px]" style={d(0.2)}>
-        <span className="bg-teal" style={{ flex: c.full.count }} />
-        <span className="bg-card-deep" style={{ flex: c.partial.count }} />
+      <div role="img" aria-label={c.barLabel(s)} className="anim-grow-x flex h-3 gap-0.5 overflow-hidden rounded-[6px]" style={d(0.2)}>
+        <span className="bg-teal" style={{ flex: full }} />
+        <span className="bg-card-deep" style={{ flex: partial }} />
       </div>
       <div className="flex flex-col gap-1.5 text-[12.5px]">
         <span className="flex justify-between rounded-tile bg-card px-3 py-2.5">
           <span className="inline-flex items-center gap-2">
             <span className="h-[9px] w-[9px] rounded-[3px] bg-teal" />
-            {c.full.label}
+            {c.full}
           </span>
-          <b>{c.full.count}</b>
+          <b>{full}</b>
         </span>
         <span className="flex justify-between rounded-tile bg-card px-3 py-2.5">
           <span className="inline-flex items-center gap-2">
             <span className="h-[9px] w-[9px] rounded-[3px] bg-sand-stripe" />
-            {c.partial.label}
+            {c.partial}
           </span>
-          <b>{c.partial.count}</b>
+          <b>{partial}</b>
         </span>
       </div>
-      <Button className="mt-auto h-[42px] w-full text-[12.5px]">{c.cta}</Button>
+      <Button className="mt-auto h-[42px] w-full text-[12.5px]">{c.cta(s)}</Button>
     </article>
   );
 }

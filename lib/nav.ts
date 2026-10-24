@@ -52,13 +52,8 @@ export const navSections: NavSection[] = [
         icon: "renewals",
         badge: { count: 9, tone: "quiet" },
       },
-      {
-        key: "stacking",
-        label: "Stacking Watch",
-        href: "/stacking",
-        icon: "stacking",
-        badge: { count: 3, tone: "alert" },
-      },
+      // Its badge counts today's new alerts through the data layer (components/shell/StackingBadge.tsx).
+      { key: "stacking", label: "Stacking Watch", href: "/stacking", icon: "stacking" },
     ],
   },
   {

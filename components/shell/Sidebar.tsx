@@ -12,6 +12,7 @@ import {
   currentUser,
   navSections,
   workspace,
+  type NavBadge,
   type NavItem,
 } from "@/lib/nav";
 
@@ -43,13 +44,19 @@ const glide = "transition-[padding] duration-300 ease-sidebar";
  * routes (deal pages) it must sit inside a Suspense boundary; AppShell
  * shows the plain Sidebar as the fallback until the path streams in.
  */
-export function CurrentSidebar({ comingNote }: { comingNote?: ReactNode }) {
+export function CurrentSidebar({ comingNote, badges }: { comingNote?: ReactNode; badges?: NavBadges }) {
   const pathname = usePathname();
-  return <Sidebar pathname={pathname} comingNote={comingNote} />;
+  return <Sidebar pathname={pathname} comingNote={comingNote} badges={badges} />;
 }
 
-/** comingNote: the "10 new" beside What's coming, rendered on the server from the data layer. */
-export function Sidebar({ pathname = null, comingNote = null }: { pathname?: string | null; comingNote?: ReactNode }) {
+/** Badges counted on the server from the data layer, by nav key; they replace the item's own. */
+export type NavBadges = Partial<Record<string, ReactNode>>;
+
+/**
+ * comingNote: the "10 new" beside What's coming, rendered on the server from the data layer.
+ * badges: the same for nav items whose count comes from data (Stacking Watch).
+ */
+export function Sidebar({ pathname = null, comingNote = null, badges = {} }: { pathname?: string | null; comingNote?: ReactNode; badges?: NavBadges }) {
   const active = pathname ? activeNavKey(pathname) : null;
   const collapsed = useCollapsed();
   const toggleLabel = collapsed ? "Open sidebar" : "Close sidebar";
@@ -130,7 +137,7 @@ export function Sidebar({ pathname = null, comingNote = null }: { pathname?: str
               <span className={`block ${fade}`}>{section.label}</span>
             </div>
             {section.items.map((item) => (
-              <NavLink key={item.key} item={item} active={active === item.key} />
+              <NavLink key={item.key} item={item} active={active === item.key} badge={badges[item.key]} />
             ))}
           </div>
         ))}
@@ -175,7 +182,7 @@ export function Sidebar({ pathname = null, comingNote = null }: { pathname?: str
   );
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badge?: ReactNode }) {
   return (
     <Link
       href={item.href}
@@ -189,26 +196,28 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
     >
       <Icon name={item.icon} className="flex-none" />
       <span className={`ml-3 ${fade}`}>{item.label}</span>
-      {item.badge ? (
-        <>
-          {/* Open: count pill. Collapsed: a small dot on the icon. */}
-          <span
-            className={`absolute top-1/2 right-2.5 -translate-y-1/2 rounded-pill px-[7px] py-px text-label-sm font-semibold ${fade} ${
-              item.badge.tone === "alert"
-                ? "bg-coral/20 text-coral-text"
-                : "bg-teal/7 text-muted"
-            }`}
-          >
-            {item.badge.count}
-          </span>
-          <span
-            aria-hidden="true"
-            className={`absolute top-1.5 right-[13px] h-[7px] w-[7px] rounded-full opacity-0 transition-opacity duration-[120ms] collapsed:opacity-100 collapsed:delay-150 ${
-              item.badge.tone === "alert" ? "bg-red" : "bg-teal"
-            }`}
-          />
-        </>
-      ) : null}
+      {badge ?? (item.badge ? <NavBadgeMarks {...item.badge} /> : null)}
     </Link>
+  );
+}
+
+/** A nav item's count. Open: the count pill. Collapsed: a small dot on the icon. */
+export function NavBadgeMarks({ count, tone }: NavBadge) {
+  return (
+    <>
+      <span
+        className={`absolute top-1/2 right-2.5 -translate-y-1/2 rounded-pill px-[7px] py-px text-label-sm font-semibold ${fade} ${
+          tone === "alert" ? "bg-coral/20 text-coral-text" : "bg-teal/7 text-muted"
+        }`}
+      >
+        {count}
+      </span>
+      <span
+        aria-hidden="true"
+        className={`absolute top-1.5 right-[13px] h-[7px] w-[7px] rounded-full opacity-0 transition-opacity duration-[120ms] collapsed:opacity-100 collapsed:delay-150 ${
+          tone === "alert" ? "bg-red" : "bg-teal"
+        }`}
+      />
+    </>
   );
 }

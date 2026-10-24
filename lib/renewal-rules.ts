@@ -39,15 +39,19 @@ export type ReadinessMerchant = {
   stacking: boolean;
 };
 
-/** What the rules look at for one live advance, read from the advance and its merchant. */
-export const readinessOf = (a: Advance, m: Merchant, now: IsoDateTime): ReadinessMerchant => ({
+/**
+ * What the rules look at for one live advance, read from the advance and
+ * its merchant. stacking: Stacking Watch has an open alert that another
+ * funder advanced them.
+ */
+export const readinessOf = (a: Advance, m: Merchant, now: IsoDateTime, stacking: boolean): ReadinessMerchant => ({
   id: a.id,
   name: m.name,
   paid: Math.round((a.paid / a.payback) * 100),
   daysSinceReturn: a.lastReturnedAt ? daysBetween(a.lastReturnedAt, now) : NEVER_RETURNED,
   rev: Math.round((1 + (a.revenueChange ?? 0)) * 100),
   health: m.health ?? 0,
-  stacking: a.stacking,
+  stacking,
 });
 
 const passes = {

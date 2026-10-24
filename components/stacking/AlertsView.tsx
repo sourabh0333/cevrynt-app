@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import {
-  alerts,
   alertsList as t,
   alertTabs,
   autoStep,
   detail as dt,
+  kindGlyph,
+  seenLabel,
   severityLabel,
   stageLabel,
-  type Alert,
-  type AlertKind,
+  stageLine,
   type AlertTab,
-  type DealStage,
-  type Severity,
-} from "@/lib/sample-data/stacking";
+  type StageKey,
+} from "@/lib/copy/stacking";
+import type { AlertKind, AlertSeverity, IsoDateTime } from "@/lib/data/types";
+import type { AlertRow } from "@/lib/data/views/stacking";
 
 /*
  * Design .acols: severity, merchant, what happened, seen, deal. Instead of
@@ -25,8 +26,8 @@ import {
 const cols =
   "grid grid-cols-[84px_minmax(0,1.3fr)_minmax(0,1.4fr)_84px_100px] items-center gap-3 max-[1100px]:grid-cols-[84px_minmax(0,1.3fr)_minmax(0,1.4fr)_100px] max-[1100px]:[&>:nth-child(4)]:hidden max-[800px]:grid-cols-[84px_minmax(0,1.3fr)_minmax(0,1.4fr)] max-[800px]:[&>:nth-child(5)]:hidden";
 
-const sevChip: Record<Severity, string> = { high: "bg-red-bg text-red-text", med: "bg-amber-bg text-amber-text" };
-const stageChip: Record<DealStage, string> = {
+const sevChip: Record<AlertSeverity, string> = { high: "bg-red-bg text-red-text", medium: "bg-amber-bg text-amber-text" };
+const stageChip: Record<StageKey, string> = {
   review: "bg-blue-bg text-blue-text",
   fund: "bg-red-bg text-red-text",
   funded: "bg-mint-bg text-teal-dark",
@@ -36,11 +37,11 @@ const kindIcon: Record<AlertKind, string> = {
   ucc: "bg-red-bg text-red-text",
   debit: "bg-red-bg text-red-text",
   bank: "bg-amber-bg text-amber-text",
-  dup: "bg-purple-bg text-purple-text",
-  inq: "bg-blue-bg text-blue-text",
+  duplicate: "bg-purple-bg text-purple-text",
+  inquiry: "bg-blue-bg text-blue-text",
 };
 
-const inTab = (a: Alert, tab: AlertTab, done: Record<string, boolean>) =>
+const inTab = (a: AlertRow, tab: AlertTab, done: Record<string, boolean>) =>
   tab === "all" ? !done[a.id] : tab === "done" ? !!done[a.id] : !done[a.id] && a.severity === tab;
 
 /**
@@ -50,18 +51,20 @@ const inTab = (a: Alert, tab: AlertTab, done: Record<string, boolean>) =>
  * list's height with the "What happened" timeline filling the space and
  * the buttons at the bottom. The main action marks the alert reviewed and
  * moves it to the Reviewed filter; it then reads "Reopen alert". No hover.
+ * The alerts, with their merchant and deal stage, come from the data layer.
  */
-export function AlertsView() {
+export function AlertsView({ alerts, now }: { alerts: AlertRow[]; now: IsoDateTime }) {
   const [tab, setTab] = useState<AlertTab>("all");
-  const [sel, setSel] = useState(t.startSelected);
+  const [sel, setSel] = useState(alerts[0]?.id ?? "");
   const [done, setDone] = useState<Record<string, boolean>>({});
 
   const rows = alerts.filter((a) => inTab(a, tab, done));
   const d = alerts.find((a) => a.id === sel) ?? alerts[0];
   const isDone = !!done[d.id];
-  const auto = autoStep[d.stageKey];
+  const auto = autoStep[d.stage.key];
+  const seen = seenLabel(d.seenAt, now);
   const steps: { title: string; sub: string; state: "done" | "now" }[] = [
-    { title: dt.found.title, sub: d.when + dt.found.by, state: "done" },
+    { title: dt.found.title, sub: seen + dt.found.by, state: "done" },
     { title: auto[0], sub: auto[1], state: "done" },
     { title: isDone ? dt.review.done[0] : dt.review.open[0], sub: isDone ? dt.review.done[1] : dt.review.open[1], state: isDone ? "done" : "now" },
   ];
@@ -71,7 +74,7 @@ export function AlertsView() {
       <section aria-labelledby="h-feed" className="flex min-w-0 flex-[999_1_640px] flex-col gap-3 rounded-card-lg bg-card p-[18px] text-ink">
         <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 pt-1">
           <h2 id="h-feed" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
-          <div role="group" aria-label="Show" className="flex flex-wrap gap-1.5">
+          <div role="group" aria-label={t.showLabel} className="flex flex-wrap gap-1.5">
             {alertTabs.map((x) => {
               const on = x.key === tab;
               const count = alerts.filter((a) => inTab(a, x.key, done)).length;
@@ -108,15 +111,15 @@ export function AlertsView() {
               >
                 <span className={`justify-self-start whitespace-nowrap rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${sevChip[a.severity]}`}>{severityLabel[a.severity]}</span>
                 <span className="min-w-0">
-                  <b className="block truncate text-body-sm">{a.name}</b>
-                  <span className="block truncate text-[11.5px] text-hint">{a.stage}</span>
+                  <b className="block truncate text-body-sm">{a.merchant}</b>
+                  <span className="block truncate text-[11.5px] text-hint">{stageLine(a.stage)}</span>
                 </span>
                 <span className="flex min-w-0 items-center gap-2">
-                  <span className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-[9px] text-label-sm font-bold ${kindIcon[a.kind]}`}>{a.glyph}</span>
-                  <span className="truncate text-[12.5px]">{a.what}</span>
+                  <span className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-[9px] text-label-sm font-bold ${kindIcon[a.kind]}`}>{kindGlyph[a.kind]}</span>
+                  <span className="truncate text-[12.5px]">{a.summary}</span>
                 </span>
-                <span className="text-[11.5px] text-hint">{a.when}</span>
-                <span className={`justify-self-start whitespace-nowrap rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${stageChip[a.stageKey]}`}>{stageLabel[a.stageKey]}</span>
+                <span className="text-[11.5px] text-hint">{seenLabel(a.seenAt, now)}</span>
+                <span className={`justify-self-start whitespace-nowrap rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${stageChip[a.stage.key]}`}>{stageLabel[a.stage.key]}</span>
               </button>
             );
           })}
@@ -134,12 +137,12 @@ export function AlertsView() {
           <span className={`whitespace-nowrap rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${sevChip[d.severity]}`}>
             {severityLabel[d.severity]} · {isDone ? dt.status.done : dt.status.open}
           </span>
-          <span className="text-[11.5px] text-hint">{d.when}</span>
+          <span className="text-[11.5px] text-hint">{seen}</span>
         </div>
         <div>
-          <h2 id="h-det" className="m-0 font-heading text-[20px] leading-[1.2] font-semibold">{d.what}</h2>
+          <h2 id="h-det" className="m-0 font-heading text-[20px] leading-[1.2] font-semibold">{d.summary}</h2>
           <span className="text-[12.5px] text-muted">
-            {d.name} · {d.stage}
+            {d.merchant} · {stageLine(d.stage)}
           </span>
         </div>
         <div className="flex flex-col gap-2 rounded-[18px] bg-card p-3.5">

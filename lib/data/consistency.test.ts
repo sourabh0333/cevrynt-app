@@ -55,6 +55,11 @@ import { commissionsCopy, expiringToday, moneySentCopy, offerChip, offerStats, o
 import { fundedView, offersView } from "@/lib/data/views/funding";
 import { auditEntries } from "@/lib/sample-data/audit";
 import { homeData } from "@/lib/sample-data/home";
+import { newToday, seenLabel, stageLine, stackingHeader, summaryCopy, kindFinding } from "@/lib/copy/stacking";
+import { appetite, brokerSummary, brokerView, commissionOf, onWatchCount, payout } from "@/lib/copy/brokers";
+import { stackingView } from "@/lib/data/views/stacking";
+import { brokersView } from "@/lib/data/views/brokers";
+import { listStackingAlerts } from "@/lib/data/stacking";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -729,5 +734,98 @@ describe("Funded deals", () => {
     assert.deepEqual(forecastCopy.tiles(d.book).map((t) => t.value), ["$793K", "$33K", "Advances paying off"]);
     const task = (await tasksView()).tasks.find((t) => t.id === "kest")!;
     assert.equal(task.dueAt, d.book.reconciliation.respondBy);
+  });
+});
+
+describe("Stacking Watch and Brokers", () => {
+  it("each alert reads its merchant and stage from the real deal, queued funding or advance", async () => {
+    const s = await stackingView();
+    assert.deepEqual(s.alerts.map((a) => [a.merchant, stageLine(a.stage), seenLabel(a.seenAt, s.now)]), [
+      ["Lakeshore Auto Body", "Ready to fund, $60K", "Today 08:12"],
+      ["Granite State Builders", "Funded, 18% repaid", "Today 07:40"],
+      ["Mesa Auto Repair", "In review, $35K asked", "Today 09:28"],
+      ["Rivera Landscaping", "Funded, 34% repaid", "2 days ago"],
+      ["Sunrise Pediatric Dental", "In review, $90K asked", "2 days ago"],
+      ["Pine Ridge Vet Clinic", "Renewal ready, $70K", "2 days ago"],
+    ]);
+    // Mesa and Sunrise are the deals Submissions lists, at the amounts they asked for
+    const { deals } = await submissionsView();
+    for (const a of s.alerts.filter((x) => x.target.kind === "deal")) {
+      const d = deals.find((x) => x.id === (a.target as { dealId: string }).dealId)!;
+      assert.deepEqual([a.merchant, a.stage.key === "review" && a.stage.asked], [d.merchantName, d.requested]);
+    }
+    // Granite State is the advance Funded deals lists, and its new advance makes it a stacking case for the renewal rules
+    const f = await fundedView();
+    const granite = f.advances.find((a) => a.merchant.name === "Granite State Builders")!;
+    assert.deepEqual(s.alerts[1].target, { kind: "advance", advanceId: granite.id });
+    assert.equal((await renewalRulesView()).merchants.find((m) => m.id === granite.id)?.stacking, true);
+  });
+
+  it("Lakeshore's funding is held in the Offers queue by its open alert", async () => {
+    const o = await offersView();
+    const lake = o.queue.find((q) => q.merchant === "Lakeshore Auto Body")!;
+    assert.deepEqual(lake.finalCheck, { ok: false, alertId: "al-la" });
+    assert.equal(queueCopy.status.hold(kindFinding[lake.hold!]), "New UCC filing · on hold");
+    assert.deepEqual((await stackingView()).alerts[0].target, { kind: "funding", fundingId: lake.id });
+  });
+
+  it("Pine Ridge's credit check is the at-risk merchant Renewals shows first", async () => {
+    const r = await renewalsView();
+    assert.deepEqual(r.atRisk[0], { name: "Pine Ridge Vet Clinic", shortName: "Pine Ridge", amount: 70000, signal: "credit-check", likelihood: 80, actBy: "today" });
+  });
+
+  it("the header, the summary and the sidebar badge count the same alerts", async () => {
+    const s = await stackingView();
+    const fresh = newToday(s.alerts, s.now);
+    assert.equal(fresh, 3);
+    assert.equal(stackingHeader.line(fresh, s.summary), "3 new alerts · watching 94 merchants every day");
+    assert.deepEqual(summaryCopy.tiles(fresh, s.openCount, s.summary).map((t) => t.value), ["3", "7", "2", "94"]);
+    // The badge is counted from all the alerts, with the same function; the nav keeps no copy of its own.
+    assert.equal(newToday(await listStackingAlerts(), s.now), fresh);
+    assert.equal(navSections.flatMap((x) => x.items).find((i) => i.key === "stacking")?.badge, undefined);
+    // Not converted yet: Home's key number still holds its own copy, pinned here.
+    assert.equal(homeData.keyNumbers.stacking.value, String(fresh));
+  });
+
+  it("broker fraud flags are the Stacking Watch alerts on the deals and advances they sent", async () => {
+    const b = await brokersView();
+    const flags = Object.fromEntries(b.brokers.map((x) => [x.name, x.flags.map((f) => f.merchant)]));
+    assert.deepEqual(flags["BlueRock Advisors"], ["Granite State Builders", "Mesa Auto Repair", "Sunrise Pediatric Dental"]);
+    assert.deepEqual(flags["Summit Capital ISO"], ["Westfield Auto Group"]);
+    assert.deepEqual(["Apex Funding Partners", "Keystone Brokerage", "Harbor Lane Capital", "Granite Peak ISO"].map((n) => flags[n].length), [0, 0, 0, 0]);
+    assert.equal(onWatchCount(b.brokers), 1);
+    // Not converted yet: Home's broker list and the Mesa task still quote the counts, pinned here.
+    for (const r of homeData.brokers.rows) assert.equal(r.flags, flags[r.name].length, r.name);
+    assert.ok((await tasksView()).tasks.find((t) => t.id === "mesa")!.prep.includes(`BlueRock sent it, ${flags["BlueRock Advisors"].length} flags this quarter`));
+  });
+
+  it("commission owed uses Pricing's broker points, including today's funded deals from Offers", async () => {
+    const [b, o] = await Promise.all([brokersView(), offersView()]);
+    const view = Object.fromEntries(b.brokers.map((x) => [x.name, brokerView(x, b)]));
+    assert.deepEqual(Object.values(view).map((v) => [v.points, v.owed]), [
+      ["8 pts, 5 on renewals", "$7,400"],
+      ["8 pts", "$4,600"],
+      ["7 pts", "$2,200"],
+      ["8 pts", "$0"],
+      ["8 pts", "$0"],
+      ["8 pts", "$0"],
+    ]);
+    // Offers' commissions on today's funded deals are part of what each broker is owed
+    for (const row of commissionsCopy.rows(o.offers.filter((x) => x.stage === "funded"), o.brokerPoints)) {
+      const br = b.brokers.find((x) => x.name === row.broker)!;
+      assert.equal(commissionOf(br, b).gross, br.earned.amount + row.amount, row.broker);
+    }
+    const p = payout(b);
+    assert.deepEqual([p.title, p.amount, p.sub, p.lines.map((l) => `${l.label} ${l.value}`), p.net.value], [
+      "Payout · Fri Oct 16", "$14,200", "to 3 brokers by ACH", ["Commission, 7 deals 15,400.00", "Clawback, early default −1,200.00"], "14,200.00",
+    ]);
+    assert.equal(brokerSummary(b).find((s) => s.label === "Commission owed")?.value, "$14.2K");
+  });
+
+  it("what we fund this week is the live policy", async () => {
+    const b = await brokersView();
+    assert.deepEqual(appetite.ranges(b).map((r) => [r.value, r.left, r.right]), [["$10K – $150K", 5, 25], ["$15K and up", 15, 0]]);
+    assert.deepEqual(appetite.facts(b).map((f) => f.value), ["6 months+", "Up to 2"]);
+    assert.deepEqual(appetite.industries(b).filter((i) => i.out).map((i) => i.name), ["Trucking"]);
   });
 });

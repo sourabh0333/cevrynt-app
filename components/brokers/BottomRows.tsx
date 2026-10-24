@@ -2,7 +2,8 @@ import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Ring } from "@/components/ui/Ring";
-import { appetite, applicants, ownership, paperwork, payout, portal, type ApplicantResult, type CheckState } from "@/lib/sample-data/brokers";
+import { appetite, applicants, brokersSections, ownership, paperwork, payout as payoutOf, portal, type ApplicantResult, type CheckState } from "@/lib/copy/brokers";
+import type { BrokersData } from "@/lib/data/views/brokers";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -25,12 +26,13 @@ function CardHead({ id, title, subtitle, chip, chipClass }: { id: string; title:
 /* ---------- Row 1: ownership + payout ticket ---------- */
 
 /** "Same merchant, two brokers": the winner in mint, the merchant in the middle, the other broker faded and dashed. */
-function OwnershipCard() {
+function OwnershipCard({ data }: { data: BrokersData }) {
   const o = ownership;
+  const cases = o.cases(data);
   return (
     <Card as="article" aria-labelledby="h-dup" padding={false} className={`${span2} gap-3.5 p-[22px]`}>
-      <CardHead id="h-dup" title={o.title} subtitle={o.subtitle} chip={o.chip} chipClass="bg-amber-bg text-amber-text" />
-      {o.cases.map((c) => (
+      <CardHead id="h-dup" title={o.title} subtitle={o.subtitle} chip={o.chip(cases.length)} chipClass="bg-amber-bg text-amber-text" />
+      {cases.map((c) => (
         <div key={c.merchant} className="grid grid-cols-[minmax(0,1fr)_minmax(0,max-content)_minmax(0,1fr)] items-center gap-2.5">
           <div className="min-w-0 rounded-[18px] border-[1.5px] border-mint bg-mint-light px-3.5 py-3">
             <span className="mb-1.5 inline-block rounded-pill bg-teal px-2 py-0.5 text-[10.5px] font-bold text-white">{o.winnerChip}</span>
@@ -53,8 +55,8 @@ function OwnershipCard() {
 }
 
 /** The payout ticket: the amount, a dashed tear line with punched edges, receipt lines and the button. */
-function PayoutCard() {
-  const p = payout;
+function PayoutCard({ data }: { data: BrokersData }) {
+  const p = payoutOf(data);
   return (
     <article aria-labelledby="h-pay" className="relative box-border flex min-w-0 flex-col gap-3 overflow-hidden rounded-card-lg bg-cream p-[22px] text-ink">
       <div className="flex items-center justify-between">
@@ -103,11 +105,12 @@ const appCols =
   "grid grid-cols-[minmax(0,1.4fr)_repeat(3,80px)_90px] items-center gap-2.5 max-[560px]:grid-cols-[minmax(0,1fr)_repeat(3,30px)_72px] max-[560px]:gap-1.5";
 
 /** "Brokers asking to join": three applicants with Background / Registered / References marks and the result. */
-function ApplicantsCard() {
+function ApplicantsCard({ data }: { data: BrokersData }) {
   const a = applicants;
+  const rows = a.rows(data);
   return (
     <article aria-labelledby="h-new" className={`${span2} box-border flex min-w-0 flex-col gap-2.5 rounded-card-lg border border-line bg-tile p-[22px] text-ink`}>
-      <CardHead id="h-new" title={a.title} subtitle={a.subtitle} chip={a.chip} chipClass="bg-card text-ink" />
+      <CardHead id="h-new" title={a.title} subtitle={a.subtitle} chip={a.chip(rows.length)} chipClass="bg-card text-ink" />
       <div className="flex flex-col gap-1.5 rounded-[22px] bg-card p-1.5">
         <div className={`${appCols} px-3.5 pt-1.5 pb-0.5 text-[9.5px] font-semibold tracking-[0.08em] uppercase text-hint`}>
           {a.columns.map((c, i) => (
@@ -116,7 +119,7 @@ function ApplicantsCard() {
             </span>
           ))}
         </div>
-        {a.rows.map((r) => (
+        {rows.map((r) => (
           <div key={r.name} className={`${appCols} rounded-[18px] bg-tile px-3.5 py-3`}>
             <span className="min-w-0">
               <b className="block truncate text-body-sm">{r.name}</b>
@@ -141,16 +144,16 @@ function ApplicantsCard() {
 }
 
 /** "Paperwork on file": three rings that sweep in; the incomplete one is amber. */
-function PaperworkCard() {
+function PaperworkCard({ data }: { data: BrokersData }) {
   const p = paperwork;
   return (
     <Card as="article" aria-labelledby="h-comp" className="gap-3">
       <div className="flex items-center justify-between">
         <h2 id="h-comp" className="m-0 font-heading text-[18px] font-semibold">{p.title}</h2>
-        <span className="rounded-pill bg-amber-bg px-[9px] py-[3px] text-label-sm font-semibold text-amber-text">{p.chip}</span>
+        <span className="rounded-pill bg-amber-bg px-[9px] py-[3px] text-label-sm font-semibold text-amber-text">{p.chip(data)}</span>
       </div>
       <div className="flex gap-2">
-        {p.items.map((it, i) => {
+        {p.items(data).map((it, i) => {
           const full = it.have === it.total;
           return (
             <div key={it.label} className="flex min-w-0 flex-1 flex-col items-center gap-2 rounded-tile-lg bg-tile px-2 py-3.5 text-center">
@@ -179,7 +182,7 @@ function PaperworkCard() {
 /* ---------- Row 3: appetite poster + portal ---------- */
 
 /** "What we fund this week": the two-panel mint poster with industry tags and range bars that grow in. */
-function AppetiteCard() {
+function AppetiteCard({ data }: { data: BrokersData }) {
   const a = appetite;
   return (
     <article aria-labelledby="h-app" className={`${span2} box-border flex min-w-0 flex-wrap overflow-hidden rounded-card-lg border border-mint-border bg-mint-card text-ink`}>
@@ -188,19 +191,19 @@ function AppetiteCard() {
         <h2 id="h-app" className="m-0 font-heading text-[24px] leading-[1.15] font-semibold">{a.title}</h2>
         <span className="text-[12.5px] text-grey-text">{a.text}</span>
         <div className="mt-auto flex flex-wrap gap-1.5">
-          {a.industries.map((x) => (
+          {a.industries(data).map((x) => (
             <span
               key={x.name}
               className={`rounded-pill px-3 py-1.5 text-label font-semibold ${x.out ? "bg-tile text-red-text line-through" : "bg-teal text-white"}`}
             >
-              {x.out ? <span className="sr-only">Not funded: </span> : null}
+              {x.out ? <span className="sr-only">{a.notFunded}</span> : null}
               {x.name}
             </span>
           ))}
         </div>
       </div>
       <div className="flex min-w-0 flex-[1_1_280px] flex-col justify-center gap-3.5 bg-white/60 p-[22px]">
-        {a.ranges.map((r, i) => (
+        {a.ranges(data).map((r, i) => (
           <div key={r.label}>
             <div className="flex justify-between gap-2 text-label">
               <span>{r.label}</span>
@@ -216,7 +219,7 @@ function AppetiteCard() {
           </div>
         ))}
         <div className="grid grid-cols-2 gap-1.5">
-          {a.facts.map((f) => (
+          {a.facts(data).map((f) => (
             <span key={f.label} className="rounded-tile bg-tile px-3 py-2.5 text-label">
               <span className="block text-muted">{f.label}</span>
               <b>{f.value}</b>
@@ -256,19 +259,19 @@ function PortalCard() {
 }
 
 /** The three rows under the scorecards in design/Brokers.html. */
-export function BottomRows() {
+export function BottomRows({ data }: { data: BrokersData }) {
   return (
     <>
-      <section aria-label="Deal ownership and payout" className={row}>
-        <OwnershipCard />
-        <PayoutCard />
+      <section aria-label={brokersSections.ownership} className={row}>
+        <OwnershipCard data={data} />
+        <PayoutCard data={data} />
       </section>
-      <section aria-label="New brokers and paperwork" className={row}>
-        <ApplicantsCard />
-        <PaperworkCard />
+      <section aria-label={brokersSections.applicants} className={row}>
+        <ApplicantsCard data={data} />
+        <PaperworkCard data={data} />
       </section>
-      <section aria-label="What we fund and the broker portal" className={row}>
-        <AppetiteCard />
+      <section aria-label={brokersSections.appetite} className={row}>
+        <AppetiteCard data={data} />
         <PortalCard />
       </section>
     </>

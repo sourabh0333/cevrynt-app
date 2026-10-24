@@ -71,6 +71,6 @@ export type RenewalSummary = {
   outreach: { sent: number; replied: number };
   /** broker commission saved on renewals this quarter */
   commissionSaved: Money;
-  /** spotted by Stacking Watch */
-  atRisk: { advanceId: Id; signal: RiskSignal; likelihood: number; actBy: "today" | "week" }[];
+  /** spotted by Stacking Watch: an alert when it raised one, otherwise the signal it saw */
+  atRisk: (({ alertId: Id } | { advanceId: Id; signal: RiskSignal }) & { likelihood: number; actBy: "today" | "week" })[];
 };

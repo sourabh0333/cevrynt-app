@@ -27,7 +27,7 @@ export const pipelineOffers: PipelineOffer[] = [
 export const fundingQueue: QueuedFunding[] = [
   { id: "a", dealId: "APP-3CE8LQ", merchant: "Copperline Electric", initials: "CE", colors: ["#0E6B5C", "#3FA58C"], amount: 45000, fee: 0.02, payoff: 0, bank: { name: "Wells Fargo", last4: "2210" }, method: "ach", finalCheck: { ok: true } },
   { id: "b", dealId: "APP-8OM2BW", merchant: "Old Mill Brewery", initials: "OM", colors: ["#3E4A46", "#6B7873"], amount: 40000, fee: 0, payoff: 9500, bank: { name: "TD Bank", last4: "5530" }, method: "wire", finalCheck: { ok: true } },
-  { id: "c", dealId: "APP-6LA4AB", merchant: "Lakeshore Auto Body", initials: "LA", colors: ["#24588A", "#4F86BD"], amount: 60000, fee: 0, payoff: 0, bank: { name: "Chase", last4: "0918" }, method: "ach", finalCheck: { ok: false, finding: "New UCC filing" } },
+  { id: "c", dealId: "APP-6LA4AB", merchant: "Lakeshore Auto Body", initials: "LA", colors: ["#24588A", "#4F86BD"], amount: 60000, fee: 0, payoff: 0, bank: { name: "Chase", last4: "0918" }, method: "ach", finalCheck: { ok: false, alertId: "al-la" } },
 ];
 
 export const releases: Release[] = [

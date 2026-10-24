@@ -1,5 +1,6 @@
 import type { DataSource } from "@/lib/data/types";
 import { advances, fundedBook } from "./advances";
+import { brokerBook, brokers } from "./brokers";
 import { SAMPLE_NOW } from "./clock";
 import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
@@ -9,6 +10,7 @@ import { merchantBook, merchantListings, merchants } from "./merchants";
 import { policy, pricing } from "./policy";
 import { renewalCandidates, renewalSettings, renewalSummary } from "./renewals";
 import { roadmapFeatures } from "./roadmap";
+import { stackingAlerts, stackingSummary } from "./stacking";
 import { taskBoard, tasks } from "./tasks";
 import { accessReview, CURRENT_USER_ID, outsideAccess, teamInvites, teamMembers } from "./team";
 import { notificationRules, workspace } from "./workspace";
@@ -117,6 +119,22 @@ export const sampleSource: DataSource = {
     },
     async getSummary() {
       return structuredClone(renewalSummary);
+    },
+  },
+  stacking: {
+    async listAlerts() {
+      return structuredClone(stackingAlerts);
+    },
+    async getSummary() {
+      return structuredClone(stackingSummary);
+    },
+  },
+  brokers: {
+    async list() {
+      return structuredClone(brokers);
+    },
+    async getBook() {
+      return structuredClone(brokerBook);
     },
   },
   tasks: {
