@@ -1,5 +1,5 @@
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { offerStats, type StatTone } from "@/lib/sample-data/offers";
+import { offersSections, type StatTile, type StatTone } from "@/lib/copy/offers";
 
 const tone: Record<StatTone, { box: string; label: string; note: string }> = {
   mint: { box: "border border-mint-border bg-mint-card", label: "text-muted", note: "text-muted" },
@@ -10,9 +10,9 @@ const tone: Record<StatTone, { box: string; label: string; note: string }> = {
 };
 
 /** "At a glance" from design/Offers.html: six stat tiles. The capital bar grows in once. */
-export function StatsRow() {
+export function StatsRow({ stats: offerStats }: { stats: StatTile[] }) {
   return (
-    <section aria-label="At a glance" className="grid grid-cols-6 gap-3.5 max-[1180px]:grid-cols-3 max-[640px]:grid-cols-2">
+    <section aria-label={offersSections.stats} className="grid grid-cols-6 gap-3.5 max-[1180px]:grid-cols-3 max-[640px]:grid-cols-2">
       {offerStats.map((s, i) => {
         const t = tone[s.tone];
         return (

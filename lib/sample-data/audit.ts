@@ -8,7 +8,8 @@
  */
 import { money, moneyShort, recommendedOffer } from "@/lib/offer-math";
 import { currentPolicy } from "@/lib/policy-sim";
-import { pipeline } from "@/lib/sample-data/offers";
+import { releases } from "@/lib/data/sample/funding";
+import { timeOfDay } from "@/lib/format";
 import { signIns } from "@/lib/sample-data/security";
 import { roleNames } from "@/lib/copy/team";
 import { teamInvites } from "@/lib/data/sample/team";
@@ -50,10 +51,15 @@ export type AuditEntry = {
   link: { href: string; label: string };
 };
 
-/* Figures from the pages these events happened on: "Funded today" on Offers & funding. */
+/* Figures from the pages these events happened on: today's releases on Offers & funding. */
 const queued = (name: string) => {
-  const row = pipeline.stages.find((s) => s.key === "funded")?.cards.find((r) => r.name === name);
-  return { amount: money((row?.amtK ?? 0) * 1000), time: row?.note.replace("Sent ", "").padStart(5, "0") ?? "" };
+  const r = releases.find((x) => x.merchant === name);
+  return {
+    amount: money(r?.amount ?? 0),
+    time: r ? timeOfDay(r.sentAt) : "",
+    started: r ? timeOfDay(r.startedAt) : "",
+    object: r ? `${r.method === "ach" ? "ACH · trace" : "Wire · ref"} …${r.reference.slice(-6)}` : "",
+  };
 };
 const cedar = queued("Cedar Street Pharmacy");
 const bayview = queued("Bayview Nail Spa");
@@ -61,14 +67,14 @@ const blocked = signIns.rows.find((r) => r.result === "blocked")!;
 const proposedDebt = 70;
 
 export const auditEntries: AuditEntry[] = [
-  { id: "e1", time: cedar.time, actor: "PS", category: "money", what: `Released ${cedar.amount} to Cedar Street Pharmacy`, object: "Wire · ref …000412", where: "Boston, MA", before: "Awaiting release", after: "Sent", note: "Second person on a payment Sam Lee started at 10:58.", link: { href: "/offers", label: "Open Offers & funding" } },
-  { id: "e2", time: "10:58", actor: "SL", category: "money", what: "Started funding for Cedar Street Pharmacy", object: "Funding queue", where: "Boston, MA", before: "Ready", after: "Awaiting release", note: "Final checks passed at 10:57.", link: { href: "/offers", label: "Open Offers & funding" } },
+  { id: "e1", time: cedar.time, actor: "PS", category: "money", what: `Released ${cedar.amount} to Cedar Street Pharmacy`, object: cedar.object, where: "Boston, MA", before: "Awaiting release", after: "Sent", note: `Second person on a payment Sam Lee started at ${cedar.started}.`, link: { href: "/offers", label: "Open Offers & funding" } },
+  { id: "e2", time: cedar.started, actor: "SL", category: "money", what: "Started funding for Cedar Street Pharmacy", object: "Funding queue", where: "Boston, MA", before: "Ready", after: "Awaiting release", note: "Final checks passed at 10:57.", link: { href: "/offers", label: "Open Offers & funding" } },
   { id: "e3", time: "10:20", actor: "MC", category: "policy", what: "Proposed policy version 4", object: `Debt share ${currentPolicy.debt}% → ${proposedDebt}%`, where: "Boston, MA", before: `${currentPolicy.debt}% of revenue`, after: `${proposedDebt}% of revenue`, note: "Waiting for Priya Shah to approve. Not live yet.", link: { href: "/settings/policy", label: "Open Policy" } },
   { id: "e4", time: "10:12", actor: "MC", category: "decision", what: "Marked integrity reviewed", object: "Harbor Street Bakery LLC", where: "Boston, MA", before: "Needs sign-off", after: "Reviewed", note: "Note: catering transfer checked, same owner, left out of revenue.", link: { href: "/deals/APP-7H2K4Q/integrity", label: "Open the deal" } },
   { id: "e5", time: "09:41", actor: "C", category: "decision", what: `Suggested approve ${money(recommendedOffer.amount)}`, object: "Harbor Street Bakery LLC", where: "Automatic", note: "Score 88, policy v3, all 8 rules met. A person makes the final decision.", link: { href: "/deals/APP-7H2K4Q/decision", label: "Open Decision & memo" } },
   { id: "e6", time: "09:35", actor: "PS", category: "data", what: "Exported the October portfolio report", object: "PDF · 14 pages", where: "Boston, MA", note: "Name stamped on every page.", link: { href: "/reports", label: "Open Reports" } },
   { id: "e7", time: blocked.time, actor: "?", category: "access", what: "Blocked sign-in to Ari Kaplan’s account", object: "Wrong 2-step code", where: blocked.where, note: "Ari was told and asked to change his password.", link: { href: "/settings/security", label: "Open Security" } },
-  { id: "e8", time: bayview.time, actor: "PS", category: "money", what: `Released ${bayview.amount} to Bayview Nail Spa`, object: "ACH · trace …184477", where: "Boston, MA", before: "Awaiting release", after: "Sent", note: "Second person on a payment Sam Lee started at 09:12.", link: { href: "/offers", label: "Open Offers & funding" } },
+  { id: "e8", time: bayview.time, actor: "PS", category: "money", what: `Released ${bayview.amount} to Bayview Nail Spa`, object: bayview.object, where: "Boston, MA", before: "Awaiting release", after: "Sent", note: `Second person on a payment Sam Lee started at ${bayview.started}.`, link: { href: "/offers", label: "Open Offers & funding" } },
   { id: "e9", time: "08:30", actor: "NO", category: "settings", what: `Invited ${invite.name}`, object: `${roleNames[invite.role]}, up to ${moneyShort(invite.approvalLimit ?? 0)}`, where: "Boston, MA", note: "Invite still open.", link: { href: "/settings/team", label: "Open Team & roles" } },
 ];
 

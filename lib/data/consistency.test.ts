@@ -45,6 +45,13 @@ import { findDuplicate, requiredDocs, runChecks } from "@/lib/copy/intake-manual
 import { dueLabel, loadSummary, taskWhen, teamSummary, toTaskView, waitingView } from "@/lib/copy/tasks";
 import { bulkView, intakeHubView, manualLeadView, packageView } from "@/lib/data/views/intake";
 import { tasksView } from "@/lib/data/views/tasks";
+import { advanceView, fundedHeader, fundedStats, todayCopy, todayTotals, reconciliationCopy, returnedCopy, forecastCopy } from "@/lib/copy/funded";
+import { commissionsCopy, expiringToday, moneySentCopy, offerChip, offerStats, offersHeader, queueCopy } from "@/lib/copy/offers";
+import { fundedView, offersView } from "@/lib/data/views/funding";
+import { auditEntries } from "@/lib/sample-data/audit";
+import { homeData } from "@/lib/sample-data/home";
+import { biggestBalances, merchants } from "@/lib/sample-data/merchants";
+import { renewalMerchants } from "@/lib/sample-data/renewals";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -563,5 +570,111 @@ describe("Intake", () => {
     assert.deepEqual([bright.statements, bright.statementsWarn, bright.fit.text], ["3 of 4", true, "July missing, will be requested"]);
     assert.equal(rows.find((r) => r.id === "mesa")!.note, "Open deal already exists · APP-9K2M7R");
     assert.equal(bulkCopy.fileMeta(d.bulk), "8 folders · 51 files · 88.6 MB · uploaded by you at 14:05");
+  });
+});
+
+describe("Offers & funding", () => {
+  it("the tiles, chips and queue read as the design shows them", async () => {
+    const d = await offersView();
+    assert.equal(offersHeader.line(d.summary.inProgress, expiringToday(d.offers, d.now).length), "14 deals between yes and money sent · 2 offers expire today");
+    assert.deepEqual(offerStats(d).map((s) => `${s.value}${s.unit ?? ""} | ${s.note}`), [
+      "$85K | 2 deals · next ACH cut-off 2:00 pm",
+      "6 | 2 expire today",
+      "4 | Waiting on signatures",
+      "2.6 days | Median, last 30 days",
+      "$1.1M | of a $1.5M daily limit",
+      "$1.24M | +12% vs September",
+    ]);
+    assert.deepEqual(d.offers.map((o) => offerChip(o, d.now).text), [
+      "Expires 5 pm", "Expires 6 pm", "Countered", "Renewal", "Contract today", "1 of 2 signed", "Viewed, not signed", "Ready to fund", "Ready to fund", "Sent 9:15", "Sent 11:02",
+    ]);
+    assert.deepEqual(d.queue.map((q) => [queueCopy.net(q), queueCopy.netNote(q)]), [[44100, "2% fee taken"], [30500, "$9,500 wired to the prior funder"], [60000, "No fee"]]);
+    assert.equal(queueCopy.summary.release(d.releaser), "Release as Priya");
+    assert.equal(queueCopy.cutoff(d.desk), "ACH by 2:00 pm · wire by 4:00 pm");
+  });
+
+  it("commissions owed come from Pricing's broker points on today's funded deals", async () => {
+    const d = await offersView();
+    const rows = commissionsCopy.rows(d.offers.filter((o) => o.stage === "funded"), d.brokerPoints);
+    assert.deepEqual(rows, [{ broker: "Apex Funding Partners", amount: 4800 }, { broker: "Summit Capital ISO", amount: 2000 }]);
+  });
+
+  it("Priya's releases match the funded offers and the Audit log", async () => {
+    const d = await offersView();
+    for (const r of d.releases) {
+      const funded = d.offers.find((o) => o.stage === "funded" && o.merchant === r.merchant)!;
+      assert.equal(funded.amount, r.amount);
+      assert.equal(funded.sentAt, r.sentAt);
+      assert.equal(r.releasedBy, "Priya Shah");
+    }
+    assert.deepEqual(d.releases.map((r) => moneySentCopy.ref(r, r.releasedBy)), [
+      "Trace 021000020184477 · released by Priya Shah",
+      "Ref 20261012MMQFMP2K000412 · released by Priya Shah",
+    ]);
+    const money = auditEntries.filter((e) => e.category === "money" && e.what.startsWith("Released"));
+    assert.deepEqual(money.map((e) => [e.time, e.what, e.object]), [
+      ["11:02", "Released $60,000 to Cedar Street Pharmacy", "Wire · ref …000412"],
+      ["09:15", "Released $25,000 to Bayview Nail Spa", "ACH · trace …184477"],
+    ]);
+  });
+});
+
+describe("Funded deals", () => {
+  it("the header, tiles and today's payments add up, and Home's tile reads the same", async () => {
+    const d = await fundedView();
+    assert.equal(fundedHeader.line(d.book), "86 advances being repaid · $4.9M still to collect");
+    assert.deepEqual(fundedStats(d.book, d.now).map((s) => `${s.label}: ${s.value} · ${s.note}`), [
+      "Collected in October: $287K · 98% of schedule",
+      "On time: 94% · 81 of 86 deals",
+      "Behind on payments: 5 · $118K at risk",
+      "Paid off this month: 11 · 6 renewed with you",
+    ]);
+    assert.equal(todayCopy.expected(d.book), "of $28.4K expected · 81 payments");
+    const home = homeData.glance.find((g) => g.id === "collected")!;
+    assert.equal(home.title, "$24.1K of $28.4K collected today");
+    assert.equal(home.title, todayCopy.homeLine(d.book));
+    assert.deepEqual([home.lead, home.note, home.noteTail], [{ kind: "ring", percent: Math.round(todayTotals(d.book).share * 100), label: "85%" }, "7 pending · ", "2 returned"]);
+  });
+
+  it("each deal's figures match Merchants, Renewals and the readiness rules", async () => {
+    const d = await fundedView();
+    const view = Object.fromEntries(d.advances.map((a) => [a.merchant, advanceView(a, d.now)]));
+    assert.deepEqual(Object.values(view).map((v) => [v.paid, v.left, v.pay, v.rev, v.payoff]), [
+      [72, "$25.5K", "$430/day", "+18%", "Late November"],
+      [48, "$31.2K", "$412/day", "−22%", "Late January"],
+      [21, "$72.6K", "$628/day", "−9%", "At risk"],
+      [64, "$14.3K", "$305/day", "+4%", "Early December"],
+      [18, "$68.1K", "$525/day", "+2%", "Watch"],
+      [0, "$79.2K", "$629/day", "—", "April 2027"],
+    ]);
+    const kestrel = d.advances.find((a) => a.merchant === "Kestrel Plumbing")!;
+    const westfield = d.advances.find((a) => a.merchant === "Westfield Auto Group")!;
+    // Merchants
+    const km = merchants.find((m) => m.name === "Kestrel Plumbing")!;
+    assert.deepEqual([km.balance, km.paid, km.funded], [view["Kestrel Plumbing"].left, view["Kestrel Plumbing"].paid, view["Kestrel Plumbing"].funded]);
+    for (const row of biggestBalances.rows) {
+      const v = view[row.name];
+      if (v) assert.equal(row.balance, v.left, row.name);
+    }
+    // Renewals
+    const kr = renewalMerchants.find((m) => m.name === "Kestrel Plumbing")!;
+    assert.deepEqual([kr.left, kr.now, kr.paid, kr.rev / 100], [kestrel.payback - kestrel.paid, kestrel.dailyPayment, view["Kestrel Plumbing"].paid, kestrel.revenueChange]);
+    // Renewal rules' readiness inputs
+    for (const a of [kestrel, westfield]) {
+      const r = readinessMerchants.find((m) => m.name === a.merchant)!;
+      assert.equal(r.paid, Math.round((a.paid / a.payback) * 100), a.merchant);
+      assert.equal(r.rev, Math.round((1 + (a.revenueChange ?? 0)) * 100), a.merchant);
+    }
+    // Returned payments are a day's payment, and Kestrel's reply is due when My tasks says
+    for (const r of d.book.returned) {
+      const a = d.advances.find((x) => x.merchant === r.merchant);
+      if (a) assert.equal(r.amount, a.dailyPayment, r.merchant);
+    }
+    assert.equal(reconciliationCopy.days(d.book.reconciliation, d.now), "4 days");
+    assert.equal(reconciliationCopy.detail(d.book.reconciliation, d.now), "Asked yesterday · sales down 22%");
+    assert.equal(returnedCopy.chip(d.book), "7 · $3.1K");
+    assert.deepEqual(forecastCopy.tiles(d.book).map((t) => t.value), ["$793K", "$33K", "Advances paying off"]);
+    const task = (await tasksView()).tasks.find((t) => t.id === "kest")!;
+    assert.equal(task.dueAt, d.book.reconciliation.respondBy);
   });
 });

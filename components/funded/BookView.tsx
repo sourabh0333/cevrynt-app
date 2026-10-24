@@ -4,17 +4,16 @@ import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import {
-  book as t,
-  bookSegments,
-  detail as dt,
-  fundedDeals,
+  bookCopy as t,
+  bookSegments as segmentsFor,
+  detailCopy as dt,
   statuses,
   trendPaths,
+  type AdvanceView as FundedDeal,
   type FlagTone,
-  type FundedDeal,
   type PayMark,
-  type PayStatus,
-} from "@/lib/sample-data/funded";
+} from "@/lib/copy/funded";
+import type { AdvanceStatus as PayStatus, FundedBook } from "@/lib/data/types";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -85,14 +84,15 @@ function TrendChart({ d }: { d: FundedDeal }) {
  * row updates the detail panel, which matches the book's height with the
  * chart filling the extra space and the buttons at the bottom. No hover.
  */
-export function BookView() {
+export function BookView({ deals: fundedDeals, book, start }: { deals: FundedDeal[]; book: FundedBook; start: string }) {
+  const bookSegments = segmentsFor(book);
   const [seg, setSeg] = useState<PayStatus | "all">("all");
-  const [sel, setSel] = useState(t.startSelected);
+  const [sel, setSel] = useState(start);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
 
   const rows = fundedDeals.filter((d) => (seg === "all" || d.status === seg) && (!q || d.name.toLowerCase().includes(q)));
-  const d = fundedDeals.find((x) => x.ini === sel) ?? fundedDeals[0];
+  const d = fundedDeals.find((x) => x.id === sel) ?? fundedDeals[0];
   const direction = trendPaths(d.trend).direction;
 
   return (
@@ -115,7 +115,7 @@ export function BookView() {
           </label>
         </div>
 
-        <div role="group" aria-label="Show" className="scrollbar-none flex flex-nowrap gap-1.5 overflow-x-auto overflow-y-hidden px-1 pb-0.5">
+        <div role="group" aria-label={t.showLabel} className="scrollbar-none flex flex-nowrap gap-1.5 overflow-x-auto overflow-y-hidden px-1 pb-0.5">
           {bookSegments.map((g) => {
             const on = g.key === seg;
             return (
@@ -141,13 +141,13 @@ export function BookView() {
             ))}
           </div>
           {rows.map((r, ri) => {
-            const on = r.ini === sel;
+            const on = r.id === sel;
             return (
               <button
-                key={r.ini}
+                key={r.id}
                 type="button"
                 aria-pressed={on}
-                onClick={() => setSel(r.ini)}
+                onClick={() => setSel(r.id)}
                 className={`${cols} box-border w-full cursor-pointer rounded-[16px] border-0 px-3 py-[9px] text-left text-ink ${on ? "bg-tile shadow-[inset_0_0_0_1.5px_var(--color-ink)]" : "bg-transparent"}`}
               >
                 <span className="flex min-w-0 items-center gap-2.5">
@@ -167,9 +167,9 @@ export function BookView() {
                   <ProgressBar value={r.paid} height={6} track="line" color={barColor(r.status)} delay={0.1 + ri * 0.05} className="mt-1" />
                 </span>
                 <span className="font-heading text-body-sm font-semibold tabular-nums tracking-[-0.03em]">{r.pay}</span>
-                <span className="flex items-center gap-0.5" aria-label={`Last 10 payments: ${r.hist.split("").filter((c) => c === "r").length} returned`}>
-                  {r.hist.split("").map((c, di) => (
-                    <span key={di} className={`anim-pay-dot h-3.5 w-2 rounded-[3px] ${dotColor[c as PayMark]}`} style={{ "--delay": `${(0.2 + ri * 0.08 + di * 0.045).toFixed(3)}s` } as Delay} />
+                <span className="flex items-center gap-0.5" aria-label={t.lastPayments(r.hist.filter((c) => c === "r").length)}>
+                  {r.hist.map((c, di) => (
+                    <span key={di} className={`anim-pay-dot h-3.5 w-2 rounded-[3px] ${dotColor[c]}`} style={{ "--delay": `${(0.2 + ri * 0.08 + di * 0.045).toFixed(3)}s` } as Delay} />
                   ))}
                 </span>
                 <span className={`text-[12.5px] font-bold ${revColor(r.rev)}`}>{r.rev}</span>

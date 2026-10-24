@@ -32,6 +32,17 @@ export const apiSource: DataSource = {
     getDecision: notConnected("deals"),
     getActivity: notConnected("deals"),
   },
+  funding: {
+    listPipeline: notConnected("funding"),
+    listQueue: notConnected("funding"),
+    listReleases: notConnected("funding"),
+    getDesk: notConnected("funding"),
+    getSummary: notConnected("funding"),
+  },
+  advances: {
+    list: notConnected("advances"),
+    getBook: notConnected("advances"),
+  },
   tasks: {
     list: notConnected("tasks"),
     getBoard: notConnected("tasks"),

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { money } from "@/lib/offer-math";
-import { fundingQueue as t } from "@/lib/sample-data/offers";
+import { queueCopy as t } from "@/lib/copy/offers";
+import type { FundingDesk, QueuedFunding } from "@/lib/data/types";
 
 /** ready → pending (Fund) → sent (Release as Priya) → closed (Done, after the undo window or by hand). */
 type Step = "ready" | "pending" | "sent" | "closed";
@@ -21,12 +22,30 @@ const ell = "block truncate";
  * ticked deals to awaiting release; "Release as Priya" is the second
  * person. For five minutes after the release an "Undo · m:ss" button
  * returns the deals to awaiting release; once it runs out they stay
- * sent. Done only closes the message. No hover.
+ * sent. Done only closes the message. Deals that passed their final check
+ * start ticked; the undo window, cut-offs and who releases come from the
+ * funding desk and the team. No hover.
  */
-export function FundingQueue() {
-  const [sel, setSel] = useState<Record<string, boolean>>(Object.fromEntries(t.start.map((k) => [k, true])));
+export function FundingQueue({ queue, desk, releaser }: { queue: QueuedFunding[]; desk: FundingDesk; releaser: string }) {
+  const undoWindow = desk.undoMinutes * 60;
+  const deals = queue.map((q) => ({
+    key: q.id,
+    name: q.merchant,
+    id: q.dealId,
+    ini: q.initials,
+    g: q.colors,
+    amount: q.amount,
+    net: t.net(q),
+    netNote: t.netNote(q),
+    bank: t.bank(q),
+    method: t.method(q),
+    check: q.finalCheck.ok ? "" : q.finalCheck.finding,
+    ok: q.finalCheck.ok,
+  }));
+  const notes = t.summary.note(desk.undoMinutes, releaser);
+  const [sel, setSel] = useState<Record<string, boolean>>(Object.fromEntries(deals.filter((d) => d.ok).map((d) => [d.key, true])));
   const [step, setStep] = useState<Step>("ready");
-  const [left, setLeft] = useState(t.summary.undoWindow);
+  const [left, setLeft] = useState(undoWindow);
   const sent = step === "sent" || step === "closed";
   const pending = step === "pending";
   const canUndo = step === "sent" && left > 0;
@@ -38,7 +57,7 @@ export function FundingQueue() {
     return () => window.clearTimeout(id);
   }, [step, left]);
 
-  const picked = t.deals.filter((d) => d.ok && sel[d.key]);
+  const picked = deals.filter((d) => d.ok && sel[d.key]);
   const total = picked.reduce((a, d) => a + d.net, 0);
 
   const toggle = (k: string) => {
@@ -50,7 +69,7 @@ export function FundingQueue() {
     else if (step === "pending") setStep("ready");
   };
   const release = () => {
-    setLeft(t.summary.undoWindow);
+    setLeft(undoWindow);
     setStep("sent");
   };
   const undo = () => {
@@ -58,7 +77,7 @@ export function FundingQueue() {
   };
   const close = () => setStep("closed");
 
-  const note = step === "closed" ? t.summary.closed : t.summary.note[step];
+  const note = step === "closed" ? t.summary.closed : notes[step];
 
   return (
     <article
@@ -71,7 +90,7 @@ export function FundingQueue() {
             <h2 id="h-fq" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
             <div className="mt-0.5 text-label text-hint">{t.subtitle}</div>
           </div>
-          <span className="rounded-pill bg-amber-tint px-2.5 py-1 text-label-sm font-semibold text-amber-deep">{t.cutoff}</span>
+          <span className="rounded-pill bg-amber-tint px-2.5 py-1 text-label-sm font-semibold text-amber-deep">{t.cutoff(desk)}</span>
         </div>
         <div className={`${grid} px-2.5 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint-soft`}>
           {t.columns.map((c, i) => (
@@ -79,7 +98,7 @@ export function FundingQueue() {
           ))}
         </div>
         <div className="scrollbar-thin max-h-[196px] overflow-y-auto border-t border-line-faint">
-          {t.deals.map((d) => {
+          {deals.map((d) => {
             const on = d.ok && !!sel[d.key];
             const isSent = sent && on;
             const waiting = pending && on;
@@ -99,7 +118,7 @@ export function FundingQueue() {
               >
                 <input
                   type="checkbox"
-                  aria-label={`Select ${d.name}`}
+                  aria-label={t.select(d.name)}
                   checked={on}
                   disabled={!d.ok || step !== "ready"}
                   onChange={() => toggle(d.key)}
@@ -140,7 +159,7 @@ export function FundingQueue() {
       </div>
 
       <aside
-        aria-label="Send summary"
+        aria-label={t.summary.label}
         className="flex flex-col gap-3 rounded-card bg-[linear-gradient(160deg,var(--color-teal),var(--color-teal-ink))] p-[18px] text-white"
         aria-live="polite"
       >
@@ -159,7 +178,7 @@ export function FundingQueue() {
         <div className="mt-auto flex flex-col gap-1.5">
           {pending ? (
             <button type="button" onClick={release} className="h-10 cursor-pointer rounded-pill border-0 bg-tile text-[12.5px] font-semibold text-ink">
-              {t.summary.release}
+              {t.summary.release(releaser)}
             </button>
           ) : null}
           {canUndo ? (

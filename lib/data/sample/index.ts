@@ -1,7 +1,9 @@
 import type { DataSource } from "@/lib/data/types";
+import { advances, fundedBook } from "./advances";
 import { SAMPLE_NOW } from "./clock";
 import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
+import { fundingDesk, fundingQueue, fundingSummary, pipelineOffers, releases } from "./funding";
 import { bulkIntake, intakeSummary, manualDraft, packageIntake } from "./intake";
 import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
@@ -66,6 +68,31 @@ export const sampleSource: DataSource = {
     },
     async getActivity(id) {
       return deals.some((d) => d.id === id) ? structuredClone(harborActivity) : null;
+    },
+  },
+  funding: {
+    async listPipeline() {
+      return structuredClone(pipelineOffers);
+    },
+    async listQueue() {
+      return structuredClone(fundingQueue);
+    },
+    async listReleases() {
+      return structuredClone(releases);
+    },
+    async getDesk() {
+      return structuredClone(fundingDesk);
+    },
+    async getSummary() {
+      return structuredClone(fundingSummary);
+    },
+  },
+  advances: {
+    async list() {
+      return structuredClone(advances);
+    },
+    async getBook() {
+      return structuredClone(fundedBook);
     },
   },
   tasks: {

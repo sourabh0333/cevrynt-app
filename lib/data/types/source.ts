@@ -1,4 +1,6 @@
+import type { Advance, FundedBook } from "./advances";
 import type { Id, IsoDateTime } from "./common";
+import type { FundingDesk, FundingSummary, PipelineOffer, QueuedFunding, Release } from "./funding";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
 import type { BulkIntake, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
@@ -36,6 +38,17 @@ export interface DataSource {
     getOffer(id: Id): Promise<DealOffer | null>;
     getDecision(id: Id): Promise<DealDecision | null>;
     getActivity(id: Id): Promise<DealActivity | null>;
+  };
+  funding: {
+    listPipeline(): Promise<PipelineOffer[]>;
+    listQueue(): Promise<QueuedFunding[]>;
+    listReleases(): Promise<Release[]>;
+    getDesk(): Promise<FundingDesk>;
+    getSummary(): Promise<FundingSummary>;
+  };
+  advances: {
+    list(): Promise<Advance[]>;
+    getBook(): Promise<FundedBook>;
   };
   tasks: {
     list(): Promise<Task[]>;

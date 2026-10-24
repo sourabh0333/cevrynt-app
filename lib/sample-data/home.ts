@@ -4,6 +4,11 @@
  * the whole spec). Real API calls replace this later behind the same types.
  */
 import type { ChipColor } from "@/components/ui/Chip";
+import { todayCopy, todayTotals } from "@/lib/copy/funded";
+import { fundedBook } from "@/lib/data/sample/advances";
+
+/* Today's collections, from the same book Funded deals shows. */
+const collected = todayTotals(fundedBook);
 
 export type HomeHeader = {
   greeting: string;
@@ -249,7 +254,15 @@ export const homeData: HomeData = {
 
   glance: [
     { id: "tasks", href: "/tasks", tone: "red", lead: { kind: "number", value: "2" }, title: "Tasks due within the hour", note: "Lakeshore UCC filing · Mesa Auto Repair review" },
-    { id: "collected", href: "/funded", tone: "white", lead: { kind: "ring", percent: 85, label: "85%" }, title: "$24.1K of $28.4K collected today", note: "7 pending · ", noteTail: "2 returned" },
+    {
+      id: "collected",
+      href: "/funded",
+      tone: "white",
+      lead: { kind: "ring", percent: Math.round(collected.share * 100), label: `${Math.round(collected.share * 100)}%` },
+      title: todayCopy.homeLine(fundedBook),
+      note: `${fundedBook.today.pending.count} pending · `,
+      noteTail: `${fundedBook.today.returned.count} returned`,
+    },
     { id: "policy", href: "/settings/policy", tone: "white", lead: { kind: "tag", value: "v4" }, title: "Policy change waiting", note: "Debt share 65% → 70% · needs Priya" },
   ],
 

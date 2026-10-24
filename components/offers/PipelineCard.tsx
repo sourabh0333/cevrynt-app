@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
-import { pipeline as t, type ChipTone, type Stage, type StageKey } from "@/lib/sample-data/offers";
+import { offerChip, pipelineCopy as t, stageInfo, stageOrder, type ChipTone } from "@/lib/copy/offers";
+import type { IsoDateTime, OfferStage as StageKey, PipelineOffer } from "@/lib/data/types";
+
+type Card = { name: string; ini: string; g: [string, string]; broker: string; amtK: number; note: string; tone: ChipTone; mine: boolean };
+type Stage = (typeof stageInfo)[StageKey] & { key: StageKey; total: number; cards: Card[] };
 
 const stageColor: Record<Stage["color"], { dot: string; bar: string; ring: string }> = {
   amber: { dot: "bg-amber", bar: "bg-amber", ring: "var(--color-amber)" },
@@ -29,10 +33,22 @@ const row = "grid grid-cols-[minmax(0,1.6fr)_80px_minmax(0,1fr)_auto] items-cent
 /**
  * "From offer to funded" from design/Offers.html and its prototype: the
  * search box, the Everyone / Mine switch, the five-stage stepper and the
- * list of deals in the chosen stage with each one's next action. The
- * stage bars grow in once. No hover.
+ * list of deals in the chosen stage with each one's next action, from the
+ * offers in the data layer. The stage bars grow in once. No hover.
  */
-export function PipelineCard() {
+export function PipelineCard({ offers, totals, meId, now }: { offers: PipelineOffer[]; totals: Record<StageKey, number>; meId: string; now: IsoDateTime }) {
+  const stages: Stage[] = stageOrder.map((key) => ({
+    key,
+    ...stageInfo[key],
+    total: totals[key],
+    cards: offers
+      .filter((o) => o.stage === key)
+      .map((o) => {
+        const chip = offerChip(o, now);
+        return { name: o.merchant, ini: o.initials, g: o.colors, broker: o.broker, amtK: o.amount / 1000, note: chip.text, tone: chip.tone, mine: o.ownerId === meId };
+      }),
+  }));
+  const barOf = Math.max(...stages.map((s) => s.total));
   const [stage, setStage] = useState<StageKey>("sent");
   const [view, setView] = useState<"all" | "mine">("all");
   const [query, setQuery] = useState("");
@@ -40,7 +56,7 @@ export function PipelineCard() {
 
   const visible = (st: Stage) =>
     st.cards.filter((c) => (view === "all" || c.mine) && (!q || c.name.toLowerCase().includes(q) || c.broker.toLowerCase().includes(q)));
-  const cur = t.stages.find((s) => s.key === stage) ?? t.stages[0];
+  const cur = stages.find((s) => s.key === stage) ?? stages[0];
   const cards = visible(cur);
   const extra = view === "all" && !q ? cur.total - cur.cards.length : 0;
   const sc = stageColor[cur.color];
@@ -66,7 +82,7 @@ export function PipelineCard() {
               className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-ink outline-none placeholder:text-hint"
             />
           </label>
-          <div role="group" aria-label="Show" className="flex gap-0.5 rounded-pill bg-tile p-1">
+          <div role="group" aria-label={t.showLabel} className="flex gap-0.5 rounded-pill bg-tile p-1">
             {t.views.map((v) => {
               const on = v.key === view;
               return (
@@ -85,12 +101,12 @@ export function PipelineCard() {
         </div>
       </div>
 
-      <div role="tablist" aria-label="Stages" className="grid grid-cols-5 rounded-card bg-tile p-1.5 max-[760px]:grid-cols-2">
-        {t.stages.map((st, i) => {
+      <div role="tablist" aria-label={t.stagesLabel} className="grid grid-cols-5 rounded-card bg-tile p-1.5 max-[760px]:grid-cols-2">
+        {stages.map((st, i) => {
           const on = st.key === stage;
           const c = stageColor[st.color];
           const count = view === "all" ? st.total : st.cards.filter((x) => x.mine).length;
-          const value = Math.round(st.cards.reduce((sum, x) => sum + x.amtK, 0) * (st.total / st.cards.length));
+          const value = st.cards.length ? Math.round(st.cards.reduce((sum, x) => sum + x.amtK, 0) * (st.total / st.cards.length)) : 0;
           const vars: Vars = { "--stage": c.ring, "--delay": `${0.1 + i * 0.08}s` };
           return (
             <button
@@ -116,7 +132,7 @@ export function PipelineCard() {
                 <span className="text-label opacity-75">${value}K</span>
               </span>
               <span className="block h-1 w-full rounded-[2px] bg-ink/7">
-                <span className={`anim-grow-x block h-1 rounded-[2px] ${c.bar}`} style={{ width: `${Math.round((st.total / t.barOf) * 100)}%`, ...vars }} />
+                <span className={`anim-grow-x block h-1 rounded-[2px] ${c.bar}`} style={{ width: `${Math.round((st.total / barOf) * 100)}%`, ...vars }} />
               </span>
             </button>
           );
@@ -146,7 +162,7 @@ export function PipelineCard() {
                 <span className="block truncate text-[11.5px] text-hint">{c.broker}</span>
               </span>
             </span>
-            <b className="font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]">${c.amtK}K</b>
+            <b className="font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]">{t.amount(c.amtK * 1000)}</b>
             <span className={`justify-self-start whitespace-nowrap rounded-pill px-2 py-[3px] text-[10.5px] font-semibold ${chip[c.tone]}`}>{c.note}</span>
             <Link
               href="#"

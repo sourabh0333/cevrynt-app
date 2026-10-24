@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { fundedStats, today } from "@/lib/sample-data/funded";
+import { fundedSections, fundedStats as statsFor, todayCopy as today } from "@/lib/copy/funded";
+import type { FundedBook, IsoDateTime } from "@/lib/data/types";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -20,11 +21,14 @@ const statTone = {
  * columns) with the cleared / pending / returned bar that grows in, and
  * the four stat tiles in a 2×2 grid beside it.
  */
-export function TodayRow() {
-  const { cleared, pending, returned } = today.segments;
+export function TodayRow({ book, now }: { book: FundedBook; now: IsoDateTime }) {
+  const cleared = today.segment(book.today.cleared.amount);
+  const pending = today.segment(book.today.pending.amount);
+  const returned = today.segment(book.today.returned.amount);
+  const fundedStats = statsFor(book, now);
   const barStyle: Delay = { "--delay": "0.2s" };
   return (
-    <section aria-label="Today's payments and the book at a glance" className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
+    <section aria-label={fundedSections.today} className="grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
       <article
         aria-labelledby="h-today"
         className="col-span-2 box-border flex min-w-0 flex-col gap-4 rounded-card-lg border border-mint-border bg-mint-card p-[22px] text-ink max-[980px]:col-span-1"
@@ -34,22 +38,22 @@ export function TodayRow() {
             <h2 id="h-today" className="m-0 font-heading text-[22px] font-semibold">{today.title}</h2>
             <span className="text-[12.5px] text-muted">{today.subtitle}</span>
           </div>
-          <span className="rounded-pill border border-teal/7 bg-teal/7 px-[11px] py-[5px] text-[11.5px] font-semibold">{today.chip}</span>
+          <span className="rounded-pill border border-teal/7 bg-teal/7 px-[11px] py-[5px] text-[11.5px] font-semibold">{today.chip(book.today.settleBy)}</span>
         </div>
         <div className="flex flex-wrap items-end gap-[22px]">
           <span>
             <span className="block text-label text-muted">{today.collectedLabel}</span>
-            <b className="font-heading text-[34px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{today.collected}</b>
+            <b className="font-heading text-[34px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{today.collected(book)}</b>
           </span>
-          <span className="pb-1.5 text-body-sm text-muted">{today.expected}</span>
+          <span className="pb-1.5 text-body-sm text-muted">{today.expected(book)}</span>
         </div>
-        <div role="img" aria-label="Cleared, pending and returned today" className="anim-grow-x flex h-3.5 gap-[3px] overflow-hidden rounded-[7px]" style={barStyle}>
+        <div role="img" aria-label={today.barLabel} className="anim-grow-x flex h-3.5 gap-[3px] overflow-hidden rounded-[7px]" style={barStyle}>
           <span className="bg-mint" style={{ flex: cleared }} />
           <span className="bg-white/30" style={{ flex: pending }} />
           <span className="bg-red-light" style={{ flex: returned }} />
         </div>
         <div className="grid grid-cols-3 gap-2 max-[640px]:grid-cols-1">
-          {today.tiles.map((t) => {
+          {today.tiles(book).map((t) => {
             const tone = tileTone[t.tone];
             return (
               <span key={t.label} className={`rounded-[16px] p-3 ${tone.box}`}>
