@@ -2,17 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { money, moneyShort, renewalOffer } from "@/lib/offer-math";
-import {
-  currentFactor,
-  offerPanel as t,
-  radar,
-  radarPosition,
-  radarSize,
-  renewalMerchants,
-  statusLabel,
-  type RenewalMerchant,
-  type RenewalStatus,
-} from "@/lib/sample-data/renewals";
+import { offerPanel as t, radar, radarPosition, radarSize, statusLabel, type RenewalMerchant, type RenewalStatus } from "@/lib/copy/renewals";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -32,17 +22,20 @@ export type RenewalState = {
 };
 
 type Props = {
+  merchants: RenewalMerchant[];
+  /** the saved rules' repaid line, marked on the radar */
+  renewalLine: number;
   s: RenewalState;
   /** Pricing's loyalty price, taken off the base factor */
   loyaltyDiscount: number;
-  onPick: (ini: string) => void;
-  onAmount: (ini: string, amount: number) => void;
-  onSend: (ini: string) => void;
-  onForgive: (ini: string) => void;
+  onPick: (id: string) => void;
+  onAmount: (id: string, amount: number) => void;
+  onSend: (id: string) => void;
+  onForgive: (id: string) => void;
 };
 
-export const statusOf = (m: RenewalMerchant, sent: Record<string, boolean>): RenewalStatus => (sent[m.ini] ? "sent" : m.status);
-export const amountOf = (m: RenewalMerchant, amounts: Record<string, number>) => amounts[m.ini] ?? m.suggested;
+export const statusOf = (m: RenewalMerchant, sent: Record<string, boolean>): RenewalStatus => (sent[m.id] ? "sent" : m.status);
+export const amountOf = (m: RenewalMerchant, amounts: Record<string, number>) => amounts[m.id] ?? m.suggested;
 
 /**
  * "Renewal radar" and the offer panel from design/Renewals.html and its
@@ -53,13 +46,13 @@ export const amountOf = (m: RenewalMerchant, amounts: Record<string, number>) =>
  * factor, the daily payment against today's, the re-check chips and the
  * disclosure with the forgive switch. No hover.
  */
-export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgive }: Props) {
-  const m = renewalMerchants.find((x) => x.ini === s.sel) ?? renewalMerchants[0];
+export function RadarRow({ merchants, renewalLine, s, loyaltyDiscount, onPick, onAmount, onSend, onForgive }: Props) {
+  const m = merchants.find((x) => x.id === s.sel) ?? merchants[0];
   const st = statusOf(m, s.sent);
   const amount = amountOf(m, s.amounts);
   const can = m.suggested > 0;
-  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor }, undefined, undefined, loyaltyDiscount);
-  const forgive = !!s.forgive[m.ini];
+  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor: m.currentFactor }, undefined, undefined, loyaltyDiscount);
+  const forgive = !!s.forgive[m.id];
   const clamp = (v: number) => Math.max(t.amount.min, Math.min(m.max, v));
   const q = radar.quadrants;
 
@@ -100,19 +93,19 @@ export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgi
               </div>
               <span aria-hidden="true" className="absolute top-1/2 right-0 left-0 border-t-[1.5px] border-dashed border-line-dashed" />
               <span aria-hidden="true" className="absolute top-0 bottom-0 left-1/2 border-l-[1.5px] border-dashed border-line-dashed" />
-              {renewalMerchants.map((x, i) => {
-                const on = x.ini === s.sel;
+              {merchants.map((x, i) => {
+                const on = x.id === s.sel;
                 const xs = statusOf(x, s.sent);
                 const pos = radarPosition(x);
                 const size = radarSize(x, amountOf(x, s.amounts));
                 const style: Delay = { left: `${pos.x}%`, top: `${pos.y}%`, "--delay": `${0.3 + i * 0.09}s` };
                 return (
                   <button
-                    key={x.ini}
+                    key={x.id}
                     type="button"
                     aria-label={radar.dotLabel(x)}
                     aria-pressed={on}
-                    onClick={() => onPick(x.ini)}
+                    onClick={() => onPick(x.id)}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer border-0 bg-transparent p-0 ${on ? "z-[3]" : "z-[2]"}`}
                     style={style}
                   >
@@ -127,7 +120,7 @@ export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgi
               })}
             </div>
             <div className="flex justify-between text-label-sm text-hint">
-              {radar.xAxis.map((a) => (
+              {radar.xAxis(renewalLine).map((a) => (
                 <span key={a}>{a}</span>
               ))}
             </div>
@@ -169,7 +162,7 @@ export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgi
 
         <div className="flex flex-col gap-3 rounded-tile-lg border border-white/10 bg-teal/7 p-4">
           <div className="flex items-center justify-between gap-2.5">
-            <button type="button" aria-label="Lower amount" aria-disabled={!can} onClick={() => can && onAmount(m.ini, clamp(amount - t.amount.step))} className="h-[38px] w-[38px] cursor-pointer rounded-full border-0 bg-teal/7 text-[18px] text-ink">
+            <button type="button" aria-label={t.amount.lower} aria-disabled={!can} onClick={() => can && onAmount(m.id, clamp(amount - t.amount.step))} className="h-[38px] w-[38px] cursor-pointer rounded-full border-0 bg-teal/7 text-[18px] text-ink">
               −
             </button>
             <span className="text-center">
@@ -177,11 +170,11 @@ export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgi
               <b className="block font-heading text-[26px] leading-[1.05] font-semibold tabular-nums tracking-[-0.03em]">{can ? money(amount) : t.amount.notYet}</b>
               <span className="text-label-sm text-muted">{t.amount.upTo(m.max ? moneyShort(m.max) : "—")}</span>
             </span>
-            <button type="button" aria-label="Raise amount" aria-disabled={!can} onClick={() => can && onAmount(m.ini, clamp(amount + t.amount.step))} className="h-[38px] w-[38px] cursor-pointer rounded-full border-0 bg-teal/7 text-[18px] text-ink">
+            <button type="button" aria-label={t.amount.raise} aria-disabled={!can} onClick={() => can && onAmount(m.id, clamp(amount + t.amount.step))} className="h-[38px] w-[38px] cursor-pointer rounded-full border-0 bg-teal/7 text-[18px] text-ink">
               +
             </button>
           </div>
-          <div key={`${m.ini}-${amount}`} role="img" aria-label={`${Math.round(r.cashPercent)}% of the renewal is new cash`} className="anim-grow-x flex h-2.5 gap-0.5 overflow-hidden rounded-[5px]" style={{ "--delay": "0.1s" } as Delay}>
+          <div key={`${m.id}-${amount}`} role="img" aria-label={t.cashLabel(r.cashPercent)} className="anim-grow-x flex h-2.5 gap-0.5 overflow-hidden rounded-[5px]" style={{ "--delay": "0.1s" } as Delay}>
             <span className="bg-white/30" style={{ flex: Math.max(0, 100 - Math.round(r.cashPercent)) }} />
             <span className="bg-mint" style={{ flex: Math.round(r.cashPercent) }} />
           </div>
@@ -228,14 +221,14 @@ export function RadarRow({ s, loyaltyDiscount, onPick, onAmount, onSend, onForgi
               <b>{t.disclosure.forgive.label}</b>
               <span className="block text-hint">{t.disclosure.forgive.note}</span>
             </span>
-            <input type="checkbox" checked={forgive} onChange={() => onForgive(m.ini)} className="m-0 h-5 w-5 accent-teal" />
+            <input type="checkbox" checked={forgive} onChange={() => onForgive(m.id)} className="m-0 h-5 w-5 accent-teal" />
           </label>
         </div>
 
         <button
           type="button"
           aria-disabled={st !== "ready"}
-          onClick={() => st === "ready" && onSend(m.ini)}
+          onClick={() => st === "ready" && onSend(m.id)}
           className={`mt-auto h-[46px] rounded-pill border-0 text-body-sm font-semibold ${st === "ready" ? "cursor-pointer bg-card text-ink" : "bg-mint/18 text-teal-deep"}`}
         >
           {t.send[st]}

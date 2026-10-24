@@ -12,13 +12,18 @@ import { getAccessReview, listInvites, listTeam } from "@/lib/data/team";
 import { daysBetween } from "@/lib/format";
 import { earlyPayoffTiers, LOYALTY_DISCOUNT, offerPolicyFrom, ridgelinePolicy } from "@/lib/offer-math";
 import { currentPolicy, simInputFrom } from "@/lib/policy-sim";
-import { defaultRenewalRules, readiness } from "@/lib/renewal-rules";
+import { readiness } from "@/lib/renewal-rules";
 import { estimateUpTo } from "@/lib/sample-data/apply";
 import { auditHeader } from "@/lib/sample-data/audit";
 import { builder, sendOffer } from "@/lib/copy/deal-offer";
 import { COST_PER_DEAL, costPerDeal, dealsUsed, usage, usageByChannel } from "@/lib/sample-data/plan";
-import { readinessMerchants } from "@/lib/sample-data/renewal-rules";
-import { brokerPay, readyRules, renewalsHeader } from "@/lib/sample-data/renewals";
+import { atRisk as atRiskCopy, brokerPay, comingUp as comingUpCopy, hero, readyRules, renewalMerchant, renewalsHeader } from "@/lib/copy/renewals";
+import { approval, reachOut } from "@/lib/copy/renewal-rules";
+import { biggestBalances, byIndustry, merchantStats, merchantView, merchantsHeader, repeatMerchants, segments } from "@/lib/copy/merchants";
+import { activeCount } from "@/lib/copy/funded";
+import { merchantsView } from "@/lib/data/views/merchants";
+import { renewalRulesView, renewalsView } from "@/lib/data/views/renewals";
+import { navSections } from "@/lib/nav";
 import { unitEconomics } from "@/lib/sample-data/reports";
 import { signIns, toFix } from "@/lib/sample-data/security";
 import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabel } from "@/lib/copy/deal";
@@ -50,8 +55,6 @@ import { commissionsCopy, expiringToday, moneySentCopy, offerChip, offerStats, o
 import { fundedView, offersView } from "@/lib/data/views/funding";
 import { auditEntries } from "@/lib/sample-data/audit";
 import { homeData } from "@/lib/sample-data/home";
-import { biggestBalances, merchants } from "@/lib/sample-data/merchants";
-import { renewalMerchants } from "@/lib/sample-data/renewals";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -80,10 +83,52 @@ describe("What's coming", () => {
 });
 
 describe("Renewals", () => {
-  it("today's saved rules make exactly 9 merchants ready, as the Renewals page says", () => {
-    const { ready } = readiness(readinessMerchants, defaultRenewalRules);
-    assert.equal(ready.length, 9);
-    assert.match(renewalsHeader.line, /^9 merchants ready/);
+  it("the saved rules, run over every live advance, make exactly 9 merchants ready", async () => {
+    const r = await renewalRulesView();
+    const { pool, ready } = readiness(r.merchants, r.settings.rules, r.settings.rules);
+    assert.deepEqual([pool.length, ready.length], [13, 9]);
+    assert.deepEqual(ready.map((m) => m.name), [
+      "Harborview Bistro", "Coastal Dental Group", "Pine Ridge Vet Clinic", "Lighthouse Coffee Co", "Oakview Deli",
+      "Northgate Fitness", "Bluebird Bakery", "Maple Ridge Florist", "Summit Pet Supply",
+    ]);
+  });
+
+  it("Merchants, Renewals and the sidebar all quote that same 9", async () => {
+    const [m, rn] = await Promise.all([merchantsView(), renewalsView()]);
+    assert.deepEqual([m.readyCount, rn.readyCount], [9, 9]);
+    assert.equal(renewalsHeader.line(rn.readyCount), "9 merchants ready · offer before they finish paying");
+    assert.equal(hero.text(rn.readyCount), "9 merchants are ready. Renewing now keeps them before another funder does.");
+    assert.deepEqual(hero.journey.steps(rn.summary, rn.readyCount).map((s) => `${s.count} ${s.label}`), [
+      "12 Coming up", "9 Ready · $402K", "sent Offer sent", "2 Accepted · $130K", "14 Renewed · $812K",
+    ]);
+    assert.equal(merchantStats(m).find((s) => s.label === "Ready to renew")?.value, "9");
+    assert.equal(segments({ book: m.book, active: activeCount(m.funded), readyCount: m.readyCount }).find((s) => s.key === "renew")?.count, 9);
+    assert.equal(repeatMerchants.cta.label(m.readyCount), "Open Renewals · 9 ready");
+    // Not converted yet: the sidebar badge and Home's key number still hold their own copy, pinned here.
+    const badge = navSections.flatMap((s) => s.items).find((i) => i.key === "renewals")?.badge?.count;
+    assert.deepEqual([badge, homeData.keyNumbers.renewals.value], [9, "9"]);
+  });
+
+  it("the radar's statuses follow the saved rules; offers out and accepted come from the candidates", async () => {
+    const rn = await renewalsView();
+    assert.deepEqual(rn.candidates.map((c) => [renewalMerchant(c).name, renewalMerchant(c).status]), [
+      ["Harborview Bistro", "ready"], ["Pine Ridge Vet Clinic", "ready"], ["Coastal Dental Group", "accepted"], ["Lighthouse Coffee Co", "ready"],
+      ["Oakview Deli", "sent"], ["Northgate Fitness", "ready"], ["Bluebird Bakery", "ready"], ["Seaside Yoga Studio", "soon"], ["Kestrel Plumbing", "soon"],
+    ]);
+    assert.equal(atRiskCopy.total(rn.atRisk), "$150K");
+    assert.equal(atRiskCopy.barLabel(rn.atRisk), "Value at risk: Pine Ridge 70K, Harborview 55K, Lighthouse 25K");
+    assert.deepEqual(comingUpCopy.merchants(rn.comingUp, rn.settings.rules.paid).map((c) => [c.name, c.when, c.percent]), [
+      ["Seaside Yoga Studio", "Oct 21", 90], ["Maple St Barbers", "Oct 28", 84], ["Bayside Hardware", "Nov 4", 78], ["Kestrel Plumbing", "Paying slowly", 96],
+    ]);
+    assert.deepEqual(hero.points(rn.summary), [[4, 62], [62, 54], [120, 48], [178, 36], [236, 28], [296, 12]]);
+  });
+
+  it("Renewal rules quotes its saved settings", async () => {
+    const r = await renewalRulesView();
+    assert.equal(approval.auto.note(6, 9), "About 6 of today’s 9 would go straight to an offer");
+    assert.equal(r.settings.autoApprove.upTo, 50000);
+    assert.deepEqual(approval.limits.rows(r.settings.limits).map((l) => l.value), ["7 days", "90+ days", "Review after 3", "At least 30%"]);
+    assert.equal(reachOut.trackLabel(r.settings.outreach), "Outreach at 40, 50, 65 and 90 percent repaid");
   });
 });
 
@@ -638,7 +683,7 @@ describe("Funded deals", () => {
 
   it("each deal's figures match Merchants, Renewals and the readiness rules", async () => {
     const d = await fundedView();
-    const view = Object.fromEntries(d.advances.map((a) => [a.merchant, advanceView(a, d.now)]));
+    const view = Object.fromEntries(d.advances.map((a) => [a.merchant.name, advanceView(a, d.now)]));
     assert.deepEqual(Object.values(view).map((v) => [v.paid, v.left, v.pay, v.rev, v.payoff]), [
       [72, "$25.5K", "$430/day", "+18%", "Late November"],
       [48, "$31.2K", "$412/day", "−22%", "Late January"],
@@ -647,27 +692,35 @@ describe("Funded deals", () => {
       [18, "$68.1K", "$525/day", "+2%", "Watch"],
       [0, "$79.2K", "$629/day", "—", "April 2027"],
     ]);
-    const kestrel = d.advances.find((a) => a.merchant === "Kestrel Plumbing")!;
-    const westfield = d.advances.find((a) => a.merchant === "Westfield Auto Group")!;
-    // Merchants
-    const km = merchants.find((m) => m.name === "Kestrel Plumbing")!;
-    assert.deepEqual([km.balance, km.paid, km.funded], [view["Kestrel Plumbing"].left, view["Kestrel Plumbing"].paid, view["Kestrel Plumbing"].funded]);
-    for (const row of biggestBalances.rows) {
-      const v = view[row.name];
-      if (v) assert.equal(row.balance, v.left, row.name);
-    }
-    // Renewals
-    const kr = renewalMerchants.find((m) => m.name === "Kestrel Plumbing")!;
-    assert.deepEqual([kr.left, kr.now, kr.paid, kr.rev / 100], [kestrel.payback - kestrel.paid, kestrel.dailyPayment, view["Kestrel Plumbing"].paid, kestrel.revenueChange]);
-    // Renewal rules' readiness inputs
+    const kestrel = d.advances.find((a) => a.merchant.name === "Kestrel Plumbing")!;
+    const westfield = d.advances.find((a) => a.merchant.name === "Westfield Auto Group")!;
+    // Merchants reads the same advance: balance, repaid share, funded amount and health
+    const m = await merchantsView();
+    const km = merchantView(m.rows.find((r) => r.merchant.name === "Kestrel Plumbing")!, m.now);
+    assert.deepEqual([km.balance, km.paid, km.funded, km.health], [view["Kestrel Plumbing"].left, view["Kestrel Plumbing"].paid, view["Kestrel Plumbing"].funded, 61]);
+    assert.deepEqual(biggestBalances.rows(m.balances, m.funded.outstanding).map((r) => [r.name, r.balance, r.share, r.percent]), [
+      ["Cedar Street Pharmacy", "$79.2K", "1.6%", 100],
+      ["Westfield Auto Group", "$72.6K", "1.5%", 92],
+      ["Granite State Builders", "$68.1K", "1.4%", 86],
+    ]);
+    for (const row of biggestBalances.rows(m.balances, m.funded.outstanding)) assert.equal(row.balance, view[row.name].left, row.name);
+    assert.equal(biggestBalances.chip(m.balances, m.funded.outstanding), "Top 5 = 7% of book");
+    assert.equal(biggestBalances.note(m.balances, m.funded.outstanding, m.concentration), "No merchant is above your 3% limit per business.");
+    assert.deepEqual(byIndustry.limit(m.book, m.concentration), { label: "Largest industry vs your 40% limit", result: "31%, OK" });
+    assert.equal(merchantsHeader.line(m.book.total, activeCount(m.funded)), "312 businesses · 86 with an active advance");
+    // Renewals reads it too: balance, daily payment, repaid share, revenue and score
+    const kr = renewalMerchant((await renewalsView()).candidates.find((c) => c.advance.id === kestrel.id)!);
+    assert.deepEqual([kr.left, kr.now, kr.paid, kr.rev / 100, kr.score], [kestrel.payback - kestrel.paid, kestrel.dailyPayment, view["Kestrel Plumbing"].paid, kestrel.revenueChange, km.health]);
+    // and so do the readiness rules
+    const inputs = (await renewalRulesView()).merchants;
     for (const a of [kestrel, westfield]) {
-      const r = readinessMerchants.find((m) => m.name === a.merchant)!;
-      assert.equal(r.paid, Math.round((a.paid / a.payback) * 100), a.merchant);
-      assert.equal(r.rev, Math.round((1 + (a.revenueChange ?? 0)) * 100), a.merchant);
+      const r = inputs.find((x) => x.id === a.id)!;
+      assert.equal(r.paid, Math.round((a.paid / a.payback) * 100), a.merchant.name);
+      assert.equal(r.rev, Math.round((1 + (a.revenueChange ?? 0)) * 100), a.merchant.name);
     }
     // Returned payments are a day's payment, and Kestrel's reply is due when My tasks says
     for (const r of d.book.returned) {
-      const a = d.advances.find((x) => x.merchant === r.merchant);
+      const a = d.advances.find((x) => x.merchant.name === r.merchant);
       if (a) assert.equal(r.amount, a.dailyPayment, r.merchant);
     }
     assert.equal(reconciliationCopy.days(d.book.reconciliation, d.now), "4 days");

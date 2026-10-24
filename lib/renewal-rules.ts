@@ -1,25 +1,13 @@
 /**
  * Renewal readiness rules, copied from design/prototypes/Settings-Renewals.dc.html.
- * Settings › Renewal rules edits them live; the Renewals page shows the same
- * defaults. Pure: no React, no "@/" imports, so `npm test` can load it.
- * Tested in lib/renewal-rules.test.ts.
+ * The saved rules are data (getRenewalRules); Settings › Renewal rules edits
+ * them live, and Merchants and Renewals count who is ready with them. Pure:
+ * no React, so `npm test` can load it. Tested in lib/renewal-rules.test.ts.
  */
+import type { Advance, IsoDateTime, Merchant, RenewalRules } from "@/lib/data/types";
+import { daysBetween } from "@/lib/format";
 
-export type RenewalRules = {
-  /** repaid at least, % */
-  paid: number;
-  /** no returned payments in this many days (0 = any time) */
-  ret: number;
-  /** revenue now vs at funding, % */
-  rev: number;
-  /** health score at least */
-  score: number;
-  /** no new advances from other funders */
-  noStack: boolean;
-};
-
-/** Today's saved rules. With these, 9 merchants are ready (the Renewals page count). */
-export const defaultRenewalRules: RenewalRules = { paid: 50, ret: 30, rev: 90, score: 75, noStack: true };
+export type { RenewalRules };
 
 /** Slider ranges from the design. */
 export const renewalRuleRanges = {
@@ -32,7 +20,12 @@ export const renewalRuleRanges = {
 /** Only merchants at least this far repaid are considered at all. */
 export const POOL_MIN_PAID = 30;
 
+/** No returned payment yet counts as this many days ago, so every "no returns in" rule passes. */
+const NEVER_RETURNED = 999;
+
 export type ReadinessMerchant = {
+  /** the advance */
+  id: string;
   name: string;
   /** % repaid */
   paid: number;
@@ -45,6 +38,17 @@ export type ReadinessMerchant = {
   /** another funder advanced them */
   stacking: boolean;
 };
+
+/** What the rules look at for one live advance, read from the advance and its merchant. */
+export const readinessOf = (a: Advance, m: Merchant, now: IsoDateTime): ReadinessMerchant => ({
+  id: a.id,
+  name: m.name,
+  paid: Math.round((a.paid / a.payback) * 100),
+  daysSinceReturn: a.lastReturnedAt ? daysBetween(a.lastReturnedAt, now) : NEVER_RETURNED,
+  rev: Math.round((1 + (a.revenueChange ?? 0)) * 100),
+  health: m.health ?? 0,
+  stacking: a.stacking,
+});
 
 const passes = {
   paid: (m: ReadinessMerchant, r: RenewalRules) => m.paid >= r.paid,
@@ -71,9 +75,9 @@ export type FunnelStep = { label: string; count: number; drop: number };
 /**
  * Everything the settings page shows for a set of rules: the pool (30%+
  * repaid), who is ready, how each rule narrows the pool in turn, and the
- * change against today's saved rules.
+ * change against the saved rules.
  */
-export function readiness(merchants: ReadinessMerchant[], r: RenewalRules) {
+export function readiness(merchants: ReadinessMerchant[], r: RenewalRules, saved: RenewalRules) {
   const pool = merchants.filter((m) => m.paid >= POOL_MIN_PAID);
   const steps: [string, (m: ReadinessMerchant) => boolean][] = [
     [`Over ${POOL_MIN_PAID}% repaid`, () => true],
@@ -90,7 +94,7 @@ export function readiness(merchants: ReadinessMerchant[], r: RenewalRules) {
     return { label, count: left.length, drop: i ? before - left.length : 0 };
   });
   const ready = pool.filter((m) => isReady(m, r));
-  const today = pool.filter((m) => isReady(m, defaultRenewalRules)).length;
+  const today = pool.filter((m) => isReady(m, saved)).length;
   return { pool, ready, funnel, diff: ready.length - today };
 }
 

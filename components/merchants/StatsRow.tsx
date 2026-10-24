@@ -1,5 +1,6 @@
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { merchantStats, type MerchantStatTone } from "@/lib/sample-data/merchants";
+import { merchantStats, merchantsSections, type MerchantStatTone } from "@/lib/copy/merchants";
+import type { MerchantsData } from "@/lib/data/views/merchants";
 
 const tone: Record<MerchantStatTone, { box: string; label: string; note: string }> = {
   mint: { box: "border border-mint-border bg-mint-card", label: "text-muted", note: "text-muted" },
@@ -10,10 +11,10 @@ const tone: Record<MerchantStatTone, { box: string; label: string; note: string 
 };
 
 /** "Portfolio at a glance" from design/Merchants.html: five stat tiles. The on-time bar grows in once. */
-export function StatsRow() {
+export function StatsRow({ data }: { data: MerchantsData }) {
   return (
-    <section aria-label="Portfolio at a glance" className="grid grid-cols-5 gap-3.5 max-[1100px]:grid-cols-3 max-[640px]:grid-cols-2">
-      {merchantStats.map((s) => {
+    <section aria-label={merchantsSections.stats} className="grid grid-cols-5 gap-3.5 max-[1100px]:grid-cols-3 max-[640px]:grid-cols-2">
+      {merchantStats(data).map((s) => {
         const t = tone[s.tone];
         return (
           <article key={s.label} className={`box-border flex min-w-0 flex-col gap-2 rounded-[28px] p-5 text-ink ${t.box}`}>

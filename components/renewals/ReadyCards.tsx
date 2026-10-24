@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { moneyShort } from "@/lib/offer-math";
-import { readyCards as t, renewalMerchants, statusLabel, type RenewalStatus } from "@/lib/sample-data/renewals";
+import { readyCards as t, statusLabel, type RenewalMerchant, type RenewalStatus } from "@/lib/copy/renewals";
 import { amountOf, statusOf, type RenewalState } from "./RadarRow";
 
 type RingVars = CSSProperties & { "--p"?: string; "--delay"?: string };
@@ -24,8 +24,8 @@ const statusChip: Record<RenewalStatus, string> = {
  * suggested amount and the revenue chip. The chosen card is outlined and
  * picking one selects that merchant in the offer panel too. No hover.
  */
-export function ReadyCards({ s, onPick }: { s: RenewalState; onPick: (ini: string) => void }) {
-  const cards = renewalMerchants.filter((m) => m.status !== "soon");
+export function ReadyCards({ merchants, s, onPick }: { merchants: RenewalMerchant[]; s: RenewalState; onPick: (id: string) => void }) {
+  const cards = merchants.filter((m) => m.status !== "soon");
   return (
     <section aria-labelledby="h-cards" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-2.5 px-1 pt-1">
@@ -39,19 +39,19 @@ export function ReadyCards({ s, onPick }: { s: RenewalState; onPick: (ini: strin
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
         {cards.map((m, i) => {
-          const on = m.ini === s.sel;
+          const on = m.id === s.sel;
           const st = statusOf(m, s.sent);
           const ring: RingVars = { "--p": `${m.paid}%`, "--delay": `${0.2 + i * 0.08}s`, background: `conic-gradient(${ringColor[st]} var(--p), var(--color-line) 0)` };
           return (
             <button
-              key={m.ini}
+              key={m.id}
               type="button"
               aria-pressed={on}
-              onClick={() => onPick(m.ini)}
+              onClick={() => onPick(m.id)}
               className={`flex cursor-pointer flex-col items-start gap-3 rounded-[26px] border-2 bg-card p-4 text-left text-ink ${on ? "border-ink" : "border-transparent"}`}
             >
               <span className="flex w-full items-center justify-between">
-                <span role="img" aria-label={`${m.paid}% repaid`} className="anim-conic grid h-[52px] w-[52px] place-items-center rounded-full" style={ring}>
+                <span role="img" aria-label={t.repaid(m.paid)} className="anim-conic grid h-[52px] w-[52px] place-items-center rounded-full" style={ring}>
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-card text-[11.5px] font-bold text-ink">{m.paid}%</span>
                 </span>
                 <span className={`whitespace-nowrap rounded-pill px-[9px] py-[3px] text-label-sm font-semibold ${statusChip[st]}`}>{statusLabel[st]}</span>

@@ -43,6 +43,16 @@ export const apiSource: DataSource = {
     list: notConnected("advances"),
     getBook: notConnected("advances"),
   },
+  merchants: {
+    list: notConnected("merchants"),
+    listListings: notConnected("merchants"),
+    getBook: notConnected("merchants"),
+  },
+  renewals: {
+    listCandidates: notConnected("renewals"),
+    getSettings: notConnected("renewals"),
+    getSummary: notConnected("renewals"),
+  },
   tasks: {
     list: notConnected("tasks"),
     getBoard: notConnected("tasks"),

@@ -1,4 +1,4 @@
-import type { IsoDateTime, Money } from "./common";
+import type { Id, IsoDateTime, Money } from "./common";
 import type { YearMonth } from "./deal-tabs";
 import type { AvatarColors } from "./funding";
 
@@ -6,17 +6,16 @@ import type { AvatarColors } from "./funding";
  * Funded deals (design/Funded.html): the advances being repaid, today's
  * payments, and what the book looks like. Findings worded by the system
  * (a flag on a deal, an early warning) are data; labels and headings are
- * in lib/copy/funded.
+ * in lib/copy/funded. Each advance points at its merchant by id; Merchants,
+ * Renewals and Renewal rules read the same advances.
  */
 
 export type AdvanceStatus = "ok" | "slow" | "late" | "soon" | "new";
 export type PaymentMark = "cleared" | "returned" | "slow" | "upcoming";
 
 export type Advance = {
-  id: string;
-  merchant: string;
-  initials: string;
-  colors: AvatarColors;
+  id: Id;
+  merchantId: Id;
   /** the broker's short name */
   broker: string;
   fundedAt: IsoDateTime;
@@ -35,9 +34,15 @@ export type Advance = {
   trend: number[];
   flag: { text: string; tone: "good" | "watch" | "risk" | "none" };
   next: "renewal" | "call" | "plan" | "stacking" | "schedule";
+  /** the last returned payment; null when none has bounced */
+  lastReturnedAt: IsoDateTime | null;
+  /** another funder has advanced them since */
+  stacking: boolean;
 };
 
 export type FundedBook = {
+  /** the advances on the book's first page, in the order it lists them */
+  page: Id[];
   /** advances being repaid, by status */
   counts: Record<Exclude<AdvanceStatus, "new">, number>;
   outstanding: Money;

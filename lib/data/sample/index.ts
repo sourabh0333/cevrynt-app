@@ -5,7 +5,9 @@ import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harbo
 import { deals, queueStats, queueSummary } from "./deals";
 import { fundingDesk, fundingQueue, fundingSummary, pipelineOffers, releases } from "./funding";
 import { bulkIntake, intakeSummary, manualDraft, packageIntake } from "./intake";
+import { merchantBook, merchantListings, merchants } from "./merchants";
 import { policy, pricing } from "./policy";
+import { renewalCandidates, renewalSettings, renewalSummary } from "./renewals";
 import { roadmapFeatures } from "./roadmap";
 import { taskBoard, tasks } from "./tasks";
 import { accessReview, CURRENT_USER_ID, outsideAccess, teamInvites, teamMembers } from "./team";
@@ -93,6 +95,28 @@ export const sampleSource: DataSource = {
     },
     async getBook() {
       return structuredClone(fundedBook);
+    },
+  },
+  merchants: {
+    async list() {
+      return structuredClone(merchants);
+    },
+    async listListings() {
+      return structuredClone(merchantListings);
+    },
+    async getBook() {
+      return structuredClone(merchantBook);
+    },
+  },
+  renewals: {
+    async listCandidates() {
+      return structuredClone(renewalCandidates);
+    },
+    async getSettings() {
+      return structuredClone(renewalSettings);
+    },
+    async getSummary() {
+      return structuredClone(renewalSummary);
     },
   },
   tasks: {

@@ -4,7 +4,9 @@ import type { FundingDesk, FundingSummary, PipelineOffer, QueuedFunding, Release
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
 import type { BulkIntake, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
+import type { Merchant, MerchantBook, MerchantListing } from "./merchants";
 import type { Policy, Pricing } from "./policy";
+import type { RenewalCandidate, RenewalSettings, RenewalSummary } from "./renewals";
 import type { Task, TaskBoard } from "./tasks";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
@@ -49,6 +51,19 @@ export interface DataSource {
   advances: {
     list(): Promise<Advance[]>;
     getBook(): Promise<FundedBook>;
+  };
+  merchants: {
+    /** every merchant the workspace knows */
+    list(): Promise<Merchant[]>;
+    /** the directory's first page, in list order */
+    listListings(): Promise<MerchantListing[]>;
+    getBook(): Promise<MerchantBook>;
+  };
+  renewals: {
+    /** in the order the radar shows them */
+    listCandidates(): Promise<RenewalCandidate[]>;
+    getSettings(): Promise<RenewalSettings>;
+    getSummary(): Promise<RenewalSummary>;
   };
   tasks: {
     list(): Promise<Task[]>;

@@ -64,6 +64,8 @@ export type Policy = {
   approvedIndustries: string[];
   /** months of bank statements every deal needs */
   requiredStatementMonths: number;
+  /** the most of the money still to collect allowed in one industry, and in one business, 0–1 */
+  concentration: { industryMax: number; merchantMax: number };
   rules: PolicyRule[];
   scoreWeights: { part: ScorePart; points: number }[];
   /** scores under declineBelow suggest a decline; approvalFrom and up is the approval line */

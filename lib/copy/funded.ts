@@ -5,14 +5,14 @@
  * last ten payments, payoff months, and the cards under the book. Home's
  * "collected today" tile uses the same wording for the same figures.
  */
-import type { Advance, AdvanceStatus, FundedBook, IsoDateTime, PaymentMark } from "@/lib/data/types";
+import type { Advance, AdvanceStatus, FundedBook, IsoDateTime, Merchant, PaymentMark } from "@/lib/data/types";
 import { clock12, dayLabel, daysBetween, money, moneyK, moneyShort, monthName, monthYear, percent, plural, weekdayShort } from "@/lib/format";
 
 const millions1 = (n: number) => `$${(n / 1_000_000).toFixed(1)}M`;
 const signedPercent = (x: number) => `${x >= 0 ? "+" : "−"}${Math.round(Math.abs(x) * 100)}%`;
 
 /** Advances being repaid, all statuses together. */
-export const activeCount = (b: FundedBook) => Object.values(b.counts).reduce((n, c) => n + c, 0);
+export const activeCount = (b: Pick<FundedBook, "counts">) => Object.values(b.counts).reduce((n, c) => n + c, 0);
 
 export const fundedHeader = {
   title: "Funded deals",
@@ -110,11 +110,11 @@ export type AdvanceView = {
   action: string;
 };
 
-export const advanceView = (a: Advance, now: IsoDateTime): AdvanceView => ({
+export const advanceView = (a: Advance & { merchant: Merchant }, now: IsoDateTime): AdvanceView => ({
   id: a.id,
-  ini: a.initials,
-  g: a.colors,
-  name: a.merchant,
+  ini: a.merchant.initials,
+  g: a.merchant.colors,
+  name: a.merchant.name,
   funded: moneyShort(a.amount),
   when: daysBetween(a.fundedAt, now) === 0 ? "today" : monthYear(a.fundedAt),
   broker: a.broker,

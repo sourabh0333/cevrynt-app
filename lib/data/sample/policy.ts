@@ -26,6 +26,7 @@ export const policy: Policy = {
   restrictedIndustries: ["Trucking", "Cannabis", "Firearms", "Gambling", "Adult", "Debt collection", "Auto sales"],
   approvedIndustries: ["Restaurant", "Café", "Cafe", "Dental", "HVAC", "Cleaning", "Fitness", "Auto", "Plumbing", "Retail", "Florist", "Towing", "Medical", "Salon"],
   requiredStatementMonths: 4,
+  concentration: { industryMax: 0.4, merchantMax: 0.03 },
   rules: [
     { id: "age", outcome: "decline", on: true },
     { id: "industry", outcome: "decline", on: true },

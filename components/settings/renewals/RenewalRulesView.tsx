@@ -3,36 +3,21 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Switch } from "@/components/ui/Switch";
-import type { Pricing } from "@/lib/data/types";
-import { autoApproveCount, defaultRenewalRules, isReady, notReadyReason, readiness, renewalRuleRanges, type RenewalRules } from "@/lib/renewal-rules";
 import {
   approval,
   neverOffer,
   offered,
   reachOut,
-  readinessMerchants,
   readyPanel as rp,
   renewalRulesHeader as hd,
+  renewalRulesSections,
   whoIsReady as wr,
-} from "@/lib/sample-data/renewal-rules";
+} from "@/lib/copy/renewal-rules";
+import type { RenewalRulesData } from "@/lib/data/views/renewals";
+import { autoApproveCount, isReady, notReadyReason, readiness, renewalRuleRanges, type RenewalRules } from "@/lib/renewal-rules";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
-
-/*
- * "What they're offered": the shared values all come from Pricing, so the
- * tiles can't drift: the loyalty price, the broker points and the
- * "forgive unearned fees on renewals" switch.
- */
-type OfferTerms = Pick<Pricing, "loyaltyDiscount" | "brokerPoints" | "forgiveUnearnedFees">;
-const offerTilesFor = ({ loyaltyDiscount, brokerPoints, forgiveUnearnedFees: forgive }: OfferTerms): { label: string; value: string; note: string; hero?: boolean }[] => [
-  { label: "Most you offer", value: "1.25×", note: "of revenue right now" },
-  { label: "Loyalty price", value: `−${loyaltyDiscount.toFixed(2)}`, note: "off the first factor", hero: true },
-  { label: "Current balance", value: "Paid off", note: "from the renewal amount" },
-  { label: "Unearned fees", value: forgive ? "Forgiven" : "Charged", note: forgive ? "no paying twice" : "included in the payoff" },
-  { label: "Broker commission", value: `${brokerPoints.renewal} pts`, note: `vs ${brokerPoints.newDeal} on new deals` },
-  { label: "Broker keeps renewals", value: "12 mo", note: "then they're yours" },
-];
 
 const h2 = "m-0 font-heading text-[19px] font-semibold";
 
@@ -40,18 +25,23 @@ const h2 = "m-0 font-heading text-[19px] font-semibold";
  * Settings → Renewal rules from design/Settings-Renewals.html and its
  * prototype. The four sliders and the stacking switch feed the shared
  * readiness check (lib/renewal-rules.ts): the funnel, the ready count, the
- * merchant list and the change vs today all update live. With today's
- * rules exactly 9 merchants are ready, the Renewals page count. No hover.
- * The renewal price terms come from Pricing (props, from the data layer).
+ * merchant list and the change vs the saved rules all update live. The
+ * merchants are every live advance, the same ones Merchants and Renewals
+ * count, so the saved rules give the Renewals page's ready count. No
+ * hover. The saved settings and the renewal price terms from Pricing come
+ * from the data layer (props); edits stay local until saving exists.
  */
-export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
-  const offerTiles = offerTilesFor(terms);
-  const [rules, setRules] = useState<RenewalRules>(defaultRenewalRules);
-  const [auto, setAuto] = useState(true);
-  const [cap, setCap] = useState(approval.auto.cap.start);
-  const [steps, setSteps] = useState<boolean[]>(() => reachOut.steps.map((s) => s.on));
+export function RenewalRulesView({ data }: { data: RenewalRulesData }) {
+  const { settings } = data;
+  const offerTiles = offered.tiles(data.terms, settings.terms);
+  const outreachSteps = reachOut.steps(settings.outreach);
+  const line = settings.rules.paid;
+  const [rules, setRules] = useState<RenewalRules>(settings.rules);
+  const [auto, setAuto] = useState(settings.autoApprove.on);
+  const [cap, setCap] = useState(settings.autoApprove.upTo / 1000);
+  const [steps, setSteps] = useState<boolean[]>(() => settings.outreach.map((s) => s.on));
 
-  const { pool, ready, funnel, diff } = readiness(readinessMerchants, rules);
+  const { pool, ready, funnel, diff } = readiness(data.merchants, rules, settings.rules);
   const list = pool.slice(0, rp.listSize);
   const change = diff === 0 ? rp.change.same : diff > 0 ? rp.change.more(diff) : rp.change.fewer(Math.abs(diff));
   const changeBox = diff === 0 ? "bg-card text-grey-text" : diff > 0 ? "bg-amber-tint text-amber-mute" : "bg-blue-bg text-blue-text";
@@ -202,7 +192,7 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
         </section>
 
         <section
-          aria-label="Renewal approval, checks and limits"
+          aria-label={renewalRulesSections.approval}
           className="box-border grid min-w-0 grid-cols-3 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[760px]:grid-cols-1"
         >
           <div className="flex min-w-0 flex-col gap-2.5 rounded-card bg-mint-card p-4">
@@ -222,7 +212,7 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
             <div className={`flex flex-col gap-1 rounded-[16px] bg-tile p-3 ${auto ? "" : "pointer-events-none opacity-45"}`}>
               <span className="flex justify-between text-[12.5px]">
                 <label htmlFor="r-cap">{approval.auto.capLabel}</label>
-                <b className="font-heading text-[16px] tabular-nums tracking-[-0.03em]">${cap}K</b>
+                <b className="font-heading text-[16px] tabular-nums tracking-[-0.03em]">{approval.auto.capValue(cap)}</b>
               </span>
               <input
                 id="r-cap"
@@ -232,7 +222,7 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
                 step={approval.auto.cap.step}
                 value={cap}
                 disabled={!auto}
-                aria-valuetext={`$${cap}K`}
+                aria-valuetext={approval.auto.capValue(cap)}
                 onChange={(e) => setCap(Number(e.target.value))}
                 className="w-full cursor-pointer accent-teal"
               />
@@ -268,7 +258,7 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
               <h2 className="m-0 font-heading text-card-title-sm font-semibold">{approval.limits.title}</h2>
               <span className="text-label text-hint">{approval.limits.text}</span>
             </div>
-            {approval.limits.rows.map((l) => (
+            {approval.limits.rows(settings.limits).map((l) => (
               <span key={l.label} className="flex justify-between gap-2 border-b border-line py-[9px] text-[12.5px]">
                 <span>{l.label}</span>
                 <b className="text-right">{l.value}</b>
@@ -290,11 +280,11 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
           <div className="px-3.5 pt-[30px] pb-2">
             <div
               role="img"
-              aria-label={reachOut.trackLabel}
+              aria-label={reachOut.trackLabel(settings.outreach)}
               className="relative h-2.5 rounded-[5px]"
-              style={{ background: `linear-gradient(90deg, var(--color-line-strong) 0%, var(--color-line-strong) ${reachOut.line}%, var(--color-mint) ${reachOut.line}%, var(--color-teal) 100%)` }}
+              style={{ background: `linear-gradient(90deg, var(--color-line-strong) 0%, var(--color-line-strong) ${line}%, var(--color-mint) ${line}%, var(--color-teal) 100%)` }}
             >
-              {reachOut.steps.map((s, i) => (
+              {outreachSteps.map((s, i) => (
                 <span key={s.at}>
                   {/* Outer span places the marker; the inner one pops in, so the transforms never clash. */}
                   <span className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${s.at}%` }}>
@@ -314,16 +304,16 @@ export function RenewalRulesView({ terms }: { terms: OfferTerms }) {
             </div>
             <div className="mt-2.5 flex justify-between text-label-sm text-hint">
               <span>{reachOut.ends.start}</span>
-              <span className="font-semibold text-teal-deep">{reachOut.ends.line}</span>
+              <span className="font-semibold text-teal-deep">{reachOut.ends.line(line)}</span>
               <span>{reachOut.ends.end}</span>
             </div>
           </div>
           <div className="grid grid-cols-4 gap-2 rounded-[22px] bg-card p-2.5 @max-[760px]:grid-cols-2 @max-[400px]:grid-cols-1">
-            {reachOut.steps.map((s, i) => (
+            {outreachSteps.map((s, i) => (
               <div key={s.at} className={`flex min-w-0 flex-col gap-2 rounded-[18px] bg-tile p-3.5 ${steps[i] ? "" : "text-hint"}`}>
                 <span className="flex items-center justify-between">
                   <b className={`font-heading text-card-title tabular-nums tracking-[-0.03em] ${steps[i] ? "text-teal-deep" : ""}`}>{s.at}%</b>
-                  <Switch size="sm" checked={steps[i]} onChange={(v) => setSteps((x) => x.map((y, j) => (j === i ? v : y)))} label={`${s.at}%: ${s.title}`} />
+                  <Switch size="sm" checked={steps[i]} onChange={(v) => setSteps((x) => x.map((y, j) => (j === i ? v : y)))} label={reachOut.switchLabel(s.at, s.title)} />
                 </span>
                 <b className="text-body-sm leading-[1.3]">{s.title}</b>
                 <span className="mt-auto flex flex-wrap gap-1.5">

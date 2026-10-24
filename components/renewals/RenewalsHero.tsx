@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { hero } from "@/lib/sample-data/renewals";
+import { hero, renewalsSections } from "@/lib/copy/renewals";
+import type { RenewalsData } from "@/lib/data/views/renewals";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -16,12 +17,13 @@ const stepTone = {
  * line (draws in, fill fades, the end dot pops) and the five-step renewal
  * journey with its bar. The "Offer sent" count follows the offer panel.
  */
-export function RenewalsHero({ sentCount }: { sentCount: number }) {
-  const pts = hero.points;
+export function RenewalsHero({ data, sentCount }: { data: RenewalsData; sentCount: number }) {
+  const s = data.summary;
+  const pts = hero.points(s);
   const line = "M" + pts.map(([x, y]) => `${x} ${y}`).join(" L");
   const area = `${line} L${pts[pts.length - 1][0]} 70 L${pts[0][0]} 70Z`;
   const [ex, ey] = pts[pts.length - 1];
-  const steps = hero.journey.steps;
+  const steps = hero.journey.steps(s, data.readyCount);
   // The bar's segments share the steps' tones, except "accepted" which is the pale white strip.
   const barTone = ["bg-teal/7", "bg-card", "bg-teal/18", "bg-white/50", "bg-mint"];
 
@@ -32,20 +34,20 @@ export function RenewalsHero({ sentCount }: { sentCount: number }) {
     >
       <div className="flex max-w-[420px] flex-[1_1_300px] flex-col gap-2.5 rounded-card border border-teal/7 bg-[radial-gradient(120%_100%_at_0%_0%,rgba(143,217,195,.3),rgba(143,217,195,0)_60%),rgba(14,107,92,.07)] p-[22px]">
         <h2 id="h-pot" className="m-0 font-sans text-body-sm font-semibold tracking-normal text-muted">{hero.title}</h2>
-        <b className="font-heading text-[40px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{hero.value}</b>
-        <span className="text-[12.5px] text-muted">{hero.text}</span>
-        <svg role="img" aria-label={hero.chartLabel} viewBox="0 0 300 70" className="mt-auto h-[70px] w-full">
+        <b className="font-heading text-[40px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{hero.value(s)}</b>
+        <span className="text-[12.5px] text-muted">{hero.text(data.readyCount)}</span>
+        <svg role="img" aria-label={hero.chartLabel(s)} viewBox="0 0 300 70" className="mt-auto h-[70px] w-full">
           <path d={area} className="anim-fade fill-mint/16" />
           <path d={line} pathLength={1} fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="anim-draw stroke-teal" />
           <circle cx={ex} cy={ey} r="4" className="anim-pop-svg fill-teal" style={d(1.4)} />
         </svg>
-        <span className="text-[11.5px] text-muted">{hero.caption}</span>
+        <span className="text-[11.5px] text-muted">{hero.caption(s)}</span>
       </div>
 
       <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-4 rounded-card border border-teal/7 bg-teal/7 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           <b className="text-body">{hero.journey.title}</b>
-          <span className="text-label text-muted">{hero.journey.note}</span>
+          <span className="text-label text-muted">{hero.journey.note(data.renewedThisMonth)}</span>
         </div>
         <div className="grid flex-1 grid-cols-5 items-stretch gap-2 max-[760px]:grid-cols-3 max-[480px]:grid-cols-2">
           {steps.map((s) => {
@@ -59,7 +61,7 @@ export function RenewalsHero({ sentCount }: { sentCount: number }) {
             );
           })}
         </div>
-        <div className="flex h-2 gap-1.5" role="img" aria-label="Merchants at each step of the renewal journey">
+        <div className="flex h-2 gap-1.5" role="img" aria-label={renewalsSections.journey}>
           {steps.map((s, i) => (
             <span key={s.n} className={`anim-grow-x rounded-[4px] ${barTone[i]}`} style={{ flex: s.count === "sent" ? sentCount : s.flex, ...d(0.1 + i * 0.08) }} />
           ))}

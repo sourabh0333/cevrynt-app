@@ -1,8 +1,10 @@
 import "server-only";
-import type { Advance, FundedBook, FundingDesk, FundingSummary, IsoDateTime, PipelineOffer, QueuedFunding, Release } from "@/lib/data/types";
+import type { FundedBook, FundingDesk, FundingSummary, IsoDateTime, PipelineOffer, QueuedFunding, Release } from "@/lib/data/types";
 import { listAdvances, getFundedBook } from "../advances";
 import { getNow } from "../clock";
 import { getFundingDesk, getFundingQueue, getFundingSummary, listPipeline, listReleases } from "../funding";
+import { listMerchants } from "../merchants";
+import type { LiveAdvance } from "./portfolio";
 import { getPricing } from "../settings";
 import { getCurrentUser, listTeam } from "../team";
 
@@ -51,12 +53,17 @@ export async function offersView(): Promise<OffersData> {
 
 export type FundedData = {
   now: IsoDateTime;
-  advances: Advance[];
+  /** the book's first page, each with its merchant */
+  advances: LiveAdvance[];
   book: FundedBook;
 };
 
 /** Everything Funded deals shows, loaded in parallel. */
 export async function fundedView(): Promise<FundedData> {
-  const [advances, book, now] = await Promise.all([listAdvances(), getFundedBook(), getNow()]);
-  return { now, advances, book };
+  const [advances, merchants, book, now] = await Promise.all([listAdvances(), listMerchants(), getFundedBook(), getNow()]);
+  const page = book.page.map((id) => {
+    const a = advances.find((x) => x.id === id)!;
+    return { ...a, merchant: merchants.find((m) => m.id === a.merchantId)! };
+  });
+  return { now, advances: page, book };
 }
