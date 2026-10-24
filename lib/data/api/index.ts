@@ -32,6 +32,16 @@ export const apiSource: DataSource = {
     getDecision: notConnected("deals"),
     getActivity: notConnected("deals"),
   },
+  tasks: {
+    list: notConnected("tasks"),
+    getBoard: notConnected("tasks"),
+  },
+  intake: {
+    getSummary: notConnected("intake"),
+    getManualDraft: notConnected("intake"),
+    getPackage: notConnected("intake"),
+    getBulk: notConnected("intake"),
+  },
   team: {
     getCurrentUserId: notConnected("team"),
     listMembers: notConnected("team"),

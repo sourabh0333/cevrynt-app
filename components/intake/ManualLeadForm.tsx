@@ -3,18 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import {
-  docsReceived,
-  existingDeals,
-  initialLead,
-  manualSteps,
-  policy,
-  registryMatch,
-  requiredDocs,
-  useOfFunds,
-  type ManualLead,
-  type Position,
-} from "@/lib/sample-data/intake-manual";
+import { findDuplicate, manualCopy, manualSteps, requiredDocs as requiredDocsFor, runChecks, useOfFunds, type RequiredDocView, type Status } from "@/lib/copy/intake-manual";
+import type { ManualDraft, ManualLead } from "@/lib/data/types";
+import type { ManualLeadData } from "@/lib/data/views/intake";
+
+type Position = ManualLead["request"]["positions"][number];
 
 /* ---------- small pieces ---------- */
 
@@ -64,111 +57,26 @@ const grid = "grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5";
 const pill = (on: boolean) =>
   `h-[38px] cursor-pointer rounded-pill border-0 px-3.5 text-[12.5px] font-semibold ${on ? "bg-teal text-white" : "bg-tile text-ink"}`;
 
-/* ---------- fit check logic ---------- */
-
-type Status = "good" | "warn" | "bad" | "pending";
-type Check = { key: string; status: Status; title: string; detail: string };
-
-const money = (s: string) => Number(s.replace(/[^0-9.]/g, "")) || 0;
-const fmtMoney = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
-const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-
-function monthsInBusiness(start: string): number | null {
-  const m = start.trim().toLowerCase().match(/([a-z]+)\s+(\d{4})/);
-  if (m) {
-    const mi = months.findIndex((x) => m[1].startsWith(x));
-    if (mi < 0) return null;
-    return (policy.today.year - Number(m[2])) * 12 + (policy.today.month - (mi + 1));
-  }
-  const y = start.trim().match(/^(\d{4})$/);
-  if (y) return (policy.today.year - Number(y[1])) * 12 + policy.today.month - 1;
-  return null;
-}
-
-function spanText(n: number) {
-  const y = Math.floor(n / 12);
-  const m = n % 12;
-  const parts = [];
-  if (y) parts.push(`${y} year${y === 1 ? "" : "s"}`);
-  if (m || !y) parts.push(`${m} month${m === 1 ? "" : "s"}`);
-  return parts.join(" ");
-}
-
-function runChecks(lead: ManualLead): { checks: Check[]; fits: boolean } {
-  const checks: Check[] = [];
-
-  const ind = lead.business.industry.trim().toLowerCase();
-  if (!ind) checks.push({ key: "industry", status: "pending", title: "Industry", detail: "Type the industry to check it" });
-  else if (policy.blockedIndustries.some((b) => ind.includes(b)))
-    checks.push({ key: "industry", status: "bad", title: "Industry not allowed", detail: "This industry is on your excluded list" });
-  else if (policy.allowedIndustries.some((a) => ind.includes(a))) {
-    const first = lead.business.industry.split("·")[0].trim();
-    const plural = first.endsWith("s") ? first : `${first}s`;
-    checks.push({ key: "industry", status: "good", title: "Industry allowed", detail: `${plural} are on your approved list` });
-  } else checks.push({ key: "industry", status: "warn", title: "Industry needs a look", detail: "Not on your approved or excluded list" });
-
-  const mib = monthsInBusiness(lead.business.start);
-  if (mib === null) checks.push({ key: "time", status: "pending", title: "Time in business", detail: "Enter the start date as month and year" });
-  else if (mib >= policy.minMonthsInBusiness)
-    checks.push({ key: "time", status: "good", title: `Time in business: ${spanText(mib)}`, detail: `Policy needs ${policy.minMonthsInBusiness} months or more` });
-  else checks.push({ key: "time", status: "bad", title: `Time in business: ${spanText(Math.max(0, mib))}`, detail: `Policy needs ${policy.minMonthsInBusiness} months or more` });
-
-  const amt = money(lead.request.amount);
-  const rev = money(lead.request.revenue);
-  if (!amt || !rev) checks.push({ key: "ratio", status: "pending", title: "Request vs revenue", detail: "Checked once the amount and revenue are in" });
-  else {
-    const ratio = amt / rev;
-    const ok = ratio <= policy.maxRequestToRevenue;
-    checks.push({
-      key: "ratio",
-      status: ok ? "good" : "bad",
-      title: `Request is ${ratio.toFixed(2)}× stated revenue`,
-      detail: ok ? `Policy allows up to ${policy.maxRequestToRevenue}×` : `Policy allows up to ${policy.maxRequestToRevenue}× · ${fmtMoney(rev * policy.maxRequestToRevenue)} max`,
-    });
-  }
-
-  const n = lead.request.hasPositions ? lead.request.positions.filter((p) => p.funder.trim()).length : 0;
-  if (n === 0) checks.push({ key: "positions", status: "good", title: "No existing positions", detail: "Nothing disclosed; the statements will confirm it" });
-  else if (n <= policy.maxPositions)
-    checks.push({ key: "positions", status: "warn", title: `${n} existing position${n === 1 ? "" : "s"}`, detail: "Allowed, but will be checked against the statements" });
-  else checks.push({ key: "positions", status: "bad", title: `${n} existing positions`, detail: `Policy allows up to ${policy.maxPositions}` });
-
-  if (lead.documents.merchantLinkSent)
-    checks.push({ key: "docs", status: "warn", title: "Documents requested", detail: `Merchant Link sent to ${lead.owner.email || "the owner"}` });
-  else checks.push({ key: "docs", status: "pending", title: "Documents", detail: "Checked once statements arrive" });
-
-  return { checks, fits: !checks.some((c) => c.status === "bad") };
-}
-
-const digits = (s: string) => s.replace(/\D/g, "");
-function findDuplicate(lead: ManualLead) {
-  const name = lead.business.name.trim().toLowerCase();
-  const owner = lead.owner.name.trim().toLowerCase();
-  const phones = [digits(lead.business.phone), digits(lead.owner.mobile)].filter((p) => p.length >= 7);
-  return existingDeals.find((d) => {
-    const dn = d.business.toLowerCase();
-    return (
-      (name.length > 3 && (dn.includes(name) || name.includes(dn))) ||
-      (owner.length > 3 && d.owner.toLowerCase() === owner) ||
-      phones.includes(digits(d.phone))
-    );
-  });
-}
-
 /* ---------- the page ---------- */
 
-export function ManualLeadForm() {
+/**
+ * The manual lead form for the draft in `data` (from the data layer). The
+ * live fit check and the duplicate check run on every change, against the
+ * shared policy and the past deals the draft came with.
+ */
+export function ManualLeadForm({ data }: { data: ManualLeadData }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [lead, setLead] = useState<ManualLead>(initialLead);
+  const [lead, setLead] = useState<ManualLead>(data.draft.lead);
 
   const set = <K extends keyof ManualLead>(part: K, patch: Partial<ManualLead[K]>) =>
     setLead((l) => ({ ...l, [part]: { ...l[part], ...patch } }));
   const setPos = (i: number, patch: Partial<Position>) =>
     set("request", { positions: lead.request.positions.map((p, j) => (j === i ? { ...p, ...patch } : p)) });
 
-  const { checks, fits } = runChecks(lead);
-  const dup = findDuplicate(lead);
+  const { checks, fits } = runChecks(lead, data.policy, data.now);
+  const dup = findDuplicate(lead, data.draft.pastDeals);
+  const docs = requiredDocsFor(data.draft, data.policy, data.now);
 
   const back = () => setStep((s) => Math.max(1, s - 1));
   const next = () => (step === 4 ? router.push("/submissions") : setStep((s) => Math.min(4, s + 1)));
@@ -177,20 +85,20 @@ export function ManualLeadForm() {
     <>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Link href="/intake" className="inline-flex items-center gap-1.5 text-cap font-semibold uppercase text-muted no-underline">
+          <Link href={manualCopy.back.href} className="inline-flex items-center gap-1.5 text-cap font-semibold uppercase text-muted no-underline">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
               <path d="m15 18-6-6 6-6" />
             </svg>
-            Back to intake
+            {manualCopy.back.label}
           </Link>
           <h1 className="mt-2 mb-0 font-heading text-[30px] leading-[1.05] font-semibold tracking-[-0.035em] text-ink">
-            New manual lead
+            {manualCopy.title}
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-label text-hint">Draft saved 9:42</span>
-          <Link href="/intake" className="inline-flex h-11 items-center rounded-tile bg-card px-4 text-body-sm font-semibold text-ink no-underline">
-            Save and exit
+          <span className="text-label text-hint">{manualCopy.saved(data.draft.savedAt)}</span>
+          <Link href={manualCopy.saveExit.href} className="inline-flex h-11 items-center rounded-tile bg-card px-4 text-body-sm font-semibold text-ink no-underline">
+            {manualCopy.saveExit.label}
           </Link>
         </div>
       </header>
@@ -230,10 +138,10 @@ export function ManualLeadForm() {
       <div className="flex flex-wrap items-start gap-3.5">
         {/* Form card */}
         <section className="flex min-w-0 flex-[999_1_520px] flex-col gap-5 rounded-card-lg bg-card p-6 text-ink">
-          {step === 1 ? <StepCompany lead={lead} set={set} /> : null}
+          {step === 1 ? <StepCompany lead={lead} set={set} registry={data.draft.registry} /> : null}
           {step === 2 ? <StepRequest lead={lead} set={set} setPos={setPos} /> : null}
-          {step === 3 ? <StepDocuments lead={lead} set={set} /> : null}
-          {step === 4 ? <StepReview lead={lead} set={set} goto={setStep} /> : null}
+          {step === 3 ? <StepDocuments lead={lead} set={set} docs={docs} /> : null}
+          {step === 4 ? <StepReview lead={lead} set={set} goto={setStep} docsReceived={data.draft.docsReceived} /> : null}
 
           <div className="flex items-center justify-between gap-2.5 border-t border-line pt-1.5">
             <button
@@ -289,7 +197,7 @@ export function ManualLeadForm() {
             <span className="text-cap font-semibold uppercase text-amber-text">Already in Cevrynt?</span>
             <b className="text-body">
               {dup
-                ? `Possible match: ${dup.business} (${dup.id}).`
+                ? `Possible match: ${dup.business} (${dup.dealId}).`
                 : "No other deal matches this business, owner or phone."}
             </b>
             <span className="text-[11.5px] text-muted">
@@ -324,10 +232,10 @@ function StatusIcon({ status }: { status: Status }) {
 
 type SetFn = <K extends keyof ManualLead>(part: K, patch: Partial<ManualLead[K]>) => void;
 
-function StepCompany({ lead, set }: { lead: ManualLead; set: SetFn }) {
+function StepCompany({ lead, set, registry }: { lead: ManualLead; set: SetFn; registry: ManualDraft["registry"] }) {
   const b = lead.business;
   const o = lead.owner;
-  const found = b.name.trim().toLowerCase().includes("copper kettle");
+  const found = registry !== null && b.name.trim().toLowerCase().includes(registry.matches);
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -345,10 +253,10 @@ function StepCompany({ lead, set }: { lead: ManualLead; set: SetFn }) {
             found ? (
               <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-teal-deep">
                 <span className="h-[7px] w-[7px] rounded-full bg-teal" />
-                {registryMatch}
+                {registry ? manualCopy.registryFound(registry) : null}
               </span>
             ) : (
-              <span className="text-[11.5px] text-hint">No registry match yet · keep typing the legal name</span>
+              <span className="text-[11.5px] text-hint">{manualCopy.registryNone}</span>
             )
           }
         />
@@ -463,7 +371,7 @@ const docChip = {
   missing: "bg-grey-bg text-grey-text",
 };
 
-function StepDocuments({ lead, set }: { lead: ManualLead; set: SetFn }) {
+function StepDocuments({ lead, set, docs }: { lead: ManualLead; set: SetFn; docs: RequiredDocView[] }) {
   const { merchantLinkSent: sent, copyBroker } = lead.documents;
   const first = lead.owner.name.trim().split(" ")[0] || "the owner";
   const brokerFirst = (lead.request.brokerContact ?? "").trim().split(" ")[0];
@@ -488,7 +396,7 @@ function StepDocuments({ lead, set }: { lead: ManualLead; set: SetFn }) {
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-cap font-semibold uppercase text-hint">Required by your policy</span>
-        {requiredDocs.map((d) => (
+        {docs.map((d) => (
           <div key={d.id} className="flex items-center gap-3 rounded-[16px] bg-tile px-3.5 py-3">
             <span className="flex-1">
               <b className="text-[13.5px]">{d.title}</b>
@@ -551,7 +459,7 @@ function EditButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function StepReview({ lead, set, goto }: { lead: ManualLead; set: SetFn; goto: (n: number) => void }) {
+function StepReview({ lead, set, goto, docsReceived }: { lead: ManualLead; set: SetFn; goto: (n: number) => void; docsReceived: ManualDraft["docsReceived"] }) {
   const b = lead.business;
   const o = lead.owner;
   const r = lead.request;

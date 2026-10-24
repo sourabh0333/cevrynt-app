@@ -4,17 +4,22 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   bulkTree,
+  channelLabel,
   channels,
   fitCheck,
+  fitLine,
+  flowSections,
   flows,
   intakeHeader,
-  manualSteps,
+  manualStepChips as manualSteps,
   packageTypes,
   recentIntakes,
   todayByChannel,
   type ChannelCard,
   type FlowCard,
-} from "@/lib/sample-data/intake";
+} from "@/lib/copy/intake";
+import type { IntakeHubData } from "@/lib/data/views/intake";
+import { timeOfDay } from "@/lib/format";
 
 const arrow = (
   <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
@@ -25,8 +30,9 @@ const arrow = (
 const tealCta =
   "inline-flex h-[42px] items-center gap-2 rounded-pill bg-teal px-[18px] text-body-sm font-semibold text-white no-underline";
 
-/** The Intake hub, from design/Intake.html. */
-export function IntakeHub() {
+/** The Intake hub, from design/Intake.html, with today's arrivals and recent intakes from `data` (the data layer). */
+export function IntakeHub({ data }: { data: IntakeHubData }) {
+  const total = data.today.reduce((n, c) => n + c.count, 0);
   return (
     <>
       <header className="mb-1.5 flex flex-wrap items-start justify-between gap-4">
@@ -38,7 +44,7 @@ export function IntakeHub() {
             href={intakeHeader.lineHref}
             className="mt-2.5 inline-flex items-center gap-1.5 text-label font-semibold tracking-[0.06em] uppercase text-ink no-underline"
           >
-            {intakeHeader.line}
+            {intakeHeader.line(total)}
             <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
               <path d="m9 18 6-6-6-6" />
             </svg>
@@ -47,7 +53,7 @@ export function IntakeHub() {
         <PageActions newIntake={false} />
       </header>
 
-      <section aria-label="Start a deal" className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3.5">
+      <section aria-label={flowSections} className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3.5">
         {flows.map((f) => (
           <Flow key={f.id} flow={f} />
         ))}
@@ -57,8 +63,8 @@ export function IntakeHub() {
       <Channels />
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
-        <TodayByChannel />
-        <RecentIntakes />
+        <TodayByChannel today={data.today} total={total} />
+        <RecentIntakes data={data} />
       </section>
     </>
   );
@@ -168,8 +174,8 @@ function FitCheck() {
         subtitle={<span className="text-[12.5px] text-muted">{fitCheck.subtitle}</span>}
         className="flex-wrap items-end"
         action={
-          <Link href={fitCheck.policyHref} className="rounded-pill bg-card px-3.5 py-[9px] text-cap font-semibold uppercase text-ink no-underline">
-            Edit policy
+          <Link href={fitCheck.policy.href} className="rounded-pill bg-card px-3.5 py-[9px] text-cap font-semibold uppercase text-ink no-underline">
+            {fitCheck.policy.label}
           </Link>
         }
       />
@@ -182,7 +188,7 @@ function FitCheck() {
           </div>
         ))}
         <div className="flex flex-col gap-2 rounded-tile-lg bg-teal p-4 text-white">
-          <span className="text-cap font-semibold uppercase text-cap-on-teal">Outcome</span>
+          <span className="text-cap font-semibold uppercase text-cap-on-teal">{fitCheck.outcomeCap}</span>
           {fitCheck.outcomes.map((o) => (
             <span key={o.text} className="flex items-center gap-2 text-body-sm">
               <span className={`h-2 w-2 rounded-full ${o.dot}`} />
@@ -221,8 +227,8 @@ function Channels() {
         subtitle={channels.subtitle}
         className="flex-wrap items-end"
         action={
-          <Link href={channels.roadmapHref} className="text-label font-semibold text-teal no-underline">
-            See the roadmap
+          <Link href={channels.roadmap.href} className="text-label font-semibold text-teal no-underline">
+            {channels.roadmap.label}
           </Link>
         }
       />
@@ -258,7 +264,7 @@ function Channels() {
   );
 }
 
-function TodayByChannel() {
+function TodayByChannel({ today, total }: { today: IntakeHubData["today"]; total: number }) {
   return (
     <article
       aria-labelledby="h-today"
@@ -267,22 +273,22 @@ function TodayByChannel() {
       <SectionHeader
         title={todayByChannel.title}
         titleId="h-today"
-        subtitle={<span className="text-muted">{todayByChannel.subtitle}</span>}
+        subtitle={<span className="text-muted">{todayByChannel.subtitle(total)}</span>}
         className="items-start"
         action={
           <span className="font-heading text-[26px] leading-none font-semibold tabular-nums tracking-[-0.03em]">
-            {todayByChannel.total}
+            {total}
           </span>
         }
       />
       <div className="flex flex-col gap-2.5">
-        {todayByChannel.rows.map((r, i) => (
-          <div key={r.label}>
+        {today.map((r, i) => (
+          <div key={r.channel}>
             <div className="flex justify-between text-[12.5px]">
-              <span>{r.label}</span>
+              <span>{channelLabel[r.channel]}</span>
               <b>{r.count}</b>
             </div>
-            <ProgressBar className="mt-[5px]" value={r.percent} height={6} color="teal" track="teal" delay={0.25 + i * 0.12} />
+            <ProgressBar className="mt-[5px]" value={todayByChannel.percent(r.count, total)} height={6} color="teal" track="teal" delay={0.25 + i * 0.12} />
           </div>
         ))}
       </div>
@@ -290,37 +296,38 @@ function TodayByChannel() {
   );
 }
 
-const fitDot = { fits: "bg-teal", needs: "bg-amber", declined: "bg-red" };
+const fitDot = { fits: "bg-teal", needs: "bg-amber", declined: "bg-red", unchecked: "bg-grey-dot" };
 const cols = "grid grid-cols-[minmax(0,1.4fr)_120px_70px_minmax(0,1.5fr)_110px] gap-3";
 
-function RecentIntakes() {
+function RecentIntakes({ data }: { data: IntakeHubData }) {
+  const t = recentIntakes;
   return (
     <article
       id="recent"
       aria-labelledby="h-rec"
       className="flex flex-col gap-2.5 rounded-card-lg bg-card p-5 text-ink [grid-column:span_2] max-[760px]:[grid-column:auto]"
     >
-      <SectionHeader title="Recent intakes" titleId="h-rec" link={{ label: "Open submissions", href: "/submissions" }} />
+      <SectionHeader title={t.title} titleId="h-rec" link={t.link} />
       <div className="scrollbar-none overflow-x-auto">
         <div className="min-w-[620px]">
           <div className={`${cols} px-3 pt-1 pb-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint`}>
-            <span>Merchant</span>
-            <span>Channel</span>
-            <span>Time</span>
-            <span>Fit check</span>
-            <span>Assigned</span>
+            <span>{t.columns.merchant}</span>
+            <span>{t.columns.channel}</span>
+            <span>{t.columns.time}</span>
+            <span>{t.columns.fit}</span>
+            <span>{t.columns.assigned}</span>
           </div>
           <div className="flex flex-col gap-1.5">
-            {recentIntakes.map((r) => (
-              <Link key={r.id} href={r.href} className={`${cols} items-center rounded-[16px] bg-tile px-3 py-2.5 text-ink no-underline`}>
+            {data.recent.map((r) => (
+              <Link key={r.id} href={t.href} className={`${cols} items-center rounded-[16px] bg-tile px-3 py-2.5 text-ink no-underline`}>
                 <b className="truncate text-body-sm">{r.merchant}</b>
-                <span className="text-[12.5px] text-muted">{r.channel}</span>
-                <span className="font-mono text-label text-muted">{r.time}</span>
+                <span className="text-[12.5px] text-muted">{channelLabel[r.channel]}</span>
+                <span className="font-mono text-label text-muted">{timeOfDay(r.at)}</span>
                 <span className="inline-flex min-w-0 items-center gap-1.5 text-[12.5px]">
-                  <span className={`h-2 w-2 flex-none rounded-full ${fitDot[r.fit]}`} />
-                  <span className="truncate">{r.fitText}</span>
+                  <span className={`h-2 w-2 flex-none rounded-full ${fitDot[r.fit.result]}`} />
+                  <span className="truncate">{fitLine(r.fit, data.policy)}</span>
                 </span>
-                <span className={`text-[12.5px] ${r.assigned ? "text-muted" : "text-hint"}`}>{r.assigned ?? "—"}</span>
+                <span className={`text-[12.5px] ${r.assignee ? "text-muted" : "text-hint"}`}>{r.assignee ?? t.unassigned}</span>
               </Link>
             ))}
           </div>

@@ -1,7 +1,9 @@
 import type { Id, IsoDateTime } from "./common";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
+import type { BulkIntake, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
 import type { Policy, Pricing } from "./policy";
+import type { Task, TaskBoard } from "./tasks";
 import type { RoadmapFeature } from "./roadmap";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
 import type { NotificationRule, Workspace } from "./workspace";
@@ -34,6 +36,16 @@ export interface DataSource {
     getOffer(id: Id): Promise<DealOffer | null>;
     getDecision(id: Id): Promise<DealDecision | null>;
     getActivity(id: Id): Promise<DealActivity | null>;
+  };
+  tasks: {
+    list(): Promise<Task[]>;
+    getBoard(): Promise<TaskBoard>;
+  };
+  intake: {
+    getSummary(): Promise<IntakeSummary>;
+    getManualDraft(): Promise<ManualDraft>;
+    getPackage(): Promise<PackageIntake>;
+    getBulk(): Promise<BulkIntake>;
   };
   team: {
     /** the signed-in person's team member id */

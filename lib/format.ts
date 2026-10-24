@@ -42,6 +42,19 @@ export function timeOfDay(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
   return `${p.hour}:${p.minute}`;
 }
 
+/** "9:43", "10:20": 24-hour without the leading zero, as the waiting list shows sent times. */
+export function clockTime(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const p = parts(iso, timeZone);
+  return `${Number(p.hour)}:${p.minute}`;
+}
+
+/** "4:00 pm": 12-hour, as a task due later today reads. */
+export function clock12(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
+  const p = parts(iso, timeZone);
+  const h = Number(p.hour);
+  return `${h % 12 || 12}:${p.minute} ${h < 12 ? "am" : "pm"}`;
+}
+
 /** "Oct 14" */
 export function dateShort(iso: string, timeZone = WORKSPACE_TIME_ZONE) {
   const p = parts(iso, timeZone);

@@ -40,6 +40,11 @@ import { statusOf } from "@/lib/deal-conditions";
 import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
 import { money, moneyK, moneyK1, percent } from "@/lib/format";
 import { computeOffer, formatOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
+import { channelLabel, fitLine, folderRow, bulkCopy, packageCopy, packageFitRows, todayByChannel } from "@/lib/copy/intake";
+import { findDuplicate, requiredDocs, runChecks } from "@/lib/copy/intake-manual";
+import { dueLabel, loadSummary, taskWhen, teamSummary, toTaskView, waitingView } from "@/lib/copy/tasks";
+import { bulkView, intakeHubView, manualLeadView, packageView } from "@/lib/data/views/intake";
+import { tasksView } from "@/lib/data/views/tasks";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -475,5 +480,88 @@ describe("Deal tabs: Offer, Decision & memo, Activity", () => {
     assert.deepEqual(a.threads.broker.map((m) => messagesCopy.meta(m, d.me.name)), ["Maya · 10:05 · delivered, opened 10:09", "Dana Ruiz · 10:20"]);
     // The timeline's day follows the workspace clock: the sample deal's events are all today.
     assert.equal(timelineCopy.day(a.events[0].at, d.now), "Today · Tuesday, Oct 13");
+  });
+});
+
+describe("My tasks", () => {
+  it("due times and groups are worked out from each task's time and the workspace clock", async () => {
+    const d = await tasksView();
+    assert.deepEqual(d.tasks.map((t) => dueLabel(t, d.now)), ["Now", "25 min", "1h 10m", "Today", "4:00 pm", "Thu 10:00", "4 days"]);
+    assert.deepEqual(d.tasks.map((t) => taskWhen(t.dueAt, d.now)), ["now", "now", "today", "today", "today", "week", "week"]);
+    assert.deepEqual(d.tasks.map((t) => toTaskView(t, d.now).href), ["/stacking", "/submissions", "/deals/APP-7H2K4Q/decision", "/renewals", "/submissions", "/deals/APP-7H2K4Q/conditions", "/funded"]);
+    assert.equal(toTaskView(d.tasks[2], d.now).action, "Make the decision");
+  });
+
+  it("the signed-in person's load on the Team view matches their own list", async () => {
+    const d = await tasksView();
+    const mine = d.team.find((m) => m.id === d.me.id)!.load;
+    assert.equal(mine.open, d.tasks.length);
+    assert.equal(mine.dueNow, d.tasks.filter((t) => taskWhen(t.dueAt, d.now) === "now").length);
+    assert.deepEqual(d.team.map((m) => loadSummary(m.load)), ["7 open · 2 due now", "9 open · 1 overdue", "5 open", "4 open · 1 approval for you"]);
+    assert.equal(teamSummary(d.team.length, d.team.reduce((n, m) => n + m.load.open, 0)), "4 people · 25 open tasks");
+    assert.deepEqual(d.board.waiting.map((w) => waitingView(w).status), ["Due Wed", "Sent 9:43", "Sent 10:20"]);
+    assert.deepEqual([d.quickDeals, d.quickAssignees], [["Harbor Street Bakery LLC", "Mesa Auto Repair"], ["Jordan Reyes", "Priya Shah"]]);
+  });
+});
+
+describe("Intake", () => {
+  it("the hub's counts add up, and declines quote the policy", async () => {
+    const d = await intakeHubView();
+    const total = d.today.reduce((n, c) => n + c.count, 0);
+    assert.equal(total, 23);
+    assert.deepEqual(d.today.map((c) => [channelLabel[c.channel], todayByChannel.percent(c.count, total)]), [["Single package", 48], ["Bulk ZIP", 30], ["Manual lead", 13], ["Merchant Link", 9]]);
+    assert.deepEqual(d.recent.map((r) => fitLine(r.fit, d.policy)), [
+      "Fits policy",
+      "Needs documents · July statement missing",
+      "Declined · under 6 months in business",
+      "Fits policy",
+      "Declined · revenue below policy minimum",
+      "Fits policy",
+    ]);
+    assert.equal(fitLine({ result: "declined", rule: "age" }, { minBusinessMonths: 12 }), "Declined · under 12 months in business");
+    assert.deepEqual(d.recent.map((r) => r.assignee), ["Maya Chen", "Maya Chen", null, "Jordan Reyes", null, "Maya Chen"]);
+  });
+
+  it("the manual lead's fit check runs on the policy's own values", async () => {
+    const d = await manualLeadView();
+    const { checks, fits } = runChecks(d.draft.lead, d.policy, d.now);
+    assert.equal(fits, true);
+    assert.deepEqual(checks.map((c) => [c.title, c.detail]).slice(0, 3), [
+      ["Industry allowed", "Restaurants are on your approved list"],
+      ["Time in business: 5 years 7 months", "Policy needs 6 months or more"],
+      ["Request is 0.77× stated revenue", "Policy allows up to 1.5×"],
+    ]);
+    const strict = runChecks(d.draft.lead, { ...d.policy, maxRevenueMultiple: 0.5, minBusinessMonths: 72 }, d.now).checks;
+    assert.deepEqual([strict[1].status, strict[1].detail, strict[2].status, strict[2].detail], ["bad", "Policy needs 72 months or more", "bad", "Policy allows up to 0.5× · $26,000 max"]);
+    const restricted = runChecks({ ...d.draft.lead, business: { ...d.draft.lead.business, industry: "Auto sales lot" } }, d.policy, d.now).checks[0];
+    assert.equal(restricted.status, "bad");
+    assert.deepEqual(requiredDocs(d.draft, d.policy, d.now)[0], { id: "statements", title: "Bank statements, last 4 months", note: "June – September 2026", status: "partial", label: "2 of 4" });
+    const mesa = findDuplicate({ ...d.draft.lead, owner: { ...d.draft.lead.owner, mobile: "(614) 555-0177" } }, d.draft.pastDeals);
+    assert.equal(mesa?.dealId, "APP-9K2M7R");
+    for (const p of d.draft.pastDeals) assert.ok(await getDeal(p.dealId), `no deal ${p.dealId}`);
+  });
+
+  it("the package's fit check and counts come from what was read", async () => {
+    const d = await packageView();
+    assert.deepEqual(packageFitRows(d.pkg, d.policy, 2026).map((r) => r.value), ["Allowed", "7 years", "All present", "Funded once, 2024"]);
+    assert.equal(packageCopy.fileMeta(d.pkg), "9 files · 14.2 MB · uploaded by you at 10:42");
+    assert.equal(packageCopy.matched.note(d.pkg.business, d.pkg.statements.length), "Found on the application and all four statements. Active in the Georgia registry since 2019.");
+  });
+
+  it("the bulk summary and Create card follow the folder rows", async () => {
+    const d = await bulkView();
+    const rows = d.bulk.folders.map((f) => folderRow(f, d.policy));
+    const ready = rows.filter((r) => r.result.kind === "chip" && r.result.label === "Ready").length;
+    const attention = rows.filter((r) => r.attention).length;
+    assert.deepEqual([rows.length, ready, attention, rows.filter((r) => r.result.kind === "chip" && r.result.label === "Declined").length], [8, 5, 2, 1]);
+    assert.deepEqual([bulkCopy.create.title(ready), bulkCopy.create.text(ready, attention), bulkCopy.create.cta(ready)], [
+      "5 deals will be created",
+      "2 folders still need you. You can create these 5 now and come back to the rest.",
+      "Create 5 deals",
+    ]);
+    const bright = rows.find((r) => r.id === "bright")!;
+    assert.deepEqual([bright.statements, bright.statementsWarn, bright.fit.text], ["3 of 4", true, "July missing, will be requested"]);
+    assert.equal(rows.find((r) => r.id === "mesa")!.note, "Open deal already exists · APP-9K2M7R");
+    assert.equal(bulkCopy.fileMeta(d.bulk), "8 folders · 51 files · 88.6 MB · uploaded by you at 14:05");
   });
 });

@@ -60,6 +60,10 @@ export type Policy = {
   /** stated revenue above this multiple of verified is flagged */
   statedRevenueFlag: number;
   restrictedIndustries: string[];
+  /** industries the fit check knows are fine; anything on neither list needs a look */
+  approvedIndustries: string[];
+  /** months of bank statements every deal needs */
+  requiredStatementMonths: number;
   rules: PolicyRule[];
   scoreWeights: { part: ScorePart; points: number }[];
   /** scores under declineBelow suggest a decline; approvalFrom and up is the approval line */

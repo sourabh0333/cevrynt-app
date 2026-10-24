@@ -2,25 +2,29 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
 import { PageActions } from "@/components/shell/PageActions";
 import { Ring } from "@/components/ui/Ring";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
   digestStorageKey,
-  doneEarlier,
+  fromYou,
+  loadSummary,
   quickAdd,
+  shortMerchant,
   taskFilters,
   taskGroups,
-  tasks as seedTasks,
+  tasksCopy as c,
   teamSummary,
-  teammates,
-  waitingOnOthers,
-  type Task,
-  type TaskType,
+  toTaskView,
+  waitingView,
+  type TaskView as Task,
   type TaskWhen,
-} from "@/lib/sample-data/tasks";
+} from "@/lib/copy/tasks";
+import type { TaskType } from "@/lib/data/types";
+import type { TasksData } from "@/lib/data/views/tasks";
+import { timeOfDay } from "@/lib/format";
 import { TaskRow, agendaCols } from "./TaskRow";
 
 const typeDot: Record<TaskType, "blue" | "red" | "amber" | "purple" | "grey" | "teal" | "ink"> = {
@@ -66,24 +70,32 @@ function isTyping(target: EventTarget | null) {
 }
 
 /**
- * My tasks, from design/Tasks.html with the logic of Tasks.dc.html.
+ * My tasks, from design/Tasks.html with the logic of Tasks.dc.html, for the
+ * signed-in person's tasks in `data` (from the data layer).
  * State: Mine / Team, the type filter, the expanded task, ticked tasks,
  * snoozed tasks, hand-offs, notes, added tasks and the quick-add bar.
  * Everything else is derived. Keyboard: J / K move, X done, Enter open,
  * S snooze, never while typing in a field.
  */
-export function TasksView() {
+export function TasksView({ data }: { data: TasksData }) {
   const router = useRouter();
+  const seedTasks = useMemo(() => data.tasks.map((t) => toTaskView(t, data.now)), [data.tasks, data.now]);
+  const doneEarlier = useMemo(() => data.board.doneToday.map((d) => ({ title: d.title, time: timeOfDay(d.at) })), [data.board.doneToday]);
+  const waitingOnOthers = data.board.waiting.map(waitingView);
+  const dealChoices = [quickAdd.noDeal, ...data.quickDeals.map(shortMerchant)];
+  const assigneeChoices = [quickAdd.me, ...data.quickAssignees];
+  const teammates = data.team.map((m) => ({ name: m.name, summary: loadSummary(m.load), alert: m.load.overdue > 0 }));
+  const handTo = data.team.filter((m) => m.id !== data.me.id).map((m) => m.name);
   const [who, setWho] = useState<"mine" | "team">("mine");
   const [tab, setTab] = useState<TaskType | "all">("all");
-  const [selected, setSelected] = useState<string | null>("lake");
+  const [selected, setSelected] = useState<string | null>(data.tasks[0]?.id ?? null);
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [later, setLater] = useState<Record<string, boolean>>({});
   const [assigned, setAssigned] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [added, setAdded] = useState<Task[]>([]);
   const [adding, setAdding] = useState(false);
-  const [draft, setDraft] = useState({ text: "", deal: quickAdd.deals[0], due: "today", assignee: "Me" });
+  const [draft, setDraft] = useState({ text: "", deal: quickAdd.noDeal, due: "today", assignee: quickAdd.me });
   const digest = useSyncExternalStore(subscribeDigest, readDigest, digestServer);
 
   const tasks = [...seedTasks, ...added];
@@ -114,7 +126,7 @@ export function TasksView() {
     count: f.value === "all" ? open.length : open.filter((t) => t.type === f.value).length,
   }));
 
-  const doneList = [...ticked.map((t) => ({ title: t.title, time: "now" })), ...doneEarlier].slice(0, 5);
+  const doneList = [...ticked.map((t) => ({ title: t.title, time: c.done.now })), ...doneEarlier].slice(0, 5);
 
   const toggleDone = useCallback((id: string) => setDone((d) => ({ ...d, [id]: !d[id] })), []);
   const snooze = useCallback((id: string) => setLater((l) => ({ ...l, [id]: true })), []);
@@ -124,8 +136,8 @@ export function TasksView() {
     const text = draft.text.trim();
     if (!text) return;
     const due = quickAdd.due.find((d) => d.value === draft.due) ?? quickAdd.due[0];
-    const forWhom = draft.assignee === "Me" ? "" : ` · for ${draft.assignee}`;
-    const deal = draft.deal === quickAdd.deals[0] ? "No deal linked" : draft.deal;
+    const forWhom = draft.assignee === quickAdd.me ? "" : quickAdd.forWhom(draft.assignee);
+    const deal = draft.deal === quickAdd.noDeal ? quickAdd.noDealLine : draft.deal;
     const task: Task = {
       id: `new-${Date.now()}`,
       type: "custom",
@@ -133,15 +145,15 @@ export function TasksView() {
       title: text,
       deal: `${deal}${forWhom}`,
       due: due.label,
-      why: "Added by you from My tasks.",
+      why: quickAdd.why,
       prep: [],
-      href: "/tasks",
-      action: "Open",
+      href: quickAdd.href,
+      action: quickAdd.action,
       urgency: due.urgency,
-      source: "From you",
+      source: fromYou,
     };
     setAdded((a) => [...a, task]);
-    setDraft({ text: "", deal: quickAdd.deals[0], due: "today", assignee: "Me" });
+    setDraft({ text: "", deal: quickAdd.noDeal, due: "today", assignee: quickAdd.me });
     setAdding(false);
     setSelected(task.id);
   };
@@ -180,10 +192,10 @@ export function TasksView() {
       <header className="mb-1 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="m-0 font-heading text-[30px] leading-[1.05] font-semibold tracking-[-0.035em] text-ink">
-            My tasks
+            {c.title}
           </h1>
           <span className="mt-2.5 inline-flex items-center gap-1.5 text-label font-semibold tracking-[0.06em] uppercase text-ink">
-            {open.length} to do · {nUrgent} due within the hour
+            {c.headline(open.length, nUrgent)}
           </span>
         </div>
         <PageActions />
@@ -191,13 +203,13 @@ export function TasksView() {
 
       {/* Do this first + the day */}
       <section
-        aria-label="Your day"
+        aria-label={c.day}
         className="grid grid-cols-2 gap-1 rounded-card-lg border border-line bg-tile p-2 max-[900px]:grid-cols-1"
       >
         <div className="flex flex-col gap-2.5 rounded-card bg-mint-card p-[22px] text-ink">
           <span className="inline-flex items-center gap-[7px] self-start rounded-pill bg-tile px-[11px] py-1 text-[11.5px] font-bold text-red-text">
             <span className="h-[7px] w-[7px] rounded-full bg-red" />
-            Do this first · {top.due}
+            {c.first(top.due)}
           </span>
           <h2 className="m-0 font-heading text-[24px] leading-[1.15] font-semibold">{top.title}</h2>
           <span className="text-body-sm text-grey-text">{top.why}</span>
@@ -213,7 +225,7 @@ export function TasksView() {
               onClick={() => toggleDone(top.id)}
               className="h-11 cursor-pointer rounded-pill border-0 bg-tile px-4 text-[12.5px] font-semibold text-ink"
             >
-              {topDone ? "Undo" : "Mark done"}
+              {topDone ? c.undo : c.markDone}
             </button>
           </div>
         </div>
@@ -223,8 +235,8 @@ export function TasksView() {
             value={(nDone / nAll) * 100}
             size={120}
             color="teal"
-            ariaLabel={`${nDone} of ${nAll} tasks done today`}
-            caption="done today"
+            ariaLabel={c.ringLabel(nDone, nAll)}
+            caption={c.ringCaption}
             label={
               <>
                 {nDone}
@@ -233,10 +245,10 @@ export function TasksView() {
             }
           />
           <div className="grid flex-[1_1_180px] grid-cols-2 gap-2">
-            <Count value={nUrgent} label="within the hour" tone="red" />
-            <Count value={nToday} label="later today" />
-            <Count value={nWeek} label="this week" />
-            <Count value={waitingOnOthers.length} label="waiting on others" />
+            <Count value={nUrgent} label={c.counts.now} tone="red" />
+            <Count value={nToday} label={c.counts.today} />
+            <Count value={nWeek} label={c.counts.week} />
+            <Count value={waitingOnOthers.length} label={c.counts.waiting} />
           </div>
         </div>
       </section>
@@ -246,20 +258,20 @@ export function TasksView() {
         <div className="flex flex-wrap items-center justify-between gap-3 px-1 pt-0.5">
           <div className="min-w-0">
             <h2 id="h-ag" className="m-0 font-heading text-card-title-lg font-semibold">
-              {team ? "Team agenda" : "Your agenda"}
+              {team ? c.agenda.team : c.agenda.mine}
             </h2>
             <span className="text-label text-hint">
-              {team ? teamSummary : `${open.length} open · ${nUrgent} due within the hour`}
+              {team ? teamSummary(data.team.length, data.team.reduce((n, m) => n + m.load.open, 0)) : c.agenda.line(open.length, nUrgent)}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <SegmentedSwitch
-              label="Whose tasks"
+              label={c.whose.label}
               value={who}
               onChange={(v) => setWho(v as "mine" | "team")}
               options={[
-                { value: "mine", label: "Mine" },
-                { value: "team", label: "Team" },
+                { value: "mine", label: c.whose.mine },
+                { value: "team", label: c.whose.team },
               ]}
             />
             <button
@@ -268,13 +280,13 @@ export function TasksView() {
               aria-expanded={adding}
               className="inline-flex h-[38px] cursor-pointer items-center gap-1.5 rounded-pill border-0 bg-teal px-4 text-[12.5px] font-semibold text-white shadow-[0_10px_22px_-14px_rgba(14,107,92,.8)]"
             >
-              <span className="text-[16px] leading-none">+</span>Add task
+              <span className="text-[16px] leading-none">+</span>{c.add}
             </button>
           </div>
         </div>
 
         <Tabs
-          label="Type"
+          label={c.typeLabel}
           variant="panel"
           value={tab}
           onChange={(v) => setTab(v as TaskType | "all")}
@@ -284,22 +296,22 @@ export function TasksView() {
         {adding ? (
           <form
             onSubmit={addTask}
-            aria-label="Add a task"
+            aria-label={c.addForm.label}
             className="flex flex-wrap items-center gap-2 rounded-[18px] bg-tile p-2.5 shadow-[inset_0_0_0_1.5px_#0E6B5C]"
           >
             <input
-              aria-label="New task"
+              aria-label={c.addForm.input}
               autoFocus
               value={draft.text}
               onChange={(e) => setDraft({ ...draft, text: e.target.value })}
               placeholder={quickAdd.placeholder}
               className="h-10 min-w-0 flex-[1_1_260px] border-0 bg-transparent px-2.5 text-body-sm text-ink outline-none"
             />
-            <Select aria-label="Deal" value={draft.deal} onChange={(v) => setDraft({ ...draft, deal: v })} options={quickAdd.deals.map((d) => ({ value: d, label: d }))} />
-            <Select aria-label="Due" value={draft.due} onChange={(v) => setDraft({ ...draft, due: v })} options={quickAdd.due.map((d) => ({ value: d.value, label: d.label }))} />
-            <Select aria-label="Assign to" value={draft.assignee} onChange={(v) => setDraft({ ...draft, assignee: v })} options={quickAdd.assignees.map((a) => ({ value: a, label: a }))} />
+            <Select aria-label={c.addForm.deal} value={draft.deal} onChange={(v) => setDraft({ ...draft, deal: v })} options={dealChoices.map((d) => ({ value: d, label: d }))} />
+            <Select aria-label={c.addForm.due} value={draft.due} onChange={(v) => setDraft({ ...draft, due: v })} options={quickAdd.due.map((d) => ({ value: d.value, label: d.label }))} />
+            <Select aria-label={c.addForm.assign} value={draft.assignee} onChange={(v) => setDraft({ ...draft, assignee: v })} options={assigneeChoices.map((a) => ({ value: a, label: a }))} />
             <button type="submit" className="h-9 cursor-pointer rounded-pill border-0 bg-teal px-3.5 text-label font-semibold text-white">
-              Add
+              {c.addForm.submit}
             </button>
           </form>
         ) : null}
@@ -317,9 +329,9 @@ export function TasksView() {
 
         <div className={`${agendaCols} px-4 pt-0.5 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint-soft`}>
           <span />
-          <span>Task</span>
-          <span>Time left</span>
-          <span>Type</span>
+          <span>{c.columns.task}</span>
+          <span>{c.columns.left}</span>
+          <span>{c.columns.type}</span>
           <span />
         </div>
 
@@ -346,6 +358,7 @@ export function TasksView() {
                   snoozed={!!later[t.id]}
                   assignee={assigned[t.id] || undefined}
                   note={notes[t.id] || undefined}
+                  teammates={handTo}
                   onToggleDone={() => toggleDone(t.id)}
                   onToggleOpen={() => setSelected((s) => (s === t.id ? null : t.id))}
                   onSnooze={() => snooze(t.id)}
@@ -358,7 +371,7 @@ export function TasksView() {
         ))}
         {groups.length === 0 ? (
           <div className="rounded-[22px] bg-tile p-6 text-center text-body-sm text-hint">
-            Nothing here. Pick another type above.
+            {c.empty}
           </div>
         ) : null}
 
@@ -370,7 +383,7 @@ export function TasksView() {
               onChange={(e) => writeDigest(e.target.checked)}
               className="h-[18px] w-[18px] accent-teal"
             />
-            Email me this list every morning at 8:00
+            {c.digest}
           </label>
           <span>
             Keyboard: <kbd className="font-mono">J</kbd>/<kbd className="font-mono">K</kbd> move ·{" "}
@@ -382,13 +395,13 @@ export function TasksView() {
 
       {/* Waiting + done */}
       <section
-        aria-label="Waiting and done"
+        aria-label={c.waitingAndDone}
         className="grid grid-cols-2 gap-1 rounded-card-lg border border-line bg-tile p-2 max-[900px]:grid-cols-1"
       >
         <div className="flex flex-col gap-2 p-4 text-ink">
           <div className="flex items-center justify-between">
-            <h2 className="m-0 font-heading text-card-title-sm font-semibold">Waiting on others</h2>
-            <span className="text-[11.5px] text-hint">A task appears when they reply</span>
+            <h2 className="m-0 font-heading text-card-title-sm font-semibold">{c.waiting.title}</h2>
+            <span className="text-[11.5px] text-hint">{c.waiting.hint}</span>
           </div>
           {waitingOnOthers.map((w) => (
             <div key={w.id} className="flex items-center gap-2.5 rounded-tile bg-card px-3 py-[11px] text-[12.5px]">
@@ -406,7 +419,7 @@ export function TasksView() {
 
         <div className="flex flex-col gap-2 rounded-card bg-mint-card p-4 text-ink">
           <div className="flex items-center justify-between">
-            <h2 className="m-0 font-heading text-card-title-sm font-semibold">Done today</h2>
+            <h2 className="m-0 font-heading text-card-title-sm font-semibold">{c.done.title}</h2>
             <b className="font-heading text-[18px] font-semibold tabular-nums tracking-[-0.03em] text-teal-deep">{nDone}</b>
           </div>
           {doneList.map((d, i) => (

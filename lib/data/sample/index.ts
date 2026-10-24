@@ -2,8 +2,10 @@ import type { DataSource } from "@/lib/data/types";
 import { SAMPLE_NOW } from "./clock";
 import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
+import { bulkIntake, intakeSummary, manualDraft, packageIntake } from "./intake";
 import { policy, pricing } from "./policy";
 import { roadmapFeatures } from "./roadmap";
+import { taskBoard, tasks } from "./tasks";
 import { accessReview, CURRENT_USER_ID, outsideAccess, teamInvites, teamMembers } from "./team";
 import { notificationRules, workspace } from "./workspace";
 
@@ -64,6 +66,28 @@ export const sampleSource: DataSource = {
     },
     async getActivity(id) {
       return deals.some((d) => d.id === id) ? structuredClone(harborActivity) : null;
+    },
+  },
+  tasks: {
+    async list() {
+      return structuredClone(tasks);
+    },
+    async getBoard() {
+      return structuredClone(taskBoard);
+    },
+  },
+  intake: {
+    async getSummary() {
+      return structuredClone(intakeSummary);
+    },
+    async getManualDraft() {
+      return structuredClone(manualDraft);
+    },
+    async getPackage() {
+      return structuredClone(packageIntake);
+    },
+    async getBulk() {
+      return structuredClone(bulkIntake);
     },
   },
   team: {

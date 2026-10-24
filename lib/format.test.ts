@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { dateShort, dayAndTime, dayLabel, dateFull, daysBetween, money, moneyK, monthName, monthYear, weekdayLong, weekdayShort, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
+import { clock12, clockTime, dateShort, dayAndTime, dayLabel, dateFull, daysBetween, money, moneyK, monthName, monthYear, weekdayLong, weekdayShort, moneyCompact, moneyShort, percent, plural, timeOfDay } from "./format.ts";
 
 describe("money and shares", () => {
   it("formats dollars the way the designs show them", () => {
@@ -31,6 +31,11 @@ describe("dates in the workspace's zone (Eastern)", () => {
   it("shows 24-hour times and short dates", () => {
     assert.equal(timeOfDay("2026-10-14T12:12:00Z"), "08:12");
     assert.equal(timeOfDay("2026-10-14T20:40:00Z"), "16:40");
+    assert.equal(clockTime("2026-10-13T09:43:00-04:00"), "9:43");
+    assert.equal(clockTime("2026-10-13T10:20:00-04:00"), "10:20");
+    assert.equal(clock12("2026-10-13T16:00:00-04:00"), "4:00 pm");
+    assert.equal(clock12("2026-10-13T09:05:00-04:00"), "9:05 am");
+    assert.equal(clock12("2026-10-13T12:30:00-04:00"), "12:30 pm");
     assert.equal(dateShort("2026-10-02T14:00:00Z"), "Oct 2");
     assert.equal(monthYear("2027-07-01T12:00:00-04:00"), "Jul 2027");
     assert.equal(weekdayShort("2026-10-15T17:00:00-04:00"), "Thu");

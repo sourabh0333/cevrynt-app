@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { taskTypes, teammates, type Task, type TaskGroupInfo } from "@/lib/sample-data/tasks";
+import { taskTypes, tasksCopy, type TaskGroupInfo, type TaskView as Task } from "@/lib/copy/tasks";
+
+const c = tasksCopy.row;
 
 /** Column layout shared by the caption row and every task row (design .agcols). */
 export const agendaCols =
@@ -23,6 +25,8 @@ type Props = {
   snoozed: boolean;
   assignee?: string;
   note?: string;
+  /** who the task can be handed to: the team, without the signed-in person */
+  teammates: string[];
   onToggleDone: () => void;
   onToggleOpen: () => void;
   onSnooze: () => void;
@@ -40,6 +44,7 @@ export function TaskRow({
   snoozed,
   assignee,
   note,
+  teammates,
   onToggleDone,
   onToggleOpen,
   onSnooze,
@@ -68,7 +73,7 @@ export function TaskRow({
           type="button"
           onClick={onToggleDone}
           aria-pressed={done}
-          aria-label={`Mark ${task.title} done`}
+          aria-label={c.done(task.title)}
           className={`grid h-6 w-6 cursor-pointer place-items-center rounded-[8px] text-label font-bold ${
             done ? "border-0 bg-teal text-white" : "border-2 border-line-dashed bg-tile text-transparent"
           }`}
@@ -89,8 +94,8 @@ export function TaskRow({
             <b className={`block truncate text-body ${done ? "line-through" : ""}`}>{task.title}</b>
             <span className="block truncate text-label text-hint">
               {task.deal}
-              {assignee ? ` · with ${assignee}` : ""}
-              {snoozed ? " · snoozed 1 hour" : ""}
+              {assignee ? c.with(assignee) : ""}
+              {snoozed ? c.snoozedLine : ""}
             </span>
           </span>
         </button>
@@ -106,7 +111,7 @@ export function TaskRow({
 
         <Link
           href={task.href}
-          aria-label="Open"
+          aria-label={c.open}
           className="grid h-[34px] w-[34px] place-items-center justify-self-end rounded-[12px] bg-ink text-white"
         >
           <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -121,7 +126,7 @@ export function TaskRow({
             {task.why}
             {note ? (
               <span className="mt-2 block rounded-[10px] bg-tile px-2.5 py-2 text-label text-ink">
-                <b>Note:</b> {note}
+                <b>{c.note}</b> {note}
               </span>
             ) : null}
           </span>
@@ -138,7 +143,7 @@ export function TaskRow({
 
           <div className="col-span-full flex flex-wrap items-center gap-1.5 border-t border-line-strong pt-2.5">
             <button type="button" onClick={onSnooze} disabled={!canSnooze} className={smallBtn}>
-              {snoozed ? "Snoozed" : "Snooze 1 hour"}
+              {snoozed ? c.snoozed : c.snooze}
             </button>
             <button
               type="button"
@@ -146,7 +151,7 @@ export function TaskRow({
               aria-expanded={picker === "hand"}
               className={smallBtn}
             >
-              {assignee ? `With ${assignee}` : "Hand to a teammate"}
+              {assignee ? c.withName(assignee) : c.hand}
             </button>
             <button
               type="button"
@@ -154,29 +159,28 @@ export function TaskRow({
               aria-expanded={picker === "note"}
               className={smallBtn}
             >
-              {note ? "Edit note" : "Add a note"}
+              {note ? c.editNote : c.addNote}
             </button>
             <span className="ml-auto self-center text-[11.5px] text-hint">{task.source ?? t.source}</span>
           </div>
 
           {picker === "hand" ? (
-            <div role="group" aria-label="Hand to" className="col-span-full flex flex-wrap items-center gap-1.5">
-              <span className="text-label text-hint">Hand to:</span>
+            <div role="group" aria-label={c.handGroup} className="col-span-full flex flex-wrap items-center gap-1.5">
+              <span className="text-label text-hint">{c.handTo}</span>
               {teammates
-                .filter((m) => m.name !== "Maya Chen")
-                .map((m) => (
+                .map((name) => (
                   <button
-                    key={m.name}
+                    key={name}
                     type="button"
                     onClick={() => {
-                      onHand(m.name);
+                      onHand(name);
                       setPicker(null);
                     }}
                     className={`h-8 cursor-pointer rounded-pill border-0 px-3 text-label font-semibold ${
-                      assignee === m.name ? "bg-teal text-white" : "bg-tile text-ink"
+                      assignee === name ? "bg-teal text-white" : "bg-tile text-ink"
                     }`}
                   >
-                    {m.name}
+                    {name}
                   </button>
                 ))}
               {assignee ? (
@@ -188,7 +192,7 @@ export function TaskRow({
                   }}
                   className="h-8 cursor-pointer rounded-pill border-0 bg-tile px-3 text-label font-semibold text-hint"
                 >
-                  Keep it
+                  {c.keep}
                 </button>
               ) : null}
             </div>
@@ -197,7 +201,7 @@ export function TaskRow({
           {picker === "note" ? (
             <div className="col-span-full flex flex-wrap items-center gap-1.5">
               <input
-                aria-label="Note"
+                aria-label={c.noteLabel}
                 autoFocus
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -205,11 +209,11 @@ export function TaskRow({
                   if (e.key === "Enter") saveNote();
                   if (e.key === "Escape") setPicker(null);
                 }}
-                placeholder="Add a note for yourself or the team"
+                placeholder={c.notePlaceholder}
                 className="h-9 min-w-0 flex-[1_1_240px] rounded-pill border-0 bg-tile px-3 text-label-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-mint"
               />
               <button type="button" onClick={saveNote} className="h-9 cursor-pointer rounded-pill border-0 bg-teal px-3.5 text-label font-semibold text-white">
-                Save
+                {c.save}
               </button>
             </div>
           ) : null}

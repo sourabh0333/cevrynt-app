@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
-import { folders, type FolderRow } from "@/lib/sample-data/intake-bulk";
+import { bulkCopy, type FolderRowView as FolderRow } from "@/lib/copy/intake";
+
+const t = bulkCopy.preview;
 
 /*
  * Design columns: folder, business, files, statements, fit check, result.
@@ -60,7 +62,8 @@ function Row({ row }: { row: FolderRow }) {
   );
 }
 
-export function FolderPreview() {
+/** "Folder preview": one row per folder, with the Needs attention filter. */
+export function FolderPreview({ rows: folders }: { rows: FolderRow[] }) {
   const [filter, setFilter] = useState("all");
   const attention = folders.filter((f) => f.attention);
   const rows = filter === "attention" ? attention : folders;
@@ -69,27 +72,27 @@ export function FolderPreview() {
     <section aria-labelledby="h-prev" className="flex min-w-0 flex-[999_1_640px] flex-col gap-2.5 rounded-card-lg bg-card p-[22px] text-ink">
       <div className="flex flex-wrap items-end justify-between gap-2.5">
         <div>
-          <h2 id="h-prev" className="m-0 font-heading text-[21px] font-semibold">Folder preview</h2>
-          <p className="mt-[3px] mb-0 text-[12.5px] text-hint">One row per folder. Click a row to see its files.</p>
+          <h2 id="h-prev" className="m-0 font-heading text-[21px] font-semibold">{t.title}</h2>
+          <p className="mt-[3px] mb-0 text-[12.5px] text-hint">{t.subtitle}</p>
         </div>
         <SegmentedSwitch
-          label="Show folders"
+          label={t.show}
           value={filter}
           onChange={setFilter}
           options={[
-            { value: "all", label: `All ${folders.length}` },
-            { value: "attention", label: `Needs attention ${attention.length}` },
+            { value: "all", label: t.all(folders.length) },
+            { value: "attention", label: t.attention(attention.length) },
           ]}
         />
       </div>
       <div className="flex flex-col gap-1.5">
         <div className={`${cols} px-3 pt-1 pb-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint`}>
-          <span>Folder</span>
-          <span>Business matched</span>
-          <span>Files</span>
-          <span>Statements</span>
-          <span>Fit check</span>
-          <span className="text-right">Result</span>
+          <span>{t.columns.folder}</span>
+          <span>{t.columns.business}</span>
+          <span>{t.columns.files}</span>
+          <span>{t.columns.statements}</span>
+          <span>{t.columns.fit}</span>
+          <span className="text-right">{t.columns.result}</span>
         </div>
         {rows.map((r) => (
           <Row key={r.id} row={r} />
