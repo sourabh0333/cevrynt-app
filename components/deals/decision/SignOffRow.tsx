@@ -1,8 +1,9 @@
 import { Card } from "@/components/ui/Card";
 import { decisionRecord as rec, signOff as t } from "@/lib/copy/deal-decision";
 import { MaybeLink } from "@/components/ui/ComingSoon";
+import type { IsoDateTime } from "@/lib/data/types";
+import { clockTime } from "@/lib/format";
 
-const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
 type Person = { name: string; initials: string };
 
@@ -55,7 +56,7 @@ export function WhoSignsOff({ recorded, amount, limit, me, senior }: SignOffProp
 }
 
 type RecordProps = {
-  recordedAt: Date | null;
+  recordedAt: IsoDateTime | null;
   label: string;
   agrees: boolean;
   me: string;
@@ -90,7 +91,7 @@ export function DecisionRecord({ recordedAt, label, agrees, me, suggested }: Rec
         >
           <span className={`text-cap font-semibold uppercase ${done ? "text-teal-deep" : "text-hint"}`}>{rec.person.caption}</span>
           <b className="font-heading text-[18px] font-semibold">{done ? label : rec.person.waiting.title(me)}</b>
-          <span className="text-label opacity-80">{done ? rec.person.sub(me, timeOf(recordedAt)) : rec.person.waiting.sub}</span>
+          <span className="text-label opacity-80">{done ? rec.person.sub(me, clockTime(recordedAt)) : rec.person.waiting.sub}</span>
           <span className="text-label opacity-85">{done ? (agrees ? rec.person.agrees : rec.person.differs) : rec.person.waiting.why}</span>
         </div>
       </div>

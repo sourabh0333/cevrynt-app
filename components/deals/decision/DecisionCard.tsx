@@ -4,7 +4,9 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { dealTabHref } from "@/lib/copy/deal";
 import { decisionCard as t, outcomes, type Outcome } from "@/lib/copy/deal-decision";
+import type { IsoDateTime } from "@/lib/data/types";
 import type { DecisionTabData } from "@/lib/data/views/deal-tabs";
+import { clockTime } from "@/lib/format";
 import { computeOffer, formatOffer, money } from "@/lib/offer-math";
 import type { DecisionState } from "./DecisionTab";
 
@@ -14,7 +16,7 @@ const input =
 type Props = {
   data: DecisionTabData;
   s: DecisionState;
-  recordedAt: Date | null;
+  recordedAt: IsoDateTime | null;
   onPick: (o: Outcome) => void;
   onToggleReason: (k: string) => void;
   onToggleExtra: (k: string) => void;
@@ -23,7 +25,6 @@ type Props = {
   onRecord: () => void;
 };
 
-const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
 /**
  * "Your decision" from design/Deal-Decision.html and its prototype: the four
@@ -216,7 +217,7 @@ export function DecisionCard({ data, s, recordedAt, onPick, onToggleReason, onTo
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
         <span className="text-label text-hint" aria-live="polite">
-          {rec ? t.foot.recorded(data.me.name, timeOf(recordedAt)) : canRecord ? t.foot.ready : t.foot.pick}
+          {rec ? t.foot.recorded(data.me.name, clockTime(recordedAt)) : canRecord ? t.foot.ready : t.foot.pick}
         </span>
         <button
           type="button"

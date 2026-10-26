@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { currentTime } from "@/lib/data/actions/clock";
 import { decisionCard, decisionSections, policyRows, type Outcome } from "@/lib/copy/deal-decision";
+import type { IsoDateTime } from "@/lib/data/types";
 import type { DecisionTabData } from "@/lib/data/views/deal-tabs";
 import { computeOffer, money } from "@/lib/offer-math";
 import { CreditMemo } from "./CreditMemo";
@@ -41,7 +43,19 @@ export function DecisionTab({ data }: { data: DecisionTabData }) {
     counterFactorText: data.decision.counter.factor.toFixed(2),
     note: "",
   });
-  const [recordedAt, setRecordedAt] = useState<Date | null>(null);
+  // When the decision was recorded, by the app's clock (getNow), not the device's.
+  const [recordedAt, setRecordedAt] = useState<IsoDateTime | null>(null);
+  const recording = useRef(false);
+  const record = async () => {
+    if (recordedAt) return setRecordedAt(null);
+    if (recording.current) return;
+    recording.current = true;
+    try {
+      setRecordedAt(await currentTime());
+    } finally {
+      recording.current = false;
+    }
+  };
 
   const pick = (out: Outcome) => {
     setRecordedAt(null);
@@ -77,7 +91,7 @@ export function DecisionTab({ data }: { data: DecisionTabData }) {
           onToggleExtra={toggle("extra")}
           onCounter={counter}
           onNote={(note) => setS((x) => ({ ...x, note }))}
-          onRecord={() => setRecordedAt((r) => (r ? null : new Date()))}
+          onRecord={record}
         />
         <PolicyCard rules={rules} version={data.policy.version} />
       </section>

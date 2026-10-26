@@ -69,6 +69,7 @@ A view joins records into what one page needs, with independent calls in paralle
 - **Nobody outside `lib/data` touches its sources.** An ESLint rule (`no-restricted-imports` in `eslint.config.mjs`) fails any import of `lib/data/sample`, `lib/data/api` or `lib/data/source` from outside `lib/data`, and any import of the old `lib/sample-data`.
 - **Pure math takes its inputs.** `computeOffer`, `disclosureFor`, `earlyPayoff`, `renewalOffer`, `simulatePolicy` and the rest take the deal's figures, the policy and the pricing as arguments. `offerTerms` is the part of the offer math that needs no deal (Pricing's example, renewals).
 - **Writes are still local.** Votes, switches, Pause broker, release payment and similar actions are component state for now. Later they become Server Actions in `lib/data/actions/`, which call the backend and then `revalidateTag()` the reads they changed.
+- **One clock.** Times the browser records (a decision, a signed integrity review) come from the Server Action `currentTime()` in `lib/data/actions/clock.ts`, which returns `getNow()`: the sample clock in sample mode and real time with the backend, never the device clock.
 
 ---
 

@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { liveBankCopy, reviewCopy as t } from "@/lib/copy/deal-integrity";
-import type { DealIntegrity } from "@/lib/data/types";
+import { currentTime } from "@/lib/data/actions/clock";
+import type { DealIntegrity, IsoDateTime } from "@/lib/data/types";
+import { clockTime } from "@/lib/format";
 
 /**
  * "Compare with live bank data": the mint card with the solid teal send
@@ -31,7 +33,6 @@ export function LiveBankCard({ owner, connected }: { owner: { name: string; poss
   );
 }
 
-const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
 /**
  * "Your review" from design/Deal-Integrity.html and its prototype: the
@@ -42,7 +43,8 @@ const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: 
 export function ReviewCard({ review, reviewer }: { review: DealIntegrity["review"]; reviewer: string }) {
   const [agreed, setAgreed] = useState(false);
   const [note, setNote] = useState("");
-  const [signedAt, setSignedAt] = useState<Date | null>(null);
+  // When the review was signed, by the app's clock (getNow), not the device's.
+  const [signedAt, setSignedAt] = useState<IsoDateTime | null>(null);
   const signed = signedAt !== null;
 
   const buttonClass = signed
@@ -88,13 +90,13 @@ export function ReviewCard({ review, reviewer }: { review: DealIntegrity["review
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <span className="text-label text-hint" aria-live="polite">
-          {signed ? t.recorded(timeOf(signedAt), reviewer) : t.hint}
+          {signed ? t.recorded(clockTime(signedAt), reviewer) : t.hint}
         </span>
         <button
           type="button"
           aria-disabled={!agreed || signed}
           onClick={() => {
-            if (agreed && !signed) setSignedAt(new Date());
+            if (agreed && !signed) currentTime().then(setSignedAt);
           }}
           className={`h-11 whitespace-nowrap rounded-pill border-0 px-[18px] text-body-sm font-semibold ${buttonClass}`}
         >
