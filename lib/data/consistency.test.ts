@@ -1052,7 +1052,7 @@ describe("Public pages", () => {
     const c = merchantLinkCopy(d);
     assert.deepEqual(c.merchant, { first: "Elena", name: "Elena Brooks", business: "Harbor Street Bakery LLC", email: "elena@harborstreetbakery.com", requested: "$45,000" });
     assert.equal(c.ui.en.subline(2), "2 quick steps left for your Ridgeline Capital application.");
-    assert.equal(c.ui.en.finished, "Maya has everything she needs and will be in touch today.");
+    assert.equal(c.ui.en.finished, "Maya has everything needed and will be in touch today.");
     assert.deepEqual([c.helpCard.person, c.helpCard.phone, c.helpCard.broker], [
       { initials: "MC", name: "Maya Chen", role: "Your underwriter at Ridgeline" },
       "(617) 555-0190",
