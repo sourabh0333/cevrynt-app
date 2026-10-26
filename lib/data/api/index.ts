@@ -83,5 +83,14 @@ export const apiSource: DataSource = {
     listNotificationRules: notConnected("workspace"),
     getPolicy: notConnected("policy"),
     getPricing: notConnected("pricing"),
+    getIntakeChannels: notConnected("intake channels"),
+    getPlan: notConnected("plan"),
+    getSecurity: notConnected("security"),
+    listSignIns: notConnected("security"),
+    listApiKeys: notConnected("security"),
+  },
+  audit: {
+    listEntries: notConnected("audit"),
+    getLog: notConnected("audit"),
   },
 };

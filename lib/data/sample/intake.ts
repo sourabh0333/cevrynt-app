@@ -1,4 +1,4 @@
-import type { BulkIntake, IntakeSummary, ManualDraft, PackageIntake } from "@/lib/data/types";
+import type { BulkIntake, IntakeChannelSettings, IntakeSummary, ManualDraft, PackageIntake } from "@/lib/data/types";
 
 /**
  * Sample records for Intake, copied from design/Intake.html, Intake-Manual,
@@ -14,6 +14,12 @@ export const intakeSummary: IntakeSummary = {
     { channel: "bulk", count: 7 },
     { channel: "manual", count: 3 },
     { channel: "merchant-link", count: 2 },
+  ],
+  month: [
+    { channel: "package", deals: 132, funded: 0.36 },
+    { channel: "bulk", deals: 98, funded: 0.28 },
+    { channel: "manual", deals: 39, funded: 0.4 },
+    { channel: "merchant-link", deals: 18, funded: 0.33 },
   ],
   recent: [
     { id: "r1", merchant: "Golden Lotus Restaurant", channel: "package", at: at("13:10"), fit: { result: "fits" }, assigneeId: "usr_maya" },
@@ -119,4 +125,9 @@ export const manualDraft: ManualDraft = {
     { dealId: "APP-9K2M7R", business: "Mesa Auto Repair", owner: "Luis Ortega", phone: "(614) 555-0177" },
     { dealId: "APP-3QW8LP", business: "Northline HVAC Services", owner: "Tom Nash", phone: "(614) 555-0199" },
   ],
+};
+
+/** Settings › Intake channels: how Merchant Link is set up. */
+export const intakeChannelSettings: IntakeChannelSettings = {
+  merchantLink: { bankConnection: true, photoId: true, reminders: true, spanish: false, expiryDays: 7 },
 };

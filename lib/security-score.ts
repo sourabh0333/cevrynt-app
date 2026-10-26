@@ -5,7 +5,9 @@
  * Tested in lib/security-score.test.ts.
  */
 
-export type ProtectionKey = "mfa" | "sso" | "idle" | "newdev" | "ip" | "watermark" | "mask" | "bulk";
+import type { ProtectionKey } from "@/lib/data/types";
+
+export type { ProtectionKey };
 
 export const protectionPoints: Record<ProtectionKey, number> = {
   mfa: 20,

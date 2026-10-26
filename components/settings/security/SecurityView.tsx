@@ -11,14 +11,16 @@ import {
   outsideUsers,
   protectingData,
   securityHeader as sh,
+  securitySections,
   signIns as si,
   signingIn,
   supportAccess as sa,
-  toFix,
+  toFix as toFixFor,
   toFixTitle,
   type SignInResult,
   type Toggle,
-} from "@/lib/sample-data/security";
+} from "@/lib/copy/security";
+import type { SecurityData } from "@/lib/data/views/settings";
 
 const resultChip: Record<SignInResult, string> = {
   ok: "bg-mint-bg text-teal-dark",
@@ -55,17 +57,28 @@ function SwitchRow({ t, on, onChange }: { t: Toggle; on: boolean; onChange: () =
  * The score ring updates live as the eight protections are switched on or
  * off (lib/security-score.ts). Who lacks 2-step login comes from Team &
  * roles, so Leo's "Off" there and here always agree. Support access can be
- * allowed for 24 hours and ended. No hover.
+ * allowed for 24 hours and ended. No hover. The settings, today's sign-ins
+ * (the ones the Audit log shows), the team and the API keys come from the
+ * data layer.
  */
-export function SecurityView() {
-  const all = [...signingIn.toggles, ...protectingData.toggles, ...outsideUsers.toggles];
+export function SecurityView({ data }: { data: SecurityData }) {
+  const groups = [
+    { title: signingIn.title, text: signingIn.text, toggles: signingIn.toggles(data.settings) },
+    { title: protectingData.title, text: protectingData.text, toggles: protectingData.toggles(data.settings) },
+  ];
+  const outside = outsideUsers.toggles(data.settings);
+  const toFix = toFixFor(data.noMfa, data.accessReview, data.now);
+  const rows = si.rows(data.signIns);
+  const note = si.note(data.signIns);
+  const contact = sa.contact(data.settings);
+  const all = [...groups.flatMap((g) => g.toggles), ...outside];
   const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(all.map((t) => [t.key, t.on])));
-  const [support, setSupport] = useState(false);
+  const [support, setSupport] = useState(data.settings.supportUntil !== null);
   const flip = (k: string) => () => setOn((x) => ({ ...x, [k]: !x[k] }));
 
   const score = securityScore(on as Partial<Record<ProtectionKey, boolean>>);
   const band = scoreBand(score);
-  const s = support ? sa.on : sa.off;
+  const s = support ? sa.on(data.now) : sa.off;
 
   return (
     <div className="@container flex flex-col gap-3.5">
@@ -85,7 +98,7 @@ export function SecurityView() {
           </div>
         </div>
         <div className="flex min-w-0 flex-col gap-2 rounded-card bg-red-bg p-3.5">
-          <b className="px-1 py-0.5 text-[13.5px]">{toFixTitle}</b>
+          <b className="px-1 py-0.5 text-[13.5px]">{toFixTitle(toFix.length)}</b>
           {toFix.map((f) => (
             <div key={f.key} className="flex items-center gap-3 rounded-[16px] bg-white/85 px-3.5 py-3">
               <span aria-hidden="true" className="grid h-[30px] w-[30px] flex-none place-items-center rounded-[10px] bg-red font-bold text-white">
@@ -103,8 +116,8 @@ export function SecurityView() {
         </div>
       </section>
 
-      <section aria-label="Sign-in and access" className={`${duo} box-border min-w-0 rounded-card-lg bg-card p-2 text-ink`}>
-        {[signingIn, protectingData].map((g, i) => (
+      <section aria-label={securitySections.access} className={`${duo} box-border min-w-0 rounded-card-lg bg-card p-2 text-ink`}>
+        {groups.map((g, i) => (
           <div key={g.title} className={`flex min-w-0 flex-col gap-2 p-3.5 ${i ? "border-l border-line-strong @max-[700px]:border-l-0" : ""}`}>
             <div className="px-1 pt-0.5 pb-1">
               <h2 className={h2sm}>{g.title}</h2>
@@ -124,7 +137,7 @@ export function SecurityView() {
             <span className="text-label text-hint">{si.subtitle}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-pill bg-card px-[11px] py-[5px] text-[11.5px] font-semibold">{si.sessions}</span>
+            <span className="rounded-pill bg-card px-[11px] py-[5px] text-[11.5px] font-semibold">{si.sessions(data.settings.activeSessions)}</span>
             <button type="button" className="h-[34px] cursor-pointer rounded-pill border-0 bg-red-bg px-3 text-label font-semibold text-red-text">
               {si.signOutAll}
             </button>
@@ -141,8 +154,8 @@ export function SecurityView() {
               </span>
             ))}
           </div>
-          {si.rows.map((r) => (
-            <div key={r.time} className={`${scols} rounded-[16px] bg-tile px-3.5 py-[11px] text-[12.5px]`}>
+          {rows.map((r) => (
+            <div key={r.id} className={`${scols} rounded-[16px] bg-tile px-3.5 py-[11px] text-[12.5px]`}>
               <b className="truncate">{r.person}</b>
               <span className="truncate">{r.device}</span>
               <span className="truncate text-muted">{r.where}</span>
@@ -151,19 +164,21 @@ export function SecurityView() {
             </div>
           ))}
         </div>
-        <span className="flex items-center gap-2.5 rounded-tile bg-red-bg px-3 py-2.5 text-label text-red-deep">
-          <span className="h-2 w-2 flex-none rounded-full bg-red" />
-          {si.note}
-        </span>
+        {note ? (
+          <span className="flex items-center gap-2.5 rounded-tile bg-red-bg px-3 py-2.5 text-label text-red-deep">
+            <span className="h-2 w-2 flex-none rounded-full bg-red" />
+            {note}
+          </span>
+        ) : null}
       </section>
 
-      <section aria-label="Outside users and support access" className={`${duo} box-border min-w-0 rounded-card-lg bg-card p-2 text-ink`}>
+      <section aria-label={securitySections.outside} className={`${duo} box-border min-w-0 rounded-card-lg bg-card p-2 text-ink`}>
         <div className="flex min-w-0 flex-col gap-2 p-3.5">
           <div className="px-1 pt-0.5 pb-1">
             <h2 className={h2sm}>{outsideUsers.title}</h2>
             <span className="text-label text-hint">{outsideUsers.text}</span>
           </div>
-          {outsideUsers.toggles.map((t) => (
+          {outside.map((t) => (
             <SwitchRow key={t.key} t={t} on={!!on[t.key]} onChange={flip(t.key)} />
           ))}
         </div>
@@ -187,8 +202,8 @@ export function SecurityView() {
             </button>
           </div>
           <span className="flex flex-wrap justify-between gap-2 rounded-[16px] bg-tile px-3.5 py-3 text-[12.5px]">
-            <span>{sa.contact.label}</span>
-            <b className="font-mono text-label font-medium">{sa.contact.value}</b>
+            <span>{contact.label}</span>
+            <b className="font-mono text-label font-medium">{contact.value}</b>
           </span>
           <span className="flex flex-wrap items-center justify-between gap-2.5 rounded-[16px] bg-tile px-3.5 py-3 text-[12.5px]">
             <span>{sa.report.label}</span>
@@ -197,7 +212,7 @@ export function SecurityView() {
         </div>
       </section>
 
-      <section aria-label="How data is protected" className="box-border grid min-w-0 grid-cols-3 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[700px]:grid-cols-1">
+      <section aria-label={securitySections.data} className="box-border grid min-w-0 grid-cols-3 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[700px]:grid-cols-1">
         <div className="flex min-w-0 flex-col gap-2 rounded-card bg-card p-4">
           <h2 className={h2sm}>{alwaysOn.title}</h2>
           {alwaysOn.items.map((a) => (
@@ -208,7 +223,7 @@ export function SecurityView() {
         </div>
         <div className="flex min-w-0 flex-col gap-2 border-l border-line p-4 @max-[700px]:border-l-0">
           <h2 className={h2sm}>{apiKeys.title}</h2>
-          {apiKeys.rows.map((r) => (
+          {apiKeys.rows(data.apiKeys, data.now).map((r) => (
             <span key={r.label} className="flex justify-between gap-2 rounded-tile bg-card px-3 py-2.5 text-[12.5px]">
               <span>{r.label}</span>
               <b>{r.value}</b>

@@ -1,16 +1,14 @@
 /**
- * Sample data for Settings → Intake channels, copied from
- * design/prototypes/Settings-Intake.dc.html (look: design/Settings-Intake.html).
- * Only Merchant Link is live. Email forwarding, public forms and CRM / API
- * are "coming soon" previews (CLAUDE.md) and are never shown as working.
- * Real API calls replace this later behind the same types.
+ * Interface wording for Settings › Intake channels
+ * (design/Settings-Intake.html and its prototype). Merchant Link's set-up,
+ * the monthly channel counts, the workspace brand and the API key come
+ * from the data layer (intakeChannelsView). Email forwarding, public forms
+ * and CRM / API are "coming soon" previews (CLAUDE.md): their wording here
+ * is a preview, never a working setting.
  */
-
-export const channelsHeader = {
-  title: "Intake channels",
-  text: "How deals reach you. Today that's uploads in Intake and Merchant Link; email, forms and CRM are on the way. The same fit check runs whatever the channel.",
-  chip: "1 live · 3 coming",
-};
+import type { ApiKey, IntakeChannelSettings, IntakeSummary, IsoDateTime } from "@/lib/data/types";
+import { dateShort, dayLabel } from "@/lib/format";
+import { channelLabel } from "./intake";
 
 export type ChannelKey = "link" | "email" | "forms" | "api";
 
@@ -21,18 +19,33 @@ export const channelTabs: { key: ChannelKey; name: string; sub: string; live: bo
   { key: "api", name: "CRM and API", sub: "Coming later", live: false, soon: "Coming later" },
 ];
 
+export const channelsHeader = {
+  title: "Intake channels",
+  text: "How deals reach you. Today that's uploads in Intake and Merchant Link; email, forms and CRM are on the way. The same fit check runs whatever the channel.",
+  chip: `${channelTabs.filter((t) => t.live).length} live · ${channelTabs.filter((t) => !t.live).length} coming`,
+  tabsLabel: "Channels",
+};
+
 export const comingBanner = {
   notYet: (name: string) => `${name} isn't available yet.`,
   preview: "This is a preview of how you'll set it up.",
+  previewLabel: (name: string) => `${name} preview, not available yet`,
   cta: { label: "Join early access", href: "/whats-coming" },
 };
 
 export type Toggle = { key: string; title: string; hint: string; on: boolean };
+type LinkKey = keyof Omit<IntakeChannelSettings["merchantLink"], "expiryDays">;
+
+const linkToggles: { key: LinkKey; title: string; hint: string }[] = [
+  { key: "bankConnection", title: "Ask for a live bank connection", hint: "Lets Stacking Watch see new funder debits" },
+  { key: "photoId", title: "Photo ID with a live selfie", hint: "Checked against sanctions lists too" },
+  { key: "reminders", title: "Remind every 24 hours", hint: "By text and email, until done" },
+  { key: "spanish", title: "Show in Spanish when preferred", hint: "Merchant can switch language" },
+];
 
 export const merchantLink = {
   previewCap: "What the merchant sees",
   previewLink: { label: "Open full preview", href: "/m/demo" },
-  brand: { initials: "RC", name: "Ridgeline Capital" },
   greeting: "Hi Elena, a few quick steps to finish your application.",
   steps: [
     { label: "Upload statements", done: true },
@@ -40,13 +53,9 @@ export const merchantLink = {
     { label: "Connect your bank", done: false },
     { label: "Sign consent", done: false },
   ],
-  toggles: [
-    { key: "bank", title: "Ask for a live bank connection", hint: "Lets Stacking Watch see new funder debits", on: true },
-    { key: "idv", title: "Photo ID with a live selfie", hint: "Checked against sanctions lists too", on: true },
-    { key: "remind", title: "Remind every 24 hours", hint: "By text and email, until done", on: true },
-    { key: "spanish", title: "Show in Spanish when preferred", hint: "Merchant can switch language", on: false },
-  ] as Toggle[],
-  expiry: { label: "Link expires after", value: "7 days" },
+  /** the switches, starting from how Merchant Link is set up */
+  toggles: (s: IntakeChannelSettings): Toggle[] => linkToggles.map((t) => ({ ...t, on: s.merchantLink[t.key] })),
+  expiry: (s: IntakeChannelSettings) => ({ label: "Link expires after", value: `${s.merchantLink.expiryDays} days` }),
 };
 
 export const emailPreview = {
@@ -106,20 +115,25 @@ export const apiPreview = {
     ["Decision", "Opp.Stage"],
     ["Broker", "Opp.Partner"],
   ],
-  key: { label: "API key", value: "ck_live_••••••••3f9a", hint: "Created Mar 3 · last used today", action: "New key" },
+  /** the workspace's live API key, the one Security counts */
+  key: (k: ApiKey | null, now: IsoDateTime) => ({
+    label: "API key",
+    value: k ? `ck_live_••••••••${k.last4}` : "None yet",
+    hint: k ? `Created ${dateShort(k.createdAt)} · last used ${dayLabel(k.lastUsedAt, now).toLowerCase()}` : "",
+    action: "New key",
+  }),
 };
 
 export const channelPerformance = {
   title: "Which channels bring the best deals",
   subtitle: "This month · deals received, and the share that got funded",
   columns: ["Channel", "", "Deals", "Funded"],
-  /** live channels only */
-  rows: [
-    { channel: "Single package", deals: 132, funded: 36 },
-    { channel: "Bulk ZIP", deals: 98, funded: 28, low: true },
-    { channel: "Manual lead", deals: 39, funded: 40 },
-    { channel: "Merchant Link", deals: 18, funded: 33 },
-  ] as { channel: string; deals: number; funded: number; low?: boolean }[],
+  /** live channels only, from Intake's monthly counts; the lowest funded share is marked */
+  rows: (month: IntakeSummary["month"]) => {
+    const lowest = Math.min(...month.map((c) => c.funded));
+    return month.map((c) => ({ channel: channelLabel[c.channel], deals: c.deals, funded: Math.round(c.funded * 100), low: c.funded === lowest }));
+  },
+  barLabel: (channel: string, deals: number) => `${channel}: ${deals} deals`,
   note: "Bulk ZIP deals fund less often, usually because folders arrive incomplete. Asking brokers for all four statements per folder could lift the rate.",
 };
 

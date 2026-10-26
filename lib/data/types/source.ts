@@ -1,15 +1,18 @@
 import type { Advance, FundedBook } from "./advances";
+import type { AuditEntry, AuditLog } from "./audit";
 import type { Broker, BrokerBook } from "./brokers";
 import type { Id, IsoDateTime } from "./common";
 import type { FundingDesk, FundingSummary, PipelineOffer, QueuedFunding, Release } from "./funding";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
-import type { BulkIntake, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
+import type { BulkIntake, IntakeChannelSettings, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
 import type { Merchant, MerchantBook, MerchantListing } from "./merchants";
+import type { Plan } from "./plan";
 import type { Policy, Pricing } from "./policy";
 import type { RenewalCandidate, RenewalSettings, RenewalSummary } from "./renewals";
 import type { Task, TaskBoard } from "./tasks";
 import type { RoadmapFeature } from "./roadmap";
+import type { ApiKey, SecuritySettings, SignIn } from "./security";
 import type { StackingAlert, StackingSummary } from "./stacking";
 import type { AccessReview, Invite, OutsideAccess, TeamMember } from "./team";
 import type { NotificationRule, Workspace } from "./workspace";
@@ -99,5 +102,16 @@ export interface DataSource {
     listNotificationRules(): Promise<NotificationRule[]>;
     getPolicy(): Promise<Policy>;
     getPricing(): Promise<Pricing>;
+    getIntakeChannels(): Promise<IntakeChannelSettings>;
+    getPlan(): Promise<Plan>;
+    getSecurity(): Promise<SecuritySettings>;
+    /** today's sign-ins, newest first */
+    listSignIns(): Promise<SignIn[]>;
+    listApiKeys(): Promise<ApiKey[]>;
+  };
+  audit: {
+    /** newest first */
+    listEntries(): Promise<AuditEntry[]>;
+    getLog(): Promise<AuditLog>;
   };
 }

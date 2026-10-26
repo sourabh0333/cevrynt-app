@@ -5,17 +5,20 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import {
   channelCard,
-  currentPlan,
-  dealsUsed,
+  dealsUsed as countDeals,
   included,
   invoices,
-  overage as ov,
-  payment,
-  planHeader as ph,
+  meterChip,
+  overage as overageFor,
+  payment as paymentFor,
+  planHeader,
+  planSections,
   plans,
-  usage,
-  usageByChannel,
-} from "@/lib/sample-data/plan";
+  spendLimitRange,
+  usage as usageFor,
+  usageByChannel as byChannel,
+} from "@/lib/copy/plan";
+import type { PlanData } from "@/lib/data/views/settings";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -46,16 +49,25 @@ function Meter({ label, chip, value, unit, bar, hint, i }: { label: string; chip
 /**
  * Settings → Plan & usage from design/Settings-Plan.html and its prototype.
  * The spend limit slider grows the striped "extra deals" part of the usage
- * bar; Monthly / Yearly lowers the plan prices by 15%. The $5.20 cost per
- * deal, the channel counts and the seats come from shared data. No hover.
+ * bar; Monthly / Yearly lowers the plan prices by the yearly discount. The
+ * plan, Intake's monthly channel counts and the team's seats come from the
+ * data layer; the cost per deal is worked out from them, as Reports does.
+ * No hover.
  */
-export function PlanView() {
-  const [warn, setWarn] = useState(true);
+export function PlanView({ data }: { data: PlanData }) {
+  const { plan } = data;
+  const dealsUsed = countDeals(data.month);
+  const usageByChannel = byChannel(data.month);
+  const usage = usageFor(plan, dealsUsed, data.seats, data.now);
+  const ph = planHeader(plan, dealsUsed);
+  const ov = overageFor(plan);
+  const payment = paymentFor(plan);
+  const [warn, setWarn] = useState(plan.warn.on);
   const [yearly, setYearly] = useState(false);
-  const [cap, setCap] = useState(ov.cap.start);
-  const price = (n: number) => usd(yearly ? n * (1 - plans.yearlyDiscount) : n);
-  const left = currentPlan.includedDeals - dealsUsed;
-  const extraDeals = Math.round(cap / currentPlan.extraDeal);
+  const [cap, setCap] = useState(plan.spendLimit);
+  const price = (n: number) => usd(yearly ? n * (1 - plan.yearlyDiscount) : n);
+  const left = plan.current.deals - dealsUsed;
+  const extraDeals = Math.round(cap / plan.extraDeal);
   const maxDay = Math.max(...usage.perDay.days);
   const u = ov.used(dealsUsed, left);
 
@@ -93,7 +105,7 @@ export function PlanView() {
         </div>
         {/* Four meters: 4 across, 2 + 2 when narrower, never 3 + 1. */}
         <div className="grid grid-cols-4 gap-2 @max-[820px]:grid-cols-2 @max-[420px]:grid-cols-1">
-          <Meter i={0} label={usage.deals.label} chip={`${pct(usage.deals.used, usage.deals.of)}%`} value={usage.deals.used} unit={` of ${usage.deals.of}`} bar={pct(usage.deals.used, usage.deals.of)} hint={usage.deals.hint} />
+          <Meter i={0} label={usage.deals.label} chip={meterChip(usage.deals.used, usage.deals.of)} value={usage.deals.used} unit={` of ${usage.deals.of}`} bar={pct(usage.deals.used, usage.deals.of)} hint={usage.deals.hint} />
           <div className="flex min-w-0 flex-col gap-2 rounded-tile-lg bg-mint-card p-4 shadow-[inset_0_0_0_1px_var(--color-mint-border)]">
             <span className="flex items-baseline justify-between gap-2">
               <span className="truncate text-label text-grey-text">{usage.pages.label}</span>
@@ -106,7 +118,7 @@ export function PlanView() {
             <span className="text-[11.5px] text-grey-text">{usage.pages.text}</span>
             <span className="text-[11.5px] text-teal-deep">{usage.pages.hint}</span>
           </div>
-          <Meter i={2} label={usage.seats.label} chip={`${pct(usage.seats.used, usage.seats.of)}%`} value={usage.seats.used} unit={` of ${usage.seats.of}`} bar={pct(usage.seats.used, usage.seats.of)} hint={usage.seats.hint} />
+          <Meter i={2} label={usage.seats.label} chip={meterChip(usage.seats.used, usage.seats.of)} value={usage.seats.used} unit={` of ${usage.seats.of}`} bar={pct(usage.seats.used, usage.seats.of)} hint={usage.seats.hint} />
           <Meter i={3} label={usage.link.label} chip={usage.link.chip} value={usage.link.value} unit={usage.link.unit} bar={usage.link.bar} hint={usage.link.hint} />
         </div>
         <div className="flex flex-wrap items-stretch gap-[18px] rounded-tile-lg bg-tile p-4">
@@ -134,7 +146,7 @@ export function PlanView() {
             <h2 id="h-inc" className="m-0 font-heading text-[19px] font-semibold">{included.title}</h2>
             <span className="text-label text-grey-text">{included.text}</span>
           </div>
-          <span className="rounded-pill bg-tile px-[11px] py-[5px] text-[11.5px] font-bold text-teal-deep">{included.chip}</span>
+          <span className="rounded-pill bg-tile px-[11px] py-[5px] text-[11.5px] font-bold text-teal-deep">{included.chip(plan, dealsUsed)}</span>
         </div>
         {/* Five tiles in one row; stacked when narrow so there is never a ragged 3 + 2. */}
         <ul className="m-0 grid list-none grid-cols-5 gap-2 p-0 @max-[700px]:grid-cols-1">
@@ -151,7 +163,7 @@ export function PlanView() {
       </section>
 
       <section
-        aria-label="Overage and usage by channel"
+        aria-label={planSections.overage}
         className="@container box-border grid min-w-0 grid-cols-2 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[640px]:grid-cols-1"
       >
         <div className="flex min-w-0 flex-col gap-3.5 rounded-card bg-card p-[18px]">
@@ -168,7 +180,7 @@ export function PlanView() {
           <div className="flex flex-col gap-2.5 rounded-[18px] bg-tile p-3.5">
             <div
               role="img"
-              aria-label={`${dealsUsed} deals used, ${left} left${cap ? `, then up to ${Math.floor(cap / currentPlan.extraDeal)} extra` : ""}`}
+              aria-label={ov.barLabel(dealsUsed, left, cap)}
               className="anim-grow-x flex h-3.5 gap-0.5 overflow-hidden rounded-[7px]"
               style={d(0.3)}
             >
@@ -190,9 +202,9 @@ export function PlanView() {
             <input
               id="cap"
               type="range"
-              min={ov.cap.min}
-              max={ov.cap.max}
-              step={ov.cap.step}
+              min={spendLimitRange.min}
+              max={spendLimitRange.max}
+              step={spendLimitRange.step}
               value={cap}
               aria-valuetext={ov.capText(cap)}
               onChange={(e) => setCap(Number(e.target.value))}
@@ -207,7 +219,7 @@ export function PlanView() {
         <div className="flex min-w-0 flex-col gap-3.5 p-[18px]">
           <div className="flex items-start justify-between gap-2.5">
             <div>
-              <h2 className="m-0 font-heading text-card-title-sm font-semibold">{channelCard.title}</h2>
+              <h2 className="m-0 font-heading text-card-title-sm font-semibold">{channelCard.title(dealsUsed)}</h2>
               <span className="text-label text-hint">{channelCard.text}</span>
             </div>
             <b className="font-heading text-[22px] leading-none font-semibold tabular-nums tracking-[-0.03em]">{dealsUsed}</b>
@@ -241,10 +253,10 @@ export function PlanView() {
             <h2 id="h-plans" className="m-0 font-heading text-[19px] font-semibold">{plans.title}</h2>
             <span className="text-label text-hint">{plans.text}</span>
           </div>
-          <SegmentedSwitch label="Billing period" track="grey" value={yearly ? "yearly" : "monthly"} onChange={(v) => setYearly(v === "yearly")} options={plans.period} />
+          <SegmentedSwitch label={plans.periodLabel} track="grey" value={yearly ? "yearly" : "monthly"} onChange={(v) => setYearly(v === "yearly")} options={plans.period} />
         </div>
         <div className="grid grid-cols-3 gap-2 rounded-[26px] bg-card p-2 @max-[700px]:grid-cols-1">
-          {plans.tiers.map((t) => (
+          {plans.tiers(plan).map((t) => (
             <div
               key={t.name}
               className={`flex min-w-0 flex-col gap-2.5 rounded-[22px] bg-tile p-[18px] ${t.current ? "shadow-[inset_0_0_0_2px_var(--color-teal)]" : ""}`}
@@ -266,7 +278,7 @@ export function PlanView() {
                     </span>
                     <span className={t.features[i] ? "text-ink" : "text-grey-dot"}>
                       {f}
-                      {t.features[i] ? null : <span className="sr-only"> (not included)</span>}
+                      {t.features[i] ? null : <span className="sr-only">{plans.notIncluded}</span>}
                     </span>
                   </li>
                 ))}
@@ -288,14 +300,14 @@ export function PlanView() {
         </div>
       </section>
 
-      <section aria-label="Billing" className="@container box-border grid min-w-0 grid-cols-3 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[700px]:grid-cols-1">
+      <section aria-label={planSections.billing} className="@container box-border grid min-w-0 grid-cols-3 gap-1 rounded-card-lg border border-line bg-tile p-2 text-ink @max-[700px]:grid-cols-1">
         <div className="col-span-2 flex min-w-0 flex-col gap-2 p-4 @max-[700px]:col-span-1">
           <div className="flex items-center justify-between">
             <h2 className="m-0 font-heading text-card-title-sm font-semibold">{invoices.title}</h2>
             <span className="text-label font-semibold text-teal">{invoices.all}</span>
           </div>
           <div className="flex flex-col gap-1.5 rounded-[18px] bg-card p-2">
-            {invoices.rows.map((r) => (
+            {invoices.rows(plan).map((r) => (
               <div key={r.month} className="grid grid-cols-[minmax(0,1fr)_100px_80px_60px] items-center gap-2.5 rounded-tile bg-tile px-3 py-2.5 text-[12.5px] @max-[420px]:grid-cols-[minmax(0,1fr)_72px_56px_40px]">
                 <span className="truncate">{r.month}</span>
                 <b className="font-heading tabular-nums tracking-[-0.03em]">{r.amount}</b>

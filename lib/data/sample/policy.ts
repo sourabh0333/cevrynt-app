@@ -55,7 +55,7 @@ export const policy: Policy = {
   ],
   exceptionRate: 0.04,
   exceptionWatch: 0.1,
-  draft: { version: 4, title: "Allow 70% debt share", byId: "usr_maya", approverId: "usr_priya" },
+  draft: { version: 4, title: "Allow 70% debt share", byId: "usr_maya", approverId: "usr_priya", proposedAt: "2026-10-13T10:20:00-04:00", change: { maxDebtShare: 0.7 } },
   liveTest: {
     name: "70% debt share",
     day: 12,

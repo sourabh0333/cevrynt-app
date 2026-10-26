@@ -22,6 +22,8 @@ export type FitResult =
 export type IntakeSummary = {
   /** deals since midnight, by channel */
   today: { channel: IntakeChannel; count: number }[];
+  /** deals this month, by channel, and the share of them funded. Intake channels and Plan & usage read these. */
+  month: { channel: IntakeChannel; deals: number; funded: number }[];
   recent: { id: Id; merchant: string; channel: IntakeChannel; at: IsoDateTime; fit: FitResult; assigneeId: Id | null }[];
 };
 
@@ -104,4 +106,9 @@ export type ManualDraft = {
   docsReceived: { received: number; total: number };
   /** past deals the duplicate check compares against */
   pastDeals: { dealId: Id; business: string; owner: string; phone: string }[];
+};
+
+/** Settings › Intake channels: how Merchant Link is set up. The other channels are coming soon. */
+export type IntakeChannelSettings = {
+  merchantLink: { bankConnection: boolean; photoId: boolean; reminders: boolean; spanish: boolean; expiryDays: number };
 };

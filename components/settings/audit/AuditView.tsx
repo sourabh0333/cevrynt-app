@@ -4,21 +4,22 @@ import Link from "next/link";
 import { useState } from "react";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import {
-  actors,
-  auditEntries,
+  auditEntryView,
   auditHeader as ah,
+  auditSections,
   categoryLabel,
   dealRecord,
   entryDetail as ed,
   entryLife,
   entryNumber,
-  instantAlerts,
-  legalHolds,
+  instantAlerts as ia,
+  legalHolds as lh,
   logFilters as lf,
   sealFor,
   type AuditActor,
-  type AuditCategory,
-} from "@/lib/sample-data/audit";
+} from "@/lib/copy/audit";
+import type { AuditCategory } from "@/lib/data/types";
+import type { AuditData } from "@/lib/data/views/settings";
 
 const catChip: Record<AuditCategory, string> = {
   money: "bg-mint-bg text-teal-dark",
@@ -38,14 +39,13 @@ const catDot: Record<AuditCategory, string> = {
 };
 const avatarFill = { blue: "bg-blue-bg text-ink", sand: "bg-sand text-ink", red: "bg-red-bg text-ink", cream: "bg-cream text-ink", teal: "bg-teal text-white", line: "bg-line text-ink" };
 
-function ActorMark({ who, size }: { who: AuditActor; size: 30 | 36 }) {
-  const a = actors[who];
+function ActorMark({ who: a, size }: { who: AuditActor; size: 30 | 36 }) {
   return (
     <span
       aria-hidden="true"
       className={`grid flex-none place-items-center rounded-full font-bold ${avatarFill[a.avatar]} ${size === 36 ? "h-9 w-9 text-label" : "h-[30px] w-[30px] text-[10.5px]"}`}
     >
-      {who === "C" ? "C" : who}
+      {a.key}
     </span>
   );
 }
@@ -65,23 +65,29 @@ function Lock({ size }: { size: number }) {
  * Category chips (with counts), the person picker and search filter the
  * entries; clicking one updates the detail beside it, with BEFORE → AFTER
  * for changes and the entry's seal. The log box matches the detail's height
- * and its entries scroll inside it. No hover.
+ * and its entries scroll inside it. No hover. The entries come from the data
+ * layer, each worded from the release, policy draft, sign-in, invite or deal
+ * it is about.
  */
-export function AuditView() {
+export function AuditView({ data }: { data: AuditData }) {
+  const auditEntries = data.rows.map(auditEntryView);
+  const people = lf.people(data.people);
+  const alertItems = ia.items(data.log);
+  const holds = lh.holds(data);
   const [cat, setCat] = useState<"all" | AuditCategory>("all");
-  const [sel, setSel] = useState(auditEntries[0].id);
+  const [sel, setSel] = useState(auditEntries[0]?.id ?? "");
   const [range, setRange] = useState("today");
-  const [who, setWho] = useState<"all" | AuditActor>("all");
+  const [who, setWho] = useState("all");
   const [q, setQ] = useState("");
-  const [alerts, setAlerts] = useState<boolean[]>(() => instantAlerts.items.map(() => true));
+  const [alerts, setAlerts] = useState<boolean[]>(() => alertItems.map((a) => a.on));
 
   const query = q.trim().toLowerCase();
   const matches = (e: (typeof auditEntries)[number]) =>
-    (who === "all" || e.actor === who) && (!query || `${e.what} ${e.object} ${actors[e.actor].name}`.toLowerCase().includes(query));
+    (who === "all" || e.actor.key === who) && (!query || `${e.what} ${e.object} ${e.actor.name}`.toLowerCase().includes(query));
   const base = auditEntries.filter(matches);
   const rows = base.filter((e) => cat === "all" || e.category === cat);
   const d = auditEntries.find((e) => e.id === sel) ?? auditEntries[0];
-  const n = entryNumber(auditEntries.indexOf(d));
+  const n = entryNumber(data.log, auditEntries.indexOf(d));
 
   return (
     <div className="@container flex flex-col gap-3.5">
@@ -89,7 +95,7 @@ export function AuditView() {
         <div className="flex min-w-0 flex-col justify-center gap-2 rounded-card bg-mint-card p-5">
           <span className="inline-flex items-center gap-[7px] self-start rounded-pill bg-tile px-[11px] py-1 text-[11.5px] font-semibold text-teal-deep">
             <span className="h-[7px] w-[7px] rounded-full bg-teal" />
-            {ah.sealed}
+            {ah.sealed(data.log, data.now)}
           </span>
           <h2 id="h-au" className="m-0 font-heading text-[22px] font-semibold">{ah.title}</h2>
           <span className="text-[12.5px] text-grey-text">{ah.text}</span>
@@ -103,7 +109,7 @@ export function AuditView() {
           </div>
         </div>
         <div className="grid content-center grid-cols-2 gap-2 p-3">
-          {ah.stats.map((s) => (
+          {ah.stats(data).map((s) => (
             <span key={s.label} className={`min-w-0 rounded-[18px] p-3.5 ${s.alert ? "bg-red-bg" : "bg-tile"}`}>
               <b className={`block font-heading text-[24px] leading-none font-semibold tabular-nums tracking-[-0.03em] ${s.alert ? "text-red-text" : "text-ink"}`}>{s.value}</b>
               <span className="text-[11.5px] text-muted">{s.label}</span>
@@ -115,7 +121,7 @@ export function AuditView() {
       {/* The log stretches to the detail's height and its entries scroll inside it. */}
       <div className="flex flex-wrap items-stretch gap-3.5">
         <section aria-labelledby="h-log" className="box-border flex min-w-0 flex-[999_1_460px] flex-col gap-3 rounded-card-lg bg-card p-4 text-ink">
-          <h2 id="h-log" className="sr-only">Log entries</h2>
+          <h2 id="h-log" className="sr-only">{lf.title}</h2>
           <div className="flex flex-wrap gap-2">
             <label className="box-border flex h-11 min-w-0 flex-[1_1_240px] items-center gap-2 rounded-pill bg-tile px-4">
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" className="flex-none stroke-hint">
@@ -138,13 +144,13 @@ export function AuditView() {
               <select
                 aria-label={lf.personLabel}
                 value={who}
-                onChange={(e) => setWho(e.target.value as "all" | AuditActor)}
+                onChange={(e) => setWho(e.target.value)}
                 className="h-10 cursor-pointer border-0 bg-transparent pr-1.5 text-[12.5px] font-semibold text-ink outline-none"
               >
                 <option value="all">{lf.everyone}</option>
-                {lf.people.map((p) => (
-                  <option key={p} value={p}>
-                    {p === "C" ? lf.automatic : actors[p].name}
+                {people.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.key === "C" ? lf.automatic : p.name}
                   </option>
                 ))}
               </select>
@@ -188,7 +194,7 @@ export function AuditView() {
                   <span className="min-w-0 flex-1">
                     <b className="block truncate text-body-sm">{e.what}</b>
                     <span className="block truncate text-[11.5px] text-hint">
-                      {actors[e.actor].name} · {e.object}
+                      {e.actor.name} · {e.object}
                     </span>
                   </span>
                   <span className={`whitespace-nowrap rounded-pill px-[9px] py-[3px] text-[10.5px] font-bold ${catChip[e.category]}`}>{categoryLabel[e.category]}</span>
@@ -212,9 +218,9 @@ export function AuditView() {
           <div className="flex items-center gap-2.5">
             <ActorMark who={d.actor} size={36} />
             <span className="min-w-0 text-[12.5px]">
-              <b className="block">{actors[d.actor].name}</b>
+              <b className="block">{d.actor.name}</b>
               <span className="text-[11.5px] text-hint">
-                {ed.today} {d.time} · {d.where}
+                {ed.day(d.at, data.now)} {d.time} · {d.where}
               </span>
             </span>
           </div>
@@ -242,7 +248,7 @@ export function AuditView() {
         </aside>
       </div>
 
-      <section aria-label="Alerts, legal holds and deal records" className="grid grid-cols-3 gap-3.5 @max-[760px]:grid-cols-1">
+      <section aria-label={auditSections.more} className="grid grid-cols-3 gap-3.5 @max-[760px]:grid-cols-1">
         <article className="box-border flex min-w-0 flex-col gap-1.5 rounded-[28px] border border-line bg-tile p-[18px] text-ink">
           <div className="mb-1 flex items-center gap-2.5">
             <span className="grid h-9 w-9 flex-none place-items-center rounded-[12px] bg-mint-light">
@@ -252,11 +258,11 @@ export function AuditView() {
               </svg>
             </span>
             <div className="min-w-0">
-              <h2 className="m-0 font-heading text-[16px] font-semibold">{instantAlerts.title}</h2>
-              <span className="text-[11.5px] text-hint">{instantAlerts.sub}</span>
+              <h2 className="m-0 font-heading text-[16px] font-semibold">{ia.title}</h2>
+              <span className="text-[11.5px] text-hint">{ia.sub(data.log)}</span>
             </div>
           </div>
-          {instantAlerts.items.map((a, i) => (
+          {alertItems.map((a, i) => (
             <label key={a.title} className="flex cursor-pointer items-center gap-2.5 border-b border-line-faint py-2.5">
               <span className={`h-2 w-2 flex-none rounded-full ${alerts[i] ? "bg-teal" : "bg-line-dash-soft"}`} />
               <span className="min-w-0 flex-1 text-[12.5px]">
@@ -286,12 +292,12 @@ export function AuditView() {
               <Lock size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="m-0 font-heading text-[16px] font-semibold">{legalHolds.title}</h2>
-              <span className="text-[11.5px] text-amber-mute">{legalHolds.sub}</span>
+              <h2 className="m-0 font-heading text-[16px] font-semibold">{lh.title}</h2>
+              <span className="text-[11.5px] text-amber-mute">{lh.sub}</span>
             </div>
-            <b className="font-heading text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{legalHolds.holds.length}</b>
+            <b className="font-heading text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{holds.length}</b>
           </div>
-          {legalHolds.holds.map((h) => (
+          {holds.map((h) => (
             <div key={h.tag} className="overflow-hidden rounded-[18px] bg-tile shadow-[0_10px_24px_-20px_rgba(107,75,31,.6)]">
               <div className="flex items-center gap-3 p-3.5">
                 <span className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full bg-[repeating-linear-gradient(135deg,var(--color-amber-light)_0_4px,var(--color-rate-6)_4px_8px)]">
@@ -305,21 +311,21 @@ export function AuditView() {
                 </span>
                 <span className="text-right">
                   <b className="block font-heading text-card-title leading-none tabular-nums tracking-[-0.03em]">{h.days}</b>
-                  <span className="text-[10.5px] text-hint">{legalHolds.daysLabel}</span>
+                  <span className="text-[10.5px] text-hint">{lh.daysLabel}</span>
                 </span>
               </div>
               <div className="grid grid-cols-2 border-t border-dashed border-amber-stripe/40">
                 <span className="border-r border-dashed border-amber-stripe/40 px-3.5 py-[9px] text-[11.5px] text-hint">
-                  Placed by <b className="text-ink">{h.placedBy}</b> · {h.placedOn}
+                  {lh.placedBy} <b className="text-ink">{h.placedBy}</b> · {h.placedOn}
                 </span>
                 <span className="px-3.5 py-[9px] text-[11.5px] text-hint">
-                  <b className="text-ink">{h.records}</b> records kept
+                  <b className="text-ink">{h.records}</b> {lh.recordsKept}
                 </span>
               </div>
             </div>
           ))}
           <button type="button" className="mt-auto h-[38px] cursor-pointer rounded-pill border-0 bg-white/70 text-label font-semibold text-ink">
-            {legalHolds.add}
+            {lh.add}
           </button>
         </article>
 

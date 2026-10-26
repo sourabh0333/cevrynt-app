@@ -5,7 +5,10 @@ import { SAMPLE_NOW } from "./clock";
 import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
 import { fundingDesk, fundingQueue, fundingSummary, pipelineOffers, releases } from "./funding";
-import { bulkIntake, intakeSummary, manualDraft, packageIntake } from "./intake";
+import { auditEntries, auditLog } from "./audit";
+import { bulkIntake, intakeChannelSettings, intakeSummary, manualDraft, packageIntake } from "./intake";
+import { plan } from "./plan";
+import { apiKeys, securitySettings, signIns } from "./security";
 import { merchantBook, merchantListings, merchants } from "./merchants";
 import { policy, pricing } from "./policy";
 import { renewalCandidates, renewalSettings, renewalSummary } from "./renewals";
@@ -188,6 +191,29 @@ export const sampleSource: DataSource = {
     },
     async getPricing() {
       return structuredClone(pricing);
+    },
+    async getIntakeChannels() {
+      return structuredClone(intakeChannelSettings);
+    },
+    async getPlan() {
+      return structuredClone(plan);
+    },
+    async getSecurity() {
+      return structuredClone(securitySettings);
+    },
+    async listSignIns() {
+      return structuredClone(signIns);
+    },
+    async listApiKeys() {
+      return structuredClone(apiKeys);
+    },
+  },
+  audit: {
+    async listEntries() {
+      return structuredClone(auditEntries);
+    },
+    async getLog() {
+      return structuredClone(auditLog);
     },
   },
 };

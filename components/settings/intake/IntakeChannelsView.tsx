@@ -16,7 +16,8 @@ import {
   merchantLink as ml,
   type ChannelKey,
   type Toggle,
-} from "@/lib/sample-data/intake-channels";
+} from "@/lib/copy/intake-channels";
+import type { IntakeChannelsData } from "@/lib/data/views/settings";
 
 const cap = "text-cap font-semibold uppercase text-hint";
 const smallBtn = "h-[34px] rounded-pill border-0 px-3.5 text-label font-semibold";
@@ -52,15 +53,17 @@ function ComingSoon({ name, soon, children }: { name: string; soon: string; chil
           {comingBanner.cta.label}
         </Button>
       </div>
-      <div inert aria-label={`${name} preview, not available yet`} className="pointer-events-none flex select-none flex-col gap-3 opacity-55">
+      <div inert aria-label={comingBanner.previewLabel(name)} className="pointer-events-none flex select-none flex-col gap-3 opacity-55">
         {children}
       </div>
     </div>
   );
 }
 
-function MerchantLinkPanel() {
-  const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(ml.toggles.map((t) => [t.key, t.on])));
+function MerchantLinkPanel({ data }: { data: IntakeChannelsData }) {
+  const toggles = ml.toggles(data.settings);
+  const expiry = ml.expiry(data.settings);
+  const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(toggles.map((t) => [t.key, t.on])));
   return (
     <div className="flex flex-wrap gap-3">
       <div className="box-border flex min-w-0 flex-[1_1_240px] flex-col gap-2.5 rounded-[22px] bg-tile p-4 shadow-[0_14px_30px_-24px_rgba(15,21,19,.5)]">
@@ -72,8 +75,8 @@ function MerchantLinkPanel() {
           </Link>
         </span>
         <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-[9px] bg-teal-forest text-label-sm font-bold text-white">{ml.brand.initials}</span>
-          <b className="text-body-sm">{ml.brand.name}</b>
+          <span className="grid h-7 w-7 place-items-center rounded-[9px] bg-teal-forest text-label-sm font-bold text-white">{data.workspace.initials}</span>
+          <b className="text-body-sm">{data.workspace.name}</b>
         </div>
         <span className="text-[12.5px]">{ml.greeting}</span>
         <ul className="m-0 flex list-none flex-col gap-[5px] p-0 text-label">
@@ -86,12 +89,12 @@ function MerchantLinkPanel() {
         </ul>
       </div>
       <div className="flex min-w-0 flex-[2_1_300px] flex-col gap-2">
-        {ml.toggles.map((t) => (
+        {toggles.map((t) => (
           <ToggleRow key={t.key} t={t} checked={on[t.key]} onChange={() => setOn((x) => ({ ...x, [t.key]: !x[t.key] }))} />
         ))}
         <span className="flex justify-between rounded-[16px] bg-tile px-3.5 py-3 text-[12.5px]">
-          <span>{ml.expiry.label}</span>
-          <b>{ml.expiry.value}</b>
+          <span>{expiry.label}</span>
+          <b>{expiry.value}</b>
         </span>
       </div>
     </div>
@@ -172,8 +175,9 @@ function FormsPreview() {
   );
 }
 
-function ApiPreview() {
+function ApiPreview({ data }: { data: IntakeChannelsData }) {
   const failing = api.webhooks.find((w) => !w.ok);
+  const key = api.key(data.apiKey, data.now);
   return (
     <>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-2">
@@ -220,10 +224,10 @@ function ApiPreview() {
       </div>
       <div className="flex flex-wrap items-center gap-2.5 rounded-[16px] bg-tile px-3.5 py-3">
         <span className="min-w-0 flex-[1_1_200px] text-[12.5px]">
-          <b>{api.key.label}</b> <span className="font-mono text-hint">{api.key.value}</span>
-          <span className="block text-[11.5px] text-hint">{api.key.hint}</span>
+          <b>{key.label}</b> <span className="font-mono text-hint">{key.value}</span>
+          <span className="block text-[11.5px] text-hint">{key.hint}</span>
         </span>
-        <span className={`${smallBtn} inline-flex items-center bg-card text-ink`}>{api.key.action}</span>
+        <span className={`${smallBtn} inline-flex items-center bg-card text-ink`}>{key.action}</span>
       </div>
     </>
   );
@@ -236,13 +240,16 @@ function ApiPreview() {
  * are not live (CLAUDE.md): each shows the blue "isn't available yet"
  * banner with Join early access, and its setup below is faded and inert.
  * Then the live channels' results and the steps every new deal goes
- * through. No hover.
+ * through. No hover. Merchant Link's set-up, the monthly channel counts
+ * (the same ones Plan & usage counts), the brand and the API key come from
+ * the data layer.
  */
-export function IntakeChannelsView() {
+export function IntakeChannelsView({ data }: { data: IntakeChannelsData }) {
   const [tab, setTab] = useState<ChannelKey>("link");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = channelTabs.find((t) => t.key === tab) ?? channelTabs[0];
-  const maxDeals = Math.max(...perf.rows.map((r) => r.deals));
+  const rows = perf.rows(data.month);
+  const maxDeals = Math.max(...rows.map((r) => r.deals));
 
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
     const i = channelTabs.findIndex((t) => t.key === tab);
@@ -268,8 +275,8 @@ export function IntakeChannelsView() {
       </section>
 
       <section aria-labelledby="h-ch" className="@container box-border flex min-w-0 flex-col gap-3.5 rounded-card-lg bg-card p-5 text-ink">
-        <h2 id="h-ch" className="sr-only">Channels</h2>
-        <div role="tablist" aria-label="Channels" onKeyDown={onKey} className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
+        <h2 id="h-ch" className="sr-only">{ch.tabsLabel}</h2>
+        <div role="tablist" aria-label={ch.tabsLabel} onKeyDown={onKey} className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
           {channelTabs.map((t, i) => {
             const on = t.key === tab;
             return (
@@ -298,10 +305,10 @@ export function IntakeChannelsView() {
         </div>
         <div role="tabpanel" id={`panel-${active.key}`} aria-labelledby={`tab-${active.key}`}>
           {active.key === "link" ? (
-            <MerchantLinkPanel />
+            <MerchantLinkPanel data={data} />
           ) : (
             <ComingSoon name={active.name} soon={active.soon ?? ""}>
-              {active.key === "email" ? <EmailPreview /> : active.key === "forms" ? <FormsPreview /> : <ApiPreview />}
+              {active.key === "email" ? <EmailPreview /> : active.key === "forms" ? <FormsPreview /> : <ApiPreview data={data} />}
             </ComingSoon>
           )}
         </div>
@@ -318,10 +325,10 @@ export function IntakeChannelsView() {
               {c}
             </span>
           ))}
-          {perf.rows.map((r, i) => (
+          {rows.map((r, i) => (
             <div key={r.channel} className="col-span-4 grid grid-cols-subgrid items-center">
               <b className="truncate">{r.channel}</b>
-              <ProgressBar value={(r.deals / maxDeals) * 100} height={10} track="tile" delay={0.2 + i * 0.08} aria-label={`${r.channel}: ${r.deals} deals`} />
+              <ProgressBar value={(r.deals / maxDeals) * 100} height={10} track="tile" delay={0.2 + i * 0.08} aria-label={perf.barLabel(r.channel, r.deals)} />
               <span className="text-right font-heading tabular-nums tracking-[-0.03em]">{r.deals}</span>
               <b className={`text-right font-heading tabular-nums tracking-[-0.03em] ${r.low ? "text-amber-deep" : "text-teal-deep"}`}>{r.funded}%</b>
             </div>

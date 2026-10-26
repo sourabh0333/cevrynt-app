@@ -14,9 +14,13 @@ import { earlyPayoffTiers, LOYALTY_DISCOUNT, offerPolicyFrom, ridgelinePolicy } 
 import { currentPolicy, simInputFrom } from "@/lib/policy-sim";
 import { readiness } from "@/lib/renewal-rules";
 import { estimateUpTo } from "@/lib/sample-data/apply";
-import { auditHeader } from "@/lib/sample-data/audit";
+import { auditEntryView, auditHeader } from "@/lib/copy/audit";
 import { builder, sendOffer } from "@/lib/copy/deal-offer";
-import { COST_PER_DEAL, costPerDeal, dealsUsed, usage, usageByChannel } from "@/lib/sample-data/plan";
+import { costPerDeal, dealsUsed, planHeader, usage, usageByChannel } from "@/lib/copy/plan";
+import { channelPerformance, apiPreview } from "@/lib/copy/intake-channels";
+import { apiKeys as apiKeysCopy, signIns, toFix } from "@/lib/copy/security";
+import { auditView, intakeChannelsView, planView, securityView } from "@/lib/data/views/settings";
+import { getIntakeSummary } from "@/lib/data/intake";
 import { atRisk as atRiskCopy, brokerPay, comingUp as comingUpCopy, hero, readyRules, renewalMerchant, renewalsHeader } from "@/lib/copy/renewals";
 import { approval, reachOut } from "@/lib/copy/renewal-rules";
 import { biggestBalances, byIndustry, merchantStats, merchantView, merchantsHeader, repeatMerchants, segments } from "@/lib/copy/merchants";
@@ -25,7 +29,6 @@ import { merchantsView } from "@/lib/data/views/merchants";
 import { renewalRulesView, renewalsView } from "@/lib/data/views/renewals";
 import { navSections } from "@/lib/nav";
 import { unitEconomics } from "@/lib/sample-data/reports";
-import { signIns, toFix } from "@/lib/sample-data/security";
 import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabel } from "@/lib/copy/deal";
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
 import { getDeal, listDeals } from "@/lib/data/deals";
@@ -53,7 +56,6 @@ import { tasksView } from "@/lib/data/views/tasks";
 import { advanceView, fundedHeader, fundedStats, todayCopy, todayTotals, reconciliationCopy, returnedCopy, forecastCopy } from "@/lib/copy/funded";
 import { commissionsCopy, expiringToday, moneySentCopy, offerChip, offerStats, offersHeader, queueCopy } from "@/lib/copy/offers";
 import { fundedView, offersView } from "@/lib/data/views/funding";
-import { auditEntries } from "@/lib/sample-data/audit";
 import { homeData } from "@/lib/sample-data/home";
 import { newToday, seenLabel, stageLine, stackingHeader, summaryCopy, kindFinding } from "@/lib/copy/stacking";
 import { appetite, brokerSummary, brokerView, commissionOf, onWatchCount, payout } from "@/lib/copy/brokers";
@@ -138,15 +140,24 @@ describe("Renewals", () => {
 });
 
 describe("Deals by channel and cost per deal", () => {
-  it("287 deals this month, split 132 / 98 / 39 / 18 (Plan & usage, Intake channels)", () => {
-    assert.equal(dealsUsed, 287);
-    assert.deepEqual(usageByChannel.map((c) => c.deals), [132, 98, 39, 18]);
+  it("287 deals this month, split 132 / 98 / 39 / 18: Intake's counts, read by Intake channels and Plan & usage", async () => {
+    const [{ month }, ic, p] = await Promise.all([getIntakeSummary(), intakeChannelsView(), planView()]);
+    assert.equal(dealsUsed(month), 287);
+    assert.deepEqual(usageByChannel(p.month).map((c) => c.deals), [132, 98, 39, 18]);
+    assert.deepEqual(channelPerformance.rows(ic.month).map((r) => [r.channel, r.deals, r.funded, r.low]), [
+      ["Single package", 132, 36, false],
+      ["Bulk ZIP", 98, 28, true],
+      ["Manual lead", 39, 40, false],
+      ["Merchant Link", 18, 33, false],
+    ]);
   });
 
-  it("$5.20 a deal, the same on Plan & usage and Reports", () => {
-    assert.equal(COST_PER_DEAL, 5.2);
-    assert.equal(costPerDeal, "$5.20");
-    assert.equal(unitEconomics.facts.find((f) => f.label === "Cevrynt cost per deal")?.value, "$5.20");
+  it("$5.20 a deal, worked out from the plan price and the deals used, the same on Plan & usage and Reports", async () => {
+    const p = await planView();
+    const used = dealsUsed(p.month);
+    assert.equal(costPerDeal(p.plan, used), "$5.20");
+    assert.match(planHeader(p.plan, used).text, /works out to about \$5\.20 a deal$/);
+    assert.equal(unitEconomics.facts.find((f) => f.label === "Cevrynt cost per deal")?.value, costPerDeal(p.plan, used));
   });
 });
 
@@ -164,27 +175,54 @@ describe("Team", () => {
 
   it("only Leo has no 2-step login, on Team & roles and Security", async () => {
     assert.deepEqual((await listTeam()).filter((m) => !m.mfa).map((m) => m.name), ["Leo Park"]);
-    assert.ok(toFix.some((f) => f.title === "Leo Park has no 2-step login"));
-    assert.equal(signIns.rows.find((r) => r.person === "Leo Park")?.result, "nomfa");
+    const s = await securityView();
+    assert.ok(toFix(s.noMfa, s.accessReview, s.now).some((f) => f.title === "Leo Park has no 2-step login"));
+    // Leo's sign-in reads "No 2-step" from his team record
+    assert.equal(signIns.rows(s.signIns).find((r) => r.person === "Leo Park")?.result, "nomfa");
   });
 
   it("7 people and 1 invite: the People card, Plan & usage seats and the Audit log agree", async () => {
-    const [team, invites] = await Promise.all([listTeam(), listInvites()]);
+    const [team, invites, p, a] = await Promise.all([listTeam(), listInvites(), planView(), auditView()]);
     assert.equal(peopleCard.subtitle(team.length, invites.length), "7 people · 1 invite waiting");
-    assert.equal(usage.seats.used, 7);
-    assert.equal(usage.seats.hint, "1 invite pending");
+    const u = usage(p.plan, dealsUsed(p.month), p.seats, p.now);
+    assert.deepEqual([u.seats.used, u.seats.of, u.seats.hint], [7, 10, "1 invite pending"]);
     assert.equal(invites[0].name, "Kim Tran");
+    const invite = a.rows.map(auditEntryView).find((e) => e.what.startsWith("Invited"))!;
+    assert.deepEqual([invite.what, invite.object, invite.actor.name], ["Invited Kim Tran", "Underwriter, up to $45K", "Nina Ortiz"]);
   });
 
   it("the access review is 12 days late, on Team & roles and Security", async () => {
     const [review, now] = await Promise.all([getAccessReview(), getNow()]);
     assert.equal(reviewCopy.chip(daysBetween(review.dueAt, now)), "12 days late");
-    assert.ok(toFix.some((f) => f.title === "Access review is 12 days late"));
+    const s = await securityView();
+    assert.ok(toFix(s.noMfa, s.accessReview, s.now).some((f) => f.title === "Access review is 12 days late"));
   });
 
-  it("one failed sign-in, on Security and the Audit log", () => {
-    assert.equal(signIns.rows.filter((r) => r.result === "blocked").length, 1);
-    assert.equal(auditHeader.stats.find((s) => s.label === "Failed sign-ins")?.value, "1");
+  it("one failed sign-in, the same record on Security and the Audit log", async () => {
+    const [s, a] = await Promise.all([securityView(), auditView()]);
+    const blocked = signIns.rows(s.signIns).filter((r) => r.result === "blocked");
+    assert.equal(blocked.length, 1);
+    assert.equal(auditHeader.stats(a).find((x) => x.label === "Failed sign-ins")?.value, String(blocked.length));
+    const entry = a.rows.map(auditEntryView).find((e) => e.category === "access")!;
+    assert.deepEqual([entry.time, entry.what, entry.where, entry.actor.key], [blocked[0].time, "Blocked sign-in to Ari Kaplan’s account", blocked[0].where, "?"]);
+    assert.equal(signIns.note(s.signIns), "The blocked attempt used Ari Kaplan's email with a wrong code. Ari has been told and asked to change his password.");
+  });
+
+  it("one live API key, the same on Security and Intake channels", async () => {
+    const [s, ic] = await Promise.all([securityView(), intakeChannelsView()]);
+    assert.deepEqual(apiKeysCopy.rows(s.apiKeys, s.now).map((r) => r.value), ["1", "7 months"]);
+    const key = apiPreview.key(ic.apiKey, ic.now);
+    assert.deepEqual([key.value, key.hint], ["ck_live_••••••••3f9a", "Created Mar 3 · last used today"]);
+  });
+
+  it("the policy draft in the Audit log is the one on Policy, by the people on Team", async () => {
+    const [a, policy] = await Promise.all([auditView(), getPolicy()]);
+    const e = a.rows.map(auditEntryView).find((x) => x.category === "policy")!;
+    assert.deepEqual([e.time, e.what, e.object, e.actor.name, e.note], [
+      "10:20", `Proposed policy version ${policy.draft!.version}`, "Debt share 65% → 70%", "Maya Chen", "Waiting for Priya Shah to approve. Not live yet.",
+    ]);
+    const s = a.rows.map(auditEntryView).find((x) => x.actor.key === "C")!;
+    assert.deepEqual([s.what, s.object, s.note], ["Suggested approve $40,000", "Harbor Street Bakery LLC", "Score 88, policy v3, all 8 rules met. A person makes the final decision."]);
   });
 });
 
@@ -661,7 +699,7 @@ describe("Offers & funding", () => {
       "Trace 021000020184477 · released by Priya Shah",
       "Ref 20261012MMQFMP2K000412 · released by Priya Shah",
     ]);
-    const money = auditEntries.filter((e) => e.category === "money" && e.what.startsWith("Released"));
+    const money = (await auditView()).rows.map(auditEntryView).filter((e) => e.category === "money" && e.what.startsWith("Released"));
     assert.deepEqual(money.map((e) => [e.time, e.what, e.object]), [
       ["11:02", "Released $60,000 to Cedar Street Pharmacy", "Wire · ref …000412"],
       ["09:15", "Released $25,000 to Bayview Nail Spa", "ACH · trace …184477"],

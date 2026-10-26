@@ -30,7 +30,15 @@ export type PolicyVersion = {
 };
 
 /** A change proposed and waiting for its second approver. */
-export type PolicyDraft = { version: number; title: string; byId: Id; approverId: Id };
+export type PolicyDraft = {
+  version: number;
+  title: string;
+  byId: Id;
+  approverId: Id;
+  proposedAt: IsoDateTime;
+  /** the values it changes */
+  change: { maxDebtShare: number };
+};
 
 /** A new version tried on a share of new deals beside the live one. */
 export type PolicyLiveTest = {
