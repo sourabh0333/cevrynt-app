@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { currentPolicy, simulatePolicy } from "./policy-sim.ts";
+import { getPolicy } from "@/lib/data/settings";
+import { simInputFrom, simulatePolicy as simulateWith, type SimInput } from "./policy-sim.ts";
 
 // Expected figures follow the formulas in design/prototypes/Settings.dc.html.
+// The starting point and the 3% late target are the live policy, read through the data layer.
+const policy = await getPolicy();
+const currentPolicy = simInputFrom(policy);
+const simulatePolicy = (s: SimInput) => simulateWith(s, currentPolicy, policy.latePaymentTarget);
 const view = (r: ReturnType<typeof simulatePolicy>) => r.tiles.map((t) => `${t.value} ${t.delta} ${t.tone}`);
 
 describe("simulatePolicy", () => {

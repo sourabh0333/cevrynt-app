@@ -7,6 +7,7 @@ import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
 import type { ActivityEvent, CalendarEvent, Stip } from "./desk";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
 import type { BulkIntake, IntakeChannelSettings, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
+import type { MerchantLink } from "./merchant-link";
 import type { Merchant, MerchantBook, MerchantListing } from "./merchants";
 import type { Plan } from "./plan";
 import type { Policy, Pricing } from "./policy";
@@ -125,5 +126,9 @@ export interface DataSource {
     /** one per period: week, month, quarter and year */
     listSnapshots(): Promise<ReportSnapshot[]>;
     getBook(): Promise<ReportsBook>;
+  };
+  links: {
+    /** null if no link has this token */
+    getByToken(token: string): Promise<MerchantLink | null>;
   };
 }

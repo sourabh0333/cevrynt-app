@@ -1,17 +1,18 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { MerchantLinkView } from "@/components/merchant-link/MerchantLinkView";
-import { DEMO_TOKEN, funder } from "@/lib/sample-data/merchant-link";
+import { pageTitle } from "@/lib/copy/merchant-link";
+import { merchantLinkView, publicFunder } from "@/lib/data/views/public";
 
 /**
  * The public, merchant-facing Merchant Link page (the (public) layout gives
- * it its own scroll area and no app chrome). Only the sample token "demo"
- * exists for now; real links come with the API.
+ * it its own scroll area and no app chrome). The token is looked up through
+ * the data layer; an unknown or expired token shows the funder-branded
+ * "link has expired" page (not-found.tsx).
  */
-export const metadata = { title: `${funder.name} · Finish your application` };
-
-export function generateStaticParams() {
-  return [{ token: DEMO_TOKEN }];
+export async function generateMetadata() {
+  const funder = await publicFunder();
+  return { title: pageTitle(funder.name) };
 }
 
 export default function MerchantLinkPage({ params }: PageProps<"/m/[token]">) {
@@ -24,6 +25,7 @@ export default function MerchantLinkPage({ params }: PageProps<"/m/[token]">) {
 
 async function Token({ params }: { params: PageProps<"/m/[token]">["params"] }) {
   const { token } = await params;
-  if (token !== DEMO_TOKEN) notFound();
-  return <MerchantLinkView />;
+  const data = await merchantLinkView(token);
+  if (!data) notFound();
+  return <MerchantLinkView data={data} />;
 }

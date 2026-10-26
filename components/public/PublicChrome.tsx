@@ -1,8 +1,13 @@
+"use client";
+
 import Image from "next/image";
-import { funder, linkFooter } from "@/lib/sample-data/merchant-link";
+import { legalLine, linkFooter } from "@/lib/copy/public";
+import { useFunder } from "./FunderContext";
 
 /** The funder's logo square and name, top left on every public page. */
 export function FunderBrand() {
+  const funder = useFunder();
+  if (!funder) return null;
   return (
     <div className="flex items-center gap-2.5">
       <span className="grid h-9 w-9 place-items-center rounded-[11px] bg-teal font-heading text-body-sm font-bold text-white max-[900px]:h-8 max-[900px]:w-8">
@@ -19,9 +24,10 @@ export function FunderBrand() {
  * fixed bottom bar on phones.
  */
 export function PublicFooter({ barSpace = false }: { barSpace?: boolean }) {
+  const funder = useFunder();
   return (
     <footer className={`flex flex-wrap justify-between gap-3 border-t border-line-strong px-8 py-[18px] text-label text-hint max-[900px]:px-4 ${barSpace ? "max-[900px]:pb-28" : ""}`}>
-      <span>{funder.legal}</span>
+      <span>{funder ? legalLine(funder) : null}</span>
       <span className="flex flex-wrap gap-4">
         <a href="#" className="text-hint no-underline">
           {linkFooter.privacy}

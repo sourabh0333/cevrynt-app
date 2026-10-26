@@ -5,14 +5,11 @@
  * comes from one place. Pure: no React, no formatting side effects.
  * Tested in lib/offer-math.test.ts (`npm test`).
  *
- * The workspace's policy and pricing (debt limit, approval limit, early
- * payoff tiers, loyalty price) come from the data layer. Pages pass the
- * values they loaded; the defaults here are the sample workspace's same
- * records, used by the tests and the sample deal.
+ * The deal's figures and the workspace's policy and pricing (debt limit,
+ * approval limit, early payoff tiers, loyalty price) come from the data
+ * layer: callers pass the values they loaded. Nothing here has defaults.
  */
 import type { DealCashFlow, DealPositions, Policy, Pricing } from "@/lib/data/types";
-import { harborCashFlow as sampleCashFlow, harborPositions as samplePositions } from "@/lib/data/sample/deal-tabs";
-import { policy as samplePolicy, pricing as samplePricing } from "@/lib/data/sample/policy";
 import { money, moneyShort, percent } from "@/lib/format";
 
 /** Business days per month used for the schedule, and the average used for monthly cost. */
@@ -37,7 +34,7 @@ export type OfferInput = {
   payoff: boolean;
 };
 
-/** The deal's fixed figures the math needs (sample data for Harbor Street Bakery). */
+/** The deal's fixed figures the math needs (dealFiguresFrom, from its cash flow and positions). */
 export type DealFigures = {
   /** true monthly revenue */
   revenue: number;
@@ -86,31 +83,12 @@ export function dealFiguresFrom(
   };
 }
 
-/** Harbor Street Bakery's figures, from its sample records ($61.4K revenue, $285 a day to Kingsway). */
-export const harborFigures: DealFigures = dealFiguresFrom(sampleCashFlow, samplePositions, samplePricing.brokerPoints.newDeal);
-
-/** Harbor Street Bakery's range (sample deal data, until the deal tabs move to the data layer). */
-export const harborOfferRange: DealOfferRange = { ceiling: 48000, floor: 30000, factorMin: 1.28, factorMax: 1.4 };
-
 /** The checks for one deal: the debt limit and approval line from the policy, the range from the deal. */
-export const offerPolicyFrom = (p: Pick<Policy, "maxDebtShare" | "limits">, range: DealOfferRange = harborOfferRange): OfferPolicy => ({
+export const offerPolicyFrom = (p: Pick<Policy, "maxDebtShare" | "limits">, range: DealOfferRange): OfferPolicy => ({
   maxShare: p.maxDebtShare,
   approvalLimit: p.limits.seniorAbove,
   ...range,
 });
-
-/** The sample workspace's policy applied to the sample deal (65% debt limit, $45K approval). */
-export const ridgelinePolicy: OfferPolicy = offerPolicyFrom(samplePolicy);
-
-export const recommendedOffer: OfferInput = {
-  amount: 40000,
-  factor: 1.32,
-  term: 6,
-  freq: "daily",
-  fee: 0,
-  method: "ach",
-  payoff: false,
-};
 
 export type OfferResult = {
   payback: number;
@@ -168,11 +146,13 @@ export function estimateApr(amount: number, payment: number, count: number, peri
   return ((lo + hi) / 2) * periodsPerYear * 100;
 }
 
-export function computeOffer(
-  input: OfferInput,
-  figures: DealFigures = harborFigures,
-  policy: OfferPolicy = ridgelinePolicy,
-): OfferResult {
+/**
+ * The parts of an offer that don't depend on the deal: payback, the
+ * payment schedule, the fee, what the broker earns at `commissionRate`,
+ * the margin and the APR. Pricing's example and renewals use it alone;
+ * computeOffer adds the deal's own checks.
+ */
+export function offerTerms(input: OfferInput, commissionRate: number) {
   const payback = input.amount * input.factor;
   const days = input.term * BUSINESS_DAYS_PER_MONTH;
   const weeks = Math.round((input.term * 52) / 12);
@@ -180,12 +160,17 @@ export function computeOffer(
   const count = input.freq === "daily" ? days : weeks;
   const payment = payback / count;
   const perMonth = daily * AVG_BUSINESS_DAYS;
-  const share = (perMonth + (input.payoff ? 0 : figures.existingMonthly)) / figures.revenue;
   const feeAmount = input.amount * input.fee;
-  const net = input.amount - feeAmount - (input.payoff ? figures.existingBalance : 0);
-  const commission = input.amount * figures.commission;
+  const commission = input.amount * commissionRate;
   const margin = payback - input.amount - commission + feeAmount;
   const apr = estimateApr(input.amount, payment, count, input.freq === "daily" ? 252 : 52);
+  return { payback, days, weeks, count, payment, daily, perMonth, feeAmount, commission, margin, apr };
+}
+
+export function computeOffer(input: OfferInput, figures: DealFigures, policy: OfferPolicy): OfferResult {
+  const { payback, days, weeks, count, payment, daily, perMonth, feeAmount, commission, margin, apr } = offerTerms(input, figures.commission);
+  const share = (perMonth + (input.payoff ? 0 : figures.existingMonthly)) / figures.revenue;
+  const net = input.amount - feeAmount - (input.payoff ? figures.existingBalance : 0);
   const cardDaily = figures.cardMonthly / AVG_BUSINESS_DAYS;
 
   const rules = {
@@ -224,9 +209,8 @@ export function computeOffer(
  * left on the old one, and the rest is new cash. The "unearned fee" is
  * the share of the old advance's fee that sits in the unpaid balance,
  * which a funder can forgive so the merchant does not pay it twice.
- * The loyalty discount is Pricing's; this default is the sample workspace's.
+ * The loyalty discount is Pricing's.
  */
-export const LOYALTY_DISCOUNT: Pricing["loyaltyDiscount"] = samplePricing.loyaltyDiscount;
 
 export type RenewalInput = {
   /** the new advance */
@@ -253,18 +237,11 @@ export type RenewalResult = {
   unearnedFee: number;
 };
 
-export function renewalOffer(
-  r: RenewalInput,
-  figures: DealFigures = harborFigures,
-  policy: OfferPolicy = ridgelinePolicy,
-  loyaltyDiscount: number = LOYALTY_DISCOUNT,
-): RenewalResult {
+export function renewalOffer(r: RenewalInput, loyaltyDiscount: Pricing["loyaltyDiscount"]): RenewalResult {
   const loyaltyFactor = Math.round((r.baseFactor - loyaltyDiscount) * 100) / 100;
   const cash = Math.max(0, r.amount - r.left);
   const cashPercent = r.amount ? (cash / r.amount) * 100 : 0;
-  const daily = r.amount
-    ? computeOffer({ amount: r.amount, factor: loyaltyFactor, term: 6, freq: "daily", fee: 0, method: "ach", payoff: false }, figures, policy).daily
-    : 0;
+  const daily = r.amount ? offerTerms({ amount: r.amount, factor: loyaltyFactor, term: 6, freq: "daily", fee: 0, method: "ach", payoff: false }, 0).daily : 0;
   const total = r.left / (1 - r.paid / 100);
   const funded = total / r.currentFactor;
   const unearnedFee = ((total - funded) * r.left) / total;
@@ -280,13 +257,12 @@ export const sameOffer = (a: OfferInput, b: Partial<OfferInput>) =>
 /**
  * The early payoff discount table (Settings › Pricing): paying everything
  * within N days charges the smaller of the tier's factor and the offer's.
- * The default is the sample workspace's table; pages pass Pricing's.
+ * Pages pass Pricing's table.
  */
-export const earlyPayoffTiers: Pricing["earlyPayoff"] = samplePricing.earlyPayoff;
 
 export type EarlyPayoffTier = { days: number | null; factor: number; total: number; saves: number };
 
-export function earlyPayoff(input: OfferInput, tiers = earlyPayoffTiers): EarlyPayoffTier[] {
+export function earlyPayoff(input: OfferInput, tiers: Pricing["earlyPayoff"]): EarlyPayoffTier[] {
   const payback = input.amount * input.factor;
   const rows: EarlyPayoffTier[] = tiers.map((t) => {
     const factor = Math.min(t.factor, input.factor);
@@ -324,7 +300,7 @@ export type OfferFigures = {
   cardShare: string;
 };
 
-export function formatOffer(input: OfferInput, r: OfferResult = computeOffer(input)): OfferFigures {
+export function formatOffer(input: OfferInput, r: OfferResult): OfferFigures {
   return {
     amount: money(input.amount),
     net: money(r.net),
@@ -355,7 +331,7 @@ export type Disclosure = {
   needsSenior: boolean;
 };
 
-export function disclosureFor(input: OfferInput, figures: DealFigures = harborFigures, policy: OfferPolicy = ridgelinePolicy): Disclosure {
+export function disclosureFor(input: OfferInput, figures: DealFigures, policy: OfferPolicy): Disclosure {
   const r = computeOffer(input, figures, policy);
   const f = formatOffer(input, r);
   return {

@@ -10,16 +10,23 @@ import { listRoadmapFeatures } from "@/lib/data/roadmap";
 import { getPolicy, getPricing, getWorkspace } from "@/lib/data/settings";
 import { getAccessReview, listInvites, listTeam } from "@/lib/data/team";
 import { daysBetween } from "@/lib/format";
-import { earlyPayoffTiers, LOYALTY_DISCOUNT, offerPolicyFrom, ridgelinePolicy } from "@/lib/offer-math";
-import { currentPolicy, simInputFrom } from "@/lib/policy-sim";
+import { offerPolicyFrom } from "@/lib/offer-math";
+import { simInputFrom } from "@/lib/policy-sim";
 import { readiness } from "@/lib/renewal-rules";
-import { estimateUpTo } from "@/lib/sample-data/apply";
+import { applyHeader, applyPrivacy, estimateUpTo } from "@/lib/copy/apply";
+import { merchantLinkCopy } from "@/lib/copy/merchant-link";
+import { legalLine } from "@/lib/copy/public";
+import { policyBadge, sectionLine, settingsSections } from "@/lib/copy/settings";
+import { roleNames } from "@/lib/copy/team";
+import { workspaceKind } from "@/lib/copy/workspace";
+import { getMerchantLink } from "@/lib/data/public";
+import { applyView, merchantLinkView } from "@/lib/data/views/public";
 import { auditEntryView, auditHeader } from "@/lib/copy/audit";
 import { builder, sendOffer } from "@/lib/copy/deal-offer";
 import { costPerDeal, dealsUsed, planHeader, usage, usageByChannel } from "@/lib/copy/plan";
 import { channelPerformance, apiPreview } from "@/lib/copy/intake-channels";
 import { apiKeys as apiKeysCopy, signIns, toFix } from "@/lib/copy/security";
-import { auditView, intakeChannelsView, planView, securityView } from "@/lib/data/views/settings";
+import { auditView, intakeChannelsView, planView, securityView, settingsMenuView } from "@/lib/data/views/settings";
 import { getIntakeSummary } from "@/lib/data/intake";
 import { atRisk as atRiskCopy, brokerPay, comingUp as comingUpCopy, hero, readyRules, renewalMerchant, renewalsHeader } from "@/lib/copy/renewals";
 import { approval, reachOut } from "@/lib/copy/renewal-rules";
@@ -27,7 +34,6 @@ import { biggestBalances, byIndustry, merchantStats, merchantView, merchantsHead
 import { activeCount } from "@/lib/copy/funded";
 import { merchantsView } from "@/lib/data/views/merchants";
 import { renewalRulesView, renewalsView } from "@/lib/data/views/renewals";
-import { navSections } from "@/lib/nav";
 import { declines, fundedMonthly, funnel, kpis, team as teamRows, unitEconomics } from "@/lib/copy/reports";
 import { reportsView } from "@/lib/data/views/reports";
 import { portfolio } from "@/lib/data/views/portfolio";
@@ -36,7 +42,7 @@ import { listTasks } from "@/lib/data/tasks";
 import { getCurrentUser } from "@/lib/data/team";
 import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabel } from "@/lib/copy/deal";
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
-import { getDeal, listDeals } from "@/lib/data/deals";
+import { getDeal, getDealConditions, getDealOffer, listDeals } from "@/lib/data/deals";
 import { dealFrameView, submissionsView } from "@/lib/data/views/deals";
 import { checkDot, dealTabs, tabMark, tabStates } from "@/lib/copy/deal";
 import { duration, messagesCopy, paceCopy, timelineCopy } from "@/lib/copy/deal-activity";
@@ -52,7 +58,7 @@ import { activityTabView, businessTabView, conditionsTabView, dealTabsView, deci
 import { statusOf } from "@/lib/deal-conditions";
 import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
 import { money, moneyK, moneyK1, moneyShort, percent } from "@/lib/format";
-import { computeOffer, formatOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
+import { computeOffer, formatOffer } from "@/lib/offer-math";
 import { channelLabel, fitLine, folderRow, bulkCopy, packageCopy, packageFitRows, todayByChannel } from "@/lib/copy/intake";
 import { findDuplicate, requiredDocs, runChecks } from "@/lib/copy/intake-manual";
 import { dueLabel, loadSummary, taskWhen, teamSummary, toTaskView, waitingView } from "@/lib/copy/tasks";
@@ -117,9 +123,8 @@ describe("Renewals", () => {
     assert.equal(merchantStats(m).find((s) => s.label === "Ready to renew")?.value, "9");
     assert.equal(segments({ book: m.book, active: activeCount(m.funded), readyCount: m.readyCount }).find((s) => s.key === "renew")?.count, 9);
     assert.equal(repeatMerchants.cta.label(m.readyCount), "Open Renewals · 9 ready");
-    // The sidebar badge and Home's key number count the same ready merchants; the nav keeps no copy of its own.
+    // The sidebar badge (CountBadges) and Home's key number count the same ready merchants.
     assert.equal((await portfolio()).readyIds.length, rn.readyCount);
-    assert.equal(navSections.flatMap((s) => s.items).find((i) => i.key === "renewals")?.badge, undefined);
     assert.equal(homeCards(await homeView()).keyNumbers.renewals.value, String(rn.readyCount));
   });
 
@@ -240,12 +245,12 @@ describe("Policy limits", () => {
   });
 
   it("the Offer tab checks the policy's 65% debt limit and $45K approval line", async () => {
-    const policy = await getPolicy();
-    const offer = offerPolicyFrom(policy);
+    const [policy, d] = await Promise.all([getPolicy(), dealTabsView("APP-7H2K4Q")]);
+    const offer = offerPolicyFrom(policy, (await getDealOffer("APP-7H2K4Q"))!.range);
     assert.equal(offer.maxShare, 0.65);
     assert.equal(offer.approvalLimit, policy.limits.seniorAbove);
-    // the offer math's sample default is the same record, so its tests run on what the page shows
-    assert.deepEqual(ridgelinePolicy, offer);
+    // the deal tabs check against exactly this
+    assert.deepEqual(d!.offerPolicy, offer);
     assert.equal(builder.rules.debtShare.note(offer.maxShare), "Limit 65% of revenue");
     assert.equal(builder.rules.approval.note(offer.approvalLimit), "You can approve up to $45K");
     assert.equal(sendOffer.approval.senior(offer.approvalLimit, "Priya Shah"), "Above $45K, so Priya Shah (senior) approves before it is sent.");
@@ -262,7 +267,6 @@ describe("Policy limits", () => {
   it("the simulator starts from the live policy: 2 positions, 65%, $15K", async () => {
     const sim = simInputFrom(await getPolicy());
     assert.deepEqual(sim, { maxPos: 2, debt: 65, minRev: 15 });
-    assert.deepEqual(currentPolicy, sim);
   });
 
   it("Team & roles and Pricing quote the same lines", async () => {
@@ -284,7 +288,6 @@ describe("Pricing", () => {
   it("one loyalty price, −0.04: Pricing, Renewals and the renewal math", async () => {
     const pricing = await getPricing();
     assert.equal(pricing.loyaltyDiscount, 0.04);
-    assert.equal(LOYALTY_DISCOUNT, pricing.loyaltyDiscount);
     assert.equal(adjustments.rows(pricing)[0].delta, -0.04);
     assert.equal(readyRules.loyalty.value(pricing.loyaltyDiscount), "−0.04 factor");
   });
@@ -292,7 +295,6 @@ describe("Pricing", () => {
   it("one early payoff table, 1.20 / 1.24 / 1.28: Pricing and the Offer tab", async () => {
     const { earlyPayoff } = await getPricing();
     assert.deepEqual(earlyPayoff.map((t) => [t.days, t.factor]), [[30, 1.2], [60, 1.24], [90, 1.28]]);
-    assert.deepEqual(earlyPayoffTiers, earlyPayoff);
   });
 
   it("broker points 8 / 5: Pricing's cap and the Renewals broker pay", async () => {
@@ -324,8 +326,7 @@ describe("Deal tabs: Summary, Cash flow, Positions", () => {
   it("the offer math's Harbor Street figures are worked out from its own records", async () => {
     const d = await harbor();
     assert.deepEqual(d.figures, { revenue: 61400, existingMonthly: 6185, existingBalance: 9400, commission: 0.08, cardMonthly: 28200 });
-    assert.deepEqual(harborFigures, d.figures);
-    assert.deepEqual(d.recommended, recommendedOffer);
+    assert.deepEqual(d.recommended, { amount: 40000, factor: 1.32, term: 6, freq: "daily", fee: 0, method: "ach", payoff: false });
   });
 
   it("every 65% on the three tabs is the policy's debt limit", async () => {
@@ -468,8 +469,8 @@ describe("Deals", () => {
   });
 
   it("every deal link in the app opens a real deal", async () => {
-    const dir = join(process.cwd(), "lib/sample-data");
-    const ids = new Set(readdirSync(dir).flatMap((f) => [...readFileSync(join(dir, f), "utf8").matchAll(/\/deals\/(APP-[A-Z0-9]+)/g)].map((m) => m[1])));
+    const files = (dir: string): string[] => readdirSync(join(process.cwd(), dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(join(dir, e.name)) : /\.tsx?$/.test(e.name) ? [join(dir, e.name)] : []));
+    const ids = new Set(["lib", "components", "app"].flatMap(files).flatMap((f) => [...readFileSync(join(process.cwd(), f), "utf8").matchAll(/\/deals\/(APP-[A-Z0-9]+)/g)].map((m) => m[1])));
     for (const d of await listDeals()) ids.add(d.id);
     for (const id of ids) assert.ok(await getDeal(id), `no deal ${id}`);
     assert.equal(await getDeal("APP-NOPE"), null);
@@ -527,8 +528,8 @@ describe("Deal tabs: Offer, Decision & memo, Activity", () => {
     );
     assert.equal(disclosure.subtitle(d.state), "Filled in from this offer, using the disclosure template set for Maine");
     assert.equal(disclosure.doc.ref(d.workspace, d.id), "Ridgeline Capital · APP-7H2K4Q");
-    // The deal's own figures are the ones the offer math's sample default uses, so its tests cover this page.
-    assert.deepEqual(d.figures, harborFigures);
+    // The offer tab and the summary tabs work from the same figures.
+    assert.deepEqual(d.figures, (await dealTabsView("APP-7H2K4Q"))!.figures);
   });
 
   it("Decision: the policy check, sign-off and memo quote the policy's own values", async () => {
@@ -825,9 +826,8 @@ describe("Stacking Watch and Brokers", () => {
     assert.equal(fresh, 3);
     assert.equal(stackingHeader.line(fresh, s.summary), "3 new alerts · watching 94 merchants every day");
     assert.deepEqual(summaryCopy.tiles(fresh, s.openCount, s.summary).map((t) => t.value), ["3", "7", "2", "94"]);
-    // The badge is counted from all the alerts, with the same function; the nav keeps no copy of its own.
+    // The badge is counted from all the alerts, with the same function.
     assert.equal(newToday(await listStackingAlerts(), s.now), fresh);
-    assert.equal(navSections.flatMap((x) => x.items).find((i) => i.key === "stacking")?.badge, undefined);
     // Home's key number counts the same alerts, and says when the first one came in.
     const key = homeCards(await homeView()).keyNumbers.stacking;
     assert.deepEqual([key.value, key.leadNote], [String(fresh), "since 7:40 am"]);
@@ -899,7 +899,6 @@ describe("Home", () => {
   it("the sidebar counts My tasks and Submissions from the records, as their pages do", async () => {
     const [tasks, me, s] = await Promise.all([listTasks(), getCurrentUser(), getQueueSummary()]);
     assert.deepEqual([tasks.filter((t) => t.assigneeId === me?.id).length, s.open], [7, 28]);
-    for (const key of ["tasks", "submissions"]) assert.equal(navSections.flatMap((x) => x.items).find((i) => i.key === key)?.badge, undefined, key);
     assert.equal(submissionsHeader.line(s), "28 open deals · 2 past their deadline");
   });
 
@@ -1010,5 +1009,72 @@ describe("Reports", () => {
     assert.deepEqual(rows.map((x) => [x.ini, x.decided, x.time, x.late, x.lateHigh]), [
       ["MC", 112, "2h 50m", "1.8%", false], ["AK", 98, "3h 40m", "2.9%", true], ["JR", 87, "3h 05m", "2.0%", false], ["PS", 41, "2h 10m", "1.2%", false],
     ]);
+  });
+});
+
+describe("Public pages", () => {
+  it("Merchant Link looks its token up; unknown tokens have no link", async () => {
+    assert.ok(await merchantLinkView("demo"));
+    assert.equal(await merchantLinkView("expired-token"), null);
+    assert.equal(await getMerchantLink("expired-token"), null);
+  });
+
+  it("the link's steps follow the deal's conditions, cash flow and owner", async () => {
+    const d = (await merchantLinkView("demo"))!;
+    const c = merchantLinkCopy(d);
+    assert.deepEqual(c.linkSteps.map((s) => [s.title.en, s.sub, s.done, s.note ?? ""]), [
+      ["Confirm it’s you", "Code sent to (207) 555-0188", true, "Confirmed at 9:43"],
+      ["Bank statements", "June to September 2026", true, "4 statements received at 9:40"],
+      ["Photo ID and selfie", "Driver license and a quick selfie", true, "Checked at 9:58"],
+      ["Voided check", "So we know where to send money", true, "Matches account ending 7712"],
+      ["Credit check permission", "Soft check, no effect on your score", false, ""],
+      ["Landlord letter", "Lease is current and rent is paid", false, ""],
+      ["Connect your bank", "Recommended · skip future statements", false, ""],
+    ]);
+    // the photo ID and voided check are the deal's own conditions, done at the same time
+    const conditions = (await getDealConditions("APP-7H2K4Q"))!.items;
+    for (const key of ["id", "void"]) assert.equal(d.steps.find((s) => s.key === key)!.doneAt, conditions.find((x) => x.id === key)!.doneAt);
+    assert.equal(d.steps.find((s) => s.key === "letter")!.doneAt, null);
+    assert.equal(c.startOpen, "consent");
+  });
+
+  it("the link names the deal's merchant, underwriter, broker contact and the funder", async () => {
+    const d = (await merchantLinkView("demo"))!;
+    const c = merchantLinkCopy(d);
+    assert.deepEqual(c.merchant, { first: "Elena", name: "Elena Brooks", business: "Harbor Street Bakery LLC", email: "elena@harborstreetbakery.com", requested: "$45,000" });
+    assert.equal(c.ui.en.subline(2), "2 quick steps left for your Ridgeline Capital application.");
+    assert.equal(c.ui.en.finished, "Maya has everything she needs and will be in touch today.");
+    assert.deepEqual([c.helpCard.person, c.helpCard.phone, c.helpCard.broker], [
+      { initials: "MC", name: "Maya Chen", role: "Your underwriter at Ridgeline" },
+      "(617) 555-0190",
+      "Your broker, Dana Ruiz at Apex Funding Partners, can also help.",
+    ]);
+    assert.equal(c.privacy.sent, "This link was sent to elena@harborstreetbakery.com and works for 7 days.");
+    assert.equal((await intakeChannelsView()).settings.merchantLink.expiryDays, d.expiryDays);
+    assert.deepEqual(c.application.timeline.map((t) => t.hint), ["Today, 9:40", "Decision expected today", "Signed right here, online", "Usually within 2 business days"]);
+    assert.match(c.stepPanels.upload.text, /your lease at 418 Commercial St is current/);
+  });
+
+  it("the application form reads the policy's range and the workspace's address and phone", async () => {
+    const [a, policy] = await Promise.all([applyView(), getPolicy()]);
+    assert.deepEqual(a.limits, { minAmount: policy.limits.minAmount, maxAmount: policy.limits.maxAmount });
+    assert.equal(applyHeader.host(a.host), "apply.ridgeline.com · secure");
+    assert.equal(applyPrivacy.text(a.funder.supportPhone), "Your details are encrypted and only used to review this application. Questions? Call (617) 555-0190.");
+    assert.equal(legalLine(a.funder), "Ridgeline Capital LLC · 100 Federal St, Boston, MA");
+  });
+});
+
+describe("Shell", () => {
+  it("the sidebar's workspace and person are the workspace record and getCurrentUser", async () => {
+    const [w, me] = await Promise.all([getWorkspace(), getCurrentUser()]);
+    assert.deepEqual([w.initials, w.name, workspaceKind], ["RC", "Ridgeline Capital", "Funder workspace"]);
+    assert.deepEqual([me?.initials, me?.name, roleNames[me!.role]], ["MC", "Maya Chen", "Underwriter"]);
+  });
+
+  it("the settings menu's Policy badge and line are the live policy version", async () => {
+    const mark = (await settingsMenuView())!;
+    assert.equal(policyBadge(mark), "v3");
+    assert.equal(sectionLine(settingsSections[0], mark), "Policy · version 3, active since Sep 2");
+    assert.equal(sectionLine(settingsSections[1], mark), "Pricing & disclosures");
   });
 });

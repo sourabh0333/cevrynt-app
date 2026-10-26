@@ -5,16 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Icon } from "./icons";
+import { fade, glide } from "./sidebar-classes";
 import { toggleCollapsed, useCollapsed } from "./sidebar-state";
-import {
-  activeNavKey,
-  comingItem,
-  currentUser,
-  navSections,
-  workspace,
-  type NavBadge,
-  type NavItem,
-} from "@/lib/nav";
+import { activeNavKey, comingItem, navSections, type NavBadge, type NavItem } from "@/lib/nav";
 
 /**
  * Sidebar matching the one rendered inside design/Main.html, with the
@@ -32,31 +25,29 @@ import {
  * double-click edge is on the content panel (ResizeHandle).
  */
 
-// Text that leaves on collapse and returns once the rail has mostly opened.
-const fade =
-  "whitespace-nowrap transition-[opacity,transform,visibility] duration-[100ms] ease-out delay-[120ms] collapsed:invisible collapsed:-translate-x-1 collapsed:opacity-0 collapsed:delay-0";
-
-// Padding that eases in step with the sidebar width.
-const glide = "transition-[padding] duration-300 ease-sidebar";
-
 /**
  * The sidebar with the current page lit. It reads the URL, so on dynamic
  * routes (deal pages) it must sit inside a Suspense boundary; AppShell
  * shows the plain Sidebar as the fallback until the path streams in.
  */
-export function CurrentSidebar({ comingNote, badges }: { comingNote?: ReactNode; badges?: NavBadges }) {
+export function CurrentSidebar(props: Omit<SidebarProps, "pathname">) {
   const pathname = usePathname();
-  return <Sidebar pathname={pathname} comingNote={comingNote} badges={badges} />;
+  return <Sidebar pathname={pathname} {...props} />;
 }
 
 /** Badges counted on the server from the data layer, by nav key; they replace the item's own. */
 export type NavBadges = Partial<Record<string, ReactNode>>;
 
 /**
- * comingNote: the "10 new" beside What's coming, rendered on the server from the data layer.
- * badges: the same for nav items whose count comes from data (Stacking Watch).
+ * Parts rendered on the server from the data layer and passed in:
+ * workspace: the workspace switcher (the workspace record).
+ * profile: the signed-in person (getCurrentUser).
+ * comingNote: the "10 new" beside What's coming.
+ * badges: the counts beside nav items (My tasks, Submissions, Renewals, Stacking Watch).
  */
-export function Sidebar({ pathname = null, comingNote = null, badges = {} }: { pathname?: string | null; comingNote?: ReactNode; badges?: NavBadges }) {
+type SidebarProps = { pathname?: string | null; workspace?: ReactNode; profile?: ReactNode; comingNote?: ReactNode; badges?: NavBadges };
+
+export function Sidebar({ pathname = null, workspace = null, profile = null, comingNote = null, badges = {} }: SidebarProps) {
   const active = pathname ? activeNavKey(pathname) : null;
   const collapsed = useCollapsed();
   const toggleLabel = collapsed ? "Open sidebar" : "Close sidebar";
@@ -105,25 +96,7 @@ export function Sidebar({ pathname = null, comingNote = null, badges = {} }: { p
       </div>
 
       {/* Workspace switcher: the RC badge stays, the text fades. */}
-      <button
-        type="button"
-        title={workspace.name}
-        className="relative mb-2.5 flex h-[54px] flex-none cursor-pointer items-center overflow-hidden rounded-[16px] border border-teal/7 bg-teal/7 pl-2.5 text-left text-muted transition-[padding,height] duration-300 ease-sidebar collapsed:h-[46px] collapsed:pl-[9px]"
-      >
-        <span className="grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-teal text-[12px] font-bold text-white">
-          {workspace.initials}
-        </span>
-        <span className={`absolute top-1/2 left-[53px] -translate-y-1/2 ${fade}`}>
-          <b className="block text-body-sm">{workspace.name}</b>
-          <span className="block text-[11.5px] text-muted">{workspace.kind}</span>
-        </span>
-        <Icon
-          name="chevrons"
-          size={14}
-          strokeWidth={2}
-          className={`absolute top-1/2 right-2.5 -translate-y-1/2 text-icon-soft ${fade}`}
-        />
-      </button>
+      {workspace}
 
       {/* Middle: the only part that scrolls */}
       <nav className="scrollbar-none -mx-1.5 flex min-h-0 flex-1 flex-col gap-px overflow-x-hidden overflow-y-auto px-1.5 pb-2">
@@ -166,18 +139,7 @@ export function Sidebar({ pathname = null, comingNote = null, badges = {} }: { p
       </div>
 
       {/* Profile: the avatar stays, the text fades. */}
-      <div
-        title={currentUser.name}
-        className={`relative flex flex-none items-center pt-3 pb-2.5 pl-1 collapsed:pl-2 ${glide}`}
-      >
-        <span className="grid h-9 w-9 flex-none place-items-center rounded-[12px] bg-[linear-gradient(140deg,#E8C9A1,#C99A6B)] text-[12.5px] font-bold text-sand-text">
-          {currentUser.initials}
-        </span>
-        <span className={`absolute top-1/2 left-[50px] translate-y-[1px] ${fade}`}>
-          <b className="block text-body-sm">{currentUser.name}</b>
-          <span className="block text-label-sm text-muted">{currentUser.role}</span>
-        </span>
-      </div>
+      {profile}
     </aside>
   );
 }
@@ -196,7 +158,7 @@ function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badg
     >
       <Icon name={item.icon} className="flex-none" />
       <span className={`ml-3 ${fade}`}>{item.label}</span>
-      {badge ?? (item.badge ? <NavBadgeMarks {...item.badge} /> : null)}
+      {badge}
     </Link>
   );
 }

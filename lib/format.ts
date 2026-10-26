@@ -112,5 +112,3 @@ export function dayLabel(iso: string, now: string, timeZone = WORKSPACE_TIME_ZON
   return dateShort(iso, timeZone);
 }
 
-/** "Today 08:12", "Yesterday 16:40", "Oct 14 09:15" */
-export const dayAndTime = (iso: string, now: string, timeZone = WORKSPACE_TIME_ZONE) => `${dayLabel(iso, now, timeZone)} ${timeOfDay(iso, timeZone)}`;

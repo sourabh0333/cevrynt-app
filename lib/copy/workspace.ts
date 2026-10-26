@@ -7,6 +7,9 @@
 import type { BankAccount, NotificationChannel, NotificationEvent, WebAddressKind, Workspace } from "@/lib/data/types";
 import { plural } from "@/lib/format";
 
+/** What the sidebar's workspace switcher says under the workspace's name. */
+export const workspaceKind = "Funder workspace";
+
 export const workspaceHeader = {
   text: "Your company details, brand, working hours and notifications",
   upload: "Upload logo",

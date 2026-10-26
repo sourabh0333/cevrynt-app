@@ -1,22 +1,32 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { getPricing } from "@/lib/data/settings";
+import { dealTabsView } from "@/lib/data/views/deal-tabs";
 import {
-  computeOffer,
-  disclosureFor,
-  earlyPayoff,
-  earlyPayoffTiers,
+  computeOffer as computeFor,
+  disclosureFor as disclosureOf,
+  earlyPayoff as earlyPayoffWith,
   estimateApr,
-  LOYALTY_DISCOUNT,
   formatOffer,
   money,
   moneyShort,
+  offerTerms,
   percent,
-  recommendedOffer,
-  renewalOffer,
+  renewalOffer as renewalWith,
+  type DealFigures,
   type OfferInput,
 } from "./offer-math.ts";
 
 // The expected figures are the ones design/Deal-Offer.html shows for each case.
+// The deal's figures, its range and recommended offer, and Pricing's tables are
+// read through the data layer, as the pages read them (Harbor Street Bakery).
+const deal = (await dealTabsView("APP-7H2K4Q"))!;
+const pricing = await getPricing();
+const recommendedOffer = deal.recommended;
+const computeOffer = (input: OfferInput, figures: DealFigures = deal.figures) => computeFor(input, figures, deal.offerPolicy);
+const disclosureFor = (input: OfferInput) => disclosureOf(input, deal.figures, deal.offerPolicy);
+const earlyPayoff = (input: OfferInput) => earlyPayoffWith(input, pricing.earlyPayoff);
+const renewalOffer = (r: Parameters<typeof renewalWith>[0]) => renewalWith(r, pricing.loyaltyDiscount);
 
 describe("computeOffer, recommended ($40,000 at 1.32 over 6 months, daily)", () => {
   const r = computeOffer(recommendedOffer);
@@ -201,11 +211,11 @@ describe("helpers", () => {
   });
 });
 
-// Settings › Pricing works out its $40,000 example with computeOffer, so the
-// figures must match design/Settings-Pricing.html for each grid rate.
+// Settings › Pricing works out its $40,000 example with offerTerms (the deal-free
+// part of computeOffer), so the figures must match design/Settings-Pricing.html.
 describe("Settings › Pricing example ($40,000, daily, 8 pts commission)", () => {
   const example = (factor: number, term: number) =>
-    computeOffer({ amount: 40000, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false });
+    offerTerms({ amount: 40000, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false }, pricing.brokerPoints.newDeal / 100);
 
   it("score 80 – 89 at 6 months, factor 1.32: $52,800, $419 a day, about 116% APR, $9,600 margin", () => {
     const r = example(1.32, 6);
@@ -215,14 +225,21 @@ describe("Settings › Pricing example ($40,000, daily, 8 pts commission)", () =
     assert.equal(money(r.margin), "$9,600");
   });
 
+  it("matches the offer builder's own figures for the same terms", () => {
+    const input: OfferInput = { amount: 40000, factor: 1.32, term: 6, freq: "daily", fee: 0, method: "ach", payoff: false };
+    const t = offerTerms(input, deal.figures.commission);
+    const r = computeOffer(input);
+    assert.deepEqual([t.payback, t.daily, t.apr, t.margin, t.commission], [r.payback, r.daily, r.apr, r.margin, r.commission]);
+  });
+
   it("uses the same early payoff tiers the Offer tab uses: 1.20 / 1.24 / 1.28", () => {
     assert.deepEqual(
-      earlyPayoffTiers.map((t) => [t.days, t.factor.toFixed(2)]),
+      pricing.earlyPayoff.map((t) => [t.days, t.factor.toFixed(2)]),
       [[30, "1.20"], [60, "1.24"], [90, "1.28"]],
     );
   });
 
   it("the renewal loyalty adjustment is the same 0.04 Renewals uses", () => {
-    assert.equal(LOYALTY_DISCOUNT, 0.04);
+    assert.equal(pricing.loyaltyDiscount, 0.04);
   });
 });

@@ -4,11 +4,10 @@
  * four result tiles and the verdict exactly as the prototype computes them.
  * Real replays replace this later behind the same shape.
  *
- * The starting point is the live policy from the data layer (simInputFrom);
- * the default is the sample workspace's same record, used by the tests.
+ * The starting point and the late-payment target are the live policy's,
+ * from the data layer (simInputFrom, Policy.latePaymentTarget).
  */
 import type { Policy } from "@/lib/data/types";
-import { policy as samplePolicy } from "@/lib/data/sample/policy";
 
 export type SimInput = { maxPos: number; debt: number; minRev: number };
 export type SimTone = "flat" | "good" | "bad";
@@ -23,7 +22,6 @@ export const simInputFrom = (p: Pick<Policy, "maxPositions" | "maxDebtShare" | "
 });
 
 /** Today's published policy: 2 open positions, 65% debt share, $15K minimum revenue. */
-export const currentPolicy: SimInput = simInputFrom(samplePolicy);
 
 /** Slider ranges from the design. */
 export const simRanges = {
@@ -33,7 +31,6 @@ export const simRanges = {
 } as const;
 
 /** The late-payment target the verdict checks against, in %. */
-export const LATE_TARGET = 3;
 
 const BASE = { approvals: 69, late: 2.6, funded: 1.24, profit: 0.248 };
 
@@ -43,8 +40,12 @@ function signed(v: number, unit: string, dp: number) {
 }
 const tone = (v: number, good: boolean): SimTone => (v === 0 ? "flat" : good ? "good" : "bad");
 
-/** Replays the last 90 days with `s` against the live policy `base`. */
-export function simulatePolicy(s: SimInput, base: SimInput = currentPolicy) {
+/**
+ * Replays the last 90 days with `s` against the live policy `base`. A
+ * change is risky when late payments pass the policy's target
+ * (`lateTarget`, a fraction: 0.03 is 3%).
+ */
+export function simulatePolicy(s: SimInput, base: SimInput, lateTarget: number) {
   const dPos = s.maxPos - base.maxPos;
   const dDebt = (s.debt - base.debt) / 5;
   const dRev = (s.minRev - base.minRev) / 5;
@@ -55,7 +56,7 @@ export function simulatePolicy(s: SimInput, base: SimInput = currentPolicy) {
   const profit = funded * 0.2 * (1 - (late - BASE.late) * 0.06);
 
   const changed = dPos !== 0 || dDebt !== 0 || dRev !== 0;
-  const risky = late > LATE_TARGET;
+  const risky = late > lateTarget * 100;
   const verdict: SimVerdict = !changed ? "current" : risky ? "risky" : approvals < BASE.approvals ? "safer" : "better";
 
   const tiles: SimTile[] = [

@@ -21,7 +21,19 @@ The design comes in two layers. Always use both.
 
 - Next.js (App Router), TypeScript, Tailwind CSS.
 - Charts: Recharts for line, area and bar charts. Plain CSS/SVG for small rings and progress bars.
-- Start every page with typed sample data copied from the prototype's script in `design/prototypes/<Name>.dc.html` (`/lib/sample-data`). Real API calls come later and replace the sample data behind the same types.
+- Data comes only through the data layer in `lib/data` (details in DATA-PLAN.md):
+  - **Types** are in `lib/data/types`.
+  - **Sample records** are in `lib/data/sample`, based on the prototypes' scripts.
+  - **Getters** are `lib/data/<area>.ts`, all server only. A single record that doesn't exist comes back as `null`; a backend failure throws.
+  - **Page-shaped joins** are in `lib/data/views`.
+  - **Wording**, including functions that turn records into the sentences people read, is in `lib/copy`.
+  - **How a page loads:** `page.tsx` waits for a view inside `<Suspense fallback={<PageSkeleton />}>`, then passes the result to the client view as props.
+  - **Never import `lib/data/sample`, `lib/data/api` or `lib/data/source` outside `lib/data`.** An ESLint rule enforces this.
+  - **Shared facts:** a fact several pages show is stored once and read or worked out everywhere else, and `lib/data/consistency.test.ts` checks it.
+- **Sample or real backend:** `CEVRYNT_DATA_SOURCE` picks the source.
+  - `sample` (the default) is the sample workspace, frozen on Tue Oct 13, 2026.
+  - `api` is the real backend in `lib/data/api`. Areas not connected yet throw a clear error.
+  - To connect an area, replace its stubs in `lib/data/api` with backend calls that return the same types. Pages don't change.
 
 ## Design tokens (put these in Tailwind config once)
 

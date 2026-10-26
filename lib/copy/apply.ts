@@ -1,10 +1,10 @@
 /**
- * Sample data for the public application form preview (/apply), copied from
- * design/prototypes/Apply-Form.dc.html (look: design/Apply-Form.html).
+ * Interface wording for the public application form preview (/apply),
+ * from design/prototypes/Apply-Form.dc.html (look: design/Apply-Form.html).
  * Public forms are "coming soon" (CLAUDE.md), so the page carries the blue
- * preview banner. The amount range comes from the policy (getPolicy, passed
- * in by the page), the same $10K–$150K the Policy rules use. Nothing here is
- * sent anywhere.
+ * preview banner. The amount range comes from the policy, the form's web
+ * address and the phone number from the workspace (applyView, passed in by
+ * the page). Nothing here is sent anywhere.
  */
 
 export const applyBanner = {
@@ -13,7 +13,10 @@ export const applyBanner = {
   link: { label: "See the roadmap", href: "/whats-coming" },
 };
 
-export const applyHeader = { host: "apply.ridgeline.com · secure" };
+/** The browser tab's title. */
+export const pageTitle = (funder: string) => `${funder} · Apply for funding`;
+
+export const applyHeader = { host: (host: string) => `${host} · secure` };
 
 export const applyHero = {
   title: "Funding for your business",
@@ -103,7 +106,7 @@ export const haveReady = {
 
 export const applyPrivacy = {
   title: "Private and secure",
-  text: "Your details are encrypted and only used to review this application. Questions? Call (617) 555-0190.",
+  text: (phone: string) => `Your details are encrypted and only used to review this application. Questions? Call ${phone}.`,
 };
 
 export const applySent = {

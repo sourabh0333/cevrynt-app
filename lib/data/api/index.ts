@@ -102,4 +102,5 @@ export const apiSource: DataSource = {
     listSnapshots: notConnected("reports"),
     getBook: notConnected("reports"),
   },
+  links: { getByToken: notConnected("links") },
 };

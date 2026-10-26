@@ -21,7 +21,7 @@ import type {
   YearMonth,
 } from "@/lib/data/types";
 import { daysBetween } from "@/lib/format";
-import { dealFiguresFrom, offerPolicyFrom, type DealFigures, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
+import { dealFiguresFrom, offerPolicyFrom, type DealFigures, type DealOfferRange, type OfferInput, type OfferPolicy } from "@/lib/offer-math";
 import { getNow } from "../clock";
 import {
   getDeal,
@@ -63,6 +63,12 @@ export type DealTabsData = {
 };
 
 /** The three tabs' data for one deal; null when there is no such deal (the layout shows "There's no deal …"). */
+/** The policy's own range, for a deal that has no offer range yet: its amounts and Pricing's lowest and highest factors. */
+const policyRange = (policy: Policy, pricing: Pricing): DealOfferRange => {
+  const factors = pricing.grid.flatMap((b) => b.factors);
+  return { floor: policy.limits.minAmount, ceiling: policy.limits.maxAmount, factorMin: Math.min(...factors), factorMax: Math.max(...factors) };
+};
+
 export async function dealTabsView(id: Id): Promise<DealTabsData | null> {
   const [deal, summary, cashFlow, positions, conditions, offer, policy, pricing, now] = await Promise.all([
     getDeal(id),
@@ -87,7 +93,8 @@ export async function dealTabsView(id: Id): Promise<DealTabsData | null> {
     positions,
     policy: { maxDebtShare: policy.maxDebtShare, limits: policy.limits, scoreWeights: policy.scoreWeights, scoreBands: policy.scoreBands },
     figures: dealFiguresFrom(cashFlow, positions, pricing.brokerPoints.newDeal),
-    offerPolicy: offerPolicyFrom(policy, offer?.range),
+    // A deal without its own range yet is checked against the policy's amounts and Pricing's factors.
+    offerPolicy: offerPolicyFrom(policy, offer?.range ?? policyRange(policy, pricing)),
     recommended: { amount: r.amount, factor: r.factor, term: r.termMonths, freq: "daily", fee: 0, method: "ach", payoff: false },
   };
 }

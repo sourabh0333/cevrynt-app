@@ -20,7 +20,7 @@ import {
   type Tone,
 } from "@/lib/copy/pricing";
 import type { DisclosureStatus, Policy, Pricing } from "@/lib/data/types";
-import { computeOffer, harborFigures, money, offerPolicyFrom } from "@/lib/offer-math";
+import { money, offerTerms } from "@/lib/offer-math";
 
 /* Six shades from the prototype, cheap (mint) to expensive (amber). */
 const rateFill = ["bg-mint-bg", "bg-rate-2", "bg-rate-3", "bg-amber-bg", "bg-rate-5", "bg-rate-6"];
@@ -65,12 +65,8 @@ export function PricingView({ pricing: p, policy }: { pricing: Pricing; policy: 
   const band = bands[r];
   const factor = band.factors[c];
   const term = p.terms[c];
-  // The example is the offer builder's own math, with the workspace's commission and policy.
-  const offer = computeOffer(
-    { amount: ex.amount, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false },
-    { ...harborFigures, commission: p.brokerPoints.newDeal / 100 },
-    offerPolicyFrom(policy),
-  );
+  // The example is the offer builder's own math, with the workspace's commission.
+  const offer = offerTerms({ amount: ex.amount, factor, term, freq: "daily", fee: 0, method: "ach", payoff: false }, p.brokerPoints.newDeal / 100);
 
   const highestGrid = Math.max(...p.grid.flatMap((b) => b.factors));
   const highestIndustry = Math.max(...p.industryAdjustments.map((x) => x.delta));

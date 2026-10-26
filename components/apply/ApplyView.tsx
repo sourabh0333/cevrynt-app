@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
-import type { PolicyLimits } from "@/lib/data/types";
-import { money } from "@/lib/offer-math";
+import type { ApplyData } from "@/lib/data/views/public";
+import { money } from "@/lib/format";
 import {
   amountSlider,
   applyBanner,
@@ -22,7 +22,7 @@ import {
   haveReady,
   ownerFields as of,
   signStep,
-} from "@/lib/sample-data/apply";
+} from "@/lib/copy/apply";
 
 /* The design's inputs: 48px, white, soft border, 14px radius, teal outline on focus. */
 const inputClass =
@@ -89,9 +89,11 @@ function BackArrow() {
  * are ticked, then the "Application sent" card. "A first look" updates with
  * the amount and monthly revenue. Below 900px it is one column with a fixed
  * bottom bar (round Back, big Continue / Send). Nothing is really sent.
- * The amount slider spans the policy's offer range (props, from the data layer).
+ * The amount slider spans the policy's offer range, and the web address and
+ * phone number are the workspace's (props, from the data layer).
  */
-export function ApplyView({ limits }: { limits: Pick<PolicyLimits, "minAmount" | "maxAmount"> }) {
+export function ApplyView({ data }: { data: ApplyData }) {
+  const { limits } = data;
   const amountRange = { min: limits.minAmount, max: limits.maxAmount, ...amountSlider };
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState(amountRange.start);
@@ -136,7 +138,7 @@ export function ApplyView({ limits }: { limits: Pick<PolicyLimits, "minAmount" |
             <rect x="5" y="11" width="14" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
-          {applyHeader.host}
+          {applyHeader.host(data.host)}
         </span>
       </header>
 
@@ -346,7 +348,7 @@ export function ApplyView({ limits }: { limits: Pick<PolicyLimits, "minAmount" |
                 </article>
                 <article className="flex flex-col gap-1.5 rounded-[28px] bg-card p-[18px]">
                   <b className="text-body-sm">{applyPrivacy.title}</b>
-                  <span className="text-label text-hint">{applyPrivacy.text}</span>
+                  <span className="text-label text-hint">{applyPrivacy.text(data.funder.supportPhone)}</span>
                 </article>
               </aside>
             </div>

@@ -8,6 +8,7 @@ export type * from "./deal-tabs";
 export type * from "./desk";
 export type * from "./funding";
 export type * from "./intake";
+export type * from "./merchant-link";
 export type * from "./merchants";
 export type * from "./plan";
 export type * from "./policy";

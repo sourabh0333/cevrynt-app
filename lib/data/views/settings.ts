@@ -160,3 +160,10 @@ export async function auditView(): Promise<AuditData> {
     holds: log.legalHolds.map((h) => ({ ...h, merchant: merchants.find((m) => m.id === h.merchantId)?.name ?? "", placedBy: member(h.placedById) })),
   };
 }
+
+/** The live policy version and when it went live, for the settings menu's Policy entry. */
+export async function settingsMenuView(): Promise<{ version: number; liveSince: IsoDateTime } | null> {
+  const policy = await getPolicy();
+  const live = policy.versions.find((v) => v.version === policy.version);
+  return live ? { version: policy.version, liveSince: live.at } : null;
+}

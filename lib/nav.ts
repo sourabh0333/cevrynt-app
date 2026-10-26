@@ -13,7 +13,6 @@ export type NavItem = {
   label: string;
   href: string;
   icon: IconName;
-  badge?: NavBadge;
 };
 
 export type NavSection = { label: string; items: NavItem[] };
@@ -58,18 +57,6 @@ export const comingItem: NavItem = {
   label: "What's coming",
   href: "/whats-coming",
   icon: "star",
-};
-
-export const workspace = {
-  initials: "RC",
-  name: "Ridgeline Capital",
-  kind: "Funder workspace",
-};
-
-export const currentUser = {
-  initials: "MC",
-  name: "Maya Chen",
-  role: "Underwriter",
 };
 
 /** Which nav key is active for a pathname. "/" is exact; others match by prefix. */

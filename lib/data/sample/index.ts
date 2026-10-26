@@ -10,6 +10,7 @@ import { auditEntries, auditLog } from "./audit";
 import { bulkIntake, intakeChannelSettings, intakeSummary, manualDraft, packageIntake } from "./intake";
 import { plan } from "./plan";
 import { apiKeys, securitySettings, signIns } from "./security";
+import { merchantLinks } from "./merchant-link";
 import { merchantBook, merchantListings, merchants } from "./merchants";
 import { policy, pricing } from "./policy";
 import { renewalCandidates, renewalSettings, renewalSummary } from "./renewals";
@@ -235,6 +236,12 @@ export const sampleSource: DataSource = {
     },
     async getBook() {
       return structuredClone(reportsBook);
+    },
+  },
+  links: {
+    async getByToken(token) {
+      const link = merchantLinks.find((l) => l.token === token);
+      return link ? structuredClone(link) : null;
     },
   },
 };

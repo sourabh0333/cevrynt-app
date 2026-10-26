@@ -74,7 +74,7 @@ export function PolicyTop({ policy }: { policy: Policy }) {
   const [sim, setSim] = useState<SimInput>(live);
   const [on, setOn] = useState<Record<string, boolean>>(() => Object.fromEntries(policy.rules.map((r) => [r.id, r.on])));
 
-  const result = simulatePolicy(sim, live);
+  const result = simulatePolicy(sim, live, policy.latePaymentTarget);
   const rulesChanged = ruleGroups.some((g) => g.rules.some((r) => on[r.id] !== r.on));
   const changed = result.changed || rulesChanged;
   const verdictBox = !result.changed ? "bg-card text-grey-text" : result.risky ? "bg-red-bg text-red-text" : "bg-mint-light text-teal-dark";

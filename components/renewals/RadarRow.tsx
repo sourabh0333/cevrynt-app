@@ -51,7 +51,7 @@ export function RadarRow({ merchants, renewalLine, s, loyaltyDiscount, onPick, o
   const st = statusOf(m, s.sent);
   const amount = amountOf(m, s.amounts);
   const can = m.suggested > 0;
-  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor: m.currentFactor }, undefined, undefined, loyaltyDiscount);
+  const r = renewalOffer({ amount, baseFactor: m.baseFactor, left: m.left, paid: m.paid, currentFactor: m.currentFactor }, loyaltyDiscount);
   const forgive = !!s.forgive[m.id];
   const clamp = (v: number) => Math.max(t.amount.min, Math.min(m.max, v));
   const q = radar.quadrants;

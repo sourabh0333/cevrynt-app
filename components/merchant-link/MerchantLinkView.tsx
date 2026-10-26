@@ -1,22 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
 import { Ring } from "@/components/ui/Ring";
-import {
-  application,
-  helpCard as hc,
-  languages,
-  linkSteps,
-  merchant,
-  minutesLeft,
-  privacy,
-  startOpen,
-  stepPanels as sp,
-  ui,
-  type Lang,
-  type LinkStep,
-} from "@/lib/sample-data/merchant-link";
+import { languages, merchantLinkCopy, minutesLeft, type Lang, type LinkStepView as LinkStep } from "@/lib/copy/merchant-link";
+import { telHref } from "@/lib/copy/public";
+import type { MerchantLinkData } from "@/lib/data/views/public";
 
 const chipTone = {
   done: "bg-mint-bg text-teal-dark",
@@ -40,9 +29,11 @@ function MessageIcon() {
  * "I agree" is ticked. When every required step is done the headline turns
  * to "All done, Elena!". English / Español switches the texts the prototype
  * translates. Below 900px it is one column with a compact header and a fixed
- * bottom bar ("Continue: next step" and a round message button).
+ * bottom bar ("Continue: next step" and a round message button). The link
+ * and its deal come from the data layer (props); the steps' state is local.
  */
-export function MerchantLinkView() {
+export function MerchantLinkView({ data }: { data: MerchantLinkData }) {
+  const { application, helpCard: hc, linkSteps, merchant, privacy, startOpen, stepPanels: sp, ui } = useMemo(() => merchantLinkCopy(data), [data]);
   const [lang, setLang] = useState<Lang>("en");
   const [open, setOpen] = useState<string | null>(startOpen);
   const [done, setDone] = useState<Record<string, boolean>>({});
@@ -264,7 +255,7 @@ export function MerchantLinkView() {
                 <a href="#" className="grid h-10 place-items-center rounded-pill bg-teal text-[12.5px] font-semibold text-white no-underline">
                   {hc.message}
                 </a>
-                <a href={`tel:${hc.phone.replace(/[^\d]/g, "")}`} className="grid h-10 place-items-center rounded-pill bg-card text-[12.5px] font-semibold text-ink no-underline">
+                <a href={telHref(hc.phone)} className="grid h-10 place-items-center rounded-pill bg-card text-[12.5px] font-semibold text-ink no-underline">
                   {hc.phone}
                 </a>
               </div>

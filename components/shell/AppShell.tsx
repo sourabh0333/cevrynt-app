@@ -4,6 +4,7 @@ import { ComingNote } from "./ComingNote";
 import { RenewalsBadge, SubmissionsBadge, TasksBadge } from "./CountBadges";
 import { ResizeHandle } from "./ResizeHandle";
 import { CurrentSidebar, Sidebar, type NavBadges } from "./Sidebar";
+import { Profile, ProfilePlaceholder, SwitcherPlaceholder, WorkspaceSwitcher } from "./SidebarIdentity";
 import { StackingBadge } from "./StackingBadge";
 
 /**
@@ -17,6 +18,17 @@ import { StackingBadge } from "./StackingBadge";
  * the invisible drag handle that collapses or opens the sidebar.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+  // The workspace and the signed-in person, read through the data layer.
+  const workspace = (
+    <Suspense fallback={<SwitcherPlaceholder />}>
+      <WorkspaceSwitcher />
+    </Suspense>
+  );
+  const profile = (
+    <Suspense fallback={<ProfilePlaceholder />}>
+      <Profile />
+    </Suspense>
+  );
   // Counted on the server from the data layer; appears without a placeholder.
   const comingNote = (
     <Suspense fallback={null}>
@@ -49,8 +61,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="box-border flex h-dvh items-stretch gap-1.5 overflow-hidden bg-page py-3.5 pr-3.5 pl-0 text-body text-ink">
       <div className="z-10 h-full flex-none overflow-hidden">
         {/* The lit nav item needs the URL; on dynamic routes it streams in. */}
-        <Suspense fallback={<Sidebar comingNote={comingNote} badges={badges} />}>
-          <CurrentSidebar comingNote={comingNote} badges={badges} />
+        <Suspense fallback={<Sidebar workspace={workspace} profile={profile} comingNote={comingNote} badges={badges} />}>
+          <CurrentSidebar workspace={workspace} profile={profile} comingNote={comingNote} badges={badges} />
         </Suspense>
       </div>
       <div className="relative h-full min-w-0 flex-[999_1_560px]">
