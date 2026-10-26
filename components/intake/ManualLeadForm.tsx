@@ -440,7 +440,7 @@ function StepDocuments({ lead, set, docs }: { lead: ManualLead; set: SetFn; docs
           onClick={() => set("documents", { merchantLinkSent: true })}
           disabled={sent}
           className={`h-[42px] rounded-pill border-0 px-[18px] text-body-sm font-semibold ${
-            sent ? "cursor-default bg-mint-bg text-teal-dark" : "cursor-pointer bg-card text-ink"
+            sent ? "cursor-default bg-mint-bg text-teal-dark" : "cursor-pointer bg-teal text-white"
           }`}
         >
           {sent
