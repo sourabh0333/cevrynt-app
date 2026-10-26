@@ -7,6 +7,7 @@ import { findDuplicate, manualCopy, manualSteps, requiredDocs as requiredDocsFor
 import type { ManualDraft, ManualLead } from "@/lib/data/types";
 import type { ManualLeadData } from "@/lib/data/views/intake";
 import { plural } from "@/lib/format";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Position = ManualLead["request"]["positions"][number];
 
@@ -424,8 +425,7 @@ function StepDocuments({ lead, set, docs }: { lead: ManualLead; set: SetFn; docs
           </p>
           {hasBroker ? (
             <label className="mt-2.5 flex cursor-pointer items-center gap-2 text-[12.5px] text-ink">
-              <input
-                type="checkbox"
+              <TickBox
                 checked={copyBroker}
                 disabled={sent}
                 onChange={(e) => set("documents", { copyBroker: e.target.checked })}

@@ -7,6 +7,7 @@ import { liveBankCopy, reviewCopy as t } from "@/lib/copy/deal-integrity";
 import { currentTime } from "@/lib/data/actions/clock";
 import type { DealIntegrity, IsoDateTime } from "@/lib/data/types";
 import { clockTime } from "@/lib/format";
+import { TickBox } from "@/components/ui/TickBox";
 
 /**
  * "Compare with live bank data": the mint card with the solid teal send
@@ -62,8 +63,7 @@ export function ReviewCard({ review, reviewer }: { review: DealIntegrity["review
         </span>
       </div>
       <label className={`flex items-start gap-3 rounded-[16px] bg-tile px-3.5 py-3 ${signed ? "" : "cursor-pointer"}`}>
-        <input
-          type="checkbox"
+        <TickBox
           checked={agreed}
           disabled={signed}
           onChange={(e) => setAgreed(e.target.checked)}

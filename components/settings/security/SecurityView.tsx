@@ -21,6 +21,7 @@ import {
   type Toggle,
 } from "@/lib/copy/security";
 import type { SecurityData } from "@/lib/data/views/settings";
+import { TickBox } from "@/components/ui/TickBox";
 
 const resultChip: Record<SignInResult, string> = {
   ok: "bg-mint-bg text-teal-dark",
@@ -47,7 +48,7 @@ function SwitchRow({ t, on, onChange }: { t: Toggle; on: boolean; onChange: () =
         <b className="block">{t.title}</b>
         <span className="text-[11.5px] text-hint">{t.hint}</span>
       </span>
-      <input type="checkbox" checked={on} onChange={onChange} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
+      <TickBox checked={on} onChange={onChange} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
     </label>
   );
 }

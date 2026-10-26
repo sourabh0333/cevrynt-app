@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
 import type { ApplyData } from "@/lib/data/views/public";
 import { money } from "@/lib/format";
+import { TickBox } from "@/components/ui/TickBox";
 import {
   amountSlider,
   applyBanner,
@@ -288,8 +289,7 @@ export function ApplyView({ data }: { data: ApplyData }) {
                   <div className="flex flex-col gap-3">
                     {signStep.permissions.map((p) => (
                       <label key={p.key} className="flex cursor-pointer items-start gap-3 rounded-[18px] bg-card p-3.5 text-body-sm">
-                        <input
-                          type="checkbox"
+                        <TickBox
                           checked={!!perms[p.key]}
                           onChange={() => setPerms((x) => ({ ...x, [p.key]: !x[p.key] }))}
                           className="mt-px mb-0 ml-0 h-5 w-5 flex-none cursor-pointer accent-teal"

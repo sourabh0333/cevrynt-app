@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { money, moneyShort, renewalOffer } from "@/lib/offer-math";
 import { offerPanel as t, radar, radarPosition, radarSize, statusLabel, type RenewalMerchant, type RenewalStatus } from "@/lib/copy/renewals";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -221,7 +222,7 @@ export function RadarRow({ merchants, renewalLine, s, loyaltyDiscount, onPick, o
               <b>{t.disclosure.forgive.label}</b>
               <span className="block text-hint">{t.disclosure.forgive.note}</span>
             </span>
-            <input type="checkbox" checked={forgive} onChange={() => onForgive(m.id)} className="m-0 h-5 w-5 accent-teal" />
+            <TickBox checked={forgive} onChange={() => onForgive(m.id)} className="m-0 h-5 w-5 accent-teal" />
           </label>
         </div>
 

@@ -20,6 +20,7 @@ import {
 } from "@/lib/copy/audit";
 import type { AuditCategory } from "@/lib/data/types";
 import type { AuditData } from "@/lib/data/views/settings";
+import { TickBox } from "@/components/ui/TickBox";
 
 const catChip: Record<AuditCategory, string> = {
   money: "bg-mint-bg text-teal-dark",
@@ -269,8 +270,7 @@ export function AuditView({ data }: { data: AuditData }) {
                 <b>{a.title}</b>
                 <span className="text-[11.5px] text-hint"> · {a.hint}</span>
               </span>
-              <input
-                type="checkbox"
+              <TickBox
                 role="switch"
                 checked={alerts[i]}
                 onChange={() => setAlerts((x) => x.map((v, j) => (j === i ? !v : v)))}

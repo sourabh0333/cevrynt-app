@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { bulkCopy } from "@/lib/copy/intake";
 import type { BulkIntake } from "@/lib/data/types";
+import { TickBox } from "@/components/ui/TickBox";
 
 const t = bulkCopy.options;
 
@@ -29,11 +30,11 @@ export function BulkOptions({ options }: { options: BulkIntake["options"] }) {
       </div>
       <label className="flex cursor-pointer items-center justify-between gap-2.5 rounded-[16px] bg-white/65 px-3.5 py-3 text-body-sm">
         <span>{t.tellBroker}</span>
-        <input type="checkbox" checked={tellBroker} onChange={(e) => setTellBroker(e.target.checked)} className="h-5 w-5 accent-teal" />
+        <TickBox checked={tellBroker} onChange={(e) => setTellBroker(e.target.checked)} className="h-5 w-5 accent-teal" />
       </label>
       <label className="flex cursor-pointer items-center justify-between gap-2.5 rounded-[16px] bg-white/65 px-3.5 py-3 text-body-sm">
         <span>{t.requestMissing}</span>
-        <input type="checkbox" checked={requestMissing} onChange={(e) => setRequestMissing(e.target.checked)} className="h-5 w-5 accent-teal" />
+        <TickBox checked={requestMissing} onChange={(e) => setRequestMissing(e.target.checked)} className="h-5 w-5 accent-teal" />
       </label>
     </article>
   );

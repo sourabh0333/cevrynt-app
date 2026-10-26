@@ -21,6 +21,7 @@ import {
 } from "@/lib/copy/pricing";
 import type { DisclosureStatus, Policy, Pricing } from "@/lib/data/types";
 import { money, offerTerms } from "@/lib/offer-math";
+import { TickBox } from "@/components/ui/TickBox";
 
 /* Six shades from the prototype, cheap (mint) to expensive (amber). */
 const rateFill = ["bg-mint-bg", "bg-rate-2", "bg-rate-3", "bg-amber-bg", "bg-rate-5", "bg-rate-6"];
@@ -311,8 +312,7 @@ export function PricingView({ pricing: p, policy }: { pricing: Pricing; policy: 
                   <b className="block">{t.title}</b>
                   <span className="text-[11.5px] text-hint">{t.hint}</span>
                 </span>
-                <input
-                  type="checkbox"
+                <TickBox
                   checked={!!toggles[t.key]}
                   onChange={() => setToggles((x) => ({ ...x, [t.key]: !x[t.key] }))}
                   className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal"

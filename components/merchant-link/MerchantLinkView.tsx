@@ -8,6 +8,7 @@ import { languages, merchantLinkCopy, minutesLeft, type Lang, type LinkStepView 
 import { telHref } from "@/lib/copy/public";
 import type { MerchantLinkData } from "@/lib/data/views/public";
 import { plural } from "@/lib/format";
+import { TickBox } from "@/components/ui/TickBox";
 
 const chipTone = {
   done: "bg-mint-bg text-teal-dark",
@@ -163,7 +164,7 @@ export function MerchantLinkView({ data }: { data: MerchantLinkData }) {
                         <div className="flex flex-col gap-2.5">
                           <div className="scrollbar-thin max-h-[92px] overflow-auto rounded-[16px] bg-card p-3.5 text-[12.5px] text-grey-text">{sp.consent.text}</div>
                           <label className="flex cursor-pointer items-center gap-2.5 text-body-sm">
-                            <input type="checkbox" checked={agree} onChange={() => setAgree((a) => !a)} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
+                            <TickBox checked={agree} onChange={() => setAgree((a) => !a)} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
                             {sp.consent.agree}
                           </label>
                           <button

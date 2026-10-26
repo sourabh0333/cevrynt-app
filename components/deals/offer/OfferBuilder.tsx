@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/Card";
 import { builder, factorOptions } from "@/lib/copy/deal-offer";
 import { money, percent, type OfferInput, type OfferPolicy, type OfferResult } from "@/lib/offer-math";
 import { Pills } from "./Pills";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Props = {
   offer: OfferInput;
@@ -99,7 +100,7 @@ export function OfferBuilder({ offer, result, policy: p, recommended, scoreBandF
               <b className="block">{builder.payoff.label(payoff.funder)}</b>
               <span className="text-[11.5px] text-hint">{builder.payoff.note(payoff.balance)}</span>
             </span>
-            <input type="checkbox" checked={offer.payoff} onChange={(e) => onChange({ payoff: e.target.checked })} className="m-0 h-5 w-5 accent-teal" />
+            <TickBox checked={offer.payoff} onChange={(e) => onChange({ payoff: e.target.checked })} className="m-0 h-5 w-5 accent-teal" />
           </label>
         ) : null}
       </div>

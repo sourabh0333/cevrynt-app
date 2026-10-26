@@ -19,6 +19,7 @@ import {
   usageByChannel as byChannel,
 } from "@/lib/copy/plan";
 import type { PlanData } from "@/lib/data/views/settings";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -99,7 +100,7 @@ export function PlanView({ data }: { data: PlanData }) {
             <span className="text-label text-hint">{usage.subtitle}</span>
           </div>
           <label className="flex cursor-pointer items-center gap-2 text-label">
-            <input type="checkbox" checked={warn} onChange={() => setWarn((w) => !w)} className="m-0 h-[18px] w-[18px] cursor-pointer accent-teal" />
+            <TickBox checked={warn} onChange={() => setWarn((w) => !w)} className="m-0 h-[18px] w-[18px] cursor-pointer accent-teal" />
             {usage.warn}
           </label>
         </div>

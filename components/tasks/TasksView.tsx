@@ -26,6 +26,7 @@ import type { TaskType } from "@/lib/data/types";
 import type { TasksData } from "@/lib/data/views/tasks";
 import { timeOfDay } from "@/lib/format";
 import { TaskRow, agendaCols } from "./TaskRow";
+import { TickBox } from "@/components/ui/TickBox";
 
 const typeDot: Record<TaskType, "blue" | "red" | "amber" | "purple" | "grey" | "teal" | "ink"> = {
   decision: "blue",
@@ -377,8 +378,7 @@ export function TasksView({ data }: { data: TasksData }) {
 
         <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 pt-1 text-label text-muted">
           <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
+            <TickBox
               checked={digest}
               onChange={(e) => writeDigest(e.target.checked)}
               className="h-[18px] w-[18px] accent-teal"

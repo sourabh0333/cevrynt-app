@@ -5,6 +5,7 @@ import { money } from "@/lib/offer-math";
 import { queueCopy as t } from "@/lib/copy/offers";
 import { kindFinding } from "@/lib/copy/stacking";
 import type { AlertKind, FundingDesk, QueuedFunding } from "@/lib/data/types";
+import { TickBox } from "@/components/ui/TickBox";
 
 /** ready → pending (Fund) → sent (Release as Priya) → closed (Done, after the undo window or by hand). */
 type Step = "ready" | "pending" | "sent" | "closed";
@@ -117,8 +118,7 @@ export function FundingQueue({ queue, desk, releaser }: { queue: (QueuedFunding 
                 key={d.key}
                 className={`${grid} border-b border-card p-2.5 ${d.ok ? (on ? "bg-mint-faint" : "bg-tile") : "bg-cream-faint"} ${d.ok && step === "ready" ? "cursor-pointer" : "cursor-default"}`}
               >
-                <input
-                  type="checkbox"
+                <TickBox
                   aria-label={t.select(d.name)}
                   checked={on}
                   disabled={!d.ok || step !== "ready"}

@@ -40,6 +40,7 @@ import {
 import type { DealListItem, DealOwner, DealQueueStats, IsoDateTime, WorkloadRow } from "@/lib/data/types";
 import type { SubmissionsData } from "@/lib/data/views/deals";
 import { moneyShort } from "@/lib/format";
+import { TickBox } from "@/components/ui/TickBox";
 
 /*
  * Design .qcols: check, merchant, amount, score · risk, status, deadline, owner.
@@ -287,9 +288,8 @@ export function SubmissionsView({ data }: { data: SubmissionsData }) {
           <div className="scrollbar-thin -mx-1.5 h-0 min-h-[420px] flex-[1_1_0] overflow-x-hidden overflow-y-auto px-1.5">
             <div className="flex flex-col gap-1">
               <div className={`${cols} sticky top-0 z-[2] bg-card px-3 pt-1 pb-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-hint`}>
-                <input
+                <TickBox
                   ref={headerBox}
-                  type="checkbox"
                   checked={allVisible}
                   onChange={toggleAllVisible}
                   aria-label={queue.selectAll}
@@ -385,7 +385,7 @@ function DealRow({
       data-deal-id={d.id}
       className={`${cols} box-border w-full rounded-[18px] px-3 py-[9px] text-ink ${selected ? "bg-tile shadow-[inset_0_0_0_1.5px_#0F1513]" : ""}`}
     >
-      <input type="checkbox" checked={checked} onChange={onCheck} aria-label={queue.select(d.merchantName)} className="m-0 h-[18px] w-[18px] accent-teal" />
+      <TickBox checked={checked} onChange={onCheck} aria-label={queue.select(d.merchantName)} className="m-0 h-[18px] w-[18px] accent-teal" />
 
       <button
         type="button"

@@ -18,6 +18,7 @@ import {
   type Toggle,
 } from "@/lib/copy/intake-channels";
 import type { IntakeChannelsData } from "@/lib/data/views/settings";
+import { TickBox } from "@/components/ui/TickBox";
 
 const cap = "text-cap font-semibold uppercase text-hint";
 const smallBtn = "h-[34px] rounded-pill border-0 px-3.5 text-label font-semibold";
@@ -34,7 +35,7 @@ function ToggleRow({ t, checked, onChange }: { t: Toggle; checked?: boolean; onC
       {preview ? (
         <input type="checkbox" defaultChecked={t.on} tabIndex={-1} className="m-0 h-5 w-5 flex-none accent-teal" />
       ) : (
-        <input type="checkbox" checked={!!checked} onChange={onChange} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
+        <TickBox checked={!!checked} onChange={onChange} className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal" />
       )}
     </label>
   );

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { autoRules, connectionsCopy, coverage, thisMonth } from "@/lib/copy/stacking";
 import type { StackingSummary } from "@/lib/data/types";
 import type { AlertRow } from "@/lib/data/views/stacking";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -128,7 +129,7 @@ export function RulesCard({ summary }: { summary: StackingSummary }) {
               <b className="block text-body-sm">{r.title}</b>
               <span className="text-[11.5px] text-hint">{r.sub}</span>
             </span>
-            <input type="checkbox" checked={!!on[r.key]} onChange={() => setOn((x) => ({ ...x, [r.key]: !x[r.key] }))} className="m-0 h-5 w-5 flex-none accent-teal" />
+            <TickBox checked={!!on[r.key]} onChange={() => setOn((x) => ({ ...x, [r.key]: !x[r.key] }))} className="m-0 h-5 w-5 flex-none accent-teal" />
           </label>
         ))}
       </div>

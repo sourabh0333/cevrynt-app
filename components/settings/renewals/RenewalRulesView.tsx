@@ -15,6 +15,7 @@ import {
 } from "@/lib/copy/renewal-rules";
 import type { RenewalRulesData } from "@/lib/data/views/renewals";
 import { autoApproveCount, isReady, notReadyReason, readiness, renewalRuleRanges, type RenewalRules } from "@/lib/renewal-rules";
+import { TickBox } from "@/components/ui/TickBox";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -98,8 +99,7 @@ export function RenewalRulesView({ data }: { data: RenewalRulesData }) {
               <b className="block">{wr.noStack.title}</b>
               <span className="text-[11.5px] text-hint">{wr.noStack.hint}</span>
             </span>
-            <input
-              type="checkbox"
+            <TickBox
               checked={rules.noStack}
               onChange={() => setRules((r) => ({ ...r, noStack: !r.noStack }))}
               className="m-0 h-5 w-5 flex-none cursor-pointer accent-teal"
@@ -201,8 +201,7 @@ export function RenewalRulesView({ data }: { data: RenewalRulesData }) {
                 <h2 className="m-0 font-heading text-card-title-sm font-semibold">{approval.auto.title}</h2>
                 <span className="text-label text-grey-text">{approval.auto.text}</span>
               </div>
-              <input
-                type="checkbox"
+              <TickBox
                 aria-label={approval.auto.aria}
                 checked={auto}
                 onChange={() => setAuto((a) => !a)}
