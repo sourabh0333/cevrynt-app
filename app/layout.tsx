@@ -37,8 +37,9 @@ export const metadata: Metadata = {
 };
 
 // Runs before the first paint so a remembered collapsed sidebar never flashes
-// open, and a closed Ask Cevrynt popup never flashes back.
-const sidebarBootScript = `try{var d=document.documentElement,s=localStorage;if(s.getItem("cevrynt-sidebar")==="collapsed")d.setAttribute("data-sidebar","collapsed");if(s.getItem("cevrynt-ask-seen")==="1")d.setAttribute("data-ask","seen")}catch(e){}`;
+// open, and a closed Ask Cevrynt popup never flashes back. Without a saved
+// choice, the sidebar starts as the icon rail on screens under 900px wide.
+const sidebarBootScript = `var d=document.documentElement,v=null;try{v=localStorage.getItem("cevrynt-sidebar");if(localStorage.getItem("cevrynt-ask-seen")==="1")d.setAttribute("data-ask","seen")}catch(e){}if(v==="collapsed"||(v!=="open"&&window.innerWidth<900))d.setAttribute("data-sidebar","collapsed")`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

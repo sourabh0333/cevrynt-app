@@ -8,7 +8,7 @@ import { useCallback, useRef, useSyncExternalStore, type PointerEvent } from "re
  *
  * The <html data-sidebar="collapsed"> attribute is the source of truth. An
  * inline boot script in app/layout.tsx sets it from localStorage before the
- * first paint, the `collapsed:` Tailwind variant styles off it, and React
+ * first paint (or, with no saved choice, collapsed under 900px wide), the `collapsed:` Tailwind variant styles off it, and React
  * subscribes to it here, so the server snapshot (open) and the client stay
  * in step with what was painted.
  */
