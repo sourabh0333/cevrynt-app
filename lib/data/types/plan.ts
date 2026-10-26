@@ -34,7 +34,6 @@ export type Plan = {
     linkSessions: number;
     /** deals analyzed per working day, oldest first; the last is today */
     perDay: number[];
-    avgPerDay: number;
     /** where the month is heading */
     pace: number;
   };

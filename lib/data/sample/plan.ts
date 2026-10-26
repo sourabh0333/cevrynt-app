@@ -17,7 +17,6 @@ export const plan: Plan = {
     pagesSkipped: 1840,
     linkSessions: 118,
     perDay: [8, 11, 9, 12, 14, 6, 3, 10, 13, 12, 11, 15],
-    avgPerDay: 11,
     pace: 380,
   },
   otherTiers: {

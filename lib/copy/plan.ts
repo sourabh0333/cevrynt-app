@@ -44,7 +44,8 @@ export function usage(p: Plan, used: number, seats: { used: number; invites: num
     link: { label: "Merchant Link sessions", value: p.usage.linkSessions, unit: " this month", chip: "∞", bar: 30, hint: "Unlimited on your plan" },
     perDay: {
       label: "Deals analyzed per working day",
-      avg: `${p.usage.avgPerDay} avg`,
+      // the average of the bars themselves, rounded to a whole deal
+      avg: `${Math.round(days.reduce((n, d) => n + d, 0) / days.length)} avg`,
       hint: today === Math.max(...days) ? `Today ${today}, the busiest day yet` : `Today ${today}`,
       aria: `Deals analyzed per working day this month, between ${Math.min(...days)} and ${Math.max(...days)} a day`,
       days,

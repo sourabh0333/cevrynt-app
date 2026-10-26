@@ -203,6 +203,15 @@ describe("Team", () => {
     assert.deepEqual([invite.what, invite.object, invite.actor.name], ["Invited Kim Tran", "Underwriter, up to $45K", "Nina Ortiz"]);
   });
 
+  it("the per-day chart: today is the busiest day, and the average is worked out from the bars", async () => {
+    const p = await planView();
+    const d = usage(p.plan, dealsUsed(p.month), p.seats, p.now).perDay;
+    assert.deepEqual(d.days.slice(-2), [11, 15]);
+    assert.equal(d.hint, "Today 15, the busiest day yet");
+    assert.equal(d.avg, `${Math.round(d.days.reduce((n, x) => n + x, 0) / d.days.length)} avg`);
+    assert.equal(d.avg, "10 avg");
+  });
+
   it("the access review is 12 days late, on Team & roles and Security", async () => {
     const [review, now] = await Promise.all([getAccessReview(), getNow()]);
     assert.equal(reviewCopy.chip(daysBetween(review.dueAt, now)), "12 days late");
