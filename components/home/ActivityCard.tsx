@@ -1,5 +1,5 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Activity, ActivityKind } from "@/lib/sample-data/home";
+import type { Activity, ActivityKind } from "@/lib/copy/home";
 
 const look: Record<ActivityKind, { bg: string; stroke: string; path: string }> = {
   stacking: { bg: "bg-red-bg", stroke: "stroke-coral-text", path: "M12 2l8 4-8 4-8-4zM4 12l8 4 8-4" },

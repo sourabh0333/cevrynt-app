@@ -4,12 +4,14 @@ import type { Broker, BrokerBook } from "./brokers";
 import type { Id, IsoDateTime } from "./common";
 import type { FundingDesk, FundingSummary, PipelineOffer, QueuedFunding, Release } from "./funding";
 import type { Deal, DealQueueStats, DealQueueSummary } from "./deal";
+import type { ActivityEvent, CalendarEvent, Stip } from "./desk";
 import type { DealActivity, DealBusiness, DealCashFlow, DealConditions, DealDecision, DealIntegrity, DealOffer, DealPositions, DealSummary } from "./deal-tabs";
 import type { BulkIntake, IntakeChannelSettings, IntakeSummary, ManualDraft, PackageIntake } from "./intake";
 import type { Merchant, MerchantBook, MerchantListing } from "./merchants";
 import type { Plan } from "./plan";
 import type { Policy, Pricing } from "./policy";
 import type { RenewalCandidate, RenewalSettings, RenewalSummary } from "./renewals";
+import type { ReportsBook, ReportSnapshot } from "./reports";
 import type { Task, TaskBoard } from "./tasks";
 import type { RoadmapFeature } from "./roadmap";
 import type { ApiKey, SecuritySettings, SignIn } from "./security";
@@ -113,5 +115,15 @@ export interface DataSource {
     /** newest first */
     listEntries(): Promise<AuditEntry[]>;
     getLog(): Promise<AuditLog>;
+  };
+  desk: {
+    listStips(): Promise<Stip[]>;
+    listCalendar(): Promise<CalendarEvent[]>;
+    listActivity(): Promise<ActivityEvent[]>;
+  };
+  reports: {
+    /** one per period: week, month, quarter and year */
+    listSnapshots(): Promise<ReportSnapshot[]>;
+    getBook(): Promise<ReportsBook>;
   };
 }

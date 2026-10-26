@@ -28,7 +28,12 @@ import { activeCount } from "@/lib/copy/funded";
 import { merchantsView } from "@/lib/data/views/merchants";
 import { renewalRulesView, renewalsView } from "@/lib/data/views/renewals";
 import { navSections } from "@/lib/nav";
-import { unitEconomics } from "@/lib/sample-data/reports";
+import { declines, fundedMonthly, funnel, kpis, team as teamRows, unitEconomics } from "@/lib/copy/reports";
+import { reportsView } from "@/lib/data/views/reports";
+import { portfolio } from "@/lib/data/views/portfolio";
+import { getQueueSummary } from "@/lib/data/deals";
+import { listTasks } from "@/lib/data/tasks";
+import { getCurrentUser } from "@/lib/data/team";
 import { deadlineLabel, dealHeader, metricLabels, receivedLabel, recommendedLabel } from "@/lib/copy/deal";
 import { submissionsHeader, workloadCard } from "@/lib/copy/submissions";
 import { getDeal, listDeals } from "@/lib/data/deals";
@@ -46,7 +51,7 @@ import { keyNumbersCopy, scoreCardCopy } from "@/lib/copy/deal-summary";
 import { activityTabView, businessTabView, conditionsTabView, dealTabsView, decisionTabView, integrityTabView, offerTabView } from "@/lib/data/views/deal-tabs";
 import { statusOf } from "@/lib/deal-conditions";
 import { debtToday, existingDaily, monthAverages, ofLimit, revenueTotals, roomToPay, scenarios } from "@/lib/deal-figures";
-import { money, moneyK, moneyK1, percent } from "@/lib/format";
+import { money, moneyK, moneyK1, moneyShort, percent } from "@/lib/format";
 import { computeOffer, formatOffer, harborFigures, recommendedOffer } from "@/lib/offer-math";
 import { channelLabel, fitLine, folderRow, bulkCopy, packageCopy, packageFitRows, todayByChannel } from "@/lib/copy/intake";
 import { findDuplicate, requiredDocs, runChecks } from "@/lib/copy/intake-manual";
@@ -56,7 +61,8 @@ import { tasksView } from "@/lib/data/views/tasks";
 import { advanceView, fundedHeader, fundedStats, todayCopy, todayTotals, reconciliationCopy, returnedCopy, forecastCopy } from "@/lib/copy/funded";
 import { commissionsCopy, expiringToday, moneySentCopy, offerChip, offerStats, offersHeader, queueCopy } from "@/lib/copy/offers";
 import { fundedView, offersView } from "@/lib/data/views/funding";
-import { homeData } from "@/lib/sample-data/home";
+import { homeCards } from "@/lib/copy/home";
+import { homeView } from "@/lib/data/views/home";
 import { newToday, seenLabel, stageLine, stackingHeader, summaryCopy, kindFinding } from "@/lib/copy/stacking";
 import { appetite, brokerSummary, brokerView, commissionOf, onWatchCount, payout } from "@/lib/copy/brokers";
 import { stackingView } from "@/lib/data/views/stacking";
@@ -111,9 +117,10 @@ describe("Renewals", () => {
     assert.equal(merchantStats(m).find((s) => s.label === "Ready to renew")?.value, "9");
     assert.equal(segments({ book: m.book, active: activeCount(m.funded), readyCount: m.readyCount }).find((s) => s.key === "renew")?.count, 9);
     assert.equal(repeatMerchants.cta.label(m.readyCount), "Open Renewals · 9 ready");
-    // Not converted yet: the sidebar badge and Home's key number still hold their own copy, pinned here.
-    const badge = navSections.flatMap((s) => s.items).find((i) => i.key === "renewals")?.badge?.count;
-    assert.deepEqual([badge, homeData.keyNumbers.renewals.value], [9, "9"]);
+    // The sidebar badge and Home's key number count the same ready merchants; the nav keeps no copy of its own.
+    assert.equal((await portfolio()).readyIds.length, rn.readyCount);
+    assert.equal(navSections.flatMap((s) => s.items).find((i) => i.key === "renewals")?.badge, undefined);
+    assert.equal(homeCards(await homeView()).keyNumbers.renewals.value, String(rn.readyCount));
   });
 
   it("the radar's statuses follow the saved rules; offers out and accepted come from the candidates", async () => {
@@ -157,7 +164,7 @@ describe("Deals by channel and cost per deal", () => {
     const used = dealsUsed(p.month);
     assert.equal(costPerDeal(p.plan, used), "$5.20");
     assert.match(planHeader(p.plan, used).text, /works out to about \$5\.20 a deal$/);
-    assert.equal(unitEconomics.facts.find((f) => f.label === "Cevrynt cost per deal")?.value, costPerDeal(p.plan, used));
+    assert.equal(unitEconomics(await reportsView()).facts.find((f) => f.label === "Cevrynt cost per deal")?.value, costPerDeal(p.plan, used));
   });
 });
 
@@ -718,7 +725,7 @@ describe("Funded deals", () => {
       "Paid off this month: 11 · 6 renewed with you",
     ]);
     assert.equal(todayCopy.expected(d.book), "of $28.4K expected · 81 payments");
-    const home = homeData.glance.find((g) => g.id === "collected")!;
+    const home = homeCards(await homeView()).glance.find((g) => g.id === "collected")!;
     assert.equal(home.title, "$24.1K of $28.4K collected today");
     assert.equal(home.title, todayCopy.homeLine(d.book));
     assert.deepEqual([home.lead, home.note, home.noteTail], [{ kind: "ring", percent: Math.round(todayTotals(d.book).share * 100), label: "85%" }, "7 pending · ", "2 returned"]);
@@ -821,8 +828,9 @@ describe("Stacking Watch and Brokers", () => {
     // The badge is counted from all the alerts, with the same function; the nav keeps no copy of its own.
     assert.equal(newToday(await listStackingAlerts(), s.now), fresh);
     assert.equal(navSections.flatMap((x) => x.items).find((i) => i.key === "stacking")?.badge, undefined);
-    // Not converted yet: Home's key number still holds its own copy, pinned here.
-    assert.equal(homeData.keyNumbers.stacking.value, String(fresh));
+    // Home's key number counts the same alerts, and says when the first one came in.
+    const key = homeCards(await homeView()).keyNumbers.stacking;
+    assert.deepEqual([key.value, key.leadNote], [String(fresh), "since 7:40 am"]);
   });
 
   it("broker fraud flags are the Stacking Watch alerts on the deals and advances they sent", async () => {
@@ -832,9 +840,11 @@ describe("Stacking Watch and Brokers", () => {
     assert.deepEqual(flags["Summit Capital ISO"], ["Westfield Auto Group"]);
     assert.deepEqual(["Apex Funding Partners", "Keystone Brokerage", "Harbor Lane Capital", "Granite Peak ISO"].map((n) => flags[n].length), [0, 0, 0, 0]);
     assert.equal(onWatchCount(b.brokers), 1);
-    // Not converted yet: Home's broker list and the Mesa task still quote the counts, pinned here.
-    for (const r of homeData.brokers.rows) assert.equal(r.flags, flags[r.name].length, r.name);
-    assert.ok((await tasksView()).tasks.find((t) => t.id === "mesa")!.prep.includes(`BlueRock sent it, ${flags["BlueRock Advisors"].length} flags this quarter`));
+    // Home's broker list and the Mesa task count the same flags.
+    for (const r of homeCards(await homeView()).brokers.rows) assert.equal(r.flags, flags[r.name].length, r.name);
+    const t = await tasksView();
+    const mesa = toTaskView(t.tasks.find((x) => x.id === "mesa")!, t.now, t.brokerFlags);
+    assert.ok(mesa.prep.includes(`BlueRock sent it, ${flags["BlueRock Advisors"].length} flags this quarter`));
   });
 
   it("commission owed uses Pricing's broker points, including today's funded deals from Offers", async () => {
@@ -865,5 +875,140 @@ describe("Stacking Watch and Brokers", () => {
     assert.deepEqual(appetite.ranges(b).map((r) => [r.value, r.left, r.right]), [["$10K – $150K", 5, 25], ["$15K and up", 15, 0]]);
     assert.deepEqual(appetite.facts(b).map((f) => f.value), ["6 months+", "Up to 2"]);
     assert.deepEqual(appetite.industries(b).filter((i) => i.out).map((i) => i.name), ["Trucking"]);
+  });
+});
+
+describe("Home", () => {
+  it("My queue is the signed-in person's open deals, oldest first, with the on-time target", async () => {
+    const [h, d, me] = await Promise.all([homeView(), listDeals(), getCurrentUser()]);
+    const c = homeCards(h);
+    assert.deepEqual(c.queue.items.map((i) => i.id).sort(), d.filter((x) => x.ownerId === me?.id).map((x) => x.id).sort());
+    assert.deepEqual(c.queue.items.map((i) => [i.merchant, i.status, i.time, i.decided]), [
+      ["Northline HVAC Services", "Needs stips", "Fri", true],
+      ["Coastal Dental Group", "Renewal", "Mon", false],
+      ["Mesa Auto Repair", "Integrity flag", "8:55", false],
+      ["Copper Kettle Café LLC", "New", "9:20", false],
+      ["Harbor Street Bakery LLC", "Ready for decision", "9:40", false],
+      ["Brightside Cleaning Co", "Needs stips", "12:05", false],
+      ["Golden Lotus Restaurant", "In review", "13:10", false],
+    ]);
+    assert.deepEqual([c.queue.onTimePercent, c.queue.targetPercent], [68, 75]);
+    assert.equal(c.header.queueLine, `${c.queue.items.length} deals in your queue · open submissions`);
+  });
+
+  it("the sidebar counts My tasks and Submissions from the records, as their pages do", async () => {
+    const [tasks, me, s] = await Promise.all([listTasks(), getCurrentUser(), getQueueSummary()]);
+    assert.deepEqual([tasks.filter((t) => t.assigneeId === me?.id).length, s.open], [7, 28]);
+    for (const key of ["tasks", "submissions"]) assert.equal(navSections.flatMap((x) => x.items).find((i) => i.key === key)?.badge, undefined, key);
+    assert.equal(submissionsHeader.line(s), "28 open deals · 2 past their deadline");
+  });
+
+  it("the glance strip reads the tasks due, today's collections and the waiting policy draft", async () => {
+    const [h, policy] = await Promise.all([homeView(), getPolicy()]);
+    const g = Object.fromEntries(homeCards(h).glance.map((x) => [x.id, x]));
+    assert.deepEqual([g.tasks.lead, g.tasks.note], [{ kind: "number", value: "2" }, "Lakeshore UCC filing · Mesa Auto Repair review"]);
+    assert.deepEqual(g.policy.lead, { kind: "tag", value: `v${policy.draft!.version}` });
+    assert.equal(g.policy.note, `Debt share ${percent(policy.maxDebtShare)} → ${percent(policy.draft!.change.maxDebtShare)} · needs Priya`);
+    assert.equal(g.policy.note, "Debt share 65% → 70% · needs Priya");
+  });
+
+  it("key numbers come from intake, Offers & funding, Stacking Watch and Renewals", async () => {
+    const [h, o] = await Promise.all([homeView(), offersView()]);
+    const k = homeCards(h).keyNumbers;
+    const stat = (label: string) => offerStats(o).find((s) => s.label === label)!;
+    assert.deepEqual([k.submissions.value, k.submissions.change, k.submissions.changeNote, k.submissions.scale[1]], ["23", "+21%", "vs last Tuesday", "Avg 14"]);
+    assert.deepEqual([k.offers.value, k.offers.expiring], ["6", "2"]);
+    assert.equal(k.offers.value, stat("Offers out").value);
+    assert.equal(`${k.offers.expiring} expire today`, stat("Offers out").note);
+    assert.deepEqual([k.funded.value, `${k.funded.change} ${k.funded.changeNote}`], ["$1.24M", "+12% vs September"]);
+    assert.equal(`${k.funded.change} ${k.funded.changeNote}`, stat("Funded this month").note);
+  });
+
+  it("decisions, pipeline and speed read today's queue stats, this week's funnel and the month's median", async () => {
+    const c = homeCards(await homeView());
+    assert.deepEqual([c.decisions.total, c.decisions.segments.map((s) => s.percent)], [14, [57, 14, 29]]);
+    assert.deepEqual(c.pipeline.stages.map((s) => [s.value, s.note]), [
+      ["86", "100% of intake"], ["54", "63% · 32 auto-declined"], ["22", "41% of reviewed"], ["14", "64% of approved"], ["11", "13% pull-through"],
+    ]);
+    assert.equal(c.pipeline.subtitle, "From submission to funded, Oct 12 – 18");
+    assert.deepEqual(c.speed.metrics.map((m) => [m.value, m.aside]), [["3h 12m", "Target 4h"], ["2.6 days", "Slower than target"]]);
+  });
+
+  it("stips, brokers, activity and the calendar name the real deals, brokers and records", async () => {
+    const c = homeCards(await homeView());
+    assert.equal(c.stips.count, 5);
+    assert.deepEqual(c.stips.items.map((s) => [s.title, s.detail, s.status]), [
+      ["Voided check", "Northline HVAC · from merchant · 2 days", "Overdue"],
+      ["Landlord letter", "Pinecrest Fitness · from broker · 1 day", "Requested"],
+      ["Landlord letter", "Harbor Street Bakery · from broker · due Wed", "Sent"],
+    ]);
+    assert.deepEqual(c.brokers.rows.map((r) => [r.name, r.sent, r.funded]), [
+      ["Apex Funding Partners", 24, 9], ["Summit Capital ISO", 19, 6], ["Keystone Brokerage", 12, 4], ["BlueRock Advisors", 15, 2],
+    ]);
+    assert.deepEqual(c.activity.items.map((a) => [a.title, a.when]), [
+      ["Integrity reviewed", "33 min ago"], ["Documents received", "1 hr ago"], ["New UCC filing", "1 hr ago"], ["Broker message", "2 hr ago"],
+    ]);
+    assert.deepEqual(c.calendar.events.map((e) => [e.title, e.day, e.hour, e.href]), [
+      ["Renewal window · Coastal Dental", 4, 1, "/renewals"],
+      ["Funding call · Harbor Street", 4, 2, "/deals/APP-7H2K4Q"],
+      ["Broker review · Apex Funding", 5, 3, "/brokers"],
+      ["Offer expires 5 pm · Northline HVAC", 2, 5, "/offers"],
+    ]);
+    assert.equal(c.calendar.days.find((d) => d.today)?.label, "Tue 13");
+  });
+});
+
+describe("Reports", () => {
+  it("the scoreboard's month matches Offers & funding, and the loss rate is the funded book's", async () => {
+    const [r, o, f] = await Promise.all([reportsView(), offersView(), fundedView()]);
+    const month = kpis(r.snapshots.find((s) => s.period === "month")!, r);
+    assert.deepEqual(month.map((k) => `${k.label} ${k.value} ${k.delta}`), [
+      "Funded $1.24M +12%", "Deals funded 41 +6", "Approval rate 41% +2 pts", "Pull-through 13% Flat", "Time to decision 3h 12m −35 min", "Loss rate 2.1% YTD",
+    ]);
+    assert.equal(offerStats(o).find((s) => s.label === "Funded this month")?.note, `${month[0].delta} vs September`);
+    assert.equal(r.lossRate, f.book.returns.lossRate);
+    assert.deepEqual(r.snapshots.map((s) => kpis(s, r)[0].value), ["$310K", "$1.24M", "$3.28M", "$9.6M"]);
+  });
+
+  it("the funnel and the monthly chart read the snapshots, Offers' monthly funding and Renewals' monthly renewals", async () => {
+    const r = await reportsView();
+    assert.deepEqual(funnel(r.snapshots.find((s) => s.period === "month")!).stages.map((s) => s.count), [312, 196, 168, 69, 52, 41]);
+    const m = fundedMonthly(r);
+    assert.deepEqual(m.months.map((x) => [x.m, x.total, x.renewals]), [
+      ["May", 0.78, 0.096], ["Jun", 0.86, 0.115], ["Jul", 0.91, 0.128], ["Aug", 0.99, 0.156], ["Sep", 1.107, 0.175], ["Oct", 1.24, 0.212],
+    ]);
+    assert.deepEqual(m.facts.map((x) => x.value), ["+59%", "12% → 17%", "October"]);
+  });
+
+  it("declines quote the live policy's limits and late-payment target, and add up to reviewed minus approved", async () => {
+    const [r, policy] = await Promise.all([reportsView(), getPolicy()]);
+    const month = r.snapshots.find((s) => s.period === "month")!;
+    const d = declines(month, r);
+    assert.equal(d.total, month.funnel.reviewed - month.funnel.approved);
+    assert.equal(d.total, d.rules.reduce((n, x) => n + x.count, 0));
+    assert.equal(d.target, policy.latePaymentTarget * 100);
+    assert.equal(d.columns[2], `Late payments on deals it passed · target ${percent(policy.latePaymentTarget)}`);
+    assert.deepEqual(d.rules.map((x) => x.rule), [
+      `Revenue at least ${moneyShort(policy.minMonthlyRevenue)} a month`, `No more than ${policy.maxPositions} open positions`, "Integrity checks pass",
+      `At least ${policy.minBusinessMonths} months in business`, "Industry not restricted", `Debt under ${percent(policy.maxDebtShare)} of revenue`,
+    ]);
+    assert.deepEqual(d.rules.map((x) => x.rule), [
+      "Revenue at least $15K a month", "No more than 2 open positions", "Integrity checks pass", "At least 6 months in business", "Industry not restricted", "Debt under 65% of revenue",
+    ]);
+    assert.equal(d.rules.find((x) => x.verdict === "loosen")?.action.label, `Simulate ${percent(policy.draft!.change.maxDebtShare)}`);
+  });
+
+  it("unit economics take commission from Pricing's broker points; the team table reads the team records", async () => {
+    const [r, pricing, team] = await Promise.all([reportsView(), getPricing(), listTeam()]);
+    const ue = unitEconomics(r);
+    const cents = (label: string) => ue.parts.find((p) => p.label === label)!.cents;
+    assert.equal(cents("Broker commission"), pricing.brokerPoints.newDeal);
+    assert.equal(ue.back, "$1.32");
+    assert.equal(cents("Kept as profit"), 32 - cents("Broker commission") - cents("Losses") - cents("Costs"));
+    const rows = teamRows(r).rows;
+    assert.deepEqual(rows.map((x) => x.name), rows.map((x) => team.find((m) => m.initials === x.ini)?.name));
+    assert.deepEqual(rows.map((x) => [x.ini, x.decided, x.time, x.late, x.lateHigh]), [
+      ["MC", 112, "2h 50m", "1.8%", false], ["AK", 98, "3h 40m", "2.9%", true], ["JR", 87, "3h 05m", "2.0%", false], ["PS", 41, "2h 10m", "1.2%", false],
+    ]);
   });
 });

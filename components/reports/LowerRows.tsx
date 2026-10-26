@@ -3,7 +3,8 @@ import type { CSSProperties } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { library, scheduled, team, unitEconomics as ue, type UnitTone } from "@/lib/sample-data/reports";
+import { library, scheduled, team as teamFor, unitEconomics, type UnitTone } from "@/lib/copy/reports";
+import type { ReportsData } from "@/lib/data/views/reports";
 
 const unitBg: Record<UnitTone, string> = {
   ink: "bg-ink",
@@ -14,7 +15,8 @@ const unitBg: Record<UnitTone, string> = {
 };
 
 /** "What every $1 funded earns": the $1.32 summary, the split bar with its brackets, five tiles and four facts. */
-export function UnitEconomics() {
+export function UnitEconomics({ data }: { data: ReportsData }) {
+  const ue = unitEconomics(data);
   const total = ue.parts.reduce((s, p) => s + p.cents, 0);
   const share = (c: number) => (c / total) * 100;
   const principal = share(ue.parts[0].cents);
@@ -93,7 +95,8 @@ const teamCols =
   "grid grid-cols-[minmax(0,1.4fr)_80px_90px_90px_120px_80px] items-center gap-3 @max-[640px]:grid-cols-[minmax(0,1.4fr)_56px_minmax(0,120px)_56px] @max-[640px]:[&>:nth-child(3)]:hidden @max-[640px]:[&>:nth-child(4)]:hidden";
 
 /** "Underwriting team": one row per underwriter with the "Agrees with Cevrynt" bar. */
-export function TeamSection() {
+export function TeamSection({ data }: { data: ReportsData }) {
+  const team = teamFor(data);
   return (
     <section aria-labelledby="h-team" className="box-border flex min-w-0 flex-col gap-3 rounded-card-lg bg-card p-[22px] text-ink">
       <div>

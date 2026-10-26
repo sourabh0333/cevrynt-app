@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Decisions } from "@/lib/sample-data/home";
+import type { Decisions } from "@/lib/copy/home";
 
 const stroke = { teal: "stroke-teal", amber: "stroke-amber", red: "stroke-red" };
 const dot = { teal: "bg-teal", amber: "bg-amber", red: "bg-red" };

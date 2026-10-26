@@ -1,6 +1,6 @@
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Speed } from "@/lib/sample-data/home";
+import type { Speed } from "@/lib/copy/home";
 
 /** "Speed" from design/Main.html: two median tiles on the light mint card. */
 export function SpeedCard({ data }: { data: Speed }) {

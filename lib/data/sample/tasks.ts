@@ -14,13 +14,15 @@ export const tasks: Task[] = [
     id: "lake", type: "alert", title: "Review the new UCC filing", subject: "Lakeshore Auto Body · funding on hold", assigneeId: "usr_maya",
     dueAt: at(13, "10:45"), dueStyle: "now", used: 1,
     why: "A new advance was filed this morning on a deal that was ready to fund. Funding stays on hold until you review it.",
+    short: "Lakeshore UCC filing",
     prep: ["Filing: Northpoint Funding, Oct 11", "Not on the application", "Ready to fund at $60K"], target: { page: "stacking" }, source: "system",
   },
   {
     id: "mesa", type: "review", title: "Finish reviewing Mesa Auto Repair", subject: "Mesa Auto Repair · $35K asked", assigneeId: "usr_maya",
     dueAt: at(13, "11:10"), dueStyle: "countdown", used: 0.88,
     why: "Two warning signs: a statement that doesn’t reconcile and an undisclosed UCC filing. The decision deadline is close.",
-    prep: ["Integrity score is low", "BlueRock sent it, 3 flags this quarter", "Decline or ask for fresh statements"], target: { page: "submissions" }, source: "system",
+    short: "Mesa Auto Repair review",
+    prep: ["Integrity score is low", { kind: "broker-flags", broker: "BlueRock" }, "Decline or ask for fresh statements"], target: { page: "submissions" }, source: "system",
   },
   {
     id: "harbor", type: "decision", title: "Decide Harbor Street Bakery", subject: "Harbor Street Bakery · $40K suggested", assigneeId: "usr_maya",

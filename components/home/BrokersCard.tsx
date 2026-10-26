@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Brokers } from "@/lib/sample-data/home";
+import type { Brokers } from "@/lib/copy/home";
 
 const cols = "grid grid-cols-[minmax(0,1fr)_54px_54px_60px] gap-2";
 const flagColor = (n: number) => (n === 0 ? "text-teal" : n < 3 ? "text-amber-text" : "text-coral-text");

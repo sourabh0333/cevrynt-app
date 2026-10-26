@@ -79,7 +79,7 @@ function isTyping(target: EventTarget | null) {
  */
 export function TasksView({ data }: { data: TasksData }) {
   const router = useRouter();
-  const seedTasks = useMemo(() => data.tasks.map((t) => toTaskView(t, data.now)), [data.tasks, data.now]);
+  const seedTasks = useMemo(() => data.tasks.map((t) => toTaskView(t, data.now, data.brokerFlags)), [data.tasks, data.now, data.brokerFlags]);
   const doneEarlier = useMemo(() => data.board.doneToday.map((d) => ({ title: d.title, time: timeOfDay(d.at) })), [data.board.doneToday]);
   const waitingOnOthers = data.board.waiting.map(waitingView);
   const dealChoices = [quickAdd.noDeal, ...data.quickDeals.map(shortMerchant)];

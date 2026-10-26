@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import type { CalendarEvent, WeekCalendar as WeekCalendarData } from "@/lib/sample-data/home";
+import type { CalendarEvent, WeekCalendar as WeekCalendarData } from "@/lib/copy/home";
 
 const pill = {
   teal: "bg-teal text-white",

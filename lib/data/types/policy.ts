@@ -72,6 +72,8 @@ export type Policy = {
   approvedIndustries: string[];
   /** months of bank statements every deal needs */
   requiredStatementMonths: number;
+  /** the share of passed deals paying late that a rule may let through, 0–1 */
+  latePaymentTarget: number;
   /** the most of the money still to collect allowed in one industry, and in one business, 0–1 */
   concentration: { industryMax: number; merchantMax: number };
   rules: PolicyRule[];

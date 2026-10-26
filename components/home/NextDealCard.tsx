@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { HeroDeal } from "@/lib/sample-data/home";
+import type { HeroDeal } from "@/lib/copy/home";
 
 /**
  * "Next up in your queue" hero card from design/Main.html: mint gradient,

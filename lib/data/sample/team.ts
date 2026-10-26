@@ -12,11 +12,11 @@ const policyLimits = policy.limits;
  * the policy limits, so the Offer, Policy and Team pages agree.
  */
 const DAILY_CAPACITY = 10;
-const uw = { approvalLimit: policyLimits.seniorAbove, todayNote: null, dailyCapacity: DAILY_CAPACITY, mfa: true, away: false };
-const other = { approvalLimit: null, openDeals: null, dailyCapacity: DAILY_CAPACITY, mfa: true, away: false };
+const uw = { approvalLimit: policyLimits.seniorAbove, todayNote: null, dailyCapacity: DAILY_CAPACITY, mfa: true, away: false, onTimeToday: null };
+const other = { approvalLimit: null, openDeals: null, dailyCapacity: DAILY_CAPACITY, mfa: true, away: false, onTimeToday: null };
 
 export const teamMembers: TeamMember[] = [
-  { ...uw, id: "usr_maya", name: "Maya Chen", initials: "MC", email: "maya@ridgelinecap.com", role: "underwriter", openDeals: 7 },
+  { ...uw, id: "usr_maya", name: "Maya Chen", initials: "MC", email: "maya@ridgelinecap.com", role: "underwriter", openDeals: 7, onTimeToday: 0.68 },
   { ...uw, id: "usr_ari", name: "Ari Kaplan", initials: "AK", email: "ari@ridgelinecap.com", role: "underwriter", openDeals: 9 },
   { ...uw, id: "usr_jordan", name: "Jordan Reyes", initials: "JR", email: "jordan@ridgelinecap.com", role: "underwriter", openDeals: 6 },
   { ...uw, id: "usr_priya", name: "Priya Shah", initials: "PS", email: "priya@ridgelinecap.com", role: "senior", approvalLimit: policyLimits.seniorLimit, openDeals: 3 },

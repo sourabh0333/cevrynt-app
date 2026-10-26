@@ -15,6 +15,8 @@ export const intakeSummary: IntakeSummary = {
     { channel: "manual", count: 3 },
     { channel: "merchant-link", count: 2 },
   ],
+  sameDayLastWeek: 19,
+  dailyAverage: 14,
   month: [
     { channel: "package", deals: 132, funded: 0.36 },
     { channel: "bulk", deals: 98, funded: 0.28 },

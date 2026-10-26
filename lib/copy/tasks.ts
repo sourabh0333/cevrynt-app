@@ -87,7 +87,11 @@ export function taskWhen(dueAt: IsoDateTime, now: IsoDateTime): TaskWhen {
   return daysBetween(now, dueAt) === 0 ? "today" : "week";
 }
 
-export const toTaskView = (t: Task, now: IsoDateTime): TaskView => ({
+/** A prep line, with a broker's flags counted from Stacking Watch. */
+const prepLine = (p: Task["prep"][number], flags: Record<string, number>) =>
+  typeof p === "string" ? p : `${p.broker} sent it, ${plural(flags[p.broker] ?? 0, "flag")} this quarter`;
+
+export const toTaskView = (t: Task, now: IsoDateTime, flags: Record<string, number> = {}): TaskView => ({
   id: t.id,
   type: t.type,
   when: taskWhen(t.dueAt, now),
@@ -95,7 +99,7 @@ export const toTaskView = (t: Task, now: IsoDateTime): TaskView => ({
   deal: t.subject,
   due: dueLabel(t, now),
   why: t.why,
-  prep: t.prep,
+  prep: t.prep.map((p) => prepLine(p, flags)),
   href: targetHref(t.target),
   action: targetAction(t.target),
   urgency: Math.round(t.used * 100),

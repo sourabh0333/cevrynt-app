@@ -93,4 +93,13 @@ export const apiSource: DataSource = {
     listEntries: notConnected("audit"),
     getLog: notConnected("audit"),
   },
+  desk: {
+    listStips: notConnected("desk"),
+    listCalendar: notConnected("desk"),
+    listActivity: notConnected("desk"),
+  },
+  reports: {
+    listSnapshots: notConnected("reports"),
+    getBook: notConnected("reports"),
+  },
 };

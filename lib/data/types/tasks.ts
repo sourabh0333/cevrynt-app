@@ -28,7 +28,10 @@ export type Task = {
   /** how much of the time to act is used up, 0–1 (the time-left bar) */
   used: number;
   why: string;
-  prep: string[];
+  /** a few words for summaries, e.g. "Mesa Auto Repair review" */
+  short?: string;
+  /** what to prepare; a broker's flags are counted from Stacking Watch */
+  prep: (string | { kind: "broker-flags"; broker: string })[];
   target: TaskTarget;
   /** added by the system, or by a person from My tasks */
   source: "system" | "user";

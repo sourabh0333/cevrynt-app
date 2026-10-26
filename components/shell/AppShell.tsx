@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { AskCevrynt } from "./AskCevrynt";
 import { ComingNote } from "./ComingNote";
+import { RenewalsBadge, SubmissionsBadge, TasksBadge } from "./CountBadges";
 import { ResizeHandle } from "./ResizeHandle";
 import { CurrentSidebar, Sidebar, type NavBadges } from "./Sidebar";
 import { StackingBadge } from "./StackingBadge";
@@ -23,6 +24,21 @@ export function AppShell({ children }: { children: ReactNode }) {
     </Suspense>
   );
   const badges: NavBadges = {
+    tasks: (
+      <Suspense fallback={null}>
+        <TasksBadge />
+      </Suspense>
+    ),
+    submissions: (
+      <Suspense fallback={null}>
+        <SubmissionsBadge />
+      </Suspense>
+    ),
+    renewals: (
+      <Suspense fallback={null}>
+        <RenewalsBadge />
+      </Suspense>
+    ),
     stacking: (
       <Suspense fallback={null}>
         <StackingBadge />

@@ -22,6 +22,9 @@ export type FitResult =
 export type IntakeSummary = {
   /** deals since midnight, by channel */
   today: { channel: IntakeChannel; count: number }[];
+  /** deals on the same weekday last week, and on an average day */
+  sameDayLastWeek: number;
+  dailyAverage: number;
   /** deals this month, by channel, and the share of them funded. Intake channels and Plan & usage read these. */
   month: { channel: IntakeChannel; deals: number; funded: number }[];
   recent: { id: Id; merchant: string; channel: IntakeChannel; at: IsoDateTime; fit: FitResult; assigneeId: Id | null }[];

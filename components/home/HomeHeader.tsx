@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageActions } from "@/components/shell/PageActions";
-import type { HomeHeader as HomeHeaderData } from "@/lib/sample-data/home";
+import type { HomeHeader as HomeHeaderData } from "@/lib/copy/home";
 
 /** Page header from design/Main.html: greeting, queue link, and the page actions. */
 export function HomeHeader({ data }: { data: HomeHeaderData }) {
@@ -20,7 +20,7 @@ export function HomeHeader({ data }: { data: HomeHeaderData }) {
           </svg>
         </Link>
       </div>
-      <PageActions unread={data.unreadNotifications} />
+      <PageActions />
     </header>
   );
 }

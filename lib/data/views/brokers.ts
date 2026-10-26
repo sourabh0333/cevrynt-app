@@ -27,6 +27,13 @@ const FLAG_DAYS = 90;
 /** A broker named either way deals and advances name them. */
 const sentBy = (b: Broker, name: string | null) => name === b.name || name === b.shortName;
 
+/** Each broker's fraud flags in the last 90 days, by short name (as tasks name them). */
+export async function brokerFlagCounts(): Promise<Record<string, number>> {
+  const [brokers, { now, rows }] = await Promise.all([listBrokers(), alertRows()]);
+  const flags = rows.filter((a) => isFraudFlag(a) && daysBetween(a.seenAt, now) <= FLAG_DAYS);
+  return Object.fromEntries(brokers.map((b) => [b.shortName, flags.filter((a) => sentBy(b, a.broker)).length]));
+}
+
 /** Everything Brokers shows, loaded in parallel. */
 export async function brokersView(): Promise<BrokersData> {
   const [brokers, book, { now, rows }, pipeline, pricing, policy] = await Promise.all([listBrokers(), getBrokerBook(), alertRows(), listPipeline(), getPricing(), getPolicy()]);

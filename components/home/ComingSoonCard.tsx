@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import type { ComingSoon } from "@/lib/sample-data/home";
+import type { ComingSoon } from "@/lib/copy/home";
 
 /** The mint "Coming soon" card from design/Main.html, linking to What's coming. */
 export function ComingSoonCard({ data }: { data: ComingSoon }) {

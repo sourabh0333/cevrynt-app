@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { declines as dc, type RuleTone, type Verdict } from "@/lib/sample-data/reports";
+import { declines, type RuleTone, type Verdict } from "@/lib/copy/reports";
+import type { ReportsData } from "@/lib/data/views/reports";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -36,8 +37,8 @@ const verdictDot: Record<Verdict, string> = {
 const cols =
   "grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_110px_140px] items-center gap-4 @max-[820px]:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_110px] @max-[820px]:[&>:nth-child(5)]:hidden @max-[600px]:grid-cols-[minmax(0,1.3fr)_minmax(0,1.3fr)_100px] @max-[600px]:[&>:nth-child(2)]:hidden @max-[600px]:gap-3";
 
-/** Late payments on the 0–6% track: the tinted area past the black 3% target, and the rule's dot with its value. */
-function LateTrack({ late, verdict, delay }: { late: number; verdict: Verdict; delay: number }) {
+/** Late payments on the 0–6% track: the tinted area past the black target line (the policy's late-payment target), and the rule's dot with its value. */
+function LateTrack({ dc, late, verdict, delay }: { dc: ReturnType<typeof declines>; late: number; verdict: Verdict; delay: number }) {
   const at = `${Math.round((late / dc.trackMax) * 100)}%`;
   const target = `${(dc.target / dc.trackMax) * 100}%`;
   return (
@@ -57,7 +58,8 @@ function LateTrack({ late, verdict, delay }: { late: number; verdict: Verdict; d
 }
 
 /** "Declines and the rules behind them": the total, the share bar with its legend, and one row per rule. */
-export function DeclinesSection() {
+export function DeclinesSection({ data }: { data: ReportsData }) {
+  const dc = declines(data.snapshots.find((s) => s.period === "month") ?? data.snapshots[0], data);
   const max = Math.max(...dc.rules.map((r) => r.count));
   return (
     <section aria-labelledby="h-rule" className="box-border flex min-w-0 flex-col gap-4 rounded-card-lg bg-card p-[22px] text-ink">
@@ -110,7 +112,7 @@ export function DeclinesSection() {
               <ProgressBar className="flex-1" value={(r.count / max) * 100} height={8} color="ink" track="faint" delay={0.2 + i * 0.06} />
               <b className="w-[26px] text-right font-heading tabular-nums tracking-[-0.03em]">{r.count}</b>
             </span>
-            <LateTrack late={r.late} verdict={r.verdict} delay={0.3 + i * 0.08} />
+            <LateTrack dc={dc} late={r.late} verdict={r.verdict} delay={0.3 + i * 0.08} />
             <span className={`justify-self-start whitespace-nowrap rounded-pill px-2.5 py-1 text-label-sm font-bold ${verdictChip[r.verdict]}`}>{dc.verdictLabel[r.verdict]}</span>
             <Link href={r.action.href} className="justify-self-end truncate text-label font-semibold text-teal">
               {r.action.label}

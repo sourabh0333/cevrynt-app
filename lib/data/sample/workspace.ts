@@ -17,6 +17,8 @@ export const workspace: Workspace = {
   emailVerified: true,
   supportPhone: "(617) 555-0190",
   brandColor: "#0E6B5C",
+  onTimeTarget: 0.75,
+  fundTargetDays: 2,
   decisionTargetHours: 4,
   hours: {
     firstDay: 1,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Chip } from "@/components/ui/Chip";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import type { Queue, QueueTone } from "@/lib/sample-data/home";
+import type { Queue, QueueTone } from "@/lib/copy/home";
 
 const tile: Record<QueueTone, string> = {
   light: "bg-[linear-gradient(160deg,#F1F6F3,#FFFFFF)] border border-[#E3EFEA] text-ink",

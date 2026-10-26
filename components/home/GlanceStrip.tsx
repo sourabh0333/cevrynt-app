@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Ring } from "@/components/ui/Ring";
-import type { GlanceItem } from "@/lib/sample-data/home";
+import type { GlanceItem } from "@/lib/copy/home";
 
 function Lead({ item }: { item: GlanceItem }) {
   const lead = item.lead;

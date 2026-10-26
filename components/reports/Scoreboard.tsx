@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import { StatTile } from "@/components/ui/StatTile";
-import { kpisByPeriod, periodSwitch as ps, sparksByPeriod, type Period } from "@/lib/sample-data/reports";
+import { kpis as kpisFor, periodSwitch as ps, type Period } from "@/lib/copy/reports";
+import type { ReportsData } from "@/lib/data/views/reports";
 
 /**
  * The period switch with Schedule and Export PDF, and the key-number
@@ -12,10 +13,11 @@ import { kpisByPeriod, periodSwitch as ps, sparksByPeriod, type Period } from "@
  * numbers, change pills and sparklines as in the prototype. Tiles sit
  * 3 + 3 (6 across from 1500px, 2 + 2 + 2 below 620px); Funded is mint.
  */
-export function Scoreboard() {
+export function Scoreboard({ data }: { data: Pick<ReportsData, "snapshots" | "funding" | "lossRate"> }) {
   const [period, setPeriod] = useState<Period>(ps.start);
-  const kpis = kpisByPeriod[period];
-  const sparks = sparksByPeriod[period];
+  const snapshot = data.snapshots.find((s) => s.period === period) ?? data.snapshots[0];
+  const kpis = kpisFor(snapshot, data);
+  const sparks = snapshot.trends;
 
   return (
     <>

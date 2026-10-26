@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { fundedMonthly as fm, funnel as fn, type FunnelTone } from "@/lib/sample-data/reports";
+import { fundedMonthly, funnel, type FunnelTone } from "@/lib/copy/reports";
+import type { ReportsData } from "@/lib/data/views/reports";
 
 type Delay = CSSProperties & { "--delay"?: string };
 const d = (s: number): Delay => ({ "--delay": `${s}s` });
@@ -19,7 +20,8 @@ const toneClass: Record<FunnelTone, string> = {
  * before, and the biggest drop is red. Steps grow out from the center one
  * by one.
  */
-function FunnelCard() {
+function FunnelCard({ data }: { data: ReportsData }) {
+  const fn = funnel(data.snapshots.find((x) => x.period === "month") ?? data.snapshots[0]);
   const s = fn.stages;
   const kept = s.map((x, i) => (i === 0 ? null : Math.round((x.count / s[i - 1].count) * 100)));
   const worst = kept.reduce<number>((w, k, i) => (k !== null && (kept[w] === null || k < (kept[w] as number)) ? i : w), 1);
@@ -98,7 +100,8 @@ function curve(pts: [number, number][], move = true) {
  * rise, the total line draws, the month dots pop in one by one and the
  * October label fades in last. Three facts below.
  */
-function MonthlyCard() {
+function MonthlyCard({ data }: { data: ReportsData }) {
+  const fm = fundedMonthly(data);
   const ms = fm.months;
   const totals: [number, number][] = ms.map((m, i) => [x(i), y(m.total)]);
   const news: [number, number][] = ms.map((m, i) => [x(i), y(m.total - m.renewals)]);
@@ -184,11 +187,11 @@ function MonthlyCard() {
 }
 
 /** Row 2 of design/Reports.html: the funnel beside the monthly chart, equal heights. */
-export function FunnelRow() {
+export function FunnelRow({ data }: { data: ReportsData }) {
   return (
     <section aria-label="Funnel and monthly volume" className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3.5">
-      <FunnelCard />
-      <MonthlyCard />
+      <FunnelCard data={data} />
+      <MonthlyCard data={data} />
     </section>
   );
 }

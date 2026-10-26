@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/shell/icons";
-import type { KeyNumbers as KeyNumbersData } from "@/lib/sample-data/home";
+import type { KeyNumbers as KeyNumbersData } from "@/lib/copy/home";
 
 const big = "font-heading text-[30px] leading-none font-semibold tabular-nums tracking-[-0.03em]";
 const cap = "mt-1.5 text-cap font-semibold uppercase";

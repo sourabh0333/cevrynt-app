@@ -16,7 +16,7 @@ export const brokers: Broker[] = [
     completeFirstSend: 0.84, paidLate: 0.021, stipReplyHours: 3, commission: { newDealPoints: null, onRenewals: true }, renewalRightsMonths: 12,
     weeklySubmissions: [6, 7, 5, 8, 7, 9, 8, 9],
     declineReasons: [{ reason: "Revenue too low", count: 3 }, { reason: "Too many positions", count: 2 }, { reason: "Merchant took another offer", count: 4 }],
-    note: { text: "Your best partner. Clean files, fast replies, merchants pay well.", tone: "good" }, earned: { deals: 1, amount: 2600 },
+    note: { text: "Your best partner. Clean files, fast replies, merchants pay well.", tone: "good" }, earned: { deals: 1, amount: 2600 }, thisMonth: { submitted: 24, funded: 9 },
   },
   {
     id: "br-summit", name: "Summit Capital ISO", shortName: "Summit Capital", initials: "SC", colors: ["#0A5E50", "#2F8F7A"],
@@ -24,7 +24,7 @@ export const brokers: Broker[] = [
     completeFirstSend: 0.71, paidLate: 0.048, stipReplyHours: 9, commission: { newDealPoints: null, onRenewals: false }, renewalRightsMonths: 12,
     weeklySubmissions: [5, 6, 6, 4, 5, 6, 7, 6],
     declineReasons: [{ reason: "Revenue too low", count: 6 }, { reason: "Too many positions", count: 5 }, { reason: "Missing documents", count: 4 }],
-    note: { text: "Solid volume. One flagged file this quarter, explained and closed.", tone: "neutral" }, earned: { deals: 1, amount: 2600 },
+    note: { text: "Solid volume. One flagged file this quarter, explained and closed.", tone: "neutral" }, earned: { deals: 1, amount: 2600 }, thisMonth: { submitted: 19, funded: 6 },
   },
   {
     id: "br-keystone", name: "Keystone Brokerage", shortName: "Keystone", initials: "KB", colors: ["#7A4A2A", "#B07A52"],
@@ -32,7 +32,7 @@ export const brokers: Broker[] = [
     completeFirstSend: 0.78, paidLate: 0.032, stipReplyHours: 6, commission: { newDealPoints: 7, onRenewals: false }, renewalRightsMonths: 12,
     weeklySubmissions: [3, 4, 3, 4, 5, 4, 4, 5],
     declineReasons: [{ reason: "Revenue too low", count: 4 }, { reason: "Merchant took another offer", count: 3 }, { reason: "Missing documents", count: 2 }],
-    note: { text: "Smaller but steady. Good candidate for more volume.", tone: "good" }, earned: { deals: 2, amount: 2200 },
+    note: { text: "Smaller but steady. Good candidate for more volume.", tone: "good" }, earned: { deals: 2, amount: 2200 }, thisMonth: { submitted: 12, funded: 4 },
   },
   {
     id: "br-harborlane", name: "Harbor Lane Capital", shortName: "Harbor Lane", initials: "HL", colors: ["#57418A", "#8670B8"],
@@ -40,7 +40,7 @@ export const brokers: Broker[] = [
     completeFirstSend: 0.62, paidLate: 0.055, stipReplyHours: 14, commission: { newDealPoints: null, onRenewals: false }, renewalRightsMonths: 6,
     weeklySubmissions: [2, 3, 4, 3, 3, 4, 2, 3],
     declineReasons: [{ reason: "Missing documents", count: 9 }, { reason: "Revenue too low", count: 5 }, { reason: "Too many positions", count: 3 }],
-    note: { text: "Files often arrive incomplete. Portal invite could help.", tone: "neutral" }, earned: { deals: 0, amount: 0 },
+    note: { text: "Files often arrive incomplete. Portal invite could help.", tone: "neutral" }, earned: { deals: 0, amount: 0 }, thisMonth: { submitted: 8, funded: 1 },
   },
   {
     id: "br-bluerock", name: "BlueRock Advisors", shortName: "BlueRock", initials: "BR", colors: ["#A3341F", "#C2412D"],
@@ -49,7 +49,7 @@ export const brokers: Broker[] = [
     weeklySubmissions: [3, 4, 5, 6, 6, 7, 8, 9],
     declineReasons: [{ reason: "Fraud or edited statements", count: 3, fraud: true }, { reason: "Too many positions", count: 14 }, { reason: "Missing documents", count: 12 }],
     note: { text: "Three fraud flags in 90 days, including Mesa Auto Repair and Sunrise Pediatric Dental. Volume is rising while quality falls.", tone: "risk" },
-    earned: { deals: 1, amount: 1200 },
+    earned: { deals: 1, amount: 1200 }, thisMonth: { submitted: 15, funded: 2 },
   },
   {
     id: "br-granitepeak", name: "Granite Peak ISO", shortName: "Granite Peak", initials: "GP", colors: ["#3E4A46", "#6B7873"],
@@ -57,7 +57,7 @@ export const brokers: Broker[] = [
     completeFirstSend: 0.66, paidLate: 0.06, stipReplyHours: 11, commission: { newDealPoints: null, onRenewals: false }, renewalRightsMonths: 6,
     weeklySubmissions: [1, 2, 2, 3, 2, 2, 3, 3],
     declineReasons: [{ reason: "Revenue too low", count: 5 }, { reason: "Missing documents", count: 4 }, { reason: "Too young a business", count: 2 }],
-    note: { text: "New this year. Reasonable start; check again next quarter.", tone: "neutral" }, earned: { deals: 0, amount: 0 },
+    note: { text: "New this year. Reasonable start; check again next quarter.", tone: "neutral" }, earned: { deals: 0, amount: 0 }, thisMonth: { submitted: 5, funded: 1 },
   },
 ];
 

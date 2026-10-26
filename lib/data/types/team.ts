@@ -19,6 +19,8 @@ export type TeamMember = {
   dailyCapacity: number;
   /** Has 2-step login turned on. Read by Team and Security. */
   mfa: boolean;
+  /** share of today's deals decided in time, for those who decide; null otherwise */
+  onTimeToday: number | null;
   away: boolean;
 };
 

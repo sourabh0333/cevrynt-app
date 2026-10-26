@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Chip } from "@/components/ui/Chip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { Stips } from "@/lib/sample-data/home";
+import type { Stips } from "@/lib/copy/home";
 
 /** "Waiting on stips" from design/Main.html: count, three items, Send reminders. */
 export function StipsCard({ data }: { data: Stips }) {

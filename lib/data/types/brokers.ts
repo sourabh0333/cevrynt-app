@@ -36,6 +36,8 @@ export type Broker = {
   note: { text: string; tone: "good" | "neutral" | "risk" };
   /** commission earned this pay period before today */
   earned: { deals: number; amount: Money };
+  /** deals sent and funded this month */
+  thisMonth: { submitted: number; funded: number };
 };
 
 export type BrokerBook = {

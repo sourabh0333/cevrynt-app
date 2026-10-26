@@ -21,6 +21,21 @@ export const offersHeader = {
   line: (inProgress: number, expireToday: number) => `${inProgress} deals between yes and money sent · ${plural(expireToday, "offer")} expire today`,
 };
 
+/** Money funded this month and last, from the monthly history. Home and Reports read the same. */
+export const monthFunding = (s: Pick<FundingSummary, "fundedByMonth">) => {
+  const m = s.fundedByMonth;
+  return { thisMonth: m[m.length - 1]?.amount ?? 0, lastMonth: m[m.length - 2]?.amount ?? 0 };
+};
+
+/** Change on last month, as "+12% vs September". */
+export const monthChange = (s: Pick<FundingSummary, "fundedByMonth">, now: IsoDateTime) => {
+  const { thisMonth, lastMonth } = monthFunding(s);
+  const growth = thisMonth / lastMonth - 1;
+  const [y, m] = [Number(now.slice(0, 4)), Number(now.slice(5, 7))];
+  const lastMonthName = monthName(m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`, "long");
+  return { sign: growth >= 0 ? "+" : "−", percent: percent(Math.abs(growth)), month: lastMonthName };
+};
+
 /** Offers still out that stop being valid today. */
 export const expiringToday = (offers: PipelineOffer[], now: IsoDateTime) => offers.filter((o) => o.stage === "sent" && o.expiresAt && isToday(o.expiresAt, now));
 
@@ -31,16 +46,14 @@ export type StatTile = { label: string; value: string; unit?: string; note: stri
 export function offerStats(x: { queue: QueuedFunding[]; offers: PipelineOffer[]; summary: FundingSummary; desk: FundingDesk; now: IsoDateTime }): StatTile[] {
   const ready = x.queue.filter((q) => q.finalCheck.ok);
   const left = x.desk.dailyLimit - x.desk.committedToday;
-  const growth = x.summary.fundedThisMonth / x.summary.fundedLastMonth - 1;
-  const [y, m] = [Number(x.now.slice(0, 4)), Number(x.now.slice(5, 7))];
-  const lastMonthName = monthName(m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`, "long");
+  const change = monthChange(x.summary, x.now);
   return [
     { label: "Ready to fund", value: moneyShort(ready.reduce((n, q) => n + q.amount, 0)), note: `${plural(ready.length, "deal")} · next ACH cut-off ${clock12(x.desk.achCutoff)}`, tone: "mint" },
     { label: "Offers out", value: String(x.summary.stageTotals.sent), note: `${expiringToday(x.offers, x.now).length} expire today`, tone: "cream", noteTone: "warn" },
     { label: "Contracts out", value: String(x.summary.stageTotals.contract), note: "Waiting on signatures", tone: "grey" },
     { label: "Offer to funded", value: x.summary.medianDaysToFund.toFixed(1), unit: " days", note: "Median, last 30 days", tone: "stone" },
     { label: "Capital left today", value: millions1(left), note: `of a ${millions1(x.desk.dailyLimit)} daily limit`, tone: "grey", bar: Math.round((left / x.desk.dailyLimit) * 100) },
-    { label: "Funded this month", value: moneyCompact(x.summary.fundedThisMonth), note: `${growth >= 0 ? "+" : "−"}${percent(Math.abs(growth))} vs ${lastMonthName}`, tone: "mintLight", noteTone: "good" },
+    { label: "Funded this month", value: moneyCompact(monthFunding(x.summary).thisMonth), note: `${change.sign}${change.percent} vs ${change.month}`, tone: "mintLight", noteTone: "good" },
   ];
 }
 

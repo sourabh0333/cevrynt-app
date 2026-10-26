@@ -1,7 +1,7 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SegmentedSwitch } from "@/components/ui/SegmentedSwitch";
 import { StatTile } from "@/components/ui/StatTile";
-import type { Pipeline } from "@/lib/sample-data/home";
+import type { Pipeline } from "@/lib/copy/home";
 
 /** "Pipeline this week" from design/Main.html: five stage tiles with bars that grow in. */
 export function PipelineCard({ data }: { data: Pipeline }) {

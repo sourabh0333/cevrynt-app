@@ -4,6 +4,7 @@ import { getNow } from "../clock";
 import { listDeals } from "../deals";
 import { getTaskBoard, listTasks } from "../tasks";
 import { getCurrentUser, listTeam } from "../team";
+import { brokerFlagCounts } from "./brokers";
 
 export type TasksData = {
   now: IsoDateTime;
@@ -16,11 +17,13 @@ export type TasksData = {
   /** the deals and teammates offered in the quick-add bar, by name */
   quickDeals: string[];
   quickAssignees: string[];
+  /** fraud flags per broker (by short name), for prep lines that quote them */
+  brokerFlags: Record<string, number>;
 };
 
 /** Everything My tasks shows, loaded in parallel. */
 export async function tasksView(): Promise<TasksData> {
-  const [tasks, board, deals, members, me, now] = await Promise.all([listTasks(), getTaskBoard(), listDeals(), listTeam(), getCurrentUser(), getNow()]);
+  const [tasks, board, deals, members, me, brokerFlags, now] = await Promise.all([listTasks(), getTaskBoard(), listDeals(), listTeam(), getCurrentUser(), brokerFlagCounts(), getNow()]);
   const nameOf = (id: string) => members.find((m) => m.id === id)?.name ?? "";
   return {
     now,
@@ -30,5 +33,6 @@ export async function tasksView(): Promise<TasksData> {
     team: board.team.map((load) => ({ id: load.memberId, name: nameOf(load.memberId), load })),
     quickDeals: board.quickDealIds.map((id) => deals.find((d) => d.id === id)?.merchantName ?? "").filter(Boolean),
     quickAssignees: board.quickAssigneeIds.map(nameOf).filter(Boolean),
+    brokerFlags,
   };
 }

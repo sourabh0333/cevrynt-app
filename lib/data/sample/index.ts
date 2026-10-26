@@ -4,6 +4,7 @@ import { brokerBook, brokers } from "./brokers";
 import { SAMPLE_NOW } from "./clock";
 import { harborActivity, harborBusiness, harborCashFlow, harborConditions, harborDecision, harborIntegrity, harborOffer, harborPositions, harborSummary } from "./deal-tabs";
 import { deals, queueStats, queueSummary } from "./deals";
+import { activityEvents, calendarEvents, stips } from "./desk";
 import { fundingDesk, fundingQueue, fundingSummary, pipelineOffers, releases } from "./funding";
 import { auditEntries, auditLog } from "./audit";
 import { bulkIntake, intakeChannelSettings, intakeSummary, manualDraft, packageIntake } from "./intake";
@@ -12,6 +13,7 @@ import { apiKeys, securitySettings, signIns } from "./security";
 import { merchantBook, merchantListings, merchants } from "./merchants";
 import { policy, pricing } from "./policy";
 import { renewalCandidates, renewalSettings, renewalSummary } from "./renewals";
+import { reportSnapshots, reportsBook } from "./reports";
 import { roadmapFeatures } from "./roadmap";
 import { stackingAlerts, stackingSummary } from "./stacking";
 import { taskBoard, tasks } from "./tasks";
@@ -214,6 +216,25 @@ export const sampleSource: DataSource = {
     },
     async getLog() {
       return structuredClone(auditLog);
+    },
+  },
+  desk: {
+    async listStips() {
+      return structuredClone(stips);
+    },
+    async listCalendar() {
+      return structuredClone(calendarEvents);
+    },
+    async listActivity() {
+      return structuredClone(activityEvents);
+    },
+  },
+  reports: {
+    async listSnapshots() {
+      return structuredClone(reportSnapshots);
+    },
+    async getBook() {
+      return structuredClone(reportsBook);
     },
   },
 };

@@ -1,5 +1,6 @@
 import { PageActions } from "@/components/shell/PageActions";
-import { reportsHeader } from "@/lib/sample-data/reports";
+import { reportsHeader } from "@/lib/copy/reports";
+import type { ReportsData } from "@/lib/data/views/reports";
 import { DeclinesSection } from "./DeclinesSection";
 import { FunnelRow } from "./FunnelRow";
 import { SavedRow, TeamSection, UnitEconomics } from "./LowerRows";
@@ -8,9 +9,10 @@ import { Scoreboard } from "./Scoreboard";
 /**
  * Reports from design/Reports.html: the header, the period switch, the
  * key-number scoreboard, the funnel beside the monthly chart, declines and
- * their rules, what every $1 earns, the team, and saved reports.
+ * their rules, what every $1 earns, the team, and saved reports. Every
+ * figure is read or worked out from the records (props).
  */
-export function ReportsView() {
+export function ReportsView({ data }: { data: ReportsData }) {
   return (
     <>
       <header className="mb-1 flex flex-wrap items-start justify-between gap-4">
@@ -20,11 +22,11 @@ export function ReportsView() {
         </div>
         <PageActions />
       </header>
-      <Scoreboard />
-      <FunnelRow />
-      <DeclinesSection />
-      <UnitEconomics />
-      <TeamSection />
+      <Scoreboard data={{ snapshots: data.snapshots, funding: data.funding, lossRate: data.lossRate }} />
+      <FunnelRow data={data} />
+      <DeclinesSection data={data} />
+      <UnitEconomics data={data} />
+      <TeamSection data={data} />
       <SavedRow />
     </>
   );

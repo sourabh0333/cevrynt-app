@@ -1,8 +1,9 @@
 import type { IconName } from "@/components/shell/icons";
 
 /**
- * Sidebar navigation. Labels, order, sections and counts come from the
- * sidebar inside design/Main.html and design/prototypes/Sidebar.dc.html.
+ * Sidebar navigation. Labels, order and sections come from the
+ * sidebar inside design/Main.html and design/prototypes/Sidebar.dc.html;
+ * the badge counts come from the data layer (components/shell).
  * Routes come from the page map in BUILD-PLAN.md.
  */
 export type NavBadge = { count: number; tone: "quiet" | "alert" };
@@ -22,21 +23,11 @@ export const navSections: NavSection[] = [
     label: "Work",
     items: [
       { key: "home", label: "Home", href: "/", icon: "home" },
-      {
-        key: "tasks",
-        label: "My tasks",
-        href: "/tasks",
-        icon: "tasks",
-        badge: { count: 7, tone: "quiet" },
-      },
+      // My tasks, Submissions and Renewals count their badges from the records
+      // through the data layer (components/shell/CountBadges.tsx).
+      { key: "tasks", label: "My tasks", href: "/tasks", icon: "tasks" },
       { key: "intake", label: "Intake", href: "/intake", icon: "intake" },
-      {
-        key: "submissions",
-        label: "Submissions",
-        href: "/submissions",
-        icon: "submissions",
-        badge: { count: 28, tone: "quiet" },
-      },
+      { key: "submissions", label: "Submissions", href: "/submissions", icon: "submissions" },
       { key: "offers", label: "Offers & funding", href: "/offers", icon: "offers" },
     ],
   },
@@ -45,13 +36,7 @@ export const navSections: NavSection[] = [
     items: [
       { key: "merchants", label: "Merchants", href: "/merchants", icon: "merchants" },
       { key: "funded", label: "Funded deals", href: "/funded", icon: "funded" },
-      {
-        key: "renewals",
-        label: "Renewals",
-        href: "/renewals",
-        icon: "renewals",
-        badge: { count: 9, tone: "quiet" },
-      },
+      { key: "renewals", label: "Renewals", href: "/renewals", icon: "renewals" },
       // Its badge counts today's new alerts through the data layer (components/shell/StackingBadge.tsx).
       { key: "stacking", label: "Stacking Watch", href: "/stacking", icon: "stacking" },
     ],

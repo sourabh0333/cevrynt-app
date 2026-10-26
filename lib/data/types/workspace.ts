@@ -23,6 +23,10 @@ export type Workspace = {
   brandColor: string;
   /** Working hours every new deal gets for a decision. Read by Submissions and Workspace. */
   decisionTargetHours: number;
+  /** share of today's deals that should be decided in time */
+  onTimeTarget: number;
+  /** days from approval to money sent the team aims for */
+  fundTargetDays: number;
   hours: {
     /** 1 = Monday … 7 = Sunday */
     firstDay: number;

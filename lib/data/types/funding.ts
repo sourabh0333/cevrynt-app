@@ -1,4 +1,5 @@
 import type { Id, IsoDateTime, Money } from "./common";
+import type { YearMonth } from "./deal-tabs";
 
 /*
  * Offers & funding (design/Offers.html): approved offers on their way to
@@ -90,8 +91,8 @@ export type FundingSummary = {
   stageTotals: Record<OfferStage, number>;
   /** median days from offer to funded, last 30 days */
   medianDaysToFund: number;
-  fundedThisMonth: Money;
-  fundedLastMonth: Money;
+  /** money funded each month, oldest first; the last is this month */
+  fundedByMonth: { month: YearMonth; amount: Money }[];
   lost: { reason: LostReason; count: number }[];
   /** approved offers in the last 30 days */
   approved: number;

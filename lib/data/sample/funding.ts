@@ -55,8 +55,14 @@ export const fundingSummary: FundingSummary = {
   inProgress: 14,
   stageTotals: { sent: 6, accepted: 3, contract: 4, checks: 2, funded: 2 },
   medianDaysToFund: 2.6,
-  fundedThisMonth: 1_240_000,
-  fundedLastMonth: 1_107_000,
+  fundedByMonth: [
+    { month: "2026-05", amount: 780_000 },
+    { month: "2026-06", amount: 860_000 },
+    { month: "2026-07", amount: 910_000 },
+    { month: "2026-08", amount: 990_000 },
+    { month: "2026-09", amount: 1_107_000 },
+    { month: "2026-10", amount: 1_240_000 },
+  ],
   lost: [
     { reason: "other-funder", count: 4 },
     { reason: "payment", count: 2 },
