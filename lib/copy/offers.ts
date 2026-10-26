@@ -130,7 +130,7 @@ export const queueCopy = {
     fund: (n: number) => `Fund ${plural(n, "deal")}`,
     cancel: "Cancel",
     done: "Done",
-    undo: (clock: string) => `Undo · ${clock}`,
+    undo: (clock: string) => `Undo release · ${clock}`,
     closed: "Sent. References appear in Money sent today.",
   },
 };

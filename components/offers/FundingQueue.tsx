@@ -21,7 +21,7 @@ const ell = "block truncate";
  * list on the left (scrolls after three deals; the on-hold deal cannot be
  * ticked) and the "Ready to send" summary on the right. Fund moves the
  * ticked deals to awaiting release; "Release as Priya" is the second
- * person. For five minutes after the release an "Undo · m:ss" button
+ * person. For five minutes after the release an "Undo release · m:ss" button
  * returns the deals to awaiting release; once it runs out they stay
  * sent. Done only closes the message. Deals that passed their final check
  * start ticked; the undo window, cut-offs and who releases come from the
