@@ -79,7 +79,7 @@ export const positionCopy = {
     legend: { paid: "Paid", holiday: "Bank holiday", bounced: "Bounced" },
     weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     aria: (debits: number, payment: number, from: string, to: string, bounced: number) =>
-      `${debits} payments of ${money(payment)} from ${monthName(from.slice(0, 7), "long")} to ${monthName(to.slice(0, 7), "long")}, ${bounced ? `${bounced} bounced` : "none bounced"}`,
+      `${plural(debits, "payment")} of ${money(payment)} from ${monthName(from.slice(0, 7), "long")} to ${monthName(to.slice(0, 7), "long")}, ${bounced ? `${bounced} bounced` : "none bounced"}`,
     tally: (paid: number, bounced: number) => `${paid} paid · ${bounced} bounced`,
   },
 };

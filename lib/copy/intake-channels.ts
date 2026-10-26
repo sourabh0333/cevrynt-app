@@ -7,7 +7,7 @@
  * is a preview, never a working setting.
  */
 import type { ApiKey, IntakeChannelSettings, IntakeSummary, IsoDateTime } from "@/lib/data/types";
-import { dateShort, dayLabel } from "@/lib/format";
+import { dateShort, dayLabel, plural } from "@/lib/format";
 import { channelLabel } from "./intake";
 
 export type ChannelKey = "link" | "email" | "forms" | "api";
@@ -55,7 +55,7 @@ export const merchantLink = {
   ],
   /** the switches, starting from how Merchant Link is set up */
   toggles: (s: IntakeChannelSettings): Toggle[] => linkToggles.map((t) => ({ ...t, on: s.merchantLink[t.key] })),
-  expiry: (s: IntakeChannelSettings) => ({ label: "Link expires after", value: `${s.merchantLink.expiryDays} days` }),
+  expiry: (s: IntakeChannelSettings) => ({ label: "Link expires after", value: `${plural(s.merchantLink.expiryDays, "day")}` }),
 };
 
 export const emailPreview = {
@@ -133,7 +133,7 @@ export const channelPerformance = {
     const lowest = Math.min(...month.map((c) => c.funded));
     return month.map((c) => ({ channel: channelLabel[c.channel], deals: c.deals, funded: Math.round(c.funded * 100), low: c.funded === lowest }));
   },
-  barLabel: (channel: string, deals: number) => `${channel}: ${deals} deals`,
+  barLabel: (channel: string, deals: number) => `${channel}: ${plural(deals, "deal")}`,
   note: "Bulk ZIP deals fund less often, usually because folders arrive incomplete. Asking brokers for all four statements per folder could lift the rate.",
 };
 

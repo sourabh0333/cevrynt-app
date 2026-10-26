@@ -57,7 +57,7 @@ export const fundedStats = (b: FundedBook, now: IsoDateTime) => {
   const onTime = active - b.counts.late;
   return [
     { label: `Collected in ${monthName(now.slice(0, 7), "long")}`, value: moneyShort(b.collectedThisMonth), note: `${percent(b.ofSchedule)} of schedule`, tone: "grey", noteTone: "good" },
-    { label: "On time", value: percent(onTime / active), note: `${onTime} of ${active} deals`, tone: "grey" },
+    { label: "On time", value: percent(onTime / active), note: `${onTime} of ${plural(active, "deal")}`, tone: "grey" },
     { label: "Behind on payments", value: String(b.counts.late), note: `${moneyShort(b.atRisk)} at risk`, tone: "red" },
     { label: "Paid off this month", value: String(b.paidOffThisMonth), note: `${b.renewedWithYou} renewed with you`, tone: "cream", noteTone: "warn" },
   ] as { label: string; value: string; note: string; tone: "grey" | "red" | "cream"; noteTone?: "good" | "warn" }[];
@@ -222,7 +222,7 @@ export const forecastCopy = {
   week: (w: FundedBook["forecast"][number]) => ({ label: `${monthName(w.weekOf.slice(0, 7))} ${Number(w.weekOf.slice(8, 10))}`, value: moneyShort(w.expected), bar: w.height, cap: (w.atRisk / 1000) * 3 }),
   tiles: (b: FundedBook) =>
     [
-      { label: `Next ${b.forecast.length} weeks`, value: moneyShort(b.forecast.reduce((n, w) => n + w.expected, 0)) },
+      { label: `Next ${plural(b.forecast.length, "week")}`, value: moneyShort(b.forecast.reduce((n, w) => n + w.expected, 0)) },
       { label: "At risk", value: moneyShort(b.forecast.reduce((n, w) => n + w.atRisk, 0)), warn: true },
       { label: "Why it falls", value: "Advances paying off", small: true },
     ] as { label: string; value: string; warn?: boolean; small?: boolean }[],
@@ -276,7 +276,7 @@ export const returnsCopy = {
 
 export const payingOffCopy = {
   title: "Paying off in the next 30 days",
-  text: (b: FundedBook) => `${b.payingOff.count} merchants, ${moneyShort(b.payingOff.amount)} of advances ending. The best time to offer a renewal is before they finish.`,
+  text: (b: FundedBook) => `${plural(b.payingOff.count, "merchant")}, ${moneyShort(b.payingOff.amount)} of advances ending. The best time to offer a renewal is before they finish.`,
   chips: (b: FundedBook) => {
     const more = b.payingOff.count - b.payingOff.first.length;
     return [

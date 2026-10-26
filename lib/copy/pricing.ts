@@ -21,7 +21,7 @@ export const factorGrid = {
   title: "Factor rates",
   subtitle: "By underwriting score and term. Click a rate to see an example.",
   edit: "Edit grid",
-  termLabel: (m: number) => `${m} months`,
+  termLabel: (m: number) => `${plural(m, "month")}`,
   /** the top band, the bottom (approval line) band, and the ones between */
   bandSub: (i: number, count: number) => (i === 0 ? "Lowest risk" : i === count - 1 ? "Approval line" : "Most deals"),
   /** row-column of the rate selected when the page opens: 80 – 89 at 6 months */
@@ -35,7 +35,7 @@ export const rateTone = (f: number) => (f < 1.3 ? 0 : f < 1.33 ? 1 : f < 1.36 ? 
 export const example = {
   amount: 40000,
   chip: (amount: number) => `Example: ${money(amount)}`,
-  title: (band: string, term: number, factor: number) => `Score ${band}, ${term} months, factor ${factor.toFixed(2)}`,
+  title: (band: string, term: number, factor: number) => `Score ${band}, ${plural(term, "month")}, factor ${factor.toFixed(2)}`,
   tiles: { payback: "Merchant repays", daily: "Daily payment", apr: "Estimated APR", margin: "Your margin" },
   note: (points: number) => `After ${points} points broker commission. This is the price the offer builder starts from.`,
 };
@@ -71,7 +71,7 @@ export const limits = {
 export const earlyPayoffCard = {
   title: "Early payoff discount",
   text: "Factor used if everything is paid off early",
-  dayLabel: (d: number) => `${d} days`,
+  dayLabel: (d: number) => `${plural(d, "day")}`,
 };
 
 export const industryAdjustments = {

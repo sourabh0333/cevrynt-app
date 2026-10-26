@@ -112,7 +112,7 @@ export const loadSummary = (l: TaskBoard["team"][number]) =>
     `${l.open} open`,
     l.dueNow ? `${l.dueNow} due now` : "",
     l.overdue ? `${l.overdue} overdue` : "",
-    l.approvalsForMe ? `${l.approvalsForMe} ${l.approvalsForMe === 1 ? "approval" : "approvals"} for you` : "",
+    l.approvalsForMe ? `${plural(l.approvalsForMe, "approval")} for you` : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -199,7 +199,7 @@ export const tasksCopy = {
   first: (due: string) => `Do this first · ${due}`,
   markDone: "Mark done",
   undo: "Undo",
-  ringLabel: (done: number, all: number) => `${done} of ${all} tasks done today`,
+  ringLabel: (done: number, all: number) => `${done} of ${plural(all, "task")} done today`,
   ringCaption: "done today",
   counts: { now: "within the hour", today: "later today", week: "this week", waiting: "waiting on others" },
   agenda: { mine: "Your agenda", team: "Team agenda", line: (open: number, urgent: number) => `${open} open · ${urgent} due within the hour` },

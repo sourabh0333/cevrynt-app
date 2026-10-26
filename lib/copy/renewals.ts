@@ -198,7 +198,7 @@ export const readyRules = {
   // The same saved rules Settings › Renewal rules edits.
   rules: (r: RenewalRules) => [
     { label: "Repaid at least", value: `${r.paid}%` },
-    { label: `Returned payments in ${r.ret} days`, value: "0" },
+    { label: `Returned payments in ${plural(r.ret, "day")}`, value: "0" },
     { label: "Revenue vs at funding", value: `${r.rev}%` },
     { label: "New advances elsewhere", value: "0" },
   ],

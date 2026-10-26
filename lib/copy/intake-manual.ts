@@ -6,7 +6,7 @@
  * changing the policy changes the check.
  */
 import type { IsoDateTime, ManualDraft, ManualLead, Policy } from "@/lib/data/types";
-import { clockTime, monthName, WORKSPACE_TIME_ZONE } from "@/lib/format";
+import { clockTime, monthName, plural, WORKSPACE_TIME_ZONE } from "@/lib/format";
 
 export type FitPolicy = Pick<Policy, "minBusinessMonths" | "maxRevenueMultiple" | "maxPositions" | "restrictedIndustries" | "approvedIndustries" | "requiredStatementMonths">;
 
@@ -52,8 +52,8 @@ function spanText(n: number) {
   const y = Math.floor(n / 12);
   const m = n % 12;
   const parts = [];
-  if (y) parts.push(`${y} year${y === 1 ? "" : "s"}`);
-  if (m || !y) parts.push(`${m} month${m === 1 ? "" : "s"}`);
+  if (y) parts.push(plural(y, "year"));
+  if (m || !y) parts.push(plural(m, "month"));
   return parts.join(" ");
 }
 
@@ -62,7 +62,7 @@ const stem = (s: string) => s.toLowerCase().replace(/s$/, "");
 
 export function runChecks(lead: ManualLead, policy: FitPolicy, now: IsoDateTime): { checks: Check[]; fits: boolean } {
   const checks: Check[] = [];
-  const months = (n: number) => `${n} months`;
+  const months = (n: number) => `${plural(n, "month")}`;
 
   const ind = lead.business.industry.trim().toLowerCase();
   if (!ind) checks.push({ key: "industry", status: "pending", title: "Industry", detail: "Type the industry to check it" });
@@ -98,7 +98,7 @@ export function runChecks(lead: ManualLead, policy: FitPolicy, now: IsoDateTime)
   const n = lead.request.hasPositions ? lead.request.positions.filter((p) => p.funder.trim()).length : 0;
   if (n === 0) checks.push({ key: "positions", status: "good", title: "No existing positions", detail: "Nothing disclosed; the statements will confirm it" });
   else if (n <= policy.maxPositions)
-    checks.push({ key: "positions", status: "warn", title: `${n} existing position${n === 1 ? "" : "s"}`, detail: "Allowed, but will be checked against the statements" });
+    checks.push({ key: "positions", status: "warn", title: plural(n, "existing position"), detail: "Allowed, but will be checked against the statements" });
   else checks.push({ key: "positions", status: "bad", title: `${n} existing positions`, detail: `Policy allows up to ${policy.maxPositions}` });
 
   if (lead.documents.merchantLinkSent)
@@ -150,7 +150,7 @@ export function requiredDocs(draft: ManualDraft, policy: FitPolicy, now: IsoDate
   const statements = got("statements")?.received ?? 0;
   const app = got("application");
   return [
-    { id: "statements", title: `Bank statements, last ${need} months`, note: statementSpan(need, now), ...status(statements, need) },
+    { id: "statements", title: `Bank statements, last ${plural(need, "month")}`, note: statementSpan(need, now), ...status(statements, need) },
     { id: "application", title: "Signed application", note: app?.file ?? "Not received yet", ...status(app?.received ?? 0, 1) },
     { id: "id", title: "Owner photo ID", note: "Checked with a selfie through Merchant Link", ...status(got("id")?.received ?? 0, 1) },
     { id: "check", title: "Voided check", note: "Or connect the bank account instead", ...status(got("check")?.received ?? 0, 1) },

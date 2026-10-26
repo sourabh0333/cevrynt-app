@@ -6,6 +6,7 @@ import { Ring } from "@/components/ui/Ring";
 import { languages, merchantLinkCopy, minutesLeft, type Lang, type LinkStepView as LinkStep } from "@/lib/copy/merchant-link";
 import { telHref } from "@/lib/copy/public";
 import type { MerchantLinkData } from "@/lib/data/views/public";
+import { plural } from "@/lib/format";
 
 const chipTone = {
   done: "bg-mint-bg text-teal-dark",
@@ -95,7 +96,7 @@ export function MerchantLinkView({ data }: { data: MerchantLinkData }) {
           aria-labelledby="h-hi"
           className="flex flex-wrap items-center gap-6 rounded-[32px] border border-mint-border bg-mint-card p-7 max-[900px]:gap-4 max-[900px]:rounded-card max-[900px]:p-5"
         >
-          <Ring value={(doneCount / total) * 100} size={112} stroke={11} color="teal" track="tile" ariaLabel={`${doneCount} of ${total} steps done`}>
+          <Ring value={(doneCount / total) * 100} size={112} stroke={11} color="teal" track="tile" ariaLabel={`${doneCount} of ${plural(total, "step")} done`}>
             <span className="text-center">
               <b className="block font-heading text-[28px] leading-none font-semibold tabular-nums tracking-[-0.03em] text-ink">
                 {doneCount}/{total}

@@ -7,7 +7,7 @@
  */
 import type { DealCashFlow, DealOffer } from "@/lib/data/types";
 import type { CollectFrom, Frequency } from "@/lib/offer-math";
-import { money, moneyShort, percent, timeOfDay } from "@/lib/format";
+import { money, moneyShort, percent, timeOfDay, plural } from "@/lib/format";
 
 const firstWord = (s: string) => s.split(" ")[0];
 const firstName = firstWord;
@@ -90,7 +90,7 @@ export const earlyPayoffCard = {
   title: "Early payoff discount",
   subtitle: (owner: { name: string; subject: string }) => `What ${firstName(owner.name)} would owe in total if ${owner.subject} pays everything off early`,
   link: { label: "Edit discount table", href: "/settings/pricing" },
-  within: (days: number) => `Within ${days} days`,
+  within: (days: number) => `Within ${plural(days, "day")}`,
   fullTerm: "Full term",
   saves: (amount: string) => `Saves ${amount}`,
   noDiscount: "No discount",
@@ -110,7 +110,7 @@ export const offerHistory = {
     e.kind === "asked"
       ? `${e.by ?? ""} · on the application, ${timeOfDay(e.at)}`
       : e.factor !== undefined && e.termMonths !== undefined
-        ? `${e.factor.toFixed(2)} factor, ${e.termMonths} months · ${timeOfDay(e.at)}`
+        ? `${e.factor.toFixed(2)} factor, ${plural(e.termMonths, "month")} · ${timeOfDay(e.at)}`
         : timeOfDay(e.at),
   /** Cevrynt's and our own rounds are teal; the broker's are grey */
   tone: (e: OfferEvent): "grey" | "teal" => (e.kind === "asked" || e.kind === "countered" ? "grey" : "teal"),
@@ -153,7 +153,7 @@ export const sendOffer = {
     { kind: "SIGN", label: "Agreement, guarantee, payment authorization" },
   ],
   to: { label: "To", value: "Broker and merchant" },
-  expires: { label: "Offer expires", value: (hours: number) => `In ${hours} hours` },
+  expires: { label: "Offer expires", value: (hours: number) => `In ${plural(hours, "hour")}` },
   approval: {
     ok: "Within your approval limit. Sends straight away.",
     senior: (limit: number, senior: string) => `Above ${moneyShort(limit)}, so ${senior} (senior) approves before it is sent.`,

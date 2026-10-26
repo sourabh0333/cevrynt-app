@@ -116,7 +116,7 @@ export function merchantLinkCopy(d: MerchantLinkData) {
       help: "Need help?",
       status: { done: "Done", optional: "Optional", next: "Next", todo: "To do" },
       headline: { working: `Hi ${merchant.first}, you’re nearly there`, finished: `All done, ${merchant.first}!` },
-      subline: (n) => `${n} quick ${n === 1 ? "step" : "steps"} left for your ${funder} application.`,
+      subline: (n) => `${plural(n, "quick step")} left for your ${funder} application.`,
       finished: `${underwriter} has everything she needs and will be in touch today.`,
       continueTo: (step) => `Continue: ${step}`,
     },

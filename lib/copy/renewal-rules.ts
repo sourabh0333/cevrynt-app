@@ -6,7 +6,7 @@
  * them. The readiness check itself is lib/renewal-rules.ts.
  */
 import type { OutreachKind, Pricing, RenewalSettings } from "@/lib/data/types";
-import { percent } from "@/lib/format";
+import { percent, plural } from "@/lib/format";
 import { POOL_MIN_PAID } from "@/lib/renewal-rules";
 
 export const renewalRulesHeader = {
@@ -26,7 +26,7 @@ export const whoIsReady = {
   ] as { key: "paid" | "ret" | "rev" | "score"; label: string }[],
   text: {
     paid: (v: number) => `${v}%`,
-    ret: (v: number) => (v ? `${v} days` : "Any time"),
+    ret: (v: number) => (v ? `${plural(v, "day")}` : "Any time"),
     rev: (v: number) => `${v}%`,
     score: (v: number) => String(v),
   },
@@ -37,7 +37,7 @@ export const whoIsReady = {
 
 export const readyPanel = {
   title: "Ready with these rules",
-  of: (ready: number, pool: number) => `${ready} of ${pool} merchants who are at least ${POOL_MIN_PAID}% repaid`,
+  of: (ready: number, pool: number) => `${ready} of ${plural(pool, "merchant")} who are at least ${POOL_MIN_PAID}% repaid`,
   ready: "Ready",
   listSize: 8,
   change: {
@@ -95,7 +95,7 @@ export const approval = {
     title: "Limits",
     text: "Healthy renewals for the merchant",
     rows: (l: RenewalSettings["limits"]) => [
-      { label: "Offer valid for", value: `${l.offerValidDays} days` },
+      { label: "Offer valid for", value: `${plural(l.offerValidDays, "day")}` },
       { label: "Time between renewals", value: `${l.minDaysBetween}+ days` },
       { label: "Renewals in a row", value: `Review after ${l.reviewAfter}` },
       { label: "New cash to merchant", value: `At least ${percent(l.minNewCash)}` },

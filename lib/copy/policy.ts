@@ -11,7 +11,7 @@ import type { SimInput, SimTile, SimVerdict } from "@/lib/policy-sim";
 export const policyHeader = {
   live: (version: number) => `Live · version ${version}`,
   title: "Underwriting policy",
-  text: (rules: number) => `${rules} rules, written in plain language. Every deal is checked against them, and every decision shows which rule passed or failed.`,
+  text: (rules: number) => `${plural(rules, "rule")}, written in plain language. Every deal is checked against them, and every decision shows which rule passed or failed.`,
   upload: "Upload policy file",
   published: "Published",
   publishNext: (version: number) => `Publish as version ${version}`,
@@ -28,7 +28,7 @@ export const rulesCard = {
   title: "Rules",
   subtitle: "Green values can be changed. What happens when a rule fails is on the right.",
   add: "+ Add rule",
-  count: (n: number) => `${n} rules`,
+  count: (n: number) => `${plural(n, "rule")}`,
 };
 
 export const ruleGroups: { title: string; ids: RuleId[] }[] = [

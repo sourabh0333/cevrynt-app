@@ -98,7 +98,7 @@ export const brokerView = (b: BrokerRow, d: Pick<BrokersData, "fundedToday" | "b
   owed: money(commissionOf(b, d).owed),
   weeks: b.weeklySubmissions,
   why: b.declineReasons.map((r) => ({ reason: r.reason, count: r.count, fraud: !!r.fraud })),
-  rights: b.renewalRightsMonths ? `Keeps renewals for ${b.renewalRightsMonths} months` : "None while on watch",
+  rights: b.renewalRightsMonths ? `Keeps renewals for ${plural(b.renewalRightsMonths, "month")}` : "None while on watch",
   note: b.note.text,
   t: noteTone[b.note.tone],
 });
@@ -212,7 +212,7 @@ export const appetite = {
     { label: "Monthly revenue", value: `${moneyShort(p.minMonthlyRevenue)} and up`, left: (p.minMonthlyRevenue / REVENUE_SCALE) * 100, right: 0 },
   ],
   facts: ({ policy: p }: BrokersData) => [
-    { label: "In business", value: `${p.minBusinessMonths} months+` },
+    { label: "In business", value: `${plural(p.minBusinessMonths, "month")}+` },
     { label: "Open positions", value: `Up to ${p.maxPositions}` },
   ],
   notFunded: "Not funded: ",

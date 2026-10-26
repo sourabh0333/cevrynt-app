@@ -18,7 +18,7 @@ const isToday = (at: IsoDateTime, now: IsoDateTime) => daysBetween(now, at) === 
 
 export const offersHeader = {
   title: "Offers & funding",
-  line: (inProgress: number, expireToday: number) => `${inProgress} deals between yes and money sent · ${plural(expireToday, "offer")} expire today`,
+  line: (inProgress: number, expireToday: number) => `${plural(inProgress, "deal")} between yes and money sent · ${plural(expireToday, "offer")} expire today`,
 };
 
 /** Money funded this month and last, from the monthly history. Home and Reports read the same. */
@@ -120,7 +120,7 @@ export const queueCopy = {
   summary: {
     label: "Send summary",
     caption: "Ready to send",
-    selected: (n: number) => `${n} deals selected`,
+    selected: (n: number) => `${plural(n, "deal")} selected`,
     note: (undoMinutes: number, releaser: string) => ({
       ready: `A second person must release every payment. Undo within ${plural(undoMinutes, "minute")}.`,
       pending: "Waiting for a second person to release the money.",

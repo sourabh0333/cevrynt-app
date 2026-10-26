@@ -20,7 +20,7 @@ export const usageByChannel = (month: IntakeSummary["month"]) => month.map((c) =
 export const planHeader = (p: Plan, used: number) => ({
   chip: `${p.current.name} plan`,
   price: `${money(p.current.monthly)} a month`,
-  text: `Renews ${dateShort(p.renewsAt)} · ${p.current.deals} deals and ${p.current.seats} seats included · works out to about ${costPerDeal(p, used)} a deal`,
+  text: `Renews ${dateShort(p.renewsAt)} · ${plural(p.current.deals, "deal")} and ${plural(p.current.seats, "seat")} included · works out to about ${costPerDeal(p, used)} a deal`,
   compare: "Compare plans",
   talk: "Talk to us",
 });
@@ -81,7 +81,7 @@ export const overage = (p: Plan) => ({
   extra: (cap: number) => (cap ? `then up to ${Math.floor(cap / p.extraDeal)} extra` : "no extra deals"),
   capText: (cap: number) => (cap ? `$${cap}` : "No extra deals"),
   note: (cap: number) => (cap ? `Up to ${Math.floor(cap / p.extraDeal)} extra deals, then new deals wait until next month` : `New deals wait once you reach ${p.current.deals}`),
-  barLabel: (used: number, left: number, cap: number) => `${used} deals used, ${left} left${cap ? `, then up to ${Math.floor(cap / p.extraDeal)} extra` : ""}`,
+  barLabel: (used: number, left: number, cap: number) => `${plural(used, "deal")} used, ${left} left${cap ? `, then up to ${Math.floor(cap / p.extraDeal)} extra` : ""}`,
 });
 
 export const channelCard = {

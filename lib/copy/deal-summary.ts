@@ -53,7 +53,7 @@ export const keyNumbersCopy = {
     found: (n: number) => `${n} found`,
     nsfs: "NSFs",
     belowZero: "below $0",
-    note: (clean: number, months: number) => `${clean} of ${months} months clean`,
+    note: (clean: number, months: number) => `${clean} of ${plural(months, "month")} clean`,
   },
   debt: {
     label: "Existing debt",
@@ -105,7 +105,7 @@ export const revenueChartCopy = {
   bal: {
     avg: { cap: "Avg daily balance" },
     low: { cap: "Lowest balance", hint: (at: string, after: string) => `${dateShort(at)}, after ${after}` },
-    below: { cap: "Days below zero", hint: (months: number, nsfs: number) => (nsfs ? `${plural(nsfs, "NSF")} in ${months} months` : `No NSFs in ${months} months`) },
+    below: { cap: "Days below zero", hint: (months: number, nsfs: number) => (nsfs ? `${plural(nsfs, "NSF")} in ${plural(months, "month")}` : `No NSFs in ${plural(months, "month")}`) },
     avgText: (avg: number) => `Avg ${moneyK(avg)}`,
     lowText: (low: number, at: string) => `Low ${moneyK(low)} · ${dateShort(at)}`,
     aria: (first: string, last: string, avg: number, low: number, at: string, below: number) =>

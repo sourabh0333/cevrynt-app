@@ -278,7 +278,7 @@ export function homeCards(d: HomeData): HomeCards {
   return {
     header: {
       greeting: `Good ${partOfDay(now)}, ${firstName(me.name)}`,
-      queueLine: `${d.myDeals.length} deals in your queue · open submissions`,
+      queueLine: `${plural(d.myDeals.length, "deal")} in your queue · open submissions`,
       queueHref: "/submissions",
       searchPlaceholder: "Search deals, merchants, pages",
     },
@@ -431,7 +431,7 @@ export function homeCards(d: HomeData): HomeCards {
           label: "Approval to funded",
           aside: d.funding.medianDaysToFund > d.workspace.fundTargetDays ? "Slower than target" : "On target",
           asideTone: d.funding.medianDaysToFund > d.workspace.fundTargetDays ? "slow" : "good",
-          value: `${d.funding.medianDaysToFund} days`,
+          value: `${plural(d.funding.medianDaysToFund, "day")}`,
           note: "Most delay is open stips and unsigned contracts.",
         },
       ],
@@ -473,7 +473,7 @@ export function homeCards(d: HomeData): HomeCards {
           case "audit":
             return { id: a.id, kind: "check" as const, title: capitalize(a.what.replace(/^Marked /, "")), detail: ` ${shortName(a.merchant)}, ${a.summary} · by ${a.by}`, when };
           case "upload":
-            return { id: a.id, kind: "upload" as const, title: "Documents received", detail: ` ${shortName(a.merchant)} uploaded ${a.files} statements via ${channelLabel[a.channel as keyof typeof channelLabel]}`, when };
+            return { id: a.id, kind: "upload" as const, title: "Documents received", detail: ` ${shortName(a.merchant)} uploaded ${plural(a.files, "statement")} via ${channelLabel[a.channel as keyof typeof channelLabel]}`, when };
           case "broker-message":
             return { id: a.id, kind: "message" as const, title: "Broker message", detail: ` ${a.broker} replied on ${a.merchant}`, when };
         }

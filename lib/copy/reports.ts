@@ -8,7 +8,7 @@
  */
 import type { ReportPeriod, ReportSnapshot, RulePerformance } from "@/lib/data/types";
 import type { ReportsData } from "@/lib/data/views/reports";
-import { moneyK, moneyShort, monthName, percent } from "@/lib/format";
+import { moneyK, moneyShort, monthName, percent, plural } from "@/lib/format";
 import { hoursAndMinutes } from "./deal";
 import { monthFunding } from "./offers";
 
@@ -37,7 +37,7 @@ export const fundedAmount = (n: number) => (n >= 1_000_000 ? `$${String(Number((
 
 const MINUS = "−";
 const signed = (n: number, unit: string) => (n === 0 ? "Flat" : `${n > 0 ? "+" : MINUS}${Math.abs(n)}${unit}`);
-const pts = (n: number) => (n === 0 ? "Flat" : `${n > 0 ? "+" : MINUS}${Math.abs(n)} ${Math.abs(n) === 1 ? "pt" : "pts"}`);
+const pts = (n: number) => (n === 0 ? "Flat" : `${n > 0 ? "+" : MINUS}${plural(Math.abs(n), "pt")}`);
 const timeChange = (n: number) => (n === 0 ? "Flat" : `${n > 0 ? "+" : MINUS}${Math.abs(n) < 60 ? `${Math.abs(n)} min` : hoursAndMinutes(Math.abs(n))}`);
 const whole = (share: number) => Math.round(share * 100);
 
@@ -148,13 +148,13 @@ export function declines(month: ReportSnapshot, d: Pick<ReportsData, "book" | "p
     revenue: `Revenue at least ${moneyShort(p.minMonthlyRevenue)} a month`,
     positions: `No more than ${p.maxPositions} open positions`,
     integrity: "Integrity checks pass",
-    age: `At least ${p.minBusinessMonths} months in business`,
+    age: `At least ${plural(p.minBusinessMonths, "month")} in business`,
     industry: "Industry not restricted",
     debt: `Debt under ${percent(p.maxDebtShare)} of revenue`,
   };
   const action = (r: RulePerformance) => {
-    if (r.rule === "positions" && r.simulate !== undefined) return { label: `Simulate ${r.simulate} position${r.simulate === 1 ? "" : "s"}`, href: "/settings/policy" };
-    if (r.rule === "age" && r.simulate !== undefined) return { label: `Simulate ${r.simulate} months`, href: "/settings/policy" };
+    if (r.rule === "positions" && r.simulate !== undefined) return { label: `Simulate ${plural(r.simulate, "position")}`, href: "/settings/policy" };
+    if (r.rule === "age" && r.simulate !== undefined) return { label: `Simulate ${plural(r.simulate, "month")}`, href: "/settings/policy" };
     if (r.rule === "debt" && p.draftDebtShare !== null) return { label: `Simulate ${percent(p.draftDebtShare)}`, href: "/settings/policy" };
     return viewDeals;
   };
@@ -184,7 +184,7 @@ export function declines(month: ReportSnapshot, d: Pick<ReportsData, "book" | "p
 
 export type UnitTone = "ink" | "red-bar" | "red" | "grey-dot" | "teal";
 
-const cents = (n: number) => `${n} ${n === 1 ? "cent" : "cents"}`;
+const cents = (n: number) => plural(n, "cent");
 
 /** What every $1 funded earns: the average factor back, less Pricing's broker points, losses and costs. */
 export function unitEconomics(d: Pick<ReportsData, "book" | "brokerPoints" | "costPerDeal">) {
@@ -214,7 +214,7 @@ export function unitEconomics(d: Pick<ReportsData, "book" | "brokerPoints" | "co
     facts: [
       { label: "Average deal", value: moneyK(u.averageDeal) },
       { label: "Average factor", value: u.averageFactor.toFixed(2) },
-      { label: "Average term", value: `${u.averageTermMonths} months` },
+      { label: "Average term", value: `${plural(u.averageTermMonths, "month")}` },
       { label: "Cevrynt cost per deal", value: d.costPerDeal },
     ],
   };

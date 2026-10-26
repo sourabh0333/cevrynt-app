@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { findDuplicate, manualCopy, manualSteps, requiredDocs as requiredDocsFor, runChecks, useOfFunds, type RequiredDocView, type Status } from "@/lib/copy/intake-manual";
 import type { ManualDraft, ManualLead } from "@/lib/data/types";
 import type { ManualLeadData } from "@/lib/data/views/intake";
+import { plural } from "@/lib/format";
 
 type Position = ManualLead["request"]["positions"][number];
 
@@ -486,7 +487,7 @@ function StepReview({ lead, set, goto, docsReceived }: { lead: ManualLead; set: 
           <div className="flex justify-between"><span className="text-cap font-semibold uppercase text-hint">Request</span><EditButton onClick={() => goto(2)} /></div>
           <b className="mt-1.5 block font-heading text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{r.amount}</b>
           <span className="text-[12.5px] text-hint">
-            {r.uses.length ? r.uses.map((u, i) => (i ? u.toLowerCase() : u)).join(", ") : "No use of funds"} · {nPos} position{nPos === 1 ? "" : "s"} disclosed
+            {r.uses.length ? r.uses.map((u, i) => (i ? u.toLowerCase() : u)).join(", ") : "No use of funds"} · {plural(nPos, "position")} disclosed
             <br />
             {r.broker ? `${r.broker} · ${r.commission}` : "Direct merchant"}
           </span>

@@ -7,7 +7,7 @@
  */
 import type { AlertKind, AlertSeverity, AutoRule, IsoDateTime, StackingAlert, StackingSummary } from "@/lib/data/types";
 import type { AlertRow, AlertStage } from "@/lib/data/views/stacking";
-import { daysBetween, moneyShort, monthName, percent, timeOfDay } from "@/lib/format";
+import { daysBetween, moneyShort, monthName, percent, timeOfDay, plural } from "@/lib/format";
 
 const numberWords = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const inWords = (n: number) => numberWords[n] ?? String(n);
@@ -21,7 +21,7 @@ const watchedCount = (s: StackingSummary) => s.watched.full + s.watched.partial;
 
 export const stackingHeader = {
   title: "Stacking Watch",
-  line: (fresh: number, s: StackingSummary) => `${fresh} new alert${fresh === 1 ? "" : "s"} · watching ${watchedCount(s)} merchants every day`,
+  line: (fresh: number, s: StackingSummary) => `${plural(fresh, "new alert")} · watching ${watchedCount(s)} merchants every day`,
 };
 
 export const summaryCopy = {
@@ -83,7 +83,7 @@ export function seenLabel(at: IsoDateTime, now: IsoDateTime) {
   const days = daysBetween(at, now);
   if (days === 0) return `Today ${timeOfDay(at)}`;
   if (days === 1) return `Yesterday ${timeOfDay(at)}`;
-  return `${days} days ago`;
+  return `${plural(days, "day")} ago`;
 }
 
 export const alertTabs: { key: AlertTab; label: string }[] = [
@@ -180,8 +180,8 @@ export const coverage = {
   text: "New funder debits only show up for merchants with a live bank connection.",
   full: "Full watch, bank connected",
   partial: "Filings and credit only",
-  barLabel: (s: StackingSummary) => `${s.watched.full} merchants on full watch, ${s.watched.partial} on filings and credit only`,
-  cta: (s: StackingSummary) => `Ask ${s.watched.partial} merchants to connect`,
+  barLabel: (s: StackingSummary) => `${plural(s.watched.full, "merchant")} on full watch, ${s.watched.partial} on filings and credit only`,
+  cta: (s: StackingSummary) => `Ask ${plural(s.watched.partial, "merchant")} to connect`,
 };
 
 export const stackingSections = { glance: "Stacking Watch at a glance", connections: "Hidden connections and this month", rules: "Automatic rules and coverage" };

@@ -83,7 +83,7 @@ export type FlowCard = {
 
 export const intakeHeader = {
   title: "Intake",
-  line: (total: number) => `${total} deals arrived today · see recent`,
+  line: (total: number) => `${plural(total, "deal")} arrived today · see recent`,
   lineHref: "#recent",
 };
 
@@ -164,7 +164,7 @@ export const channels = {
 
 export const todayByChannel = {
   title: "Today by channel",
-  subtitle: (total: number) => `${total} deals since midnight`,
+  subtitle: (total: number) => `${plural(total, "deal")} since midnight`,
   /** a channel's share of today's deals, in whole percent */
   percent: (count: number, total: number) => (total ? Math.round((count / total) * 100) : 0),
 };
@@ -327,7 +327,7 @@ export const bulkCopy = {
     link: { label: "See all batches", href: "/submissions" },
     steps: (e: BulkIntake["earlier"]) => [
       { n: "01", label: "Uploaded" },
-      { n: "02", label: `Sorted ${e.files} files` },
+      { n: "02", label: `Sorted ${plural(e.files, "file")}` },
       { n: "03", label: `Matched ${plural(e.matched, "business", "businesses")}` },
       { n: "04", label: "Fit checked" },
       { n: "05", label: `${plural(e.created, "deal")} in queue`, done: true },

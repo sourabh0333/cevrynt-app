@@ -43,13 +43,13 @@ export const statementsCopy = {
   holderCap: "Account holder",
   match: "Matches application",
   noMatch: "Name differs from application",
-  coverage: { label: "Coverage", value: (n: number) => `${n} of ${n} months · no gaps` },
+  coverage: { label: "Coverage", value: (n: number) => `${n} of ${plural(n, "month")} · no gaps` },
   monthAria: "Reconciled",
-  pages: (n: number) => `${n} pages`,
+  pages: (n: number) => `${plural(n, "page")}`,
   quality: (balancesMatch: boolean, lines: number, toReview: number) => [
     balancesMatch ? "Balances match" : "Balances don't match",
     `${lines.toLocaleString("en-US")} lines read`,
-    `${toReview} lines need review`,
+    `${plural(toReview, "line")} need review`,
   ],
   actions: { primary: "Connect bank to verify", secondary: "Add statement" },
 };
@@ -77,15 +77,15 @@ export const roomToPayCopy = {
 
 export const weeklyCopy = {
   title: "Cash in and out, week by week",
-  subtitle: (weeks: number) => `${weeks} weeks · money in above the line, money out below`,
+  subtitle: (weeks: number) => `${plural(weeks, "week")} · money in above the line, money out below`,
   legend: { in: "In", out: "Out", net: "Net" },
   aria: (first: string, last: string, more: number, weeks: number, relatedAt: string, related: number) =>
-    `Weekly money in and money out from ${monthName(first, "long")} to ${monthName(last, "long")}. In and out stay close, more comes in than goes out in ${more} of ${weeks} weeks. The ${dateLong(relatedAt)} week includes the ${moneyShort(related)} related-business transfer.`,
+    `Weekly money in and money out from ${monthName(first, "long")} to ${monthName(last, "long")}. In and out stay close, more comes in than goes out in ${more} of ${plural(weeks, "week")}. The ${dateLong(relatedAt)} week includes the ${moneyShort(related)} related-business transfer.`,
   flag: (amount: number) => `+${moneyShort(amount)} related`,
   stats: {
     more: { label: "Weeks with more in than out", value: (more: number, weeks: number) => `${more} of ${weeks}` },
     drop: { label: "Biggest weekly drop", value: (amount: number) => `−${moneyK(amount)}` },
-    cushion: { label: "Cash cushion", value: (days: number) => `${days} days` },
+    cushion: { label: "Cash cushion", value: (days: number) => `${plural(days, "day")}` },
   },
 };
 
@@ -141,7 +141,7 @@ export const formatAmount = (n: number) => (n < 0 ? "−$" : "+$") + Math.abs(n)
 
 export const transactionsCopy = {
   title: "Transactions",
-  hint: (lines: number, statements: number) => `${lines.toLocaleString("en-US")} lines from ${statements} statements. Click any line to see it on the statement page.`,
+  hint: (lines: number, statements: number) => `${lines.toLocaleString("en-US")} lines from ${plural(statements, "statement")}. Click any line to see it on the statement page.`,
   searchLabel: "Search transactions",
   searchPlaceholder: "Search description or amount",
   filterLabel: "Show",

@@ -7,7 +7,7 @@
  */
 import type { AuditCategory, AuditLog, IsoDateTime, TeamMember } from "@/lib/data/types";
 import type { AuditData, AuditRow } from "@/lib/data/views/settings";
-import { dateShort, dayLabel, daysBetween, money, moneyShort, timeOfDay } from "@/lib/format";
+import { dateShort, dayLabel, daysBetween, money, moneyShort, timeOfDay, plural } from "@/lib/format";
 import { firstName, roleNames } from "./team";
 
 export const categoryLabel: Record<AuditCategory, string> = {
@@ -98,7 +98,7 @@ export function auditEntryView(r: AuditRow): AuditEntryView {
       return {
         id: r.id, at: r.at, time: timeOfDay(r.at), actor: cevrynt, category: "decision",
         what: `Suggested approve ${money(r.deal.recommended ?? 0)}`, object: r.deal.merchantName, where: "Automatic",
-        note: `Score ${r.deal.score}, policy v${r.policyVersion}, all ${r.rulesMet} rules met. A person makes the final decision.`,
+        note: `Score ${r.deal.score}, policy v${r.policyVersion}, all ${plural(r.rulesMet, "rule")} met. A person makes the final decision.`,
         link: { href: `/deals/${r.deal.id}/decision`, label: "Open Decision & memo" },
       };
     case "event":

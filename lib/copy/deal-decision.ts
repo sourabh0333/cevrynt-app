@@ -38,13 +38,13 @@ export const decisionCard = {
     label: "Terms",
     none: "No offer",
     noneSub: "Broker gets the reasons below",
-    line: (factor: number, term: number) => `${factor.toFixed(2)} factor · ${term} months`,
+    line: (factor: number, term: number) => `${factor.toFixed(2)} factor · ${plural(term, "month")}`,
     sub: (f: OfferFigures, bank: DealCashFlow["bank"]) => `${f.payment} ${f.per} from ${accountLabel(bank)}`,
   },
   counter: {
     title: "Counter-offer terms",
     fields: { amount: "Amount", factor: "Factor", term: "Term" },
-    term: (months: number) => `${months} months`,
+    term: (months: number) => `${plural(months, "month")}`,
     note: "The broker can accept, or send their own counter. It shows in Offer history.",
   },
   conditions: {
@@ -93,7 +93,7 @@ export const decisionCard = {
     steps: (out: Outcome, p: Parties): string[] => {
       const to = `${p.broker} and ${firstName(p.owner)}`;
       return {
-        approve: [`Offer goes to ${to}, valid for ${p.validHours} hours`, `Conditions & stips keeps track of the ${p.openItems} open items`, "Stacking Watch keeps checking until funding"],
+        approve: [`Offer goes to ${to}, valid for ${plural(p.validHours, "hour")}`, `Conditions & stips keeps track of the ${p.openItems} open items`, "Stacking Watch keeps checking until funding"],
         conditions: [`Offer with your extra conditions goes to ${to}`, "New conditions are added to Conditions & stips", "Stacking Watch keeps checking until funding"],
         counter: [`Counter-offer goes to ${p.broker} for a response`, "Offer history shows every round", "The deal stays in your queue until they reply"],
         decline: [`Decline notice goes to ${p.broker} with the reasons`, "The deal moves to closed, and can be reopened if new documents arrive", "Stacking Watch stops for this merchant"],
@@ -183,14 +183,14 @@ export const memo = {
   summary: (x: { merchant: string; requested: number; f: OfferFigures; factor: number; term: number; score: number; risk: string; met: number; total: number }) => ({
     before: `${x.merchant} asks for ${money(x.requested)}. We recommend `,
     bold: `approving ${x.f.amount}`,
-    after: ` at a ${x.factor.toFixed(2)} factor over ${x.term} months (${x.f.payment} ${x.f.per}). Score ${x.score}, fraud risk ${x.risk}, ${
+    after: ` at a ${x.factor.toFixed(2)} factor over ${plural(x.term, "month")} (${x.f.payment} ${x.f.per}). Score ${x.score}, fraud risk ${x.risk}, ${
       x.met === x.total ? "all policy rules met" : `${x.met} of ${x.total} policy rules met`
     }.`,
   }),
   debt: (positions: DealPosition[], f: OfferFigures, maxShare: number) =>
     `${advancesLine(positions)} After our offer, all debt payments take ${f.share} of revenue against a ${percent(maxShare)} limit.`,
   recommendation: (f: OfferFigures, factor: number, term: number, freq: "daily" | "weekly", bank: DealCashFlow["bank"], open: string[]) =>
-    `Approve ${f.amount}, ${factor.toFixed(2)} factor, ${term} months, ${freq} ACH from ${accountLabel(bank)}. Conditions: ${[...open.map(lowerFirst), "final checks before funding"].join(", ")}.`,
+    `Approve ${f.amount}, ${factor.toFixed(2)} factor, ${plural(term, "month")}, ${freq} ACH from ${accountLabel(bank)}. Conditions: ${[...open.map(lowerFirst), "final checks before funding"].join(", ")}.`,
 };
 
 export const signOff = {

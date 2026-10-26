@@ -5,7 +5,7 @@
  * plain things people read: initials, years in business, "4 of 4".
  */
 import type { DealBusiness, IsoDateTime, YearMonth } from "@/lib/data/types";
-import { dateFull, dateShort, monthName } from "@/lib/format";
+import { dateFull, dateShort, monthName, plural } from "@/lib/format";
 
 const monthAndYear = (m: YearMonth) => `${monthName(m)} ${m.slice(0, 4)}`;
 const firstName = (name: string) => name.split(" ")[0];
@@ -35,7 +35,7 @@ export const businessCopy = {
   chip: (b: DealBusiness) => (b.registry.active ? (b.registry.goodStanding ? "Active · good standing" : "Active · not in good standing") : "Not active"),
   entity: (b: DealBusiness) => `${b.registry.entityType} · ${b.registry.state} · charter ${b.registry.charter}`,
   ageLabel: "In business",
-  age: (years: number) => `${years} ${years === 1 ? "yr" : "yrs"}`,
+  age: (years: number) => plural(years, "yr"),
   tiles: (b: DealBusiness, industryAllowed: boolean): DetailTile[] => [
     { label: "Formed", value: dateFull(b.registry.formedAt) },
     { label: "Registered agent", value: b.registry.agent },
@@ -95,7 +95,7 @@ export const ownerCopy = {
   related: {
     title: (name: string) => `Also owns ${name}`,
     text: (r: NonNullable<DealBusiness["related"]>) =>
-      `${r.note} Active since ${r.since}, ${r.openDeals ? `${r.openDeals} open ${r.openDeals === 1 ? "deal" : "deals"}` : "no open deals"} with you.`,
+      `${r.note} Active since ${r.since}, ${r.openDeals ? plural(r.openDeals, "open deal") : "no open deals"} with you.`,
     link: "See the transfer",
   },
 };

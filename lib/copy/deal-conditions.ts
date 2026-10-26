@@ -7,7 +7,7 @@
  */
 import type { CheckState, ConditionParty, DealCheckSet, DealChecks, DealCondition, DealConditions } from "@/lib/data/types";
 import { waitingConditions, type Got, type Waived } from "@/lib/deal-conditions";
-import { dateShort, moneyShort, timeOfDay, weekdayLong, weekdayShort } from "@/lib/format";
+import { dateShort, moneyShort, timeOfDay, weekdayLong, weekdayShort, plural } from "@/lib/format";
 
 const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
@@ -32,7 +32,7 @@ export const runwayCopy = {
   },
   counts: { done: "Done", waived: "Waived", left: "Left" },
   ringLabel: (met: number, total: number) => `${met} of ${total} conditions met`,
-  stepsLabel: (done: number, total: number) => `${done} of ${total} steps done`,
+  stepsLabel: (done: number, total: number) => `${done} of ${plural(total, "step")} done`,
   next: (title: string) => `Next: ${title}`,
   allDone: "All steps complete",
   steps: {

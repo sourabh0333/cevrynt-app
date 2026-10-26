@@ -33,11 +33,11 @@ export const peopleCard = {
   title: "People",
   subtitle: (people: number, invites: number) => `${plural(people, "person", "people")} · ${plural(invites, "invite")} waiting`,
   columns: ["Person", "Role", "Can approve", "Today", "2-step login", "Status"],
-  loadText: (n: number, capacity: number) => `${n} of ${capacity} deals`,
+  loadText: (n: number, capacity: number) => `${n} of ${plural(capacity, "deal")}`,
   mfa: { on: "On", off: "Off" },
   status: { working: "Working", away: "Away" },
   noLimit: "—",
-  inviteSent: (days: number) => (days <= 0 ? "Invite sent today" : days === 1 ? "Invite sent yesterday" : `Invite sent ${days} days ago`),
+  inviteSent: (days: number) => (days <= 0 ? "Invite sent today" : days === 1 ? "Invite sent yesterday" : `Invite sent ${plural(days, "day")} ago`),
   resend: "Resend",
 };
 
@@ -88,7 +88,7 @@ export const sharing = {
   title: "How deals are shared",
   rows: ({ capacity, seniorLimit, senior }: { capacity: number; seniorLimit: number; senior: string }) => [
     { label: "Assign by", value: "Most room today" },
-    { label: "Daily capacity", value: `${capacity} deals each` },
+    { label: "Daily capacity", value: `${plural(capacity, "deal")} each` },
     { label: `Over ${k(seniorLimit)}`, value: `Straight to ${senior}` },
     { label: "When someone is away", value: "Backup takes over" },
   ],
