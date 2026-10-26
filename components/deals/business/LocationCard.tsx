@@ -1,7 +1,7 @@
-import Link from "next/link";
 import type { CSSProperties } from "react";
 import { locationCopy as t } from "@/lib/copy/deal-business";
 import type { DealBusiness } from "@/lib/data/types";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 /** The stylised street map behind the pin. Decorative only. */
 function MapArt() {
@@ -61,9 +61,9 @@ export function LocationCard({ address }: { address: DealBusiness["address"] }) 
           </span>
         ))}
       </div>
-      <Link href={t.link.href} className="mt-auto text-[12.5px] font-semibold text-teal-deep no-underline">
+      <MaybeLink href={t.link.href} layout="mt-auto self-start" className="text-[12.5px] font-semibold text-teal-deep no-underline">
         {t.link.label}
-      </Link>
+      </MaybeLink>
     </article>
   );
 }

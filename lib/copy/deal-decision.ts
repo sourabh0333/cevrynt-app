@@ -207,7 +207,7 @@ export const signOff = {
 export const decisionRecord = {
   title: "Decision record",
   subtitle: "What the system suggested and what a person decided, kept for audits",
-  link: { label: "Export record", href: "#" },
+  link: { label: "Export record", href: null },
   suggested: {
     caption: "Cevrynt suggested",
     title: (amount: number) => `Approve ${money(amount)}`,

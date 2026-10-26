@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
 import { biggestBalances, ownerGroups } from "@/lib/copy/merchants";
 import type { MerchantsData } from "@/lib/data/views/merchants";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -63,9 +63,9 @@ export function OwnerGroupsCard({ data }: { data: MerchantsData }) {
           <b className="text-label">{o.count}</b>
         </div>
       ))}
-      <Link href={ownerGroups.link.href} className="mt-auto text-[12.5px] font-semibold text-teal-deep no-underline">
+      <MaybeLink href={ownerGroups.link.href} layout="mt-auto self-start" className="text-[12.5px] font-semibold text-teal-deep no-underline">
         {ownerGroups.link.label(data.book.ownerGroupCount)}
-      </Link>
+      </MaybeLink>
     </article>
   );
 }

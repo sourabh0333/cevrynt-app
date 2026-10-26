@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
+import { ComingSoon, ComingSoonNote } from "@/components/ui/ComingSoon";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import {
   bookCopy as t,
@@ -206,12 +207,18 @@ export function BookView({ deals: fundedDeals, book, start }: { deals: FundedDea
           <span className="text-label text-muted">{dt.trend[direction]}</span>
           <div className={`rounded-tile px-3.5 py-3 text-[12.5px] ${flagBox[d.flagTone]}`}>{d.flag}</div>
           <div className="mt-auto flex gap-2">
-            <Button href="#" className="h-10 flex-1 text-[12.5px]">
-              {d.action}
-            </Button>
-            <Button href="#" variant="secondary" className="h-10 bg-tile text-[12.5px]">
-              {dt.open}
-            </Button>
+            <ComingSoon className="flex-1">
+              <Button disabled className="h-10 w-full text-[12.5px]">
+                {d.action}
+                <ComingSoonNote />
+              </Button>
+            </ComingSoon>
+            <ComingSoon>
+              <Button disabled variant="secondary" className="h-10 bg-tile text-[12.5px]">
+                {dt.open}
+                <ComingSoonNote />
+              </Button>
+            </ComingSoon>
           </div>
         </article>
       </aside>

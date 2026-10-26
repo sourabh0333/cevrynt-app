@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { decisionRecord as rec, signOff as t } from "@/lib/copy/deal-decision";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 const timeOf = (d: Date) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
@@ -73,9 +73,9 @@ export function DecisionRecord({ recordedAt, label, agrees, me, suggested }: Rec
           <h2 id="h-rec2" className="m-0 font-heading text-[20px] font-semibold">{rec.title}</h2>
           <div className="mt-[3px] text-label text-hint">{rec.subtitle}</div>
         </div>
-        <Link href={rec.link.href} className="text-label font-semibold text-teal no-underline">
+        <MaybeLink href={rec.link.href} className="text-label font-semibold text-teal no-underline">
           {rec.link.label}
-        </Link>
+        </MaybeLink>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">
         <div className="flex flex-col gap-1.5 rounded-tile-lg bg-tile p-4">

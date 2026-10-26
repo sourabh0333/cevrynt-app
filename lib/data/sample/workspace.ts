@@ -16,6 +16,8 @@ export const workspace: Workspace = {
   emailFrom: "offers@ridgelinecap.com",
   emailVerified: true,
   supportPhone: "(617) 555-0190",
+  privacyUrl: "https://ridgelinecap.com/privacy",
+  termsUrl: "https://ridgelinecap.com/terms",
   brandColor: "#0E6B5C",
   onTimeTarget: 0.75,
   fundTargetDays: 2,

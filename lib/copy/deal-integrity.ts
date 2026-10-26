@@ -65,7 +65,7 @@ const jumpWords: Record<DealIntegrity["patterns"]["jumpBeforeApplying"], string>
 
 export const patternCopy = {
   title: "Pattern checks",
-  help: { label: "How they work", href: "#" },
+  help: { label: "How they work", href: null },
   subtitle: "Habits that often come with fraud",
   summary: (clear: number, explained: number) => (explained ? `${clear} clear, ${explained} explained` : `${clear} clear`),
   ringLabel: (clear: number, total: number) => `${clear} of ${total} checks clear`,

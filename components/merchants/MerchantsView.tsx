@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PageActions } from "@/components/shell/PageActions";
 import { Button } from "@/components/ui/Button";
+import { ComingSoon, ComingSoonNote } from "@/components/ui/ComingSoon";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { activeCount } from "@/lib/copy/funded";
 import {
@@ -211,9 +212,12 @@ export function MerchantsView({ data }: { data: MerchantsData }) {
             </div>
             <span className="text-[12.5px] text-muted">{p.note}</span>
             <div className="flex gap-2">
-              <Button href="#" glow className="flex-1">
-                {pv.open}
-              </Button>
+              <ComingSoon className="flex-1">
+                <Button disabled glow className="w-full">
+                  {pv.open}
+                  <ComingSoonNote />
+                </Button>
+              </ComingSoon>
               <Button href={pv.newDealHref} variant="outline">
                 <span className="text-[16px] leading-none">+</span>
                 {pv.newDeal}

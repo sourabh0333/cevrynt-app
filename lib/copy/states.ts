@@ -36,3 +36,6 @@ export const errorCopy = {
 };
 
 export const loadingLabel = "Loading";
+
+/** The tooltip on a button whose page or action isn't built yet. */
+export const comingSoonHint = "Coming soon";

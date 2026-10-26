@@ -241,7 +241,7 @@ export const comingUp = {
       percent: Math.min(100, Math.round((m.paid / line) * 100)),
       slow: !m.reachesLineAt,
     })),
-  link: { label: (n: number) => `See all ${n}`, href: "#" },
+  link: { label: (n: number) => `See all ${n}`, href: null },
 };
 
 export const renewalsSections = { outreach: "Automatic outreach and broker pay", bottom: "Renewal rules, risks and pipeline", journey: "Merchants at each step of the renewal journey" };

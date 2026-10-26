@@ -19,9 +19,9 @@ export function FunderBrand() {
 }
 
 /**
- * The footer on every public page: the funder's legal line, Privacy, Terms
- * and "Powered by Cevrynt" with the CY mark. `barSpace` leaves room for a
- * fixed bottom bar on phones.
+ * The footer on every public page: the funder's legal line, its Privacy and
+ * Terms pages (from the workspace record) and "Powered by Cevrynt" with the
+ * CY mark. `barSpace` leaves room for a fixed bottom bar on phones.
  */
 export function PublicFooter({ barSpace = false }: { barSpace?: boolean }) {
   const funder = useFunder();
@@ -29,12 +29,16 @@ export function PublicFooter({ barSpace = false }: { barSpace?: boolean }) {
     <footer className={`flex flex-wrap justify-between gap-3 border-t border-line-strong px-8 py-[18px] text-label text-hint max-[900px]:px-4 ${barSpace ? "max-[900px]:pb-28" : ""}`}>
       <span>{funder ? legalLine(funder) : null}</span>
       <span className="flex flex-wrap gap-4">
-        <a href="#" className="text-hint no-underline">
-          {linkFooter.privacy}
-        </a>
-        <a href="#" className="text-hint no-underline">
-          {linkFooter.terms}
-        </a>
+        {funder ? (
+          <>
+            <a href={funder.privacyUrl} className="text-hint no-underline">
+              {linkFooter.privacy}
+            </a>
+            <a href={funder.termsUrl} className="text-hint no-underline">
+              {linkFooter.terms}
+            </a>
+          </>
+        ) : null}
         <span className="inline-flex items-center gap-1.5">
           {linkFooter.powered}
           <Image src="/brand/cevrynt-mark-solid.png" alt="" width={15} height={14} className="h-3.5 w-auto" />

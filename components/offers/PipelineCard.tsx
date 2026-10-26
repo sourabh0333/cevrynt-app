@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
+import { ComingSoon, ComingSoonNote } from "@/components/ui/ComingSoon";
 import { offerChip, pipelineCopy as t, stageInfo, stageOrder, type ChipTone } from "@/lib/copy/offers";
 import type { IsoDateTime, OfferStage as StageKey, PipelineOffer } from "@/lib/data/types";
 
@@ -164,12 +164,16 @@ export function PipelineCard({ offers, totals, meId, now }: { offers: PipelineOf
             </span>
             <b className="font-heading text-[17px] font-semibold tabular-nums tracking-[-0.03em]">{t.amount(c.amtK * 1000)}</b>
             <span className={`justify-self-start whitespace-nowrap rounded-pill px-2 py-[3px] text-[10.5px] font-semibold ${chip[c.tone]}`}>{c.note}</span>
-            <Link
-              href="#"
-              className={`inline-flex h-[34px] items-center justify-self-end whitespace-nowrap rounded-pill px-3.5 text-label font-semibold no-underline ${cur.key === "checks" ? "bg-teal text-white" : "bg-card text-ink"}`}
-            >
-              {cur.action}
-            </Link>
+            <ComingSoon className="justify-self-end">
+              <button
+                type="button"
+                disabled
+                className={`inline-flex h-[34px] cursor-default items-center whitespace-nowrap rounded-pill border-0 px-3.5 text-label font-semibold opacity-50 ${cur.key === "checks" ? "bg-teal text-white" : "bg-card text-ink"}`}
+              >
+                {cur.action}
+                <ComingSoonNote />
+              </button>
+            </ComingSoon>
           </div>
         ))}
         {cards.length === 0 ? <div className="p-7 text-center text-[12.5px] text-hint">{t.empty}</div> : null}

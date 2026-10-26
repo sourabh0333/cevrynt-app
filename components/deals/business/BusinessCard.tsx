@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { businessCopy as t, nameInitials, wholeYears } from "@/lib/copy/deal-business";
 import type { DealBusiness, IsoDateTime } from "@/lib/data/types";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 /**
  * "The business" from design/Deal-Business.html: the registry status chip,
@@ -17,9 +17,9 @@ export function BusinessCard({ business: b, industryAllowed, now }: { business: 
           <h2 id="h-reg" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
           <div className="mt-[3px] text-label text-hint">
             {t.source(b)}
-            <Link href={t.registryLink.href} className="font-semibold text-teal no-underline">
+            <MaybeLink href={t.registryLink.href} className="font-semibold text-teal no-underline">
               {t.registryLink.label}
-            </Link>
+            </MaybeLink>
           </div>
         </div>
         <span className="inline-flex items-center gap-[7px] rounded-pill bg-mint-bg px-3 py-1.5 text-label font-semibold text-teal-dark">

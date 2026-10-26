@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { atRisk, comingUp, readyRules, renewalsSections } from "@/lib/copy/renewals";
 import type { RenewalsData } from "@/lib/data/views/renewals";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 type RingVars = CSSProperties & { "--p"?: string; "--delay"?: string };
 const title = "m-0 font-heading text-[17px] font-semibold";
@@ -130,9 +131,9 @@ export function BottomPanel({ data }: { data: RenewalsData }) {
             </span>
           </div>
         ))}
-        <Link href={comingUp.link.href} className="mt-auto pt-2.5 text-label font-semibold text-teal no-underline">
+        <MaybeLink href={comingUp.link.href} layout="mt-auto pt-2.5 self-start" className="text-label font-semibold text-teal no-underline">
           {comingUp.link.label(data.summary.comingUp.count)}
-        </Link>
+        </MaybeLink>
       </div>
     </section>
   );

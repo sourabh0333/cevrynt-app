@@ -212,7 +212,7 @@ export const ownerGroups = {
   intro: "Owners count once for risk, however many companies they run.",
   owners: (book: MerchantBook) =>
     book.ownerGroups.map((o, i) => ({ ini: o.initials, name: o.owner, businesses: o.businesses.join(", "), count: o.businesses.length, fill: ownerFills[i % ownerFills.length] })),
-  link: { label: (n: number) => `See all ${n} owner groups`, href: "#" },
+  link: { label: (n: number) => `See all ${n} owner groups`, href: null },
 };
 
 export const merchantsSections = { stats: "Portfolio at a glance", mix: "Portfolio mix", concentration: "Concentration and owner groups" };

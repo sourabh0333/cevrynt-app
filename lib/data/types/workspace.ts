@@ -19,6 +19,9 @@ export type Workspace = {
   /** The sending domain is verified, so offers don't land in spam. */
   emailVerified: boolean;
   supportPhone: string;
+  /** The funder's own privacy policy and terms, linked from every merchant-facing page. */
+  privacyUrl: string;
+  termsUrl: string;
   /** The funder's choice, used only on merchant-facing pages. */
   brandColor: string;
   /** Working hours every new deal gets for a decision. Read by Submissions and Workspace. */

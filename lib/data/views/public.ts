@@ -8,12 +8,21 @@ import { getIntakeChannels, getPolicy, getWorkspace } from "../settings";
 import { listTeam } from "../team";
 
 /** The funder as merchants see it on every public page: the workspace record. */
-export type PublicFunder = Pick<Workspace, "name" | "initials" | "legalName" | "address" | "supportPhone">;
+export type PublicFunder = Pick<Workspace, "name" | "initials" | "legalName" | "address" | "supportPhone" | "privacyUrl" | "termsUrl">;
+
+const funderOf = (w: Workspace): PublicFunder => ({
+  name: w.name,
+  initials: w.initials,
+  legalName: w.legalName,
+  address: w.address,
+  supportPhone: w.supportPhone,
+  privacyUrl: w.privacyUrl,
+  termsUrl: w.termsUrl,
+});
 
 /** The workspace, for the public pages' header, footer and help lines. */
 export async function publicFunder(): Promise<PublicFunder> {
-  const w = await getWorkspace();
-  return { name: w.name, initials: w.initials, legalName: w.legalName, address: w.address, supportPhone: w.supportPhone };
+  return funderOf(await getWorkspace());
 }
 
 export type MerchantLinkData = {
@@ -67,7 +76,7 @@ export async function merchantLinkView(token: string): Promise<MerchantLinkData 
 
   return {
     now,
-    funder: { name: workspace.name, initials: workspace.initials, legalName: workspace.legalName, address: workspace.address, supportPhone: workspace.supportPhone },
+    funder: funderOf(workspace),
     business: deal.merchantName,
     requested: deal.requested,
     receivedAt: deal.receivedAt,

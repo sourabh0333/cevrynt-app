@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { FunderBrand, PublicFooter } from "@/components/public/PublicChrome";
+import { ComingSoon, ComingSoonNote } from "@/components/ui/ComingSoon";
 import { Ring } from "@/components/ui/Ring";
 import { languages, merchantLinkCopy, minutesLeft, type Lang, type LinkStepView as LinkStep } from "@/lib/copy/merchant-link";
 import { telHref } from "@/lib/copy/public";
@@ -253,9 +254,14 @@ export function MerchantLinkView({ data }: { data: MerchantLinkData }) {
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
-                <a href="#" className="grid h-10 place-items-center rounded-pill bg-teal text-[12.5px] font-semibold text-white no-underline">
-                  {hc.message}
-                </a>
+                <ComingSoon className="grid">
+                  <button type="button" disabled className="grid h-10 cursor-default place-items-center rounded-pill border-0 bg-teal text-[12.5px] font-semibold text-white opacity-50">
+                    <span>
+                      {hc.message}
+                      <ComingSoonNote />
+                    </span>
+                  </button>
+                </ComingSoon>
                 <a href={telHref(hc.phone)} className="grid h-10 place-items-center rounded-pill bg-card text-[12.5px] font-semibold text-ink no-underline">
                   {hc.phone}
                 </a>
@@ -295,9 +301,12 @@ export function MerchantLinkView({ data }: { data: MerchantLinkData }) {
             {t.headline.finished}
           </span>
         )}
-        <a href="#" aria-label={hc.messageAria} className="grid h-12 w-12 flex-none place-items-center rounded-full bg-card text-teal no-underline">
-          <MessageIcon />
-        </a>
+        <ComingSoon className="flex-none">
+          <button type="button" disabled aria-label={hc.messageAria} className="grid h-12 w-12 cursor-default place-items-center rounded-full border-0 bg-card text-teal opacity-50">
+            <MessageIcon />
+            <ComingSoonNote />
+          </button>
+        </ComingSoon>
       </div>
     </div>
   );

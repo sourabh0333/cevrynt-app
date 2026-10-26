@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Card } from "@/components/ui/Card";
 import { eventKinds, timelineCopy as t, type TimelineEvent } from "@/lib/copy/deal-activity";
 import type { ActivityKind } from "@/lib/data/types";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 type Filter = ActivityKind | "all";
 
@@ -43,9 +43,9 @@ export function Timeline({ events, day }: { events: TimelineEvent[]; /** the day
               className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-ink outline-none placeholder:text-hint"
             />
           </label>
-          <Link href={t.exportLink.href} className="text-label font-semibold text-teal no-underline">
+          <MaybeLink href={t.exportLink.href} className="text-label font-semibold text-teal no-underline">
             {t.exportLink.label}
-          </Link>
+          </MaybeLink>
         </div>
       </div>
 

@@ -51,7 +51,7 @@ export const timelineCopy = {
   title: "Timeline",
   subtitle: "Everything that happened on this deal, newest first",
   search: "Search activity",
-  exportLink: { label: "Export audit log", href: "#" },
+  exportLink: { label: "Export audit log", href: null },
   filterGroup: "Show",
   filters: [
     { key: "all", label: "All", dot: "bg-ink", onDot: "bg-mint" },

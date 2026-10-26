@@ -1061,6 +1061,9 @@ describe("Public pages", () => {
     assert.equal(applyHeader.host(a.host), "apply.ridgeline.com · secure");
     assert.equal(applyPrivacy.text(a.funder.supportPhone), "Your details are encrypted and only used to review this application. Questions? Call (617) 555-0190.");
     assert.equal(legalLine(a.funder), "Ridgeline Capital LLC · 100 Federal St, Boston, MA");
+    // the footer links to the funder's own Privacy and Terms pages from the workspace record
+    const w = await getWorkspace();
+    assert.deepEqual([a.funder.privacyUrl, a.funder.termsUrl], [w.privacyUrl, w.termsUrl]);
   });
 });
 

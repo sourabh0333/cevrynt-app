@@ -31,7 +31,7 @@ export type DetailTile = { label: string; value: string; code?: string; policy?:
 export const businessCopy = {
   title: "The business",
   source: (b: DealBusiness) => `From the ${b.registry.state} Secretary of State, checked ${dateShort(b.registry.checkedAt)}, ${yearOf(b.registry.checkedAt)} · `,
-  registryLink: { label: "View registry record", href: "#" },
+  registryLink: { label: "View registry record", href: null },
   chip: (b: DealBusiness) => (b.registry.active ? (b.registry.goodStanding ? "Active · good standing" : "Active · not in good standing") : "Not active"),
   entity: (b: DealBusiness) => `${b.registry.entityType} · ${b.registry.state} · charter ${b.registry.charter}`,
   ageLabel: "In business",
@@ -69,7 +69,7 @@ export const locationCopy = {
     { label: "Not a mailbox or virtual office", value: a.kind === "virtual" ? "Not confirmed" : "Confirmed", good: a.kind !== "virtual" },
     { label: "Sources that agree", value: `${a.sourcesAgree} of ${a.sources}` },
   ],
-  link: { label: "Open street view", href: "#" },
+  link: { label: "Open street view", href: null },
 };
 
 export const crossCheckCopy = {

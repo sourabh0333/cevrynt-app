@@ -4,6 +4,7 @@ import { dealTabHref } from "@/lib/copy/deal";
 import { patternCopy as t } from "@/lib/copy/deal-integrity";
 import type { DealIntegrity, Id, Money } from "@/lib/data/types";
 import { Tick } from "./Tick";
+import { MaybeLink } from "@/components/ui/ComingSoon";
 
 type Delay = CSSProperties & { "--delay"?: string };
 
@@ -74,9 +75,9 @@ export function PatternChecks({ id, patterns, relatedTransfer }: { id: Id; patte
     <article aria-labelledby="h-pat" className="box-border flex min-w-0 flex-col gap-3.5 rounded-card-lg bg-card-deep p-5 text-ink">
       <div className="flex items-center justify-between gap-2">
         <h2 id="h-pat" className="m-0 font-heading text-[20px] font-semibold">{t.title}</h2>
-        <Link href={t.help.href} className="whitespace-nowrap text-label font-semibold text-teal-deep no-underline">
+        <MaybeLink href={t.help.href} className="whitespace-nowrap text-label font-semibold text-teal-deep no-underline">
           {t.help.label}
-        </Link>
+        </MaybeLink>
       </div>
       <div className="flex items-center gap-3.5 rounded-tile-lg bg-teal p-3.5 text-white">
         <SplitRing clear={clear} total={rows.length} />
